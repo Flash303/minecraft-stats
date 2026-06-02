@@ -8,9 +8,10 @@ use crate::utils::protocol::{create_ping_handshake, create_ping_request, read_pa
 use std::io::Write;
 use std::net::{TcpStream, ToSocketAddrs};
 use std::time::Duration;
+use log::debug;
 
 pub async fn ping_server(ip: &str, port: u16) -> Result<PingResponse, PingError> {
-    println!("Connecting...");
+    debug!("Pinging server {}:{}", ip, port);
     let addr = format!("{}:{}", ip, port)
         .to_socket_addrs()
         .map_err(|_| PingError::AddressParseError)?
@@ -18,16 +19,16 @@ pub async fn ping_server(ip: &str, port: u16) -> Result<PingResponse, PingError>
         .ok_or(PingError::AddressParseError)?;
     let mut stream = TcpStream::connect_timeout(&addr, Duration::from_secs(1))
         .map_err(|_| PingError::ConnectionRefused)?;
-    println!("Connected!");
+    debug!("Stream connected to {}", addr);
 
     stream.write(&create_ping_handshake(&ip.to_string(), &port)).map_err(|_| PingError::SendPacketError)?;
-    println!("Handshake sent!");
+    debug!("Stream sent handshake");
 
     stream.write(&create_ping_request()).map_err(|_| PingError::SendPacketError)?;
-    println!("Status request sent!");
+    debug!("Stream sent request");
 
     let mut packet = read_packet(&mut stream)?;
-    println!("Received Packet ID: {}", packet.id());
+    debug!("Received Packet ID: {}", packet.id());
 
     let json = read_string(&mut packet.data);
 
