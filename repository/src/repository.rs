@@ -1,16 +1,16 @@
 use async_trait::async_trait;
 use sqlx::{Executor, PgPool, QueryBuilder, Row};
-use time::OffsetDateTime;
+use time::{Duration, OffsetDateTime};
 use crate::models::record::Record;
-use crate::models::server::Server;
+use crate::models::server::{Server, UnregisteredServer};
 
 #[async_trait]
 pub trait Repository: Send + Sync {
     async fn save_pings(&self, records: &Vec<Record>) -> Result<(), String>;
-    async fn get_pings(&self, server_id: String, from: OffsetDateTime, to: Option<OffsetDateTime>) -> Result<Vec<Record>, String>;
+    async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>, interval: Duration) -> Result<Vec<Record>, String>;
 
     async fn list_servers(&self) -> Result<Vec<Server>, String>;
-    async fn create_server(&self, server: Server) -> Result<(), String>;
+    async fn create_server(&self, server: UnregisteredServer) -> Result<(), String>;
     
     async fn initialize(&self) -> Result<(), String>;
 }
@@ -48,12 +48,12 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
-    async fn get_pings(&self, server_id: String, from: OffsetDateTime, to: Option<OffsetDateTime>) -> Result<Vec<Record>, String> {
+    async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>, interval: Duration) -> Result<Vec<Record>, String> {
         let mut query_builder = QueryBuilder::new(
             "SELECT server_id, date, value FROM ping_records WHERE server_id = "
         );
 
-        query_builder.push_bind(server_id);
+        query_builder.push_bind(server_id as i32);
 
         query_builder.push(" AND date >= ");
         query_builder.push_bind(from);
@@ -71,19 +71,25 @@ impl Repository for PostgresRepository {
             .await
             .map_err(|e| e.to_string())?;
 
-        let records = rows
-            .iter()
-            .map(|row| {
+        let mut records = Vec::new();
+        let mut next_allowed_time = from;
+
+        for row in rows {
+            let date: OffsetDateTime = row.get("date");
+
+            if date >= next_allowed_time {
                 let server_id_i32: i32 = row.get("server_id");
                 let value_i32: i32 = row.get("value");
 
-                Record {
+                records.push(Record {
                     server_id: server_id_i32 as u32,
-                    date: row.get("date"),
+                    date,
                     value: value_i32 as u32,
-                }
-            })
-            .collect();
+                });
+
+                next_allowed_time = date + interval;
+            }
+        }
 
         Ok(records)
     }
@@ -113,13 +119,11 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
-    async fn create_server(&self, server: Server) -> Result<(), String> {
-        sqlx::query("INSERT INTO servers (id, name, ip, port, last_favicon) VALUES ($1, $2, $3, $4, $5)")
-            .bind(server.id as i64)
+    async fn create_server(&self, server: UnregisteredServer) -> Result<(), String> {
+        sqlx::query("INSERT INTO servers (name, ip, port) VALUES ($1, $2, $3)")
             .bind(server.name)
             .bind(server.ip)
             .bind(server.port as i32)
-            .bind(server.last_favicon)
             .execute(&self.pool)
             .await
             .map_err(|e| e.to_string())?;

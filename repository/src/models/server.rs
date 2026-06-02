@@ -9,3 +9,9 @@ pub struct Server {
     pub port: u16,
     pub last_favicon: Option<String>,
 }
+
+pub struct UnregisteredServer {
+    pub name: String,
+    pub ip: String,
+    pub port: u16,
+}
