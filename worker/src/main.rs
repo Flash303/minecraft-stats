@@ -38,19 +38,20 @@ async fn main() {
 
             for server in servers {
                 let task = tokio::spawn(async move {
-                    println!("Pinging : {}", server.name);
-                    let ping_rs = ping_server(server.ip.as_str(), server.port).await;
-                    return if let Ok(ping) = ping_rs {
-                        println!("Ping finished");
-                        Some(Record {
-                            server_id: server.id,
-                            date: OffsetDateTime::now_utc(),
-                            value: ping.players.online,
-                        })
-                    } else {
-                        println!("Error in ping the server {} : {:?}", server.name, ping_rs.err());
-                        None
+                    for _i in 0..3 {
+                        let ping_rs = ping_server(server.ip.as_str(), server.port).await;
+                        if let Ok(ping) = ping_rs {
+                            return Some(Record {
+                                server_id: server.id,
+                                date: OffsetDateTime::now_utc(),
+                                value: ping.players.online,
+                            })
+                        } else {
+                            println!("Error in ping the server {} : {:?}", server.name, ping_rs.err());
+                        }
                     }
+
+                    return None;
                 });
 
                 tasks.push(task);
@@ -69,6 +70,6 @@ async fn main() {
             println!("Failed to retrieve possible servers: {:?}", possible_servers.err());
         }
 
-        sleep(Duration::from_secs(5)).await;
+        sleep(Duration::from_secs(10)).await;
     }
 }
