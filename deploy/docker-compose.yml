@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mineccraft-stats-postgres
+    environment:
+      POSTGRES_USER: anuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: minecraft-stats
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
