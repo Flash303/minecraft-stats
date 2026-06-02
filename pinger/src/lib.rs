@@ -5,33 +5,73 @@ use crate::models::model::PingResponse;
 use crate::utils::error::PingError;
 use crate::utils::minecraft_serialisation::read_string;
 use crate::utils::protocol::{create_ping_handshake, create_ping_request, read_packet};
-use std::io::Write;
-use std::net::{TcpStream, ToSocketAddrs};
 use std::time::Duration;
+use bytes::{BufMut, BytesMut};
 use log::debug;
+use tokio::io::AsyncWriteExt;
+use crate::utils::dns::resolve_srv;
+use tokio::net::{lookup_host, TcpStream};
+use tokio::time::timeout;
 
 pub async fn ping_server(ip: &str, port: u16) -> Result<PingResponse, PingError> {
-    debug!("Pinging server {}:{}", ip, port);
-    let addr = format!("{}:{}", ip, port)
-        .to_socket_addrs()
-        .map_err(|_| PingError::AddressParseError)?
+    match timeout(Duration::from_secs(5), ping_server_internal(ip, port)).await {
+        Ok(result) => result,
+        Err(_) => {
+            println!("Global ping timeout for {}:{}", ip, port);
+            Err(PingError::TimeoutError)
+        }
+    }
+}
+
+async fn ping_server_internal(ip: &str, port: u16) -> Result<PingResponse, PingError> {
+    println!("Pinging server {}:{}", ip, port);
+
+    let (target_ip, target_port) = resolve_srv(ip, port).await;
+    let addr_str = format!("{}:{}", target_ip, target_port);
+
+    let addr = lookup_host(&addr_str)
+        .await
+        .map_err(|e| {
+            println!("First address resolve error: {}", e);
+            PingError::AddressParseError
+        })?
         .next()
         .ok_or(PingError::AddressParseError)?;
-    let mut stream = TcpStream::connect_timeout(&addr, Duration::from_secs(1))
-        .map_err(|_| PingError::ConnectionRefused)?;
+
+    let stream_future = TcpStream::connect(addr);
+    let mut stream = timeout(Duration::from_secs(1), stream_future)
+        .await
+        .map_err(|_| {
+            println!("Connection timeout error");
+            PingError::ConnectionRefused
+        })?
+        .map_err(|e| {
+            println!("Connection error: {}", e);
+            PingError::ConnectionRefused
+        })?;
+
+    stream.set_nodelay(true).unwrap_or_default();
+
     debug!("Stream connected to {}", addr);
 
-    stream.write(&create_ping_handshake(&ip.to_string(), &port)).map_err(|_| PingError::SendPacketError)?;
-    debug!("Stream sent handshake");
+    let mut merged_packets = BytesMut::new();
+    merged_packets.put(create_ping_handshake(&ip.to_string(), &port));
+    merged_packets.put(create_ping_request());
 
-    stream.write(&create_ping_request()).map_err(|_| PingError::SendPacketError)?;
-    debug!("Stream sent request");
+    stream.write_all(&merged_packets.freeze())
+        .await
+        .map_err(|_| PingError::SendPacketError)?;
+    debug!("Stream all packets !");
 
-    let mut packet = read_packet(&mut stream)?;
+    let mut packet = read_packet(&mut stream).await?;
     debug!("Received Packet ID: {}", packet.id());
 
     let json = read_string(&mut packet.data);
 
-    let as_res = serde_json::from_str::<PingResponse>(&json).map_err(|_| PingError::SerializationError)?;
+    let as_res = serde_json::from_str::<PingResponse>(&json)
+        .map_err(|e| {
+             println!("Error deserializing ping response: {}, json {}", e, json);
+            PingError::SerializationError
+        })?;
     Ok(as_res)
 }

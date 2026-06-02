@@ -1,13 +1,14 @@
-use std::io::Read;
-use std::net::TcpStream;
 use bytes::{BufMut, Bytes, BytesMut};
+use tokio::io::AsyncReadExt;
+use tokio::net::TcpStream;
 use crate::utils::error::PingError;
 use crate::utils::minecraft_serialisation::{read_var_int, write_string, write_var_int};
 
 pub fn create_ping_handshake(ip: &String, port: &u16) -> Bytes {
     let mut handshake = BytesMut::new();
     handshake.put_u8(0x00);
-    write_var_int(&mut handshake, -1); // protocol version
+    write_var_int(&mut handshake, 763); // protocol version
+    // write_var_int(&mut handshake, -1); // protocol version
     write_string(&mut handshake, ip);
     handshake.put_u16(*port); // Server Port
     write_var_int(&mut handshake, 1); // next state = 1 status
@@ -45,12 +46,15 @@ impl Packet {
     }
 }
 
-pub fn read_packet(stream: &mut TcpStream) -> Result<Packet, PingError> {
+pub async fn read_packet(stream: &mut TcpStream) -> Result<Packet, PingError> {
     // Lire le varint de longueur
     let mut length_buf = BytesMut::new();
     loop {
         let mut byte = [0u8; 1];
-        stream.read_exact(&mut byte).map_err(|_| PingError::ReadPacketError)?;
+        stream.read_exact(&mut byte).await.map_err(|e| {
+            println!("Read packet error 1 {e}");
+            PingError::ReadPacketError
+        })?;
         length_buf.put_u8(byte[0]);
         if byte[0] & 0x80 == 0 { break; }
     }
@@ -59,7 +63,10 @@ pub fn read_packet(stream: &mut TcpStream) -> Result<Packet, PingError> {
 
     // Lire exactement `length` bytes
     let mut buf = vec![0u8; length];
-    stream.read_exact(&mut buf).map_err(|_| PingError::ReadPacketError)?;
+    stream.read_exact(&mut buf).await.map_err(|e| {
+        println!("Read packet error 2 {e}");
+        PingError::ReadPacketError
+    })?;
     
     let mut data = Bytes::from(buf);
     
