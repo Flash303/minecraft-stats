@@ -17,14 +17,14 @@ pub async fn ping_server(ip: &str, port: u16) -> Result<PingResponse, PingError>
     match timeout(Duration::from_secs(5), ping_server_internal(ip, port)).await {
         Ok(result) => result,
         Err(_) => {
-            println!("Global ping timeout for {}:{}", ip, port);
+            debug!("Global ping timeout for {}:{}", ip, port);
             Err(PingError::TimeoutError)
         }
     }
 }
 
 async fn ping_server_internal(ip: &str, port: u16) -> Result<PingResponse, PingError> {
-    println!("Pinging server {}:{}", ip, port);
+    debug!("Pinging server {}:{}", ip, port);
 
     let (target_ip, target_port) = resolve_srv(ip, port).await;
     let addr_str = format!("{}:{}", target_ip, target_port);
@@ -42,11 +42,11 @@ async fn ping_server_internal(ip: &str, port: u16) -> Result<PingResponse, PingE
     let mut stream = timeout(Duration::from_secs(1), stream_future)
         .await
         .map_err(|_| {
-            println!("Connection timeout error");
+            debug!("Connection timeout error");
             PingError::ConnectionRefused
         })?
         .map_err(|e| {
-            println!("Connection error: {}", e);
+            debug!("Connection error: {}", e);
             PingError::ConnectionRefused
         })?;
 
@@ -70,7 +70,7 @@ async fn ping_server_internal(ip: &str, port: u16) -> Result<PingResponse, PingE
 
     let as_res = serde_json::from_str::<PingResponse>(&json)
         .map_err(|e| {
-             println!("Error deserializing ping response: {}, json {}", e, json);
+             debug!("Error deserializing ping response: {}, json {}", e, json);
             PingError::SerializationError
         })?;
     Ok(as_res)
