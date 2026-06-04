@@ -1,13 +1,12 @@
 use pinger::ping_server;
 use repository::models::record::Record;
+use repository::models::server::ServerStatus;
 use repository::repository::{PostgresRepository, Repository};
-use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::time::{Duration, Instant};
 use time::OffsetDateTime;
 use tokio::task::JoinHandle;
 use tokio::time::sleep;
-use repository::models::server::ServerStatus;
 
 #[tokio::main]
 async fn main() {
@@ -16,21 +15,7 @@ async fn main() {
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://anuser:password@localhost:5432/minecraft-stats".to_string());
 
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
-        .connect(&database_url)
-        .await
-        .map_err(|e| e.to_string())
-        .unwrap();
-    println!("Connexion réussie à PostgreSQL !");
-
-    let repository = PostgresRepository::new(pool);
-    repository.initialize()
-        .await
-        .map_err(|e| e.to_string())
-        .unwrap();
-    println!("Initialized successfully!");
+    let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
     loop {
         let count_time = Instant::now();

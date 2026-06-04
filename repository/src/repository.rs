@@ -2,6 +2,7 @@ use crate::models::record::Record;
 use crate::models::server::{Server, ServerRow, UnregisteredServer};
 use async_trait::async_trait;
 use sqlx::{Executor, PgPool, QueryBuilder, Row};
+use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 
 #[async_trait]
@@ -25,6 +26,24 @@ pub struct PostgresRepository {
 impl PostgresRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
+    }
+
+    pub async fn from_url(url: String) -> Result<Self, String> {
+        let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .acquire_timeout(std::time::Duration::from_secs(3))
+            .connect(&url)
+            .await
+            .map_err(|e| e.to_string())?;
+        println!("Connexion réussie à PostgreSQL !");
+
+        let repository = PostgresRepository::new(pool);
+        repository.initialize()
+            .await
+            .map_err(|e| e.to_string())?;
+        println!("Initialized successfully!");
+
+        Ok(repository)
     }
 }
 

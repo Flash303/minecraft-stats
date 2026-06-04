@@ -7,10 +7,8 @@ use crate::state::AppState;
 use axum::http::Method;
 use axum::Router;
 use repository::repository::PostgresRepository;
-use sqlx::postgres::PgPoolOptions;
 use std::env;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -21,16 +19,7 @@ async fn main() {
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://anuser:password@localhost:5432/minecraft-stats".to_string());
 
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
-        .connect(&database_url)
-        .await
-        .map_err(|e| e.to_string())
-        .unwrap();
-    println!("Connexion réussie à PostgreSQL !");
-
-    let repository = PostgresRepository::new(pool);
+    let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
