@@ -1,22 +1,16 @@
-import { useState } from "react"
-import { ServerList } from "@/components/ServerList"
-import { ServerDetail } from "@/components/ServerDetail"
-import type { Server } from "@/lib/api"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { ServerList } from "@/pages/ServerList"
+import { ServerDetail } from "@/pages/ServerDetail"
 
 function App() {
-    const [selectedServer, setSelectedServer] = useState<Server | null>(null)
-
     return (
-        <>
-            {selectedServer ? (
-                <ServerDetail
-                    server={selectedServer}
-                    onBack={() => setSelectedServer(null)}
-                />
-            ) : (
-                <ServerList onSelectServer={setSelectedServer} />
-            )}
-        </>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<ServerList />} />
+                <Route path="/server/:id" element={<ServerDetail />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </BrowserRouter>
     )
 }
 

@@ -23,6 +23,7 @@ interface PlayerChartProps {
 export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
     const { theme } = useTheme()
     const chartRef = useRef<uPlot | null>(null)
+    const containerRef = useRef<HTMLDivElement | null>(null)
     const tooltipRef = useRef<HTMLDivElement | null>(null)
 
     const mouseEnterRef = useRef<(() => void) | null>(null)
@@ -31,21 +32,22 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
     // Ajustement de la taille responsive
     useEffect(() => {
         const handleResize = () => {
-            if (chartRef.current) {
-                const parent = document.getElementById("chart-container")
-                if (parent) {
-                    chartRef.current.setSize({
-                        width: parent.clientWidth,
-                        height: 500
-                    })
-                }
+            if (chartRef.current && containerRef.current) {
+                chartRef.current.setSize({
+                    width: containerRef.current.clientWidth,
+                    height: 500
+                })
             }
         }
 
-        window.addEventListener("resize", handleResize)
-        handleResize()
+        const resizeObserver = new ResizeObserver(handleResize)
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current)
+        }
 
-        return () => window.removeEventListener("resize", handleResize)
+        return () => {
+            resizeObserver.disconnect()
+        }
     }, [])
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
@@ -128,7 +130,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                     overlay.innerHTML = `
                         <div class="font-semibold text-blue-400">${serverName}</div>
                         <div class="text-slate-300">📅 ${dateStr} à ${timeStr}</div>
-                        <div class="font-medium">👥 ${Math.round(yVal)} joueurs en ligne</div>
+                        <div class="font-medium">👥 ${new Intl.NumberFormat("fr-FR").format(Math.round(yVal))} joueurs en ligne</div>
                     `
 
                     const left = u.cursor.left ?? 0
@@ -269,7 +271,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                 </Button>
             </div>
 
-            <div id="chart-container" className="w-full bg-card p-2 rounded-lg border">
+            <div ref={containerRef} className="w-full bg-card p-2 rounded-lg border">
                 <UplotReact
                     options={options}
                     data={chartData}
