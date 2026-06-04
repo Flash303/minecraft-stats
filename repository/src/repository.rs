@@ -1,8 +1,8 @@
+use crate::models::record::Record;
+use crate::models::server::{Server, ServerRow, UnregisteredServer};
 use async_trait::async_trait;
 use sqlx::{Executor, PgPool, QueryBuilder, Row};
 use time::{Duration, OffsetDateTime};
-use crate::models::record::Record;
-use crate::models::server::{Server, UnregisteredServer};
 
 #[async_trait]
 pub trait Repository: Send + Sync {
@@ -10,11 +10,14 @@ pub trait Repository: Send + Sync {
     async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>, interval: Duration) -> Result<Vec<Record>, String>;
 
     async fn list_servers(&self) -> Result<Vec<Server>, String>;
+    async fn get_server(&self, server_id: u32) -> Result<Server, String>;
     async fn create_server(&self, server: UnregisteredServer) -> Result<(), String>;
+    async fn update_server(&self, server: &Server) -> Result<(), String>;
     
     async fn initialize(&self) -> Result<(), String>;
 }
 
+#[derive(Clone)]
 pub struct PostgresRepository {
     pool: PgPool,
 }
@@ -95,28 +98,27 @@ impl Repository for PostgresRepository {
     }
 
     async fn list_servers(&self) -> Result<Vec<Server>, String> {
-        let rows = sqlx::query("SELECT id, name, ip, port, last_favicon FROM servers")
+        let rows: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers")
             .fetch_all(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
 
         let mut rs: Vec<Server> = Vec::new();
         for row in rows {
-            let id_i32: i32 = row.get("id");
-            let port_i16: i32 = row.get("port");
-
-            let server = Server {
-                id: id_i32 as u32,
-                name: row.get("name"),
-
-                ip: row.get("ip"),
-                port: port_i16 as u16,
-                last_favicon: row.get("last_favicon"),
-            };
-            rs.push(server);
+            rs.push(row.into());
         }
 
         Ok(rs)
+    }
+
+    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
+        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(result.into())
     }
 
     async fn create_server(&self, server: UnregisteredServer) -> Result<(), String> {
@@ -124,6 +126,19 @@ impl Repository for PostgresRepository {
             .bind(server.name)
             .bind(server.ip)
             .bind(server.port as i32)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn update_server(&self, server: &Server) -> Result<(), String> {
+        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3 WHERE id = $4")
+            .bind(server.last_favicon.clone())
+            .bind(server.last_status.clone())
+            .bind(server.last_connected.map(|v| v as i32))
+            .bind(server.id as i32)
             .execute(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
@@ -139,7 +154,11 @@ impl Repository for PostgresRepository {
 
                 ip TEXT NOT NULL,
                 port INTEGER NOT NULL CHECK (port >= 0 AND port <= 65535),
-                last_favicon TEXT NULL
+
+                last_favicon TEXT NULL,
+                last_status TEXT NULL CHECK (last_status IN ('online', 'offline')),
+                last_connected INTEGER NULL,
+                UNIQUE (ip, port)
             )"
         ).await.map_err(|e| e.to_string())?;
 
