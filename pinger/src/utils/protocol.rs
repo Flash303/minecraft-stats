@@ -1,4 +1,5 @@
 use bytes::{BufMut, Bytes, BytesMut};
+use log::debug;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpStream;
 use crate::utils::error::PingError;
@@ -52,7 +53,7 @@ pub async fn read_packet(stream: &mut TcpStream) -> Result<Packet, PingError> {
     loop {
         let mut byte = [0u8; 1];
         stream.read_exact(&mut byte).await.map_err(|e| {
-            println!("Read packet error 1 {e}");
+            debug!("Read packet error 1 {e}");
             PingError::ReadPacketError
         })?;
         length_buf.put_u8(byte[0]);
@@ -64,7 +65,7 @@ pub async fn read_packet(stream: &mut TcpStream) -> Result<Packet, PingError> {
     // Lire exactement `length` bytes
     let mut buf = vec![0u8; length];
     stream.read_exact(&mut buf).await.map_err(|e| {
-        println!("Read packet error 2 {e}");
+        debug!("Read packet error 2 {e}");
         PingError::ReadPacketError
     })?;
     

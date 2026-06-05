@@ -32,7 +32,7 @@ async fn ping_server_internal(ip: &str, port: u16) -> Result<PingResponse, PingE
     let addr = lookup_host(&addr_str)
         .await
         .map_err(|e| {
-            println!("First address resolve error: {}", e);
+            debug!("First address resolve error: {}", e);
             PingError::AddressParseError
         })?
         .next()
