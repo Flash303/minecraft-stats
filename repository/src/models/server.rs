@@ -12,6 +12,7 @@ pub struct Server {
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
+    pub last_version: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -25,6 +26,7 @@ pub struct ServerRow {
     last_favicon: Option<String>,
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
+    last_version: Option<String>,
 }
 
 impl From<ServerRow> for Server {
@@ -37,6 +39,7 @@ impl From<ServerRow> for Server {
             last_favicon: row.last_favicon,
             last_status: row.last_status,
             last_connected: row.last_connected.map(|v| v as u32),
+            last_version: row.last_version.map(|v| v.to_string()),
         }
     }
 }

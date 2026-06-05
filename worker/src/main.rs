@@ -7,6 +7,7 @@ use std::time::{Duration, Instant};
 use time::OffsetDateTime;
 use tokio::task::JoinHandle;
 use tokio::time::sleep;
+use pinger::utils::version_parser::parse_minecraft_version_range;
 
 #[tokio::main]
 async fn main() {
@@ -34,6 +35,9 @@ async fn main() {
                             server.last_favicon = ping.favicon;
                             server.last_status = Some(ServerStatus::Online);
                             server.last_connected = Some(ping.players.online);
+                            server.last_version = parse_minecraft_version_range(&ping.version.name)
+                                .map(|(first, last)| format!("{} - {}", first, last))
+                                .or(None);
                             task_repository.update_server(&server).await.unwrap();
 
                             return Some(Record {
