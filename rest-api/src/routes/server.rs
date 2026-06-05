@@ -1,11 +1,12 @@
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use axum::Router;
-use axum::routing::get;
-use repository::models::server::Server;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;
+use axum::extract::rejection::PathRejection;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::routing::get;
+use axum::Router;
+use repository::models::server::Server;
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -24,8 +25,12 @@ pub async fn list_all_servers(State(state): State<AppState>) -> Result<ResponseF
 }
 
 pub async fn get_server(State(state): State<AppState>,
-                        Path(id): Path<u32>) -> Result<ResponseFormat<Server>, AppError> {
-    let result = state.repository.get_server(id).await;
+                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<Server>, AppError> {
+    if let Err(error) = id {
+        return Err(AppError::InvalidParamError(error.to_string()));
+    }
+
+    let result = state.repository.get_server(*id.unwrap()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
