@@ -1,42 +1,109 @@
-use jsonwebtoken::{decode, decode_header, jwk::JwkSet, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
 use crate::state::AppState;
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
+use rsa::{RsaPublicKey, BigUint, pkcs1v15::Pkcs1v15Sign};
+use sha2::{Sha256, Digest};
+use signature::Verifier;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClerkClaims {
-    pub sub: String, // user id
-    pub iss: String, // instance
-    pub exp: u64,    // expiration
+    /// Unique identifier for the user
+    pub sub: String,
+    /// The instance URL of the Clerk application
+    pub iss: String,
+    /// Expiration time (Unix timestamp)
+    pub exp: u64,
+    /// Issued at (Unix timestamp)
+    pub iat: Option<serde_json::Value>,
+    /// Original issued at (Unix timestamp, useful for session lifetime tracking)
+    pub oiat: Option<serde_json::Value>,
+    /// Not before (Unix timestamp)
+    pub nbf: Option<serde_json::Value>,
+    /// Session ID
+    pub sid: Option<String>,
+    /// Authorized party
+    pub azp: Option<String>,
+    /// Version
+    pub v: Option<serde_json::Value>,
+    /// Session status
+    pub sts: Option<String>,
+    /// Feature version array
+    #[serde(default)]
+    pub fva: Vec<serde_json::Value>,
 }
 
-pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<JwkSet, Box<dyn std::error::Error>> {
+pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let response = reqwest::get(jwks_url)
         .await?
         .error_for_status()?
-        .json::<JwkSet>()
+        .json::<serde_json::Value>()
         .await?;
 
     Ok(response)
 }
 
 pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, String> {
-    let header = decode_header(token)
-        .map_err(|e| format!("Invalid header : {}", e))?;
-
-    let kid = header.kid
+    let parts: Vec<&str> = token.split('.').collect();
+    if parts.len() != 3 {
+        return Err("Invalid token format".to_string());
+    }
+    
+    let header_b64 = parts[0];
+    let claims_b64 = parts[1];
+    let signature_b64 = parts[2];
+    
+    let kid = serde_json::from_slice::<serde_json::Value>(&URL_SAFE_NO_PAD.decode(header_b64).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?
+        .get("kid").and_then(|k| k.as_str()).map(|s| s.to_string())
         .ok_or_else(|| "KID not found".to_string())?;
 
-    let jwk = state.jwks.find(&kid)
-        .ok_or_else(|| "Pubkey not found inside the JWKSET".to_string())?;
+    let jwk = state.jwks.as_object()
+        .and_then(|jwks| jwks.get("keys"))
+        .and_then(|keys| keys.as_array())
+        .and_then(|keys| keys.iter().find(|key| {
+            key.get("kid").and_then(|k| k.as_str()) == Some(&kid)
+        }))
+        .ok_or_else(|| "Pubkey not found".to_string())?;
 
-    let decoding_key = DecodingKey::from_jwk(jwk)
-        .map_err(|e| format!("Decoding error : {}", e))?;
+    let n = jwk.get("n").and_then(|v| v.as_str()).ok_or("Missing n")?;
+    let e = jwk.get("e").and_then(|v| v.as_str()).ok_or("Missing e")?;
+    
+    let n_bytes = URL_SAFE_NO_PAD.decode(n).map_err(|e| e.to_string())?;
+    let e_bytes = URL_SAFE_NO_PAD.decode(e).map_err(|e| e.to_string())?;
 
-    let mut validation = Validation::new(header.alg);
-    validation.set_issuer(&[state.clerk_instance_url.as_ref()]);
+    let n_big = BigUint::from_bytes_be(&n_bytes);
+    let e_big = BigUint::from_bytes_be(&e_bytes);
 
-    let token_data = decode::<ClerkClaims>(token, &decoding_key, &validation)
-        .map_err(|e| format!("Invalid token : {}", e))?;
+    let rsa_key = RsaPublicKey::new(n_big, e_big)
+        .map_err(|e| format!("Key error: {}", e))?;
 
-    Ok(token_data.claims)
+    // Verify signature
+    let signed_content = format!("{}.{}", header_b64, claims_b64);
+    let signature_bytes = URL_SAFE_NO_PAD.decode(signature_b64).map_err(|e| e.to_string())?;
+    
+    let hashed_content = Sha256::digest(signed_content.as_bytes());
+    
+    let verifier = Pkcs1v15Sign::new::<Sha256>();
+    rsa_key.verify(verifier, &hashed_content, &signature_bytes)
+        .map_err(|e| format!("Verification error: {}", e))?;
+
+    // Deserialize claims
+    let claims: ClerkClaims = serde_json::from_slice(&URL_SAFE_NO_PAD.decode(claims_b64).map_err(|e| e.to_string())?)
+        .map_err(|e| format!("Claims deserialization error: {}", e))?;
+
+    // Validate issuer
+    if claims.iss != state.clerk_instance_url.as_str() {
+        return Err("Invalid issuer".to_string());
+    }
+
+    Ok(claims)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decode_full_token() {
+    }
 }
