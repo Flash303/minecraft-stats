@@ -35,7 +35,7 @@ impl PostgresRepository {
             .connect(&url)
             .await
             .map_err(|e| e.to_string())?;
-        println!("Connexion réussie à PostgreSQL !");
+        println!("PostgreSQL connection success !");
 
         let repository = PostgresRepository::new(pool);
         repository.initialize()
