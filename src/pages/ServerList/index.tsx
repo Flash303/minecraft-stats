@@ -1,23 +1,26 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
 import { Layout } from "@/components/layout"
-import { SearchBar } from "@/components/layout/SearchBar"
+import { useAuth } from "@clerk/react"
+import { useSearch } from "@/contexts/SearchContext"
 
 export function ServerList() {
-    const navigate = useNavigate()
+    const { getToken, isSignedIn, isLoaded } = useAuth()
+    const { searchQuery } = useSearch()
     const [servers, setServers] = useState<Server[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [searchQuery, setSearchQuery] = useState("")
 
     const load = useCallback(async () => {
         setLoading(true)
         setError(null)
         try {
-            const data = await fetchServers()
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
+            const data = await fetchServers(token ?? undefined)
+            
             // Trie par nombre de connectés décroissant
             const sorted = [...data].sort((a, b) => {
                 const countA = a.last_status === "online" ? (a.last_connected ?? 0) : -1
@@ -34,11 +37,12 @@ export function ServerList() {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [getToken, isSignedIn, isLoaded])
 
     useEffect(() => {
+        if (!isLoaded) return
         load()
-    }, [load])
+    }, [load, isLoaded])
 
     const filteredServers = useMemo(() => {
         const query = searchQuery.toLowerCase().trim()
@@ -51,16 +55,8 @@ export function ServerList() {
         )
     }, [servers, searchQuery])
 
-    const handleSelectServer = (server: Server) => {
-        navigate(`/server/${server.id}`)
-    }
-
-    const headerRight = (
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-    )
-
     return (
-        <Layout onRefresh={load} isLoading={loading} rightContent={headerRight}>
+        <Layout onRefresh={load} isLoading={loading}>
             {loading && servers.length === 0 && (
                 <div className="flex justify-center py-20">
                     <p className="text-muted-foreground animate-pulse">Chargement des serveurs...</p>
@@ -76,11 +72,11 @@ export function ServerList() {
                     {filteredServers.length > 0 ? (
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 2xl:grid-cols-3">
                             {filteredServers.map((s) => (
-                                <ServerCard
-                                    key={s.id}
-                                    server={s}
-                                    onClick={handleSelectServer}
-                                />
+                                <Link key={s.id} to={`/server/${s.id}`}>
+                                    <ServerCard
+                                        server={s}
+                                    />
+                                </Link>
                             ))}
                         </div>
                     ) : (

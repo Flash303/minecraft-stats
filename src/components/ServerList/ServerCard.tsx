@@ -9,10 +9,9 @@ import { Check, Copy } from "lucide-react"
 
 interface ServerCardProps {
     server: Server
-    onClick: (server: Server) => void
 }
 
-export function ServerCard({ server, onClick }: ServerCardProps) {
+export function ServerCard({ server }: ServerCardProps) {
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     const [copied, setCopied] = useState(false)
 
@@ -26,7 +25,7 @@ export function ServerCard({ server, onClick }: ServerCardProps) {
                 setRecords([])
             }
         }
-        loadRecords()
+        loadRecords().then()
     }, [server.id])
 
     const isOnline = server.last_status === "online"
@@ -37,7 +36,7 @@ export function ServerCard({ server, onClick }: ServerCardProps) {
 
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
-        navigator.clipboard.writeText(fullIp)
+        navigator.clipboard.writeText(fullIp).then()
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
@@ -45,7 +44,6 @@ export function ServerCard({ server, onClick }: ServerCardProps) {
     return (
         <Card
             className="cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 overflow-hidden flex flex-col md:flex-row items-stretch border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-950 group min-h-[140px]"
-            onClick={() => onClick(server)}
         >
             <div className="flex flex-1 items-center gap-5 p-6 min-w-0">
                 <div className="relative flex-shrink-0">

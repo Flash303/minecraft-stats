@@ -174,7 +174,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
         const textColor = isDark ? "#d1d5db" : "#374151"
 
         return {
-            width: 1000,
+            width: containerRef.current?.clientWidth ?? 800,
             height: 500,
             title: `Joueurs sur ${serverName}`,
             plugins: [tooltipPlugin],
@@ -253,7 +253,11 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                     stroke: strokeColor,
                     fill: fillColor,
                     width: 2,
-                    spanGaps: false
+                    spanGaps: false,
+                    value: (_u: uPlot, val: number) => {
+                        if (val == null) return ""
+                        return new Intl.NumberFormat("fr-FR").format(Math.round(val)) + " joueurs"
+                    }
                 }
             ]
         } as uPlot.Options

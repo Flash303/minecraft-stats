@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { useParams, Link } from "react-router-dom"
 import type { Server } from "@/lib/api"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import { PlayerChart } from "@/components/ServerDetail/PlayerChart"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     Select,
     SelectContent,
@@ -15,6 +14,7 @@ import {
 import { ArrowLeft, Wifi, WifiOff, Copy, Check } from "lucide-react"
 import { Layout } from "@/components/layout"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@clerk/react"
 
 const TIME_RANGES = [
     { label: "Dernière heure", value: 3600000 },
@@ -34,7 +34,7 @@ const INTERVALS = [
 
 export function ServerDetail() {
     const { id } = useParams<{ id: string }>()
-    const navigate = useNavigate()
+    const { getToken, isSignedIn, isLoaded } = useAuth()
     const [server, setServer] = useState<Server | null>(null)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     const [loading, setLoading] = useState(true)
@@ -47,36 +47,48 @@ export function ServerDetail() {
         if (!id) return
         setLoading(true)
         try {
-            const data = await fetchServer(Number(id))
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
+            const data = await fetchServer(Number(id), token ?? undefined)
             setServer(data)
         } catch {
             setServer(null)
         } finally {
             setLoading(false)
         }
-    }, [id])
+    }, [id, getToken, isSignedIn, isLoaded])
 
     const loadRecords = useCallback(async () => {
         if (!server) return
         setLoadingRecords(true)
         try {
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
             const from = Math.floor((Date.now() - selectedRange) / 1000)
-            const data = await fetchRecords(server.id, from, selectedInterval)
+            const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
             setRecords(data)
         } catch {
             setRecords([])
         } finally {
             setLoadingRecords(false)
         }
-    }, [server, selectedRange, selectedInterval])
+    }, [server, selectedRange, selectedInterval, getToken, isSignedIn, isLoaded])
 
     useEffect(() => {
+        if (!isLoaded) return
         loadServer()
-    }, [loadServer])
+    }, [loadServer, isLoaded])
 
     useEffect(() => {
+        if (!isLoaded) return
         loadRecords()
-    }, [loadRecords])
+    }, [loadRecords, isLoaded])
+
+    const timeLimits = useMemo(() => {
+        const now = Math.floor(Date.now() / 1000)
+        return {
+            from: now - Math.floor(selectedRange / 1000),
+            to: now
+        }
+    }, [selectedRange, records])
 
     if (loading) {
         return (
@@ -90,7 +102,9 @@ export function ServerDetail() {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-4">
                 <p className="text-destructive font-semibold">Serveur non trouvé</p>
-                <Button onClick={() => navigate("/")}>Retour à l'accueil</Button>
+                <Link to={'/'}>
+                    <Button>Retour à l'accueil</Button>
+                </Link>
             </div>
         )
     }
@@ -105,131 +119,122 @@ export function ServerDetail() {
         setTimeout(() => setCopied(false), 2000)
     }
 
-    const headerLeft = (
-        <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="h-8 w-8">
-                <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex min-w-0 items-center gap-3">
-                {server.last_favicon ? (
-                    <img
-                        src={server.last_favicon}
-                        alt=""
-                        className="h-8 w-8 rounded shadow-sm"
-                    />
-                ) : null}
-                <div className="flex flex-col min-w-0">
-                    <h1 className="font-bold text-base leading-none mb-1 line-clamp-1">
-                        {server.name}
-                    </h1>
-                    <div className="flex items-center gap-2">
-                        <div className={cn(
-                            "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
-                            isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                        )}>
-                            {isOnline ? <Wifi className="h-2.5 w-2.5" /> : <WifiOff className="h-2.5 w-2.5" />}
-                            {isOnline ? "En ligne" : "Hors ligne"}
+    return (
+        <Layout>
+            <div className="flex flex-col gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6">
+                    <div className="flex items-center gap-3">
+                        <Link to="/">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <ArrowLeft className="h-4 w-4" />
+                            </Button>
+                        </Link>
+                        <div className="flex min-w-0 items-center gap-3">
+                            {server.last_favicon ? (
+                                <img
+                                    src={server.last_favicon}
+                                    alt=""
+                                    className="h-10 w-10 rounded shadow-sm"
+                                />
+                            ) : null}
+                            <div className="flex flex-col min-w-0">
+                                <h1 className="font-bold text-xl leading-none mb-1 line-clamp-1">
+                                    {server.name}
+                                </h1>
+                                <div className="flex items-center gap-2">
+                                    <div className={cn(
+                                        "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
+                                        isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                    )}>
+                                        {isOnline ? <Wifi className="h-2.5 w-2.5" /> : <WifiOff className="h-2.5 w-2.5" />}
+                                        {isOnline ? "En ligne" : "Hors ligne"}
+                                    </div>
+                                    <button 
+                                        onClick={handleCopy}
+                                        className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy"
+                                    >
+                                        <span>{displayIp}</span>
+                                        {copied ? (
+                                            <Check className="h-2.5 w-2.5 text-emerald-500" />
+                                        ) : (
+                                            <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <button 
-                            onClick={handleCopy}
-                            className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy"
-                        >
-                            <span>{displayIp}</span>
-                            {copied ? (
-                                <Check className="h-2.5 w-2.5 text-emerald-500" />
-                            ) : (
-                                <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
-                            )}
-                        </button>
+
+                        <div className="flex items-center gap-2">
+                            <Select
+                                value={String(selectedRange)}
+                                onValueChange={(v: string) =>
+                                    setSelectedRange(Number(v))
+                                }
+                            >
+                                <SelectTrigger className="h-9 w-[160px] text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {TIME_RANGES.map((r) => (
+                                        <SelectItem
+                                            key={r.value}
+                                            value={String(r.value)}
+                                            className="text-xs"
+                                        >
+                                            {r.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select
+                                value={String(selectedInterval)}
+                                onValueChange={(v: string) =>
+                                    setSelectedInterval(Number(v))
+                                }
+                            >
+                                <SelectTrigger className="h-9 w-[100px] text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {INTERVALS.map((i) => (
+                                        <SelectItem
+                                            key={i.value}
+                                            value={String(i.value)}
+                                            className="text-xs"
+                                        >
+                                            {i.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    )
 
-    const headerRight = (
-        <div className="flex items-center gap-2">
-            <Select
-                value={String(selectedRange)}
-                onValueChange={(v: string) =>
-                    setSelectedRange(Number(v))
-                }
-            >
-                <SelectTrigger className="h-8 w-[160px] hidden md:flex text-xs">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    {TIME_RANGES.map((r) => (
-                        <SelectItem
-                            key={r.value}
-                            value={String(r.value)}
-                            className="text-xs"
-                        >
-                            {r.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-            <Select
-                value={String(selectedInterval)}
-                onValueChange={(v: string) =>
-                    setSelectedInterval(Number(v))
-                }
-            >
-                <SelectTrigger className="h-8 w-[100px] hidden md:flex text-xs">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    {INTERVALS.map((i) => (
-                        <SelectItem
-                            key={i.value}
-                            value={String(i.value)}
-                            className="text-xs"
-                        >
-                            {i.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
-    )
-
-    return (
-        <Layout leftContent={headerLeft} rightContent={headerRight}>
-            <div className="grid gap-6">
-                <Card className="overflow-hidden border-none shadow-md bg-card">
-                    <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/20 py-4">
-                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                            Historique des joueurs
-                            {isOnline && (
-                                <span className="text-xs font-normal text-muted-foreground">
-                                    ({new Intl.NumberFormat("fr-FR").format(server.last_connected ?? 0)} joueurs actuels)
-                                </span>
-                            )}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        {loadingRecords ? (
-                            <div className="py-24 flex justify-center items-center">
-                                <p className="text-muted-foreground text-sm animate-pulse">Chargement du graphique...</p>
-                            </div>
-                        ) : (
-                            <div className="p-4">
-                                <PlayerChart
-                                    data={records}
-                                    serverName={server.name}
-                                    interval={selectedInterval}
-                                    timeRange={{
-                                        from: Math.floor(
-                                            (Date.now() - selectedRange) / 1000
-                                        ),
-                                        to: Math.floor(Date.now() / 1000)
-                                    }}
-                                />
-                            </div>
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                        Historique des joueurs
+                        {isOnline && (
+                            <span className="text-sm font-normal text-muted-foreground">
+                                ({new Intl.NumberFormat("fr-FR").format(server.last_connected ?? 0)} joueurs actuels)
+                            </span>
                         )}
-                    </CardContent>
-                </Card>
+                    </h2>
+                    {loadingRecords ? (
+                        <div className="py-24 flex justify-center items-center">
+                            <p className="text-muted-foreground text-sm animate-pulse">Chargement du graphique...</p>
+                        </div>
+                    ) : (
+                        <div className="bg-card rounded-xl border p-4">
+                            <PlayerChart
+                                data={records}
+                                serverName={server.name}
+                                interval={selectedInterval}
+                                timeRange={timeLimits}
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </Layout>
     )
