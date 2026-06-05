@@ -50,6 +50,7 @@ pub enum ServerStatus {
     Offline,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UnregisteredServer {
     pub name: String,
     pub ip: String,

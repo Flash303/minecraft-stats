@@ -1,17 +1,19 @@
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;
-use axum::extract::rejection::PathRejection;
-use axum::extract::{Path, State};
+use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
+use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::routing::get;
-use axum::Router;
-use repository::models::server::Server;
+use axum::routing::{get, post};
+use axum::{Extension, Json, Router};
+use repository::models::server::{Server, UnregisteredServer};
+use crate::clerk::account_checker::ClerkClaims;
 
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/", get(list_all_servers))
         .route("/{id}", get(get_server))
+        .route("/", post(create_server))
 }
 
 pub async fn list_all_servers(State(state): State<AppState>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
@@ -37,4 +39,25 @@ pub async fn get_server(State(state): State<AppState>,
     }
 
     Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
+}
+
+pub async fn create_server(State(state): State<AppState>,
+                           Extension(account): Extension<Option<ClerkClaims>>,
+                           query: Result<Json<UnregisteredServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
+    if account.is_none() {
+        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
+    }
+
+    if let Err(error) = query {
+        return Err(AppError::InvalidJsonError(error.to_string()));
+    }
+    let query = query.unwrap();
+
+    let rs = state.repository.create_server(query.0).await;
+    if let Err(error) = rs {
+        println!("Error creating server: {:?}", error);
+        return Err(AppError::ServerCreationError(error));
+    }
+
+    Ok(ResponseFormat::success(rs.unwrap(), StatusCode::OK))
 }

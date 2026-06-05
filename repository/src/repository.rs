@@ -12,7 +12,7 @@ pub trait Repository: Send + Sync {
 
     async fn list_servers(&self) -> Result<Vec<Server>, String>;
     async fn get_server(&self, server_id: u32) -> Result<Server, String>;
-    async fn create_server(&self, server: UnregisteredServer) -> Result<(), String>;
+    async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String>;
     async fn update_server(&self, server: &Server) -> Result<(), String>;
     
     async fn initialize(&self) -> Result<(), String>;
@@ -140,16 +140,19 @@ impl Repository for PostgresRepository {
         Ok(result.into())
     }
 
-    async fn create_server(&self, server: UnregisteredServer) -> Result<(), String> {
-        sqlx::query("INSERT INTO servers (name, ip, port) VALUES ($1, $2, $3)")
+    async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
+        let server: ServerRow = sqlx::query_as(
+            "INSERT INTO servers (name, ip, port)
+                    VALUES ($1, $2, $3)
+                    RETURNING *")
             .bind(server.name)
             .bind(server.ip)
             .bind(server.port as i32)
-            .execute(&self.pool)
+            .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
 
-        Ok(())
+        Ok(server.into())
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), String> {
