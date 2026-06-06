@@ -1,7 +1,6 @@
 use pinger::ping_server;
 use repository::models::record::Record;
 use repository::models::server::ServerStatus;
-use repository::repository::{PostgresRepository, Repository};
 use std::env;
 use std::time::{Duration, Instant};
 use time::OffsetDateTime;
@@ -9,6 +8,8 @@ use tokio::task::JoinHandle;
 use tokio::time::sleep;
 use pinger::utils::version_parser::parse_minecraft_version_range;
 use repository::duplicate_detection::DuplicateDetectionService;
+use repository::postgres::PostgresRepository;
+use repository::repository::Repository;
 
 #[tokio::main]
 async fn main() {

@@ -11,11 +11,11 @@ use crate::state::AppState;
 use axum::http::Method;
 use axum::middleware::from_fn_with_state;
 use axum::Router;
-use repository::repository::PostgresRepository;
 use std::env;
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
+use repository::postgres::PostgresRepository;
 
 #[tokio::main]
 async fn main() {
