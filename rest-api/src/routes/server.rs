@@ -1,13 +1,13 @@
+use crate::clerk::account_checker::ClerkClaims;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;
-use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
-use axum::extract::{Path, Query, State};
+use axum::extract::rejection::{JsonRejection, PathRejection};
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use repository::models::server::{Server, UnregisteredServer};
-use crate::clerk::account_checker::ClerkClaims;
 
 pub fn router() -> Router<AppState> {
     Router::new()

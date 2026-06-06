@@ -3,7 +3,6 @@ use crate::state::AppState;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use rsa::{RsaPublicKey, BigUint, pkcs1v15::Pkcs1v15Sign};
 use sha2::{Sha256, Digest};
-use signature::Verifier;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClerkClaims {
@@ -97,13 +96,4 @@ pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, 
     }
 
     Ok(claims)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_decode_full_token() {
-    }
 }
