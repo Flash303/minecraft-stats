@@ -1916,6 +1916,7 @@ dependencies = [
  "base64",
  "jwt-compact",
  "num-bigint",
+ "pinger",
  "repository",
  "reqwest",
  "rsa",

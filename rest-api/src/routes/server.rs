@@ -51,9 +51,22 @@ pub async fn create_server(State(state): State<AppState>,
     if let Err(error) = query {
         return Err(AppError::InvalidJsonError(error.to_string()));
     }
-    let query = query.unwrap();
+    let query = query.unwrap().0;
 
-    let rs = state.repository.create_server(query.0).await;
+    // max 3 try
+    for i in 0..3 {
+        let result = pinger::ping_server(query.ip.as_str(), query.port).await;
+        if let Err(_) = result && i >= 2 {
+            return Err(AppError::ServerCreationError("Server not reachable".to_string()));
+        }
+
+        if result.is_err() {
+            break;
+        }
+    }
+
+
+    let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {
         println!("Error creating server: {:?}", error);
         return Err(AppError::ServerCreationError(error));
