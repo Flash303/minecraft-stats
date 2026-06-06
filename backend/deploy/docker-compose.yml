@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mineccraft-stats-postgres
+    environment:
+      POSTGRES_USER: anuser
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: minecraft-stats
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+    restart: always
+
+# to connect with CLI docker exec -it mineccraft-stats-postgres psql -U anuser -d minecraft-stats
