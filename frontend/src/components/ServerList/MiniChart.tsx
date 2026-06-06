@@ -3,6 +3,7 @@ import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface PlayerDataPoint {
     date: number
@@ -15,6 +16,7 @@ interface MiniChartProps {
 
 export function MiniChart({ data }: MiniChartProps) {
     const { theme } = useTheme()
+    const { t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
@@ -101,7 +103,7 @@ export function MiniChart({ data }: MiniChartProps) {
     }, [])
 
     if (data.length === 0) {
-        return <div className="h-full flex items-center justify-center text-[10px] text-slate-300 dark:text-slate-700 font-medium italic">Aucune donnée</div>
+        return <div className="h-full flex items-center justify-center text-[10px] text-slate-300 dark:text-slate-700 font-medium italic">{t("common.noData")}</div>
     }
 
     return (

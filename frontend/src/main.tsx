@@ -4,6 +4,7 @@ import "./index.css"
 import App from "./App.tsx"
 import { ThemeProvider } from "./contexts/ThemeContext"
 import { SearchProvider } from "./contexts/SearchContext"
+import { LanguageProvider } from "./contexts/LanguageContext"
 import { ClerkProvider } from "@clerk/react"
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
@@ -16,9 +17,11 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
             <ThemeProvider>
-                <SearchProvider>
-                    <App />
-                </SearchProvider>
+                <LanguageProvider>
+                    <SearchProvider>
+                        <App />
+                    </SearchProvider>
+                </LanguageProvider>
             </ThemeProvider>
         </ClerkProvider>
     </StrictMode>

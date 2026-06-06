@@ -7,6 +7,7 @@ import type { Server } from "@/lib/api"
 import { useAuth } from "@clerk/react"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface SearchBarProps {
     value?: string
@@ -16,15 +17,17 @@ interface SearchBarProps {
     className?: string
 }
 
-export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, placeholder = "Rechercher un serveur...", className }: SearchBarProps) {
+export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, placeholder: propPlaceholder, className }: SearchBarProps) {
     const navigate = useNavigate()
+    const { t } = useLanguage()
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const [allServers, setAllServers] = useState<Server[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [internalValue, setInternalValue] = useState("")
     const containerRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
 
-    // Si propValue est défini, on l'utilise, sinon on utilise internalValue
+    const placeholder = propPlaceholder || t("common.search")
     const value = propValue !== undefined ? propValue : internalValue
     const onChange = propOnChange || setInternalValue
 
@@ -65,6 +68,18 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
         }
     }
 
+    // Listener global pour Ctrl+K
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault()
+                inputRef.current?.focus()
+            }
+        }
+        window.addEventListener('keydown', handleGlobalKeyDown)
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown)
+    }, [])
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -81,6 +96,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                 <SearchIcon className="h-4 w-4" />
             </div>
             <Input
+                ref={inputRef}
                 value={value}
                 onChange={(e) => {
                     onChange(e.target.value)
@@ -89,18 +105,25 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                 onFocus={() => setShowSuggestions(true)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="pl-9 pr-9 h-9 bg-muted/40 border-none focus-visible:ring-1 focus-visible:ring-primary/50 transition-all"
+                className="pl-9 pr-14 h-9 bg-muted/40 border-none focus-visible:ring-1 focus-visible:ring-primary/50 transition-all"
             />
-            {value && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-transparent text-muted-foreground hover:text-foreground z-10"
-                    onClick={() => onChange("")}
-                >
-                    <X className="h-3 w-3" />
-                </Button>
-            )}
+            
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+                {value ? (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 hover:bg-transparent text-muted-foreground hover:text-foreground"
+                        onClick={() => onChange("")}
+                    >
+                        <X className="h-3 w-3" />
+                    </Button>
+                ) : (
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                        <span className="text-xs">⌘</span>K
+                    </kbd>
+                )}
+            </div>
 
             {showSuggestions && filteredSuggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
@@ -123,7 +146,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 <span className="text-[9px] text-muted-foreground font-mono">{s.ip}</span>
                             </div>
                             {idx === 0 && (
-                                <div className="ml-auto text-[9px] text-muted-foreground border px-1 rounded uppercase tracking-tighter font-sans">Entrée</div>
+                                <div className="ml-auto text-[9px] text-muted-foreground border px-1 rounded uppercase tracking-tighter font-sans">{t("common.enter")}</div>
                             )}
                         </button>
                     ))}

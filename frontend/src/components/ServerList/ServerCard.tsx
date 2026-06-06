@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import type { Server } from "@/lib/api"
 import { fetchRecords } from "@/lib/api"
 import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { MiniChart } from "./MiniChart"
 import default_icon from "@/assets/default_favicon.svg"
 import { cn } from "@/lib/utils"
@@ -84,6 +85,11 @@ export function ServerCard({ server }: ServerCardProps) {
                                 <Copy className="h-3 w-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
                             )}
                         </button>
+                        {server.last_version && (
+                            <Badge variant="secondary" className="mt-2 font-mono">
+                                v{server.last_version}
+                            </Badge>
+                        )}
                         <div className="flex items-center gap-2">
                             <span className={cn(
                                 "text-[12px] font-bold uppercase tracking-wider",

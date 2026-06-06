@@ -6,6 +6,7 @@ export interface Server {
     last_favicon: string | null
     last_status: "online" | "offline" | null
     last_connected: number | null
+    last_version: string | null
 }
 
 export interface Record {

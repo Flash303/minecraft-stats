@@ -6,8 +6,10 @@ import { ServerCard } from "@/components/ServerList/ServerCard"
 import { Layout } from "@/components/layout"
 import { useAuth } from "@clerk/react"
 import { useSearch } from "@/contexts/SearchContext"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export function ServerList() {
+    const { t } = useLanguage()
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const { searchQuery } = useSearch()
     const [servers, setServers] = useState<Server[]>([])
@@ -33,11 +35,11 @@ export function ServerList() {
             })
             setServers(sorted)
         } catch {
-            setError("Impossible de charger les serveurs")
+            setError(t("serverList.error"))
         } finally {
             setLoading(false)
         }
-    }, [getToken, isSignedIn, isLoaded])
+    }, [getToken, isSignedIn, isLoaded, t])
 
     useEffect(() => {
         if (!isLoaded) return
@@ -59,7 +61,7 @@ export function ServerList() {
         <Layout onRefresh={load} isLoading={loading}>
             {loading && servers.length === 0 && (
                 <div className="flex justify-center py-20">
-                    <p className="text-muted-foreground animate-pulse">Chargement des serveurs...</p>
+                    <p className="text-muted-foreground animate-pulse">{t("serverList.loading")}</p>
                 </div>
             )}
             {error && (
@@ -82,7 +84,7 @@ export function ServerList() {
                     ) : (
                         <div className="text-center py-20">
                             <p className="text-muted-foreground italic">
-                                Aucun serveur ne correspond à votre recherche "<strong>{searchQuery}</strong>".
+                                {t("serverList.noResults", { query: searchQuery })}
                             </p>
                         </div>
                     )}
@@ -90,7 +92,7 @@ export function ServerList() {
             )}
             {!loading && !error && servers.length === 0 && (
                 <div className="text-center py-20">
-                    <p className="text-muted-foreground italic">Aucun serveur trouvé.</p>
+                    <p className="text-muted-foreground italic">{t("serverList.noServers")}</p>
                 </div>
             )}
         </Layout>
