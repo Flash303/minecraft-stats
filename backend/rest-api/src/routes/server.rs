@@ -84,6 +84,8 @@ pub async fn create_server(State(state): State<AppState>,
     if !existing.is_empty() {
         return Err(AppError::ServerCreationError("Server already exists".to_string()));
     }
+    
+    query.user_id = Some(account.unwrap().sub);
 
     let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {

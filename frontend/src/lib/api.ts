@@ -7,6 +7,7 @@ export interface Server {
     last_status: "online" | "offline" | null
     last_connected: number | null
     last_version: string | null
+    user_id: string
 }
 
 export interface Record {

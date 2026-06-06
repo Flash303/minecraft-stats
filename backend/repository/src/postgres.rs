@@ -130,11 +130,12 @@ impl Repository for PostgresRepository {
 
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
-            "INSERT INTO servers (name, ip, port, favicon_hash, motd_hash, resolved_endpoint)
-                    VALUES ($1, $2, $3, $4, $5, $6)
+            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
                     RETURNING *")
             .bind(server.name)
             .bind(server.ip)
+            .bind(server.user_id.unwrap())
             .bind(server.port as i32)
             .bind(server.favicon_hash)
             .bind(server.motd_hash)
@@ -193,6 +194,8 @@ impl Repository for PostgresRepository {
                 id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
 
+                user_id TEXT NOT NULL,
+
                 ip TEXT NOT NULL,
                 port INTEGER NOT NULL CHECK (port >= 0 AND port <= 65535),
 
@@ -208,6 +211,11 @@ impl Repository for PostgresRepository {
         ).await.map_err(|e| e.to_string())?;
 
         // Ensure columns exist (for existing databases)
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_favicon TEXT NULL").await.map_err(|e| e.to_string())?;
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_status TEXT NULL CHECK (last_status IN ('online', 'offline'))").await.map_err(|e| e.to_string())?;
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_connected TEXT NULL").await.map_err(|e| e.to_string())?;
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_version TEXT NULL").await.map_err(|e| e.to_string())?;
+
         self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS favicon_hash TEXT").await.map_err(|e| e.to_string())?;
         self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS motd_hash TEXT").await.map_err(|e| e.to_string())?;
         self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS resolved_endpoint TEXT").await.map_err(|e| e.to_string())?;

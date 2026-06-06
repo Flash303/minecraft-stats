@@ -6,6 +6,8 @@ pub struct Server {
     pub id: u32,
     pub name: String,
 
+    pub user_id: String,
+
     pub ip: String,
     pub port: u16,
 
@@ -22,6 +24,8 @@ pub struct Server {
 pub struct ServerRow {
     id: i32,
     name: String,
+
+    user_id: String,
 
     ip: String,
     port: i32,
@@ -40,6 +44,7 @@ impl From<ServerRow> for Server {
         Self {
             id: row.id as u32,
             name: row.name,
+            user_id: row.user_id,
             ip: row.ip,
             port: row.port as u16,
             last_favicon: row.last_favicon,
@@ -67,6 +72,8 @@ pub struct UnregisteredServer {
     pub name: String,
     pub ip: String,
     pub port: u16,
+    pub user_id: Option<String>,
+    
     pub favicon_hash: Option<String>,
     pub motd_hash: Option<String>,
     pub resolved_endpoint: Option<String>,
