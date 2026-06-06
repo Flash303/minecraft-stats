@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "refresh": "Actualiser",
+    "search": "Rechercher un serveur...",
+    "compare": "Comparer",
+    "back": "Retour",
+    "backToHome": "Retour à l'accueil",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "error": "Une erreur est survenue",
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "players": "joueurs",
+    "players_maj": "Joueurs",
+    "players_on": "Joueurs sur",
+    "date": "Date",
+    "time": "à",
+    "currentPlayers": "joueurs actuels",
+    "pointsCount": "{{count}} points de données affichés",
+    "stats": {
+      "title": "Statistiques sur la période",
+      "average": "Moyenne",
+      "max": "Maximum",
+      "min": "Minimum"
+    },
+    "enter": "Entrée",
+    "noData": "Aucune donnée"
+  },
+  "header": {
+    "title": "Minecraft Stats",
+    "signIn": "Connexion"
+  },
+  "addServer": {
+    "button": "Ajouter un serveur",
+    "title": "Ajouter un serveur",
+    "description": "Entrez les informations du serveur Minecraft pour commencer le suivi.",
+    "nameLabel": "Nom du serveur",
+    "namePlaceholder": "Mon super serveur",
+    "ipLabel": "Adresse IP / Host",
+    "ipPlaceholder": "play.monserveur.com",
+    "portLabel": "Port",
+    "submit": "Ajouter",
+    "adding": "Ajout...",
+    "success": "Serveur ajouté avec succès",
+    "error": "Erreur lors de l'ajout du serveur",
+    "unauthenticated": "Non authentifié"
+  },
+  "serverList": {
+    "loading": "Chargement des serveurs...",
+    "noServers": "Aucun serveur trouvé.",
+    "noResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
+    "error": "Impossible de charger les serveurs"
+  },
+  "serverDetail": {
+    "loading": "Chargement des détails...",
+    "notFound": "Serveur non trouvé",
+    "playerHistory": "Historique des joueurs",
+    "chartLoading": "Chargement du graphique...",
+    "lastHour": "Dernière heure",
+    "last6Hours": "Dernières 6 heures",
+    "last24Hours": "Dernières 24 heures",
+    "last7Days": "Derniers 7 jours",
+    "last30Days": "Derniers 30 jours",
+    "interval10s": "10 sec",
+    "interval1m": "1 min",
+    "interval5m": "5 min",
+    "interval30m": "30 min",
+    "interval1h": "1 heure"
+  },
+  "comparison": {
+    "title": "Comparaison de serveurs",
+    "placeholder": "Rechercher un serveur à ajouter...",
+    "updating": "Mise à jour...",
+    "noSelection": "Aucun serveur sélectionné",
+    "noSelectionDesc": "Utilisez la recherche ci-dessus pour comparer plusieurs serveurs.",
+    "loadingData": "Chargement des données comparatives...",
+    "resetZoom": "Reset Zoom"
+  }
+}

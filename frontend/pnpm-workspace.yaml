@@ -1,0 +1,3 @@
+allowBuilds:
+  '@clerk/shared': set this to true or false
+  msw: set this to true or false

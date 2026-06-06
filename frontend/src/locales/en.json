@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "search": "Search for a server...",
+    "compare": "Compare",
+    "back": "Back",
+    "backToHome": "Back to Home",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "error": "An error occurred",
+    "online": "Online",
+    "offline": "Offline",
+    "players": "players",
+    "players_maj": "players",
+    "players_on": "Players on",
+    "date": "Date",
+    "time": "at",
+    "currentPlayers": "current players",
+    "pointsCount": "{{count}} data points displayed",
+    "stats": {
+      "title": "Period Statistics",
+      "average": "Average",
+      "max": "Maximum",
+      "min": "Minimum"
+    },
+    "enter": "Enter",
+    "noData": "No data"
+  },
+  "header": {
+    "title": "Minecraft Stats",
+    "signIn": "Sign In"
+  },
+  "addServer": {
+    "button": "Add Server",
+    "title": "Add Server",
+    "description": "Enter the Minecraft server details to start tracking.",
+    "nameLabel": "Server Name",
+    "namePlaceholder": "My Awesome Server",
+    "ipLabel": "IP Address / Host",
+    "ipPlaceholder": "play.myserver.com",
+    "portLabel": "Port",
+    "submit": "Add",
+    "adding": "Adding...",
+    "success": "Server added successfully",
+    "error": "Error while adding server",
+    "unauthenticated": "Unauthenticated"
+  },
+  "serverList": {
+    "loading": "Loading servers...",
+    "noServers": "No servers found.",
+    "noResults": "No servers match your search \"{{query}}\".",
+    "error": "Failed to load servers"
+  },
+  "serverDetail": {
+    "loading": "Loading details...",
+    "notFound": "Server not found",
+    "playerHistory": "Player History",
+    "chartLoading": "Loading chart...",
+    "lastHour": "Last hour",
+    "last6Hours": "Last 6 hours",
+    "last24Hours": "Last 24 hours",
+    "last7Days": "Last 7 days",
+    "last30Days": "Last 30 days",
+    "interval10s": "10 sec",
+    "interval1m": "1 min",
+    "interval5m": "5 min",
+    "interval30m": "30 min",
+    "interval1h": "1 hour"
+  },
+  "comparison": {
+    "title": "Server Comparison",
+    "placeholder": "Search for a server to add...",
+    "updating": "Updating...",
+    "noSelection": "No server selected",
+    "noSelectionDesc": "Use the search above to compare multiple servers.",
+    "loadingData": "Loading comparison data...",
+    "resetZoom": "Reset Zoom"
+  }
+}
