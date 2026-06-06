@@ -13,6 +13,9 @@ pub struct Server {
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
+    pub favicon_hash: Option<String>,
+    pub motd_hash: Option<String>,
+    pub resolved_endpoint: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -27,6 +30,9 @@ pub struct ServerRow {
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
     last_version: Option<String>,
+    favicon_hash: Option<String>,
+    motd_hash: Option<String>,
+    resolved_endpoint: Option<String>,
 }
 
 impl From<ServerRow> for Server {
@@ -40,6 +46,9 @@ impl From<ServerRow> for Server {
             last_status: row.last_status,
             last_connected: row.last_connected.map(|v| v as u32),
             last_version: row.last_version.map(|v| v.to_string()),
+            favicon_hash: row.favicon_hash,
+            motd_hash: row.motd_hash,
+            resolved_endpoint: row.resolved_endpoint,
         }
     }
 }
@@ -58,4 +67,7 @@ pub struct UnregisteredServer {
     pub name: String,
     pub ip: String,
     pub port: u16,
+    pub favicon_hash: Option<String>,
+    pub motd_hash: Option<String>,
+    pub resolved_endpoint: Option<String>,
 }

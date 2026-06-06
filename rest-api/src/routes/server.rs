@@ -8,6 +8,7 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use repository::models::server::{Server, UnregisteredServer};
+use repository::duplicate_detection::DuplicateDetectionService;
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -51,20 +52,38 @@ pub async fn create_server(State(state): State<AppState>,
     if let Err(error) = query {
         return Err(AppError::InvalidJsonError(error.to_string()));
     }
-    let query = query.unwrap().0;
+    let mut query = query.unwrap().0;
 
     // max 3 try
-    for i in 0..3 {
-        let result = pinger::ping_server(query.ip.as_str(), query.port).await;
-        if let Err(_) = result && i >= 2 {
-            return Err(AppError::ServerCreationError("Server not reachable".to_string()));
-        }
-
-        if result.is_err() {
+    let mut ping_result = None;
+    for _ in 0..3 {
+        if let Ok(res) = pinger::ping_server(query.ip.as_str(), query.port).await {
+            ping_result = Some(res);
             break;
         }
     }
+    
+    let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
 
+    // Compute hashes
+    query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+    
+    // Convert Description to Value for hash_motd
+    let motd_value = serde_json::to_value(&ping.description).ok();
+    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+    
+    query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
+
+    // Check for duplicates
+    let existing = state.repository.find_servers(
+        query.favicon_hash.as_deref(),
+        query.resolved_endpoint.as_deref(),
+        query.motd_hash.as_deref()
+    ).await.map_err(|e| AppError::ServerCreationError(e))?;
+    
+    if !existing.is_empty() {
+        return Err(AppError::ServerCreationError("Server already exists".to_string()));
+    }
 
     let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {

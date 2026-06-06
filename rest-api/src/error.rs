@@ -21,8 +21,8 @@ impl IntoResponse for AppError {
                 ResponseFormat::<()>::error("Fetching data failed".to_string(), StatusCode::INTERNAL_SERVER_ERROR)
             }
 
-            AppError::ServerCreationError(_) => {
-                ResponseFormat::<()>::error("Server creation failed".to_string(), StatusCode::INTERNAL_SERVER_ERROR)
+            AppError::ServerCreationError(e) => {
+                ResponseFormat::<()>::error(format!("Server creation failed: {e}"), StatusCode::INTERNAL_SERVER_ERROR)
             }
 
             AppError::AuthenticationError(error) => {

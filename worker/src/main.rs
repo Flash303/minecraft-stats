@@ -8,6 +8,7 @@ use time::OffsetDateTime;
 use tokio::task::JoinHandle;
 use tokio::time::sleep;
 use pinger::utils::version_parser::parse_minecraft_version_range;
+use repository::duplicate_detection::DuplicateDetectionService;
 
 #[tokio::main]
 async fn main() {
@@ -32,12 +33,19 @@ async fn main() {
                     for i in 0..3 {
                         let ping_rs = ping_server(server.ip.as_str(), server.port).await;
                         if let Ok(ping) = ping_rs {
-                            server.last_favicon = ping.favicon;
+                            server.last_favicon = ping.favicon.clone();
                             server.last_status = Some(ServerStatus::Online);
                             server.last_connected = Some(ping.players.online);
                             server.last_version = parse_minecraft_version_range(&ping.version.name)
                                 .map(|(first, last)| format!("{} - {}", first, last))
                                 .or(None);
+                            
+                            // Update fingerprints
+                            server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                            let motd_value = serde_json::to_value(&ping.description).ok();
+                            server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                            server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+
                             task_repository.update_server(&server).await.unwrap();
 
                             return Some(Record {

@@ -14,6 +14,7 @@ pub trait Repository: Send + Sync {
     async fn get_server(&self, server_id: u32) -> Result<Server, String>;
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String>;
     async fn update_server(&self, server: &Server) -> Result<(), String>;
+    async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, String>;
     
     async fn initialize(&self) -> Result<(), String>;
 }
@@ -142,12 +143,15 @@ impl Repository for PostgresRepository {
 
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
-            "INSERT INTO servers (name, ip, port)
-                    VALUES ($1, $2, $3)
+            "INSERT INTO servers (name, ip, port, favicon_hash, motd_hash, resolved_endpoint)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                     RETURNING *")
             .bind(server.name)
             .bind(server.ip)
             .bind(server.port as i32)
+            .bind(server.favicon_hash)
+            .bind(server.motd_hash)
+            .bind(server.resolved_endpoint)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
@@ -156,17 +160,44 @@ impl Repository for PostgresRepository {
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), String> {
-        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4 WHERE id = $5")
+        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4, favicon_hash = $6, motd_hash = $7, resolved_endpoint = $8 WHERE id = $5")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
             .bind(server.last_version.clone())
             .bind(server.id as i32)
+            .bind(server.favicon_hash.clone())
+            .bind(server.motd_hash.clone())
+            .bind(server.resolved_endpoint.clone())
             .execute(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
 
         Ok(())
+    }
+
+    async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, String> {
+        let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");
+        
+        if let Some(h) = favicon_hash {
+            query.push(" OR favicon_hash = ");
+            query.push_bind(h);
+        }
+        if let Some(e) = resolved_endpoint {
+            query.push(" OR resolved_endpoint = ");
+            query.push_bind(e);
+        }
+        if let Some(h) = motd_hash {
+            query.push(" OR motd_hash = ");
+            query.push_bind(h);
+        }
+
+        let rows: Vec<ServerRow> = query.build_query_as()
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
     async fn initialize(&self) -> Result<(), String> {
@@ -182,9 +213,17 @@ impl Repository for PostgresRepository {
                 last_status TEXT NULL CHECK (last_status IN ('online', 'offline')),
                 last_connected INTEGER NULL,
                 last_version TEXT NULL,
+                favicon_hash TEXT NULL,
+                motd_hash TEXT NULL,
+                resolved_endpoint TEXT NULL,
                 UNIQUE (ip, port)
             )"
         ).await.map_err(|e| e.to_string())?;
+
+        // Ensure columns exist (for existing databases)
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS favicon_hash TEXT").await.map_err(|e| e.to_string())?;
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS motd_hash TEXT").await.map_err(|e| e.to_string())?;
+        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS resolved_endpoint TEXT").await.map_err(|e| e.to_string())?;
 
         self.pool.execute(
             "CREATE TABLE IF NOT EXISTS ping_records (
