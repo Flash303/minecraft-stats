@@ -1,7 +1,12 @@
+use std::net::IpAddr;
 use hickory_resolver::proto::rr::RData;
 use hickory_resolver::Resolver;
 
 pub async fn resolve_srv(ip: &str, default_port: u16) -> (String, u16) {
+    if ip.parse::<IpAddr>().is_ok() {
+        return (ip.to_string(), default_port);
+    }
+
     let resolver_builder = Resolver::builder_tokio();
     if let Err(_) = resolver_builder {
         return (ip.to_string(), default_port);
