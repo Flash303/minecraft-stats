@@ -1,12 +1,13 @@
-use pinger::ping_server;
 use repository::models::record::Record;
 use repository::models::server::ServerStatus;
 use std::env;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
+use minecraft_pinger::{MinecraftPinger, PingConfig};
+use minecraft_pinger::utils::version_parser::parse_minecraft_version_range;
 use time::OffsetDateTime;
 use tokio::task::JoinHandle;
 use tokio::time::sleep;
-use pinger::utils::version_parser::parse_minecraft_version_range;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
@@ -20,6 +21,14 @@ async fn main() {
 
     let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
+    let result = MinecraftPinger::new();
+    if let Err(error) = result {
+        println!("Failed to create minecraft ping client: {}", error);
+        return;
+    }
+
+    let pinger = Arc::new(result.unwrap());
+
     loop {
         let count_time = Instant::now();
         println!("Pinging...");
@@ -30,9 +39,10 @@ async fn main() {
 
             for mut server in servers {
                 let task_repository = repository.clone();
+                let pinger = pinger.clone();
                 let task = tokio::spawn(async move {
                     for i in 0..3 {
-                        let ping_rs = ping_server(server.ip.as_str(), server.port).await;
+                        let ping_rs = pinger.ping_server(server.ip.as_str(), server.port, PingConfig::default()).await;
                         if let Ok(ping) = ping_rs {
                             server.last_favicon = ping.favicon.clone();
                             server.last_status = Some(ServerStatus::Online);

@@ -13,6 +13,7 @@ use axum::middleware::from_fn_with_state;
 use axum::Router;
 use std::env;
 use std::sync::Arc;
+use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use repository::postgres::PostgresRepository;
@@ -21,6 +22,7 @@ use repository::postgres::PostgresRepository;
 async fn main() {
     println!("Starting server");
 
+    // Init DB
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| {
             println!("Please set the DATABASE_URL environment variable, using defaults.");
@@ -34,6 +36,7 @@ async fn main() {
     }
     let repository = result.unwrap();
 
+    // Init clerk
     let clerk_instance = env::var("CLERK_URL");
     if let Err(_) = clerk_instance {
         println!("Please provide a CLERK_URL environment variable.");
@@ -48,6 +51,14 @@ async fn main() {
     }
     let keys = result.unwrap();
 
+    // Init Pinger (for server add)
+    let pinger = MinecraftPinger::new();
+    if let Err(err) = pinger {
+        println!("Error on pinger init: {}", err);
+        return;
+    }
+    let pinger = pinger.unwrap();
+
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
@@ -55,6 +66,8 @@ async fn main() {
 
     let state = AppState {
         repository: Arc::new(repository),
+        pigner: Arc::new(pinger),
+
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),
     };

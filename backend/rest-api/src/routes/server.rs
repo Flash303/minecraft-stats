@@ -7,6 +7,7 @@ use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
+use minecraft_pinger::PingConfig;
 use repository::models::server::{Server, UnregisteredServer};
 use repository::duplicate_detection::DuplicateDetectionService;
 
@@ -57,7 +58,7 @@ pub async fn create_server(State(state): State<AppState>,
     // max 3 try
     let mut ping_result = None;
     for _ in 0..3 {
-        if let Ok(res) = pinger::ping_server(query.ip.as_str(), query.port).await {
+        if let Ok(res) = state.pigner.ping_server(query.ip.as_str(), query.port, PingConfig::default()).await {
             ping_result = Some(res);
             break;
         }

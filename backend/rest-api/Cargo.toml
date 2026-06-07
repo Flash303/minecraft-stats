@@ -9,7 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 repository = { path = "../repository" }
-pinger = { path = "../pinger" }
+minecraft-pinger = { git = "https://github.com/Flash303/minecraft-pinger" }
 
 tokio = { version = "1.52.3", features = ["full"] }
 axum = { version = "0.8.9", features = ["tokio"] }
