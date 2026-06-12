@@ -96,6 +96,6 @@ export async function createServer(
         return { success: json.success, message: json.message }
     } catch (error) {
         console.error("Failed to create server:", error)
-        return { success: false, message: "Erreur réseau lors de l'ajout du serveur" }
+        return { success: false }
     }
 }

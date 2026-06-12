@@ -7,12 +7,14 @@ import { MiniChart } from "./MiniChart"
 import default_icon from "@/assets/default_favicon.svg"
 import { cn } from "@/lib/utils"
 import { Check, Copy } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ServerCardProps {
     server: Server
 }
 
 export function ServerCard({ server }: ServerCardProps) {
+    const { t, language } = useLanguage()
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     const [copied, setCopied] = useState(false)
 
@@ -96,9 +98,9 @@ export function ServerCard({ server }: ServerCardProps) {
                                 isOnline ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-600"
                             )}>
                                 {isOnline ? (
-                                    <>{new Intl.NumberFormat("fr-FR").format(server.last_connected ?? 0)} joueurs</>
+                                    <>{new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)} {t("common.players")}</>
                                 ) : (
-                                    <>Hors ligne</>
+                                    <>{t("common.offline")}</>
                                 )}
                             </span>
                         </div>
