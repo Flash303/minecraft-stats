@@ -7,18 +7,21 @@ interface PlayerDataPoint {
 }
 
 const MAX_GAP_SECONDS = 30 * 60
+const GAP_MULTIPLIER = 2
 
 /**
  * Transforms records for a single server into uPlot.AlignedData.
  * Injects NULL values to represent gaps in data.
  */
-export function prepareSingleChartData(data: PlayerDataPoint[]): uPlot.AlignedData {
+export function prepareSingleChartData(data: PlayerDataPoint[], intervalMs?: number): uPlot.AlignedData {
     if (!data || data.length === 0) return [[], []]
 
     const sorted = [...data].sort((a, b) => a.date - b.date)
 
     const timestamps: number[] = []
     const values: (number | null)[] = []
+
+    const gapThreshold = intervalMs ? (intervalMs / 1000) * GAP_MULTIPLIER : MAX_GAP_SECONDS
 
     for (let i = 0; i < sorted.length; i++) {
         const currentPoint = sorted[i]
@@ -28,7 +31,7 @@ export function prepareSingleChartData(data: PlayerDataPoint[]): uPlot.AlignedDa
             const prevX = timestamps[timestamps.length - 1]
             const diff = currentX - prevX
 
-            if (diff > MAX_GAP_SECONDS) {
+            if (diff > gapThreshold) {
                 timestamps.push(prevX + 1)
                 values.push(null)
             }
@@ -47,9 +50,12 @@ export function prepareSingleChartData(data: PlayerDataPoint[]): uPlot.AlignedDa
  */
 export function prepareMultiChartData(
     selectedServers: Server[],
-    recordsMap: { [serverId: number]: PlayerDataPoint[] }
+    recordsMap: { [serverId: number]: PlayerDataPoint[] },
+    intervalMs?: number
 ): uPlot.AlignedData {
     if (selectedServers.length === 0) return [[], []]
+
+    const gapThreshold = intervalMs ? (intervalMs / 1000) * GAP_MULTIPLIER : MAX_GAP_SECONDS
 
     // Collect all unique timestamps
     const allTimestampsSet = new Set<number>()
@@ -64,7 +70,7 @@ export function prepareMultiChartData(
             if (i > 0) {
                 const prevR = sortedRecords[i - 1]
                 const prevT = prevR.date > 1000000000000 ? Math.floor(prevR.date / 1000) : prevR.date
-                if (t - prevT > MAX_GAP_SECONDS) {
+                if (t - prevT > gapThreshold) {
                     allTimestampsSet.add(prevT + 1)
                 }
             }

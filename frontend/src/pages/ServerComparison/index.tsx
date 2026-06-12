@@ -66,7 +66,7 @@ export function ServerComparison() {
         })
     }
 
-    const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap), [selectedServers, recordsMap])
+    const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
 
     const timeRangeProps = useMemo(() => {
         const now = Math.floor(Date.now() / 1000)

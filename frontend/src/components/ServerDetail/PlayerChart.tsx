@@ -22,7 +22,7 @@ interface PlayerChartProps {
     }
 }
 
-export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -54,7 +54,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
     }, [])
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
-    const chartData = useMemo(() => prepareSingleChartData(data), [data])
+    const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
 
     // Configuration du Plugin Tooltip
     const tooltipPlugin = useMemo<uPlot.Plugin>(() => {

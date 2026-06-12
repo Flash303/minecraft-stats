@@ -21,7 +21,7 @@ export function MiniChart({ data }: MiniChartProps) {
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    const chartData = useMemo(() => prepareSingleChartData(data), [data])
+    const chartData = useMemo(() => prepareSingleChartData(data, 300000), [data])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"
