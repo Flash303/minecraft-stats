@@ -28,6 +28,10 @@ async fn main() {
     }
 
     let pinger = Arc::new(result.unwrap());
+    let pinger_config = Arc::new(PingConfig {
+        timeout: Duration::from_millis(500),
+        ..Default::default()
+    });
 
     loop {
         let possible_servers = repository.list_servers().await;
@@ -39,9 +43,10 @@ async fn main() {
             for mut server in servers {
                 let task_repository = repository.clone();
                 let pinger = pinger.clone();
+                let pinger_config = pinger_config.clone();
                 let task = tokio::spawn(async move {
                     for i in 0..3 {
-                        let ping_rs = pinger.ping_server(server.ip.as_str(), server.port, PingConfig::default()).await;
+                        let ping_rs = pinger.ping_server(server.ip.as_str(), server.port, pinger_config.as_ref()).await;
                         if let Ok(ping) = ping_rs {
                             server.last_favicon = ping.favicon.clone();
                             server.last_status = Some(ServerStatus::Online);
@@ -49,7 +54,7 @@ async fn main() {
                             server.last_version = parse_minecraft_version_range(&ping.version.name)
                                 .map(|(first, last)| format!("{} - {}", first, last))
                                 .or(None);
-                            
+
                             // Update fingerprints
                             server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
                             let motd_value = serde_json::to_value(&ping.description).ok();
