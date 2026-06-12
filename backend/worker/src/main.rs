@@ -30,10 +30,9 @@ async fn main() {
     let pinger = Arc::new(result.unwrap());
 
     loop {
+        let possible_servers = repository.list_servers().await;
         let count_time = Instant::now();
         println!("Pinging...");
-
-        let possible_servers = repository.list_servers().await;
         if let Ok(servers) = possible_servers {
             let mut tasks: Vec<JoinHandle<Option<Record>>> = Vec::new();
 

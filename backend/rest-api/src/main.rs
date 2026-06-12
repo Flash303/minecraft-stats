@@ -18,9 +18,19 @@ use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use repository::postgres::PostgresRepository;
 
+const DEFAULT_PORT: u16 = 3000;
+
 #[tokio::main]
 async fn main() {
     println!("Starting server");
+
+    // Port
+    let port = env::var("LISTEN_PORT")
+        .map(|p| p.parse::<u16>().unwrap_or(DEFAULT_PORT))
+        .unwrap_or_else(|_| {
+            println!("Please set the LISTEN_PORT environment variable, using defaults.");
+            DEFAULT_PORT
+        });
 
     // Init DB
     let database_url = env::var("DATABASE_URL")
@@ -79,7 +89,7 @@ async fn main() {
         .with_state(state)
         .layer(cors);
 
-    let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
 
     println!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
