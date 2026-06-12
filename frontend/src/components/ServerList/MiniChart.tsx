@@ -4,6 +4,7 @@ import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { prepareSingleChartData } from "@/lib/chartUtils"
 
 interface PlayerDataPoint {
     date: number
@@ -20,36 +21,7 @@ export function MiniChart({ data }: MiniChartProps) {
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    const chartData = useMemo<uPlot.AlignedData>(() => {
-        if (!data || data.length === 0) return [[], []]
-
-        const sorted = [...data].sort((a, b) => a.date - b.date)
-
-        const timestamps: number[] = []
-        const values: (number | null)[] = []
-
-        const MAX_GAP_SECONDS = 30 * 60
-
-        for (let i = 0; i < sorted.length; i++) {
-            const currentPoint = sorted[i]
-            const currentX = currentPoint.date > 1000000000000 ? currentPoint.date / 1000 : currentPoint.date
-
-            if (timestamps.length > 0) {
-                const prevX = timestamps[timestamps.length - 1]
-                const diff = currentX - prevX
-
-                if (diff > MAX_GAP_SECONDS) {
-                    timestamps.push(prevX + 1)
-                    values.push(null)
-                }
-            }
-
-            timestamps.push(currentX)
-            values.push(currentPoint.value)
-        }
-
-        return [timestamps, values]
-    }, [data])
+    const chartData = useMemo(() => prepareSingleChartData(data), [data])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"

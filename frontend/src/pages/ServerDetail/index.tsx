@@ -17,6 +17,7 @@ import { Layout } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 
 export function ServerDetail() {
     const { t, language } = useLanguage()
@@ -28,21 +29,8 @@ export function ServerDetail() {
     const [loadingRecords, setLoadingRecords] = useState(false)
     const [copied, setCopied] = useState(false)
 
-    const TIME_RANGES = useMemo(() => [
-        { label: t("serverDetail.lastHour"), value: 3600000 },
-        { label: t("serverDetail.last6Hours"), value: 21600000 },
-        { label: t("serverDetail.last24Hours"), value: 86400000 },
-        { label: t("serverDetail.last7Days"), value: 604800000 },
-        { label: t("serverDetail.last30Days"), value: 2592000000 }
-    ], [t])
-
-    const INTERVALS = useMemo(() => [
-        { label: t("serverDetail.interval10s"), value: 10000 },
-        { label: t("serverDetail.interval1m"), value: 60000 },
-        { label: t("serverDetail.interval5m"), value: 300000 },
-        { label: t("serverDetail.interval30m"), value: 1800000 },
-        { label: t("serverDetail.interval1h"), value: 3600000 }
-    ], [t])
+    const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
+    const INTERVALS = useMemo(() => getIntervals(t), [t])
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)

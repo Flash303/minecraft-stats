@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { Layout } from "@/components/layout"
+import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import {
     Select,
     SelectContent,
@@ -14,7 +15,6 @@ import { MultiServerChart } from "./MultiServerChart"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { SearchBar } from "@/components/layout/SearchBar"
-import type uPlot from "uplot"
 
 export function ServerComparison() {
     const { t } = useLanguage()
@@ -24,21 +24,8 @@ export function ServerComparison() {
     const [recordsMap, setRecordsMap] = useState<{ [serverId: number]: { date: number; value: number }[] }>({})
     const [loadingRecords, setLoadingRecords] = useState(false)
 
-    const TIME_RANGES = useMemo(() => [
-        { label: t("serverDetail.lastHour"), value: 3600000 },
-        { label: t("serverDetail.last6Hours"), value: 21600000 },
-        { label: t("serverDetail.last24Hours"), value: 86400000 },
-        { label: t("serverDetail.last7Days"), value: 604800000 },
-        { label: t("serverDetail.last30Days"), value: 2592000000 }
-    ], [t])
-
-    const INTERVALS = useMemo(() => [
-        { label: t("serverDetail.interval10s"), value: 10000 },
-        { label: t("serverDetail.interval1m"), value: 60000 },
-        { label: t("serverDetail.interval5m"), value: 300000 },
-        { label: t("serverDetail.interval30m"), value: 1800000 },
-        { label: t("serverDetail.interval1h"), value: 3600000 }
-    ], [t])
+    const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
+    const INTERVALS = useMemo(() => getIntervals(t), [t])
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
@@ -79,51 +66,7 @@ export function ServerComparison() {
         })
     }
 
-    const chartData = useMemo<uPlot.AlignedData>(() => {
-        if (selectedServers.length === 0) return [[], []]
-
-        const MAX_GAP_SECONDS = 30 * 60
-
-        // Collect all unique timestamps
-        const allTimestampsSet = new Set<number>()
-        selectedServers.forEach(s => {
-            const records = recordsMap[s.id] || []
-            const sortedRecords = [...records].sort((a, b) => a.date - b.date)
-            
-            for (let i = 0; i < sortedRecords.length; i++) {
-                const r = sortedRecords[i]
-                const t = r.date > 1000000000000 ? Math.floor(r.date / 1000) : r.date
-                
-                if (i > 0) {
-                    const prevR = sortedRecords[i-1]
-                    const prevT = prevR.date > 1000000000000 ? Math.floor(prevR.date / 1000) : prevR.date
-                    if (t - prevT > MAX_GAP_SECONDS) {
-                        allTimestampsSet.add(prevT + 1)
-                    }
-                }
-                allTimestampsSet.add(t)
-            }
-        })
-
-        const sortedTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b)
-        const result: uPlot.AlignedData = [sortedTimestamps]
-
-        selectedServers.forEach(s => {
-            const records = recordsMap[s.id] || []
-            const values: (number | null)[] = new Array(sortedTimestamps.length).fill(null)
-            
-            // Map records to timestamps
-            records.forEach(r => {
-                const t = r.date > 1000000000000 ? Math.floor(r.date / 1000) : r.date
-                const idx = sortedTimestamps.indexOf(t)
-                if (idx !== -1) values[idx] = r.value
-            })
-
-            result.push(values)
-        })
-
-        return result
-    }, [selectedServers, recordsMap])
+    const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap), [selectedServers, recordsMap])
 
     const timeRangeProps = useMemo(() => {
         const now = Math.floor(Date.now() / 1000)

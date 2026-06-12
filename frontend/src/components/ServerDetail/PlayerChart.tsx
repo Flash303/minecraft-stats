@@ -5,6 +5,7 @@ import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
 
 interface PlayerDataPoint {
     date: number
@@ -53,36 +54,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
     }, [])
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
-    const chartData = useMemo<uPlot.AlignedData>(() => {
-        if (!data || data.length === 0) return [[], []]
-
-        const sorted = [...data].sort((a, b) => a.date - b.date)
-
-        const timestamps: number[] = []
-        const values: (number | null)[] = []
-
-        const MAX_GAP_SECONDS = 30 * 60
-
-        for (let i = 0; i < sorted.length; i++) {
-            const currentPoint = sorted[i]
-            const currentX = currentPoint.date > 1000000000000 ? currentPoint.date / 1000 : currentPoint.date
-
-            if (timestamps.length > 0) {
-                const prevX = timestamps[timestamps.length - 1]
-                const diff = currentX - prevX
-
-                if (diff > MAX_GAP_SECONDS) {
-                    timestamps.push(prevX + 1)
-                    values.push(null)
-                }
-            }
-
-            timestamps.push(currentX)
-            values.push(currentPoint.value)
-        }
-
-        return [timestamps, values]
-    }, [data])
+    const chartData = useMemo(() => prepareSingleChartData(data), [data])
 
     // Configuration du Plugin Tooltip
     const tooltipPlugin = useMemo<uPlot.Plugin>(() => {
@@ -125,14 +97,12 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                         return
                     }
 
-                    const d = new Date(xVal * 1000)
                     const locale = language === "fr" ? "fr-FR" : "en-US"
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
+                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
 
                     overlay.innerHTML = `
                         <div class="font-semibold text-blue-400">${serverName}</div>
-                        <div class="text-slate-300">📅 ${dateStr} ${t("common.time")} ${timeStr}</div>
+                        <div class="text-slate-300">📅 ${dateTimeStr}</div>
                         <div class="font-medium">👥 ${new Intl.NumberFormat(locale).format(Math.round(yVal))} ${t("common.players")}</div>
                     `
 
@@ -216,22 +186,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                 {
                     stroke: textColor,
                     grid: { stroke: gridColor },
-                    values: (_u: uPlot, vals: number[]) => vals.map(v => {
-                        if (v == null) return ""
-                        const d = new Date(v * 1000)
-                        
-                        if (d.getHours() === 0 && d.getMinutes() === 0) {
-                            const day = d.getDate().toString().padStart(2, "0")
-                            const month = (d.getMonth() + 1).toString().padStart(2, "0")
-                            return language === "fr" ? `${day}/${month}` : `${month}/${day}`
-                        }
-
-                        return d.toLocaleTimeString(locale, { 
-                            hour: "2-digit", 
-                            minute: "2-digit", 
-                            hour12: language !== "fr" 
-                        })
-                    })
+                    values: (_u: uPlot, vals: number[]) => vals.map(v => formatAxisTick(v, language, locale))
                 },
                 {
                     stroke: textColor,
@@ -244,10 +199,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                     label: t("common.date"),
                     value: (_u: uPlot, val: number) => {
                         if (val == null) return ""
-                        const d = new Date(val * 1000)
-                        const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                        const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
-                        return `${dateStr} ${t("common.time")} ${timeStr}`
+                        return formatTooltipDateTime(val, language, locale, t("common.time"))
                     }
                 },
                 {

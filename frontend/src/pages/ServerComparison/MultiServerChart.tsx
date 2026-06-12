@@ -5,6 +5,7 @@ import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
 
 interface MultiServerChartProps {
     data: uPlot.AlignedData
@@ -94,10 +95,8 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                         return
                     }
 
-                    const d = new Date(xVal * 1000)
                     const locale = language === "fr" ? "fr-FR" : "en-US"
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
+                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
 
                     let rowsHtml = ""
 
@@ -119,7 +118,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     }
 
                     overlay.innerHTML = `
-                        <div class="border-b border-white/10 pb-1 mb-1 text-slate-400">📅 ${dateStr} ${t("common.time")} ${timeStr}</div>
+                        <div class="border-b border-white/10 pb-1 mb-1 text-slate-400">📅 ${dateTimeStr}</div>
                         ${rowsHtml}
                     `
 
@@ -165,10 +164,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 label: t("common.date"),
                 value: (_u: uPlot, val: number) => {
                     if (val == null) return ""
-                    const d = new Date(val * 1000)
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
-                    return `${dateStr} ${t("common.time")} ${timeStr}`
+                    return formatTooltipDateTime(val, language, locale, t("common.time"))
                 }
             }
         ]
@@ -206,22 +202,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 {
                     stroke: textColor,
                     grid: { stroke: gridColor },
-                    values: (_u: uPlot, vals: number[]) => vals.map(v => {
-                        if (v == null) return ""
-                        const d = new Date(v * 1000)
-                        
-                        if (d.getHours() === 0 && d.getMinutes() === 0) {
-                            const day = d.getDate().toString().padStart(2, "0")
-                            const month = (d.getMonth() + 1).toString().padStart(2, "0")
-                            return language === "fr" ? `${day}/${month}` : `${month}/${day}`
-                        }
-
-                        return d.toLocaleTimeString(locale, {
-                            hour: "2-digit", 
-                            minute: "2-digit", 
-                            hour12: language !== "fr" 
-                        })
-                    })
+                    values: (_u: uPlot, vals: number[]) => vals.map(v => formatAxisTick(v, language, locale))
                 },
                 {
                     stroke: textColor,
