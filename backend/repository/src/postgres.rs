@@ -188,6 +188,22 @@ impl Repository for PostgresRepository {
         Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
+    async fn count_resolved_endpoints(&self, resolved_endpoint: &str, exclude_id: Option<u32>) -> Result<u32, String> {
+        let mut query = QueryBuilder::new("SELECT COUNT(*) FROM servers WHERE resolved_endpoint = ");
+        query.push_bind(resolved_endpoint);
+        if let Some(id) = exclude_id {
+            query.push(" AND id != ");
+            query.push_bind(id as i32);
+        }
+
+        let row: (i64,) = query.build_query_as::<(i64,)>()
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(row.0 as u32)
+    }
+
     async fn initialize(&self) -> Result<(), String> {
         self.pool.execute(
             "CREATE TABLE IF NOT EXISTS servers (

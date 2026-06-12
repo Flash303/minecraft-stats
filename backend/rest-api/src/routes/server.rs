@@ -9,7 +9,7 @@ use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use minecraft_pinger::PingConfig;
 use repository::models::server::{Server, UnregisteredServer};
-use repository::duplicate_detection::DuplicateDetectionService;
+use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -65,26 +65,36 @@ pub async fn create_server(State(state): State<AppState>,
     }
     
     let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
-
-    // Compute hashes
     query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
-    
-    // Convert Description to Value for hash_motd
     let motd_value = serde_json::to_value(&ping.description).ok();
     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
-    
     query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
-
-    // Check for duplicates
-    let existing = state.repository.find_servers(
-        query.favicon_hash.as_deref(),
-        query.resolved_endpoint.as_deref(),
-        query.motd_hash.as_deref()
-    ).await.map_err(|e| AppError::ServerCreationError(e))?;
     
-    if !existing.is_empty() {
+    let fingerprint = ServerFingerprint {
+        favicon_hash: query.favicon_hash.clone(),
+        resolved_endpoint: query.resolved_endpoint.clone(),
+        motd_hash: query.motd_hash.clone(),
+        version: Some(ping.version.name.clone()),
+    };
+
+    if let Some(duplicate) = DuplicateDetectionService::find_duplicate(
+        state.repository.as_ref(),
+        &fingerprint,
+        None,
+    ).await.map_err(|e| AppError::ServerCreationError(e))? {
+        println!(
+            "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
+            query.name,
+            duplicate.server.name,
+            duplicate.server.id,
+            duplicate.score,
+            duplicate.signals
+        );
+
+        drop(fingerprint);
         return Err(AppError::ServerCreationError("Server already exists".to_string()));
     }
+    drop(fingerprint);
     
     query.user_id = Some(account.unwrap().sub);
 
