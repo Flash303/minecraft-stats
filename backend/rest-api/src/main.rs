@@ -8,10 +8,11 @@ pub mod clerk;
 use crate::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
 use crate::state::AppState;
-use axum::http::Method;
+use axum::{extract::DefaultBodyLimit, http::Method};
 use axum::middleware::from_fn_with_state;
 use axum::Router;
 use std::env;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
@@ -69,10 +70,14 @@ async fn main() {
     }
     let pinger = pinger.unwrap();
 
+
+    // Init the main rest api
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers(Any);
+
+    let body_limit = DefaultBodyLimit::max(1024 * 10);
 
     let state = AppState {
         repository: Arc::new(repository),
@@ -87,10 +92,11 @@ async fn main() {
         .nest("/servers", routes::server::router())
         .route_layer(from_fn_with_state(state.clone(), auth_middleware))
         .with_state(state)
-        .layer(cors);
+        .layer(cors)
+        .layer(body_limit);
 
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
 
     println!("Listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.unwrap();
 }

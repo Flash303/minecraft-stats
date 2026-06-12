@@ -10,11 +10,25 @@ use axum::{Extension, Json, Router};
 use minecraft_pinger::PingConfig;
 use repository::models::server::{Server, UnregisteredServer};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
+    let get_server_limit = GovernorConfigBuilder::default()
+        .per_second(60)
+        .burst_size(60)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let layer = GovernorLayer::new(get_server_limit);
+
     Router::new()
         .route("/", get(list_all_servers))
+        .layer(layer.clone())
         .route("/{id}", get(get_server))
+        .layer(layer)
         .route("/", post(create_server))
 }
 
@@ -63,13 +77,13 @@ pub async fn create_server(State(state): State<AppState>,
             break;
         }
     }
-    
+
     let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
     query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
     let motd_value = serde_json::to_value(&ping.description).ok();
     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
     query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
-    
+
     let fingerprint = ServerFingerprint {
         favicon_hash: query.favicon_hash.clone(),
         resolved_endpoint: query.resolved_endpoint.clone(),
@@ -95,7 +109,7 @@ pub async fn create_server(State(state): State<AppState>,
         return Err(AppError::ServerCreationError("Server already exists".to_string()));
     }
     drop(fingerprint);
-    
+
     query.user_id = Some(account.unwrap().sub);
 
     let rs = state.repository.create_server(query).await;
