@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
-use crate::models::record::Record;
+use crate::models::record::{Record, RecordRow};
 use crate::models::server::{Server, ServerRow, UnregisteredServer};
 use crate::repository::Repository;
 
@@ -64,28 +66,28 @@ impl Repository for PostgresRepository {
                 SELECT server_id, date, value,
                     date_bin("
         );
-    
+
         query_builder.push_bind(interval);
         query_builder.push(", date, TIMESTAMP '2000-01-01') as time_bucket
                 FROM ping_records
                 WHERE server_id = ");
-        
+
         query_builder.push_bind(server_id as i32);
         query_builder.push(" AND date >= ").push_bind(from);
-        
+
         if let Some(to_date) = to {
             query_builder.push(" AND date <= ").push_bind(to_date);
         }
-        
+
         query_builder.push(
             ")
-            SELECT DISTINCT ON (time_bucket) server_id, date, value 
-            FROM binned_pings 
+            SELECT DISTINCT ON (time_bucket) server_id, date, value
+            FROM binned_pings
             ORDER BY time_bucket, date ASC"
         );
-    
+
         let query = query_builder.build();
-        
+
         let records = query
             .fetch_all(&self.pool)
             .await
@@ -101,9 +103,40 @@ impl Repository for PostgresRepository {
                 }
             })
             .collect();
-    
+
         Ok(records)
     }
+
+    async fn get_last_pings_for_servers(&self, server_ids: &[u32]) -> Result<HashMap<u32, Vec<Record>>, String> {
+    let ids: Vec<i32> = server_ids.iter().map(|&id| id as i32).collect();
+    let from = OffsetDateTime::now_utc() - Duration::days(1);
+
+    let records: Vec<RecordRow> = sqlx::query_as(
+        "WITH binned_pings AS (
+            SELECT server_id, date, value,
+                   date_bin('5 minutes'::interval, date, TIMESTAMP '2000-01-01') as time_bucket
+            FROM ping_records
+            WHERE server_id = ANY($1) AND date >= $2
+        )
+        SELECT DISTINCT ON (server_id, time_bucket) server_id, date, value
+        FROM binned_pings
+        ORDER BY server_id, time_bucket, date ASC"
+    )
+    .bind(&ids)
+    .bind(from)
+    .fetch_all(&self.pool)
+    .await
+    .map_err(|e| e.to_string())?;
+
+    let mut map: HashMap<u32, Vec<Record>> = HashMap::new();
+    for row in records {
+        let record: Record = row.into();
+        map.entry(record.server_id).or_default().push(record);
+    }
+
+    Ok(map)
+}
+
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
             "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
