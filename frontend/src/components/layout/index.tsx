@@ -1,4 +1,5 @@
 import { Header } from "./Header"
+import { Footer } from "./Footer"
 
 interface LayoutProps {
     children: React.ReactNode
@@ -18,6 +19,7 @@ export function Layout({ children, onRefresh, isLoading, leftContent }: LayoutPr
             <main className="container mx-auto flex-1 px-4 py-6">
                 {children}
             </main>
+            <Footer />
         </div>
     )
 }

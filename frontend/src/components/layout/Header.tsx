@@ -1,4 +1,5 @@
-import { Server as ServerIcon, Languages } from "lucide-react"
+import { Languages } from "lucide-react"
+import logo from "@/assets/logo.png"
 import { ThemeToggle } from "./ThemeToggle"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
@@ -32,7 +33,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                     {leftContent || (
                         <div className="flex items-center gap-6">
                             <Link to="/" className="flex items-center gap-2">
-                                <ServerIcon className="h-5 w-5 text-primary" />
+                                <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
                                 <span className="font-bold tracking-tight hidden sm:inline-block">{t("header.title")}</span>
                             </Link>
                             <Link to="/compare" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">

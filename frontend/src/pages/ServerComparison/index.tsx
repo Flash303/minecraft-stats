@@ -78,33 +78,33 @@ export function ServerComparison() {
 
     return (
         <Layout>
-            <div className="flex flex-col gap-8 max-w-6xl mx-auto">
+            <div className="flex flex-col gap-8 max-w-6xl mx-auto px-2">
                 <div className="flex flex-col gap-6">
-                    <div className="flex items-center gap-2 text-primary">
+                    <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                         <BarChart3 className="h-6 w-6" />
-                        <h1 className="text-2xl font-bold tracking-tight">{t("comparison.title")}</h1>
+                        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">{t("comparison.title")}</h1>
                     </div>
-
+ 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <SearchBar 
                             value={searchQuery} 
                             onChange={setSearchQuery} 
                             onSelect={addServer}
                             placeholder={t("comparison.placeholder")}
-                            className="h-11"
+                            className="h-10"
                         />
-
+ 
                         <div className="flex items-center gap-2">
                             <Select
                                 value={String(selectedRange)}
                                 onValueChange={(v) => setSelectedRange(Number(v))}
                             >
-                                <SelectTrigger className="h-11">
+                                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {TIME_RANGES.map((r) => (
-                                        <SelectItem key={r.value} value={String(r.value)}>
+                                        <SelectItem key={r.value} value={String(r.value)} className="text-xs">
                                             {r.label}
                                         </SelectItem>
                                     ))}
@@ -114,12 +114,12 @@ export function ServerComparison() {
                                 value={String(selectedInterval)}
                                 onValueChange={(v) => setSelectedInterval(Number(v))}
                             >
-                                <SelectTrigger className="h-11">
+                                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {INTERVALS.map((i) => (
-                                        <SelectItem key={i.value} value={String(i.value)}>
+                                        <SelectItem key={i.value} value={String(i.value)} className="text-xs">
                                             {i.label}
                                         </SelectItem>
                                     ))}
@@ -127,16 +127,16 @@ export function ServerComparison() {
                             </Select>
                         </div>
                     </div>
-
+ 
                     {selectedServers.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
                             {selectedServers.map(s => (
-                                <div key={s.id} className="flex items-center gap-2 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full text-sm border shadow-sm">
-                                    {s.last_favicon && <img src={s.last_favicon} className="h-4 w-4 rounded-sm" alt="" />}
-                                    <span className="font-medium">{s.name}</span>
+                                <div key={s.id} className="flex items-center gap-2 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-3.5 py-1.5 rounded-xl text-xs border border-indigo-500/10 dark:border-indigo-500/20 shadow-xs hover:border-indigo-500/35 transition-colors">
+                                    {s.last_favicon && <img src={s.last_favicon} className="h-4.5 w-4.5 rounded-md object-cover shadow-xs" alt="" />}
+                                    <span className="font-bold">{s.name}</span>
                                     <button 
                                         onClick={() => removeServer(s.id)}
-                                        className="hover:text-destructive transition-colors"
+                                        className="hover:text-rose-500 transition-colors ml-1 cursor-pointer focus:outline-none"
                                     >
                                         <X className="h-3.5 w-3.5" />
                                     </button>

@@ -37,7 +37,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
                 chartRef.current.setSize({
-                    width: containerRef.current.clientWidth,
+                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
                     height: 500
                 })
             }
@@ -48,10 +48,16 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
             resizeObserver.observe(containerRef.current)
         }
 
+        // Trigger immediate resize check
+        handleResize()
+
         return () => {
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [data])
+
+    // Transformation des données : Tri + Injection de NULL pour casser les lignes
+    // (This block is not changed but shown for context)
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
     const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
@@ -232,12 +238,19 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
                 </Button>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-2 rounded-lg border">
+            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
                 <UplotReact
                     options={options}
                     data={chartData}
                     onCreate={(chart) => {
                         chartRef.current = chart
+                        // Force resize to container width after creation
+                        if (containerRef.current) {
+                            chart.setSize({
+                                width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
+                                height: 500
+                            })
+                        }
                     }}
                 />
             </div>

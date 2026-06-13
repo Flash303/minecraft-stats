@@ -92,8 +92,8 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
 
     return (
         <div className={cn("relative w-full max-w-sm group", className)} ref={containerRef}>
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors z-10">
-                <SearchIcon className="h-4 w-4" />
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors z-10">
+                <SearchIcon className="h-4.5 w-4.5" />
             </div>
             <Input
                 ref={inputRef}
@@ -105,10 +105,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                 onFocus={() => setShowSuggestions(true)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="pl-9 pr-14 h-9 bg-muted/40 border-none focus-visible:ring-1 focus-visible:ring-primary/50 transition-all"
+                className="pl-10 pr-14 h-10 bg-white dark:bg-zinc-900 border border-slate-250 dark:border-zinc-800 focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-xs text-slate-800 dark:text-zinc-200"
             />
             
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
                 {value ? (
                     <Button
                         variant="ghost"
@@ -116,37 +116,37 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                         className="h-7 w-7 hover:bg-transparent text-muted-foreground hover:text-foreground"
                         onClick={() => onChange("")}
                     >
-                        <X className="h-3 w-3" />
+                        <X className="h-3.5 w-3.5" />
                     </Button>
                 ) : (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                        <span className="text-xs">⌘</span>K
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-1.5 font-mono text-[9px] font-bold text-slate-400 dark:text-zinc-500 shadow-xs sm:flex">
+                        <span className="text-[10px]">⌘</span>K
                     </kbd>
                 )}
             </div>
 
             {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white/95 dark:bg-zinc-950/95 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 p-1">
                     {filteredSuggestions.map((s, idx) => (
                         <button
                             key={s.id}
                             onClick={() => handleSelect(s)}
                             className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2 hover:bg-accent text-left transition-colors",
-                                idx === 0 && "bg-accent/50"
+                                "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer",
+                                idx === 0 ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-slate-700 dark:text-zinc-300"
                             )}
                         >
                             {s.last_favicon ? (
-                                <img src={s.last_favicon} className="h-5 w-5 rounded" alt="" />
+                                <img src={s.last_favicon} className="h-6 w-6 rounded-md object-cover shadow-xs" alt="" />
                             ) : (
-                                <div className="h-5 w-5 rounded bg-muted" />
+                                <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center font-bold text-[10px] text-muted-foreground">MC</div>
                             )}
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-xs font-medium line-clamp-1">{s.name}</span>
-                                <span className="text-[9px] text-muted-foreground font-mono">{s.ip}</span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                                <span className={cn("text-xs font-bold line-clamp-1", idx === 0 ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
+                                <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none mt-0.5">{s.ip}</span>
                             </div>
                             {idx === 0 && (
-                                <div className="ml-auto text-[9px] text-muted-foreground border px-1 rounded uppercase tracking-tighter font-sans">{t("common.enter")}</div>
+                                <div className="text-[9px] text-primary/80 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wide font-bold">{t("common.enter")}</div>
                             )}
                         </button>
                     ))}

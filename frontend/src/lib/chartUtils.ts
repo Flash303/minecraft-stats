@@ -81,15 +81,21 @@ export function prepareMultiChartData(
     const sortedTimestamps = Array.from(allTimestampsSet).sort((a, b) => a - b)
     const result: uPlot.AlignedData = [sortedTimestamps]
 
+    // Create a lookup Map to find timestamp indices in O(1)
+    const timestampToIndexMap = new Map<number, number>()
+    sortedTimestamps.forEach((t, idx) => {
+        timestampToIndexMap.set(t, idx)
+    })
+
     selectedServers.forEach(s => {
         const records = recordsMap[s.id] || []
         const values: (number | null)[] = new Array(sortedTimestamps.length).fill(null)
         
-        // Map records to timestamps
+        // Map records to timestamps in O(1) complexity per record
         records.forEach(r => {
             const t = r.date > 1000000000000 ? Math.floor(r.date / 1000) : r.date
-            const idx = sortedTimestamps.indexOf(t)
-            if (idx !== -1) values[idx] = r.value
+            const idx = timestampToIndexMap.get(t)
+            if (idx !== undefined) values[idx] = r.value
         })
 
         result.push(values)

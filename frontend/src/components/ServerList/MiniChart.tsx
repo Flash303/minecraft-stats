@@ -30,7 +30,7 @@ export function MiniChart({ data }: MiniChartProps) {
 
         return {
             width: 160,
-            height: 64,
+            height: 48,
             cursor: { show: false },
             legend: { show: false },
             scales: {
@@ -59,7 +59,7 @@ export function MiniChart({ data }: MiniChartProps) {
             if (chartRef.current && containerRef.current) {
                 chartRef.current.setSize({
                     width: containerRef.current.clientWidth,
-                    height: 64
+                    height: 48
                 })
             }
         }
@@ -69,22 +69,30 @@ export function MiniChart({ data }: MiniChartProps) {
             resizeObserver.observe(containerRef.current)
         }
 
+        handleResize()
+
         return () => {
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [chartData])
 
     if (data.length === 0) {
-        return <div className="h-full flex items-center justify-center text-[10px] text-slate-300 dark:text-slate-700 font-medium italic">{t("common.noData")}</div>
+        return <div className="h-full flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-600 font-medium italic">{t("common.noData")}</div>
     }
 
     return (
-        <div ref={containerRef} className="w-full h-16 overflow-hidden flex items-center justify-end">
+        <div ref={containerRef} className="w-full h-12 overflow-hidden flex items-center justify-end">
             <UplotReact
                 options={options}
                 data={chartData}
                 onCreate={(chart) => {
                     chartRef.current = chart
+                    if (containerRef.current) {
+                        chart.setSize({
+                            width: containerRef.current.clientWidth,
+                            height: 48
+                        })
+                    }
                 }}
             />
         </div>
