@@ -1,3 +1,12 @@
+export interface User {
+    id: string
+    username: string | null
+    first_name: string | null
+    last_name: string | null
+    image_url: string | null
+    has_image: boolean
+}
+
 export interface Server {
     id: number
     name: string
@@ -8,8 +17,10 @@ export interface Server {
     last_connected: number | null
     last_version: string | null
     user_id: string
+    user?: User | null
     data?: Record[]
 }
+
 
 export interface Record {
     date: number

@@ -4,10 +4,13 @@ pub mod routes;
 pub mod response;
 pub mod middleware;
 pub mod clerk;
+pub mod services;
+pub mod utils;
 
 use crate::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
 use crate::state::AppState;
+use crate::utils::cache::TtlCache;
 use axum::{extract::DefaultBodyLimit, http::Method};
 use axum::middleware::from_fn_with_state;
 use axum::Router;
@@ -47,7 +50,7 @@ async fn main() {
     }
     let repository = result.unwrap();
 
-    // Init clerk
+    // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
     if let Err(_) = clerk_instance {
         println!("Please provide a CLERK_URL environment variable.");
@@ -61,6 +64,13 @@ async fn main() {
         return;
     }
     let keys = result.unwrap();
+
+    // Init clerk - API
+    let clerk_secret_key = env::var("CLERK_SECRET_KEY");
+    if let Err(_) = clerk_secret_key {
+        println!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
+    }
+    let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
 
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
@@ -85,6 +95,9 @@ async fn main() {
 
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),
+
+        clerk_secret_key: Arc::new(clerk_secret_key),
+        user_cache: TtlCache::new(),
     };
 
     let app = Router::new()

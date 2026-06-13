@@ -58,6 +58,7 @@
     "notFound": "Server not found",
     "playerHistory": "Player History",
     "chartLoading": "Loading chart...",
+    "addedBy": "Added by",
     "lastHour": "Last hour",
     "last6Hours": "Last 6 hours",
     "last24Hours": "Last 24 hours",

@@ -1,8 +1,9 @@
 use std::time::Duration;
 
-use crate::clerk::account_checker::ClerkClaims;
+use crate::clerk::model::{ClerkClaims, ClerkUser};
 use crate::error::AppError;
 use crate::response::ResponseFormat;
+use crate::services::clerk_service;
 use crate::state::AppState;
 use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use axum::extract::{Path, Query, State};
@@ -14,7 +15,6 @@ use repository::models::record::Record;
 use repository::models::server::{Server, UnregisteredServer};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use serde::{Deserialize, Serialize};
-use sqlx::query;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
@@ -113,8 +113,16 @@ pub async fn get_mine_server(State(state): State<AppState>,
     Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
 }
 
+#[derive(Serialize)]
+pub struct ServerWithUser {
+    #[serde(flatten)]
+    pub server: Server,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<ClerkUser>
+}
+
 pub async fn get_server(State(state): State<AppState>,
-                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<Server>, AppError> {
+                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -124,8 +132,20 @@ pub async fn get_server(State(state): State<AppState>,
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
+    let mut server = ServerWithUser {
+        server: result.unwrap(),
+        user: None
+    };
 
-    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
+    let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)
+        .await
+        .ok();
+
+    if let Some(clerk_user) = user {
+        server.user = Some((*clerk_user).clone());
+    }
+
+    Ok(ResponseFormat::success(server, StatusCode::OK))
 }
 
 pub async fn create_server(State(state): State<AppState>,

@@ -12,7 +12,7 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select"
-import { ArrowLeft, Wifi, WifiOff, Copy, Check, BarChart, Users, TrendingUp, TrendingDown } from "lucide-react"
+import { ArrowLeft, Wifi, WifiOff, Copy, Check, BarChart, Users, TrendingUp, TrendingDown, User as UserIcon } from "lucide-react"
 import { Layout } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@clerk/react"
@@ -166,6 +166,23 @@ export function ServerDetail() {
                                         <Badge variant="secondary" className="font-mono text-[10px] whitespace-nowrap">
                                             v{server.last_version}
                                         </Badge>
+                                    )}
+                                    {server.user && (
+                                        <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                                            <span>{t("serverDetail.addedBy")}</span>
+                                            {server.user.image_url ? (
+                                                <img
+                                                    src={server.user.image_url}
+                                                    alt={server.user.username || "User"}
+                                                    className="h-3.5 w-3.5 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <UserIcon className="h-3 w-3" />
+                                            )}
+                                            <span className="font-medium text-foreground">
+                                                {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
+                                            </span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
