@@ -13,10 +13,14 @@ interface ServerCardProps {
 
 export function ServerCard({ server }: ServerCardProps) {
     const { t, language } = useLanguage()
-    const [records, setRecords] = useState<{ date: number; value: number }[]>([])
+    const [records, setRecords] = useState<{ date: number; value: number }[]>(server.data || [])
     const [copied, setCopied] = useState(false)
 
     useEffect(() => {
+        if (server.data) {
+            setRecords(server.data)
+            return
+        }
         const loadRecords = async () => {
             try {
                 const from = Math.floor((Date.now() - 86400000) / 1000)
@@ -27,7 +31,7 @@ export function ServerCard({ server }: ServerCardProps) {
             }
         }
         loadRecords().then()
-    }, [server.id])
+    }, [server.id, server.data])
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"

@@ -8,6 +8,7 @@ export interface Server {
     last_connected: number | null
     last_version: string | null
     user_id: string
+    data?: Record[]
 }
 
 export interface Record {
@@ -30,9 +31,10 @@ function getHeaders(token?: string): HeadersInit {
     return headers
 }
 
-export async function fetchServers(token?: string): Promise<Server[]> {
+export async function fetchServers(token?: string, includeStats?: boolean): Promise<Server[]> {
     try {
-        const res = await fetch(`${API_BASE}/servers`, {
+        const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
+        const res = await fetch(url, {
             headers: getHeaders(token)
         })
         if (!res.ok) return []

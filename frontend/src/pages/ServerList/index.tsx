@@ -43,7 +43,7 @@ export function ServerList() {
         setError(null)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const data = await fetchServers(token ?? undefined)
+            const data = await fetchServers(token ?? undefined, true)
             
             // Trie par nombre de connectés décroissant
             const sorted = [...data].sort((a, b) => {
