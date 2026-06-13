@@ -94,12 +94,12 @@ export function ServerComparison() {
                             className="h-10"
                         />
  
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full">
                             <Select
                                 value={String(selectedRange)}
                                 onValueChange={(v) => setSelectedRange(Number(v))}
                             >
-                                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
+                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -114,7 +114,7 @@ export function ServerComparison() {
                                 value={String(selectedInterval)}
                                 onValueChange={(v) => setSelectedInterval(Number(v))}
                             >
-                                <SelectTrigger className="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
+                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -145,8 +145,8 @@ export function ServerComparison() {
                         </div>
                     )}
                 </div>
-
-                <div className="flex flex-col gap-4 relative min-h-[500px]">
+ 
+                <div className="flex flex-col gap-4 relative min-h-[340px] sm:min-h-[500px]">
                     {loadingRecords && selectedServers.length > 0 && (
                         <div className="absolute inset-0 z-10 flex justify-center items-center bg-background/40 backdrop-blur-[1px] rounded-xl transition-all duration-300">
                             <div className="bg-card border shadow-lg px-4 py-2 rounded-full flex items-center gap-2">
@@ -165,7 +165,7 @@ export function ServerComparison() {
                             timeRange={timeRangeProps} 
                         />
                     )}
-
+ 
                     {!loadingRecords && selectedServers.length === 0 && (
                         <div className="py-32 flex flex-col items-center justify-center border-2 border-dashed rounded-xl bg-muted/30 gap-4">
                             <BarChart3 className="h-12 w-12 text-muted-foreground/50" />

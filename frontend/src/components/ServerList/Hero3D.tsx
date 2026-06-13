@@ -356,7 +356,7 @@ export function Hero3D() {
                     ref={containerRef}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    className="flex-shrink-0 w-[460px] h-[320px] flex items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200/60 dark:border-zinc-800/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
+                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200/60 dark:border-zinc-800/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
                 >
                     <canvas 
                         ref={canvasRef} 

@@ -125,10 +125,10 @@ export function ServerDetail() {
     return (
         <Layout>
             <div className="flex flex-col gap-8 pb-12">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6">
-                    <div className="flex items-center gap-3">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+                    <div className="flex items-center gap-3 min-w-0">
                         <Link to="/">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
                                 <ArrowLeft className="h-4 w-4" />
                             </Button>
                         </Link>
@@ -137,14 +137,14 @@ export function ServerDetail() {
                                 <img
                                     src={server.last_favicon}
                                     alt=""
-                                    className="h-10 w-10 rounded shadow-sm"
+                                    className="h-10 w-10 rounded shadow-sm flex-shrink-0"
                                 />
                             ) : null}
                             <div className="flex flex-col min-w-0">
                                 <h1 className="font-bold text-xl leading-none mb-1 line-clamp-1">
                                     {server.name}
                                 </h1>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <div className={cn(
                                         "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
                                         isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
@@ -154,68 +154,68 @@ export function ServerDetail() {
                                     </div>
                                     <button 
                                         onClick={handleCopy}
-                                        className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy"
+                                        className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none"
                                     >
-                                        <span>{displayIp}</span>
+                                        <span className="truncate">{displayIp}</span>
                                         {copied ? (
-                                            <Check className="h-2.5 w-2.5 text-emerald-500" />
+                                            <Check className="h-2.5 w-2.5 text-emerald-500 flex-shrink-0" />
                                         ) : (
-                                            <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
+                                            <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
                                         )}
                                     </button>
                                     {server.last_version && (
-                                        <Badge variant="secondary" className="font-mono text-[10px] ml-1">
+                                        <Badge variant="secondary" className="font-mono text-[10px] whitespace-nowrap">
                                             v{server.last_version}
                                         </Badge>
                                     )}
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="flex items-center gap-2 ml-auto">
-                            <Select
-                                value={String(selectedRange)}
-                                onValueChange={(v: string) =>
-                                    setSelectedRange(Number(v))
-                                }
-                            >
-                                <SelectTrigger className="h-9 w-[160px] text-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {TIME_RANGES.map((r) => (
-                                        <SelectItem
-                                            key={r.value}
-                                            value={String(r.value)}
-                                            className="text-xs"
-                                        >
-                                            {r.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Select
-                                value={String(selectedInterval)}
-                                onValueChange={(v: string) =>
-                                    setSelectedInterval(Number(v))
-                                }
-                            >
-                                <SelectTrigger className="h-9 w-[100px] text-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {INTERVALS.map((i) => (
-                                        <SelectItem
-                                            key={i.value}
-                                            value={String(i.value)}
-                                            className="text-xs"
-                                        >
-                                            {i.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                    <div className="flex flex-row items-center gap-2 w-full md:w-auto md:ml-auto">
+                        <Select
+                            value={String(selectedRange)}
+                            onValueChange={(v: string) =>
+                                setSelectedRange(Number(v))
+                            }
+                        >
+                            <SelectTrigger className="h-9 w-full md:w-[160px] text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {TIME_RANGES.map((r) => (
+                                    <SelectItem
+                                        key={r.value}
+                                        value={String(r.value)}
+                                        className="text-xs"
+                                    >
+                                        {r.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            value={String(selectedInterval)}
+                            onValueChange={(v: string) =>
+                                setSelectedInterval(Number(v))
+                            }
+                        >
+                            <SelectTrigger className="h-9 w-full md:w-[100px] text-xs">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {INTERVALS.map((i) => (
+                                    <SelectItem
+                                        key={i.value}
+                                        value={String(i.value)}
+                                        className="text-xs"
+                                    >
+                                        {i.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
@@ -230,7 +230,7 @@ export function ServerDetail() {
                         )}
                     </h2>
                     
-                    <div className="bg-card rounded-xl border p-4 shadow-sm min-h-[500px] flex items-center justify-center relative">
+                    <div className="bg-card rounded-xl border p-4 shadow-sm min-h-[340px] sm:min-h-[500px] flex items-center justify-center relative">
                         {loadingRecords ? (
                             <p className="text-muted-foreground text-sm animate-pulse">{t("serverDetail.chartLoading")}</p>
                         ) : (

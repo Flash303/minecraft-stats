@@ -36,9 +36,10 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
     useEffect(() => {
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
+                const height = window.innerWidth < 640 ? 300 : 450
                 chartRef.current.setSize({
                     width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                    height: 500
+                    height: height
                 })
             }
         }
@@ -116,7 +117,16 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
                     const top = u.cursor.top ?? 0
                     const rect = u.over.getBoundingClientRect()
 
-                    overlay.style.left = `${rect.left + left + 15}px`
+                    let tooltipLeft = rect.left + left + 15
+                    const tooltipWidth = overlay.offsetWidth || 180
+                    if (tooltipLeft + tooltipWidth > window.innerWidth - 10) {
+                        tooltipLeft = rect.left + left - tooltipWidth - 15
+                    }
+                    if (tooltipLeft < 10) {
+                        tooltipLeft = 10
+                    }
+
+                    overlay.style.left = `${tooltipLeft}px`
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
@@ -155,7 +165,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
 
         return {
             width: containerRef.current?.clientWidth ?? 800,
-            height: 500,
+            height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             plugins: [tooltipPlugin],
             scales: {
@@ -246,9 +256,10 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
                         chartRef.current = chart
                         // Force resize to container width after creation
                         if (containerRef.current) {
+                            const height = window.innerWidth < 640 ? 300 : 450
                             chart.setSize({
                                 width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                                height: 500
+                                height: height
                             })
                         }
                     }}
