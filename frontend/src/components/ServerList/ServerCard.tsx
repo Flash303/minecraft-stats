@@ -13,25 +13,24 @@ interface ServerCardProps {
 
 export function ServerCard({ server }: ServerCardProps) {
     const { t, language } = useLanguage()
-    const [records, setRecords] = useState<{ date: number; value: number }[]>(server.data || [])
+    const [fetchedRecords, setFetchedRecords] = useState<{ date: number; value: number }[]>([])
     const [copied, setCopied] = useState(false)
 
     useEffect(() => {
-        if (server.data) {
-            setRecords(server.data)
-            return
-        }
+        if (server.data) return
         const loadRecords = async () => {
             try {
                 const from = Math.floor((Date.now() - 86400000) / 1000)
                 const data = await fetchRecords(server.id, from, 300000)
-                setRecords(data)
+                setFetchedRecords(data)
             } catch {
-                setRecords([])
+                setFetchedRecords([])
             }
         }
         loadRecords().then()
     }, [server.id, server.data])
+
+    const records = server.data || fetchedRecords
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"

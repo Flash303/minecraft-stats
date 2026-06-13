@@ -34,7 +34,8 @@ export function ServerDetail() {
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
-
+    const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
+ 
     const loadServer = useCallback(async () => {
         if (!id) return
         setLoading(true)
@@ -48,39 +49,37 @@ export function ServerDetail() {
             setLoading(false)
         }
     }, [id, getToken, isSignedIn, isLoaded])
-
+ 
     const loadRecords = useCallback(async () => {
         if (!server) return
         setLoadingRecords(true)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const from = Math.floor((Date.now() - selectedRange) / 1000)
+            const now = Math.floor(Date.now() / 1000)
+            const from = now - Math.floor(selectedRange / 1000)
             const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
             setRecords(data)
+            setTimeLimits({ from, to: now })
         } catch {
             setRecords([])
         } finally {
             setLoadingRecords(false)
         }
     }, [server, selectedRange, selectedInterval, getToken, isSignedIn, isLoaded])
-
+ 
     useEffect(() => {
         if (!isLoaded) return
-        loadServer()
+        Promise.resolve().then(() => {
+            loadServer()
+        })
     }, [loadServer, isLoaded])
-
+ 
     useEffect(() => {
         if (!isLoaded) return
-        loadRecords()
+        Promise.resolve().then(() => {
+            loadRecords()
+        })
     }, [loadRecords, isLoaded])
-
-    const timeLimits = useMemo(() => {
-        const now = Math.floor(Date.now() / 1000)
-        return {
-            from: now - Math.floor(selectedRange / 1000),
-            to: now
-        }
-    }, [selectedRange])
 
     const stats = useMemo(() => {
         if (records.length === 0) return null

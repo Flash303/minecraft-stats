@@ -164,7 +164,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
         const locale = language === "fr" ? "fr-FR" : "en-US"
 
         return {
-            width: containerRef.current?.clientWidth ?? 800,
+            width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             plugins: [tooltipPlugin],

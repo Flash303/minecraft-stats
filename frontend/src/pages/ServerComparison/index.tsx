@@ -29,34 +29,44 @@ export function ServerComparison() {
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
-
-    const fetchServerRecords = useCallback(async (server: Server) => {
+    const [timeRangeProps, setTimeRangeProps] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
+ 
+    const fetchServerRecords = useCallback(async (server: Server, from: number) => {
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const from = Math.floor((Date.now() - selectedRange) / 1000)
             const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
             setRecordsMap(prev => ({ ...prev, [server.id]: data }))
         } catch (err) {
             console.error(`Failed to load records for server ${server.id}`, err)
         }
-    }, [selectedRange, selectedInterval, isLoaded, isSignedIn, getToken])
-
+    }, [selectedInterval, isLoaded, isSignedIn, getToken])
+ 
     useEffect(() => {
         const refreshAll = async () => {
             setLoadingRecords(true)
-            await Promise.all(selectedServers.map(s => fetchServerRecords(s)))
+            const now = Math.floor(Date.now() / 1000)
+            const from = now - Math.floor(selectedRange / 1000)
+            setTimeRangeProps({ from, to: now })
+            await Promise.all(selectedServers.map(s => fetchServerRecords(s, from)))
             setLoadingRecords(false)
         }
-        if (selectedServers.length > 0) refreshAll()
-        else setRecordsMap({})
+        if (selectedServers.length > 0) {
+            Promise.resolve().then(() => {
+                refreshAll()
+            })
+        } else {
+            Promise.resolve().then(() => {
+                setRecordsMap({})
+            })
+        }
     }, [selectedServers, selectedRange, selectedInterval, fetchServerRecords])
-
+ 
     const addServer = (server: Server) => {
         if (selectedServers.find(s => s.id === server.id)) return
         setSelectedServers(prev => [...prev, server])
         setSearchQuery("")
     }
-
+ 
     const removeServer = (serverId: number) => {
         setSelectedServers(prev => prev.filter(s => s.id !== serverId))
         setRecordsMap(prev => {
@@ -65,16 +75,8 @@ export function ServerComparison() {
             return next
         })
     }
-
+ 
     const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
-
-    const timeRangeProps = useMemo(() => {
-        const now = Math.floor(Date.now() / 1000)
-        return {
-            from: now - Math.floor(selectedRange / 1000),
-            to: now
-        }
-    }, [selectedRange])
 
     return (
         <Layout>

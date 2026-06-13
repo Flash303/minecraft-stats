@@ -197,7 +197,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         }
 
         return {
-            width: containerRef.current?.clientWidth ?? 800,
+            width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             plugins: [tooltipPlugin],
             cursor: {

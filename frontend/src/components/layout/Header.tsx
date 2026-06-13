@@ -114,7 +114,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             </Button>
                         )}
                         
-                        <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
+                        <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
                             <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages className="h-4 w-4" />
                             </SelectTrigger>

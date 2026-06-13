@@ -65,7 +65,9 @@ export function ServerList() {
 
     useEffect(() => {
         if (!isLoaded) return
-        load()
+        Promise.resolve().then(() => {
+            load()
+        })
     }, [load, isLoaded])
 
     const filteredServers = useMemo(() => {
