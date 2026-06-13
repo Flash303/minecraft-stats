@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sqlx::{Executor, PgPool, QueryBuilder, Row};
+use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::Record;
@@ -205,47 +205,10 @@ impl Repository for PostgresRepository {
     }
 
     async fn initialize(&self) -> Result<(), String> {
-        self.pool.execute(
-            "CREATE TABLE IF NOT EXISTS servers (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-
-                user_id TEXT NOT NULL,
-
-                ip TEXT NOT NULL,
-                port INTEGER NOT NULL CHECK (port >= 0 AND port <= 65535),
-
-                last_favicon TEXT NULL,
-                last_status TEXT NULL CHECK (last_status IN ('online', 'offline')),
-                last_connected INTEGER NULL,
-                last_version TEXT NULL,
-                favicon_hash TEXT NULL,
-                motd_hash TEXT NULL,
-                resolved_endpoint TEXT NULL,
-                UNIQUE (ip, port)
-            )"
-        ).await.map_err(|e| e.to_string())?;
-
-        // Ensure columns exist (for existing databases)
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_favicon TEXT NULL").await.map_err(|e| e.to_string())?;
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_status TEXT NULL CHECK (last_status IN ('online', 'offline'))").await.map_err(|e| e.to_string())?;
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_connected TEXT NULL").await.map_err(|e| e.to_string())?;
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS last_version TEXT NULL").await.map_err(|e| e.to_string())?;
-
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS favicon_hash TEXT").await.map_err(|e| e.to_string())?;
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS motd_hash TEXT").await.map_err(|e| e.to_string())?;
-        self.pool.execute("ALTER TABLE servers ADD COLUMN IF NOT EXISTS resolved_endpoint TEXT").await.map_err(|e| e.to_string())?;
-
-        self.pool.execute(
-            "CREATE TABLE IF NOT EXISTS ping_records (
-                server_id INTEGER NOT NULL,
-                date TIMESTAMPTZ NOT NULL,
-                value INTEGER NOT NULL,
-
-                PRIMARY KEY (server_id, date),
-                FOREIGN KEY (server_id) REFERENCES servers (id)
-            )"
-        ).await.map_err(|e| e.to_string())?;
+        sqlx::migrate!("./migrations")
+            .run(&self.pool)
+            .await
+            .map_err(|e| format!("SQLx migration error : {e}"))?;
 
         Ok(())
     }
