@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::clerk::account_checker::ClerkClaims;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
@@ -16,8 +18,15 @@ use tower_governor::key_extractor::SmartIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
     let get_server_limit = GovernorConfigBuilder::default()
-        .per_second(60)
-        .burst_size(60)
+        .per_second(5)
+        .burst_size(40)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let push_server_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(3)
         .key_extractor(SmartIpKeyExtractor)
         .finish()
         .unwrap();
@@ -25,11 +34,9 @@ pub fn router() -> Router<AppState> {
     let layer = GovernorLayer::new(get_server_limit);
 
     Router::new()
-        .route("/", get(list_all_servers))
-        .layer(layer.clone())
-        .route("/{id}", get(get_server))
-        .layer(layer)
-        .route("/", post(create_server))
+        .route("/", get(list_all_servers).route_layer(layer.clone()))
+        .route("/{id}", get(get_server).route_layer(layer))
+        .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
 }
 
 pub async fn list_all_servers(State(state): State<AppState>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
@@ -72,7 +79,7 @@ pub async fn create_server(State(state): State<AppState>,
     // max 3 try
     let mut ping_result = None;
     for _ in 0..3 {
-        if let Ok(res) = state.pigner.ping_server(query.ip.as_str(), query.port, PingConfig::default()).await {
+        if let Ok(res) = state.pigner.ping_server(query.ip.as_str(), query.port, &PingConfig::default()).await {
             ping_result = Some(res);
             break;
         }

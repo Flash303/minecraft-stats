@@ -15,14 +15,13 @@ use tower_governor::key_extractor::SmartIpKeyExtractor;
 pub fn router() -> Router<AppState> {
     let rate_limit_config = GovernorConfigBuilder::default()
         .per_second(60)
-        .burst_size(150)
+        .burst_size(60)
         .key_extractor(SmartIpKeyExtractor)
         .finish()
         .unwrap();
 
     Router::new()
-        .route("/{id}", get(fetch_records))
-        .layer(GovernorLayer::new(rate_limit_config))
+        .route("/{id}", get(fetch_records).route_layer(GovernorLayer::new(rate_limit_config)))
 }
 
 #[derive(Deserialize)]

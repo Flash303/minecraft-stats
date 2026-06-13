@@ -3,7 +3,7 @@ use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::Record;
-use crate::models::server::{self, Server, ServerRow, UnregisteredServer};
+use crate::models::server::{Server, ServerRow, UnregisteredServer};
 use crate::repository::Repository;
 
 #[derive(Clone)]
