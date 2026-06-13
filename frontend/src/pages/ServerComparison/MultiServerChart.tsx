@@ -5,6 +5,7 @@ import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
 
 interface MultiServerChartProps {
     data: uPlot.AlignedData
@@ -39,9 +40,10 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
     useEffect(() => {
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
+                const height = window.innerWidth < 640 ? 300 : 450
                 chartRef.current.setSize({
                     width: containerRef.current.clientWidth,
-                    height: 500
+                    height: height
                 })
             }
         }
@@ -51,17 +53,20 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             resizeObserver.observe(containerRef.current)
         }
 
+        // Trigger immediate resize check
+        handleResize()
+
         return () => {
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [data])
 
     const tooltipPlugin = useMemo<uPlot.Plugin>(() => {
         return {
             hooks: {
                 init: (u: uPlot) => {
                     const overlay = document.createElement("div")
-                    overlay.className = "pointer-events-none absolute z-50 rounded bg-black/90 px-3 py-2 text-xs text-white shadow-lg font-sans leading-relaxed min-w-[200px]"
+                    overlay.className = "pointer-events-none absolute z-50 rounded-xl border border-slate-800 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[220px] transition-opacity duration-150"
                     overlay.style.display = "none"
                     overlay.style.position = "fixed"
                     u.over.appendChild(overlay)
@@ -94,10 +99,8 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                         return
                     }
 
-                    const d = new Date(xVal * 1000)
                     const locale = language === "fr" ? "fr-FR" : "en-US"
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
+                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
 
                     let rowsHtml = ""
 
@@ -109,25 +112,34 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                             rowsHtml += `
                                 <div class="flex items-center justify-between gap-4 py-0.5">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 rounded-full" style="background-color: ${color}"></div>
-                                        <span class="text-slate-300">${name}</span>
+                                        <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
+                                        <span class="text-slate-300 font-medium">${name}</span>
                                     </div>
-                                    <span class="font-bold">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                                    <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
                                 </div>
                             `
                         }
                     }
 
                     overlay.innerHTML = `
-                        <div class="border-b border-white/10 pb-1 mb-1 text-slate-400">📅 ${dateStr} ${t("common.time")} ${timeStr}</div>
-                        ${rowsHtml}
+                        <div class="border-b border-white/10 pb-1.5 mb-1.5 text-slate-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
+                        <div class="space-y-1">${rowsHtml}</div>
                     `
 
                     const left = u.cursor.left ?? 0
                     const top = u.cursor.top ?? 0
                     const rect = u.over.getBoundingClientRect()
 
-                    overlay.style.left = `${rect.left + left + 15}px`
+                    let tooltipLeft = rect.left + left + 15
+                    const tooltipWidth = overlay.offsetWidth || 220
+                    if (tooltipLeft + tooltipWidth > window.innerWidth - 10) {
+                        tooltipLeft = rect.left + left - tooltipWidth - 15
+                    }
+                    if (tooltipLeft < 10) {
+                        tooltipLeft = 10
+                    }
+
+                    overlay.style.left = `${tooltipLeft}px`
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
@@ -165,10 +177,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 label: t("common.date"),
                 value: (_u: uPlot, val: number) => {
                     if (val == null) return ""
-                    const d = new Date(val * 1000)
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
-                    return `${dateStr} ${t("common.time")} ${timeStr}`
+                    return formatTooltipDateTime(val, language, locale, t("common.time"))
                 }
             }
         ]
@@ -179,7 +188,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 label: serverNames[i],
                 stroke: color,
                 width: 2,
-                spanGaps: true,
+                spanGaps: false, // Match PlayerChart - show gaps for server offline status
                 value: (_u: uPlot, val: number) => {
                     if (val == null) return ""
                     return new Intl.NumberFormat(locale).format(Math.round(val))
@@ -189,7 +198,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
 
         return {
             width: containerRef.current?.clientWidth ?? 800,
-            height: 500,
+            height: window.innerWidth < 640 ? 300 : 450,
             plugins: [tooltipPlugin],
             cursor: {
                 drag: { setScale: true }
@@ -199,6 +208,24 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     time: true,
                     min: timeRange.from,
                     max: timeRange.to,
+                    range: (u: uPlot, min: number, max: number) => {
+                        const xData = u.data[0]
+                        if (!xData || xData.length === 0) return [min, max]
+
+                        let pointsCount = 0
+                        for (let i = 0; i < xData.length; i++) {
+                            if (xData[i] >= min && xData[i] <= max) {
+                                pointsCount++
+                            }
+                            if (xData[i] > max) break
+                        }
+
+                        if (pointsCount < 2 && u.scales.x && u.scales.x.min != null) {
+                            return [u.scales.x.min, u.scales.x.max]
+                        }
+
+                        return [min, max]
+                    }
                 },
                 y: { auto: true }
             },
@@ -206,22 +233,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 {
                     stroke: textColor,
                     grid: { stroke: gridColor },
-                    values: (_u: uPlot, vals: number[]) => vals.map(v => {
-                        if (v == null) return ""
-                        const d = new Date(v * 1000)
-                        
-                        if (d.getHours() === 0 && d.getMinutes() === 0) {
-                            const day = d.getDate().toString().padStart(2, "0")
-                            const month = (d.getMonth() + 1).toString().padStart(2, "0")
-                            return language === "fr" ? `${day}/${month}` : `${month}/${day}`
-                        }
-
-                        return d.toLocaleTimeString(locale, {
-                            hour: "2-digit", 
-                            minute: "2-digit", 
-                            hour12: language !== "fr" 
-                        })
-                    })
+                    values: (_u: uPlot, vals: number[]) => vals.map(v => formatAxisTick(v, language, locale))
                 },
                 {
                     stroke: textColor,
@@ -232,10 +244,6 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         } as uPlot.Options
     }, [serverNames, theme, tooltipPlugin, timeRange, language, t])
 
-    if (data[0].length === 0) {
-        return <p className="text-center py-4 text-slate-400">{t("comparison.noSelection")}</p>
-    }
-
     return (
         <div className="w-full space-y-4">
             <div className="flex justify-end">
@@ -244,14 +252,30 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                 </Button>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-2 rounded-lg border">
-                <UplotReact
-                    options={options}
-                    data={data}
-                    onCreate={(chart) => {
-                        chartRef.current = chart
-                    }}
-                />
+            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border min-h-[520px] flex items-center justify-center relative shadow-sm">
+                {data[0].length === 0 ? (
+                    <p className="text-center py-4 text-slate-400 font-medium animate-pulse">
+                        {t("comparison.loadingData")}
+                    </p>
+                ) : (
+                    <div className="w-full">
+                        <UplotReact
+                            options={options}
+                            data={data}
+                            onCreate={(chart) => {
+                                chartRef.current = chart
+                                // Force resize to container width after creation
+                                if (containerRef.current) {
+                                    const height = window.innerWidth < 640 ? 300 : 450
+                                    chart.setSize({
+                                        width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
+                                        height: height
+                                    })
+                                }
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     )

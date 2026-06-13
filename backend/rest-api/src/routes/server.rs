@@ -1,30 +1,116 @@
+use std::time::Duration;
+
 use crate::clerk::account_checker::ClerkClaims;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;
-use axum::extract::rejection::{JsonRejection, PathRejection};
-use axum::extract::{Path, State};
+use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
+use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
+use minecraft_pinger::PingConfig;
+use repository::models::record::Record;
 use repository::models::server::{Server, UnregisteredServer};
-use repository::duplicate_detection::DuplicateDetectionService;
+use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
+use serde::{Deserialize, Serialize};
+use sqlx::query;
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
+    let get_server_limit = GovernorConfigBuilder::default()
+        .per_second(5)
+        .burst_size(40)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let push_server_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(3)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let layer = GovernorLayer::new(get_server_limit);
+
     Router::new()
-        .route("/", get(list_all_servers))
-        .route("/{id}", get(get_server))
-        .route("/", post(create_server))
+        .route("/", get(list_all_servers).route_layer(layer.clone()))
+        .route("/{id}", get(get_server).route_layer(layer.clone()))
+        .route("/mine", get(get_mine_server).route_layer(layer))
+        .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
 }
 
-pub async fn list_all_servers(State(state): State<AppState>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+#[derive(Serialize, Deserialize)]
+pub struct BiggerServerResponse {
+    #[serde(flatten)]
+    pub server: Server,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<Record>>,
+}
+
+impl From<Server> for BiggerServerResponse {
+    fn from(server: Server) -> Self {
+        BiggerServerResponse {
+            server,
+            data: None,
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct QueryParams {
+    pub include_stats: Option<bool>,
+}
+
+pub async fn list_all_servers(State(state): State<AppState>,
+                            Query(query): Query<QueryParams>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
+    let include_stats = query.include_stats.unwrap_or(false);
+
     let server_list = state.repository.list_servers().await;
     if let Err(error) = server_list {
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
 
-    Ok(ResponseFormat::success(server_list.unwrap(), StatusCode::OK))
+    let mut servers: Vec<BiggerServerResponse> = server_list.unwrap()
+        .into_iter()
+        .map(BiggerServerResponse::from)
+        .collect();
+
+    if include_stats {
+        let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
+
+        let records_result = state.repository.get_last_pings_for_servers(&server_ids).await;
+        if let Err(error) = records_result {
+            println!("Error fetching last pings for servers: {:?}", error);
+            return Err(AppError::FetchingDataError(error));
+        }
+
+        let mut records_map = records_result.unwrap();
+        for s in &mut servers {
+            s.data = records_map.remove(&s.server.id);
+        }
+    }
+
+    Ok(ResponseFormat::success(servers, StatusCode::OK))
+}
+
+pub async fn get_mine_server(State(state): State<AppState>,
+                            Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+    if account.is_none() {
+        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
+    }
+
+    let result = state.repository.get_servers_of_user(account.unwrap().sub).await;
+    if let Err(error) = result {
+        println!("Error listing servers: {:?}", error);
+        return Err(AppError::FetchingDataError(error));
+    }
+
+    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
 }
 
 pub async fn get_server(State(state): State<AppState>,
@@ -57,33 +143,45 @@ pub async fn create_server(State(state): State<AppState>,
     // max 3 try
     let mut ping_result = None;
     for _ in 0..3 {
-        if let Ok(res) = pinger::ping_server(query.ip.as_str(), query.port).await {
+        if let Ok(res) = state.pigner.ping_server(query.ip.as_str(), query.port, &PingConfig::default()).await {
             ping_result = Some(res);
             break;
         }
     }
-    
-    let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
 
-    // Compute hashes
+    let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
     query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
-    
-    // Convert Description to Value for hash_motd
     let motd_value = serde_json::to_value(&ping.description).ok();
     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
-    
     query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
 
-    // Check for duplicates
-    let existing = state.repository.find_servers(
-        query.favicon_hash.as_deref(),
-        query.resolved_endpoint.as_deref(),
-        query.motd_hash.as_deref()
-    ).await.map_err(|e| AppError::ServerCreationError(e))?;
-    
-    if !existing.is_empty() {
+    let fingerprint = ServerFingerprint {
+        favicon_hash: query.favicon_hash.clone(),
+        resolved_endpoint: query.resolved_endpoint.clone(),
+        motd_hash: query.motd_hash.clone(),
+        version: Some(ping.version.name.clone()),
+    };
+
+    if let Some(duplicate) = DuplicateDetectionService::find_duplicate(
+        state.repository.as_ref(),
+        &fingerprint,
+        None,
+    ).await.map_err(|e| AppError::ServerCreationError(e))? {
+        println!(
+            "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
+            query.name,
+            duplicate.server.name,
+            duplicate.server.id,
+            duplicate.score,
+            duplicate.signals
+        );
+
+        drop(fingerprint);
         return Err(AppError::ServerCreationError("Server already exists".to_string()));
     }
+    drop(fingerprint);
+
+    query.user_id = Some(account.unwrap().sub);
 
     let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {

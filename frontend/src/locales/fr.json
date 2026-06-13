@@ -4,6 +4,7 @@
     "refresh": "Actualiser",
     "search": "Rechercher un serveur...",
     "compare": "Comparer",
+    "myServers": "Mes serveurs",
     "back": "Retour",
     "backToHome": "Retour à l'accueil",
     "copy": "Copier",
@@ -75,6 +76,6 @@
     "noSelection": "Aucun serveur sélectionné",
     "noSelectionDesc": "Utilisez la recherche ci-dessus pour comparer plusieurs serveurs.",
     "loadingData": "Chargement des données comparatives...",
-    "resetZoom": "Reset Zoom"
+    "resetZoom": "Réinitialiser le zoom"
   }
 }

@@ -7,6 +7,8 @@ export interface Server {
     last_status: "online" | "offline" | null
     last_connected: number | null
     last_version: string | null
+    user_id: string
+    data?: Record[]
 }
 
 export interface Record {
@@ -14,7 +16,7 @@ export interface Record {
     value: number
 }
 
-const API_BASE = "http://localhost:3000"
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000"
 
 /**
  * Helper to build headers with optional auth token
@@ -29,9 +31,10 @@ function getHeaders(token?: string): HeadersInit {
     return headers
 }
 
-export async function fetchServers(token?: string): Promise<Server[]> {
+export async function fetchServers(token?: string, includeStats?: boolean): Promise<Server[]> {
     try {
-        const res = await fetch(`${API_BASE}/servers`, {
+        const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
+        const res = await fetch(url, {
             headers: getHeaders(token)
         })
         if (!res.ok) return []
@@ -39,6 +42,20 @@ export async function fetchServers(token?: string): Promise<Server[]> {
         return json.success ? json.data : []
     } catch (error) {
         console.error("Failed to fetch servers:", error)
+        return []
+    }
+}
+
+export async function fetchMyServers(token: string): Promise<Server[]> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/mine`, {
+            headers: getHeaders(token)
+        })
+        if (!res.ok) return []
+        const json = await res.json()
+        return json.success ? json.data : []
+    } catch (error) {
+        console.error("Failed to fetch my servers:", error)
         return []
     }
 }
@@ -95,6 +112,6 @@ export async function createServer(
         return { success: json.success, message: json.message }
     } catch (error) {
         console.error("Failed to create server:", error)
-        return { success: false, message: "Erreur réseau lors de l'ajout du serveur" }
+        return { success: false }
     }
 }

@@ -3,15 +3,26 @@ use crate::response::ResponseFormat;
 use crate::state::AppState;
 use axum::extract::{Path, Query, State};
 use axum::extract::rejection::{PathRejection, QueryRejection};
-use axum::http::StatusCode;
+use axum::http::{StatusCode};
 use axum::routing::get;
 use axum::Router;
-use serde::{Deserialize, Serialize};
+use repository::models::record::Record;
+use serde::{Deserialize};
 use time::{Duration, OffsetDateTime};
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
+    let rate_limit_config = GovernorConfigBuilder::default()
+        .per_second(60)
+        .burst_size(60)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
     Router::new()
-        .route("/{id}", get(fetch_records))
+        .route("/{id}", get(fetch_records)/*.route_layer(GovernorLayer::new(rate_limit_config))*/)
 }
 
 #[derive(Deserialize)]
@@ -23,16 +34,9 @@ pub struct GetParam {
     pub interval: i64,
 }
 
-#[derive(Serialize)]
-pub struct RecordResponse {
-    #[serde(with = "time::serde::timestamp")]
-    pub date: OffsetDateTime,
-    pub value: u32,
-}
-
 pub async fn fetch_records(State(state): State<AppState>,
                      id: Result<Path<u32>, PathRejection>,
-                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<Vec<RecordResponse>>, AppError> {
+                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<Vec<Record>>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -48,13 +52,5 @@ pub async fn fetch_records(State(state): State<AppState>,
         return Err(AppError::FetchingDataError(error));
     }
 
-    let data: Vec<RecordResponse> = result.unwrap()
-        .into_iter()
-        .map(|r| RecordResponse {
-            date: r.date,
-            value: r.value,
-        })
-        .collect();
-
-    Ok(ResponseFormat::success(data, StatusCode::ACCEPTED))
+    Ok(ResponseFormat::success(result.unwrap(), StatusCode::ACCEPTED))
 }

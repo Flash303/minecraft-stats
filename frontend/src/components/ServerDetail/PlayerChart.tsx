@@ -5,6 +5,7 @@ import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
 
 interface PlayerDataPoint {
     date: number
@@ -21,7 +22,7 @@ interface PlayerChartProps {
     }
 }
 
-export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -35,9 +36,10 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
     useEffect(() => {
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
+                const height = window.innerWidth < 640 ? 300 : 450
                 chartRef.current.setSize({
-                    width: containerRef.current.clientWidth,
-                    height: 500
+                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
+                    height: height
                 })
             }
         }
@@ -47,42 +49,19 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
             resizeObserver.observe(containerRef.current)
         }
 
+        // Trigger immediate resize check
+        handleResize()
+
         return () => {
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [data])
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
-    const chartData = useMemo<uPlot.AlignedData>(() => {
-        if (!data || data.length === 0) return [[], []]
+    // (This block is not changed but shown for context)
 
-        const sorted = [...data].sort((a, b) => a.date - b.date)
-
-        const timestamps: number[] = []
-        const values: (number | null)[] = []
-
-        const MAX_GAP_SECONDS = 30 * 60
-
-        for (let i = 0; i < sorted.length; i++) {
-            const currentPoint = sorted[i]
-            const currentX = currentPoint.date > 1000000000000 ? currentPoint.date / 1000 : currentPoint.date
-
-            if (timestamps.length > 0) {
-                const prevX = timestamps[timestamps.length - 1]
-                const diff = currentX - prevX
-
-                if (diff > MAX_GAP_SECONDS) {
-                    timestamps.push(prevX + 1)
-                    values.push(null)
-                }
-            }
-
-            timestamps.push(currentX)
-            values.push(currentPoint.value)
-        }
-
-        return [timestamps, values]
-    }, [data])
+    // Transformation des données : Tri + Injection de NULL pour casser les lignes
+    const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
 
     // Configuration du Plugin Tooltip
     const tooltipPlugin = useMemo<uPlot.Plugin>(() => {
@@ -125,14 +104,12 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                         return
                     }
 
-                    const d = new Date(xVal * 1000)
                     const locale = language === "fr" ? "fr-FR" : "en-US"
-                    const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                    const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
+                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
 
                     overlay.innerHTML = `
                         <div class="font-semibold text-blue-400">${serverName}</div>
-                        <div class="text-slate-300">📅 ${dateStr} ${t("common.time")} ${timeStr}</div>
+                        <div class="text-slate-300">📅 ${dateTimeStr}</div>
                         <div class="font-medium">👥 ${new Intl.NumberFormat(locale).format(Math.round(yVal))} ${t("common.players")}</div>
                     `
 
@@ -140,7 +117,16 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                     const top = u.cursor.top ?? 0
                     const rect = u.over.getBoundingClientRect()
 
-                    overlay.style.left = `${rect.left + left + 15}px`
+                    let tooltipLeft = rect.left + left + 15
+                    const tooltipWidth = overlay.offsetWidth || 180
+                    if (tooltipLeft + tooltipWidth > window.innerWidth - 10) {
+                        tooltipLeft = rect.left + left - tooltipWidth - 15
+                    }
+                    if (tooltipLeft < 10) {
+                        tooltipLeft = 10
+                    }
+
+                    overlay.style.left = `${tooltipLeft}px`
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
@@ -179,7 +165,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
 
         return {
             width: containerRef.current?.clientWidth ?? 800,
-            height: 500,
+            height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             plugins: [tooltipPlugin],
             scales: {
@@ -216,22 +202,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                 {
                     stroke: textColor,
                     grid: { stroke: gridColor },
-                    values: (_u: uPlot, vals: number[]) => vals.map(v => {
-                        if (v == null) return ""
-                        const d = new Date(v * 1000)
-                        
-                        if (d.getHours() === 0 && d.getMinutes() === 0) {
-                            const day = d.getDate().toString().padStart(2, "0")
-                            const month = (d.getMonth() + 1).toString().padStart(2, "0")
-                            return language === "fr" ? `${day}/${month}` : `${month}/${day}`
-                        }
-
-                        return d.toLocaleTimeString(locale, { 
-                            hour: "2-digit", 
-                            minute: "2-digit", 
-                            hour12: language !== "fr" 
-                        })
-                    })
+                    values: (_u: uPlot, vals: number[]) => vals.map(v => formatAxisTick(v, language, locale))
                 },
                 {
                     stroke: textColor,
@@ -244,10 +215,7 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                     label: t("common.date"),
                     value: (_u: uPlot, val: number) => {
                         if (val == null) return ""
-                        const d = new Date(val * 1000)
-                        const dateStr = d.toLocaleDateString(locale, { day: "2-digit", month: "2-digit", year: "numeric" })
-                        const timeStr = d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: language !== "fr" })
-                        return `${dateStr} ${t("common.time")} ${timeStr}`
+                        return formatTooltipDateTime(val, language, locale, t("common.time"))
                     }
                 },
                 {
@@ -280,12 +248,20 @@ export function PlayerChart({ data, serverName, timeRange }: PlayerChartProps) {
                 </Button>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-2 rounded-lg border">
+            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
                 <UplotReact
                     options={options}
                     data={chartData}
                     onCreate={(chart) => {
                         chartRef.current = chart
+                        // Force resize to container width after creation
+                        if (containerRef.current) {
+                            const height = window.innerWidth < 640 ? 300 : 450
+                            chart.setSize({
+                                width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
+                                height: height
+                            })
+                        }
                     }}
                 />
             </div>

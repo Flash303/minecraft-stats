@@ -8,19 +8,32 @@ pub mod clerk;
 use crate::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
 use crate::state::AppState;
-use axum::http::Method;
+use axum::{extract::DefaultBodyLimit, http::Method};
 use axum::middleware::from_fn_with_state;
 use axum::Router;
-use repository::repository::PostgresRepository;
 use std::env;
+use std::net::SocketAddr;
 use std::sync::Arc;
+use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
+use repository::postgres::PostgresRepository;
+
+const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
     println!("Starting server");
 
+    // Port
+    let port = env::var("LISTEN_PORT")
+        .map(|p| p.parse::<u16>().unwrap_or(DEFAULT_PORT))
+        .unwrap_or_else(|_| {
+            println!("Please set the LISTEN_PORT environment variable, using defaults.");
+            DEFAULT_PORT
+        });
+
+    // Init DB
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| {
             println!("Please set the DATABASE_URL environment variable, using defaults.");
@@ -34,6 +47,7 @@ async fn main() {
     }
     let repository = result.unwrap();
 
+    // Init clerk
     let clerk_instance = env::var("CLERK_URL");
     if let Err(_) = clerk_instance {
         println!("Please provide a CLERK_URL environment variable.");
@@ -48,13 +62,27 @@ async fn main() {
     }
     let keys = result.unwrap();
 
+    // Init Pinger (for server add)
+    let pinger = MinecraftPinger::new();
+    if let Err(err) = pinger {
+        println!("Error on pinger init: {}", err);
+        return;
+    }
+    let pinger = pinger.unwrap();
+
+
+    // Init the main rest api
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers(Any);
 
+    let body_limit = DefaultBodyLimit::max(1024 * 10);
+
     let state = AppState {
         repository: Arc::new(repository),
+        pigner: Arc::new(pinger),
+
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),
     };
@@ -64,10 +92,11 @@ async fn main() {
         .nest("/servers", routes::server::router())
         .route_layer(from_fn_with_state(state.clone(), auth_middleware))
         .with_state(state)
-        .layer(cors);
+        .layer(cors)
+        .layer(body_limit);
 
-    let listener = TcpListener::bind("127.0.0.1:3000").await.unwrap();
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
 
     println!("Listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.unwrap();
 }
