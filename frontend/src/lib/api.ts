@@ -44,6 +44,20 @@ export async function fetchServers(token?: string): Promise<Server[]> {
     }
 }
 
+export async function fetchMyServers(token: string): Promise<Server[]> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/mine`, {
+            headers: getHeaders(token)
+        })
+        if (!res.ok) return []
+        const json = await res.json()
+        return json.success ? json.data : []
+    } catch (error) {
+        console.error("Failed to fetch my servers:", error)
+        return []
+    }
+}
+
 export async function fetchServer(id: number, token?: string): Promise<Server | null> {
     try {
         const res = await fetch(`${API_BASE}/servers/${id}`, {

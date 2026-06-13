@@ -74,6 +74,14 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             >
                                 {t("common.compare")}
                             </Link>
+                            {isSignedIn && (
+                                <Link 
+                                    to="/?tab=mine" 
+                                    className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400 hover:text-primary transition-colors whitespace-nowrap"
+                                >
+                                    {t("common.myServers")}
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>

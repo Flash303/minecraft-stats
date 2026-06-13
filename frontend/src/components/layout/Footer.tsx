@@ -2,9 +2,11 @@ import { Link } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Heart } from "lucide-react"
 import logo from "@/assets/logo.png"
+import { useAuth } from "@clerk/react"
 
 export function Footer() {
     const { t } = useLanguage()
+    const { isSignedIn } = useAuth()
     const currentYear = new Date().getFullYear()
 
     return (
@@ -32,6 +34,11 @@ export function Footer() {
                     <Link to="/compare" className="hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors">
                         {t("common.compare")}
                     </Link>
+                    {isSignedIn && (
+                        <Link to="/?tab=mine" className="hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors">
+                            {t("common.myServers")}
+                        </Link>
+                    )}
                     <a 
                         href="https://github.com" 
                         target="_blank" 
@@ -44,7 +51,7 @@ export function Footer() {
             </div>
 
             {/* Bottom Row: Copyright & Technology stack info */}
-            <div className="max-w-6xl mx-auto px-6 py-5 border-t border-slate-200/40 dark:border-zinc-800/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-slate-400 dark:text-zinc-505">
+            <div className="max-w-6xl mx-auto px-6 py-5 border-t border-slate-200/40 dark:border-zinc-800/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-slate-400 dark:text-zinc-500">
                 <div>
                     &copy; {currentYear} {t("header.title")}. Tous droits réservés.
                 </div>

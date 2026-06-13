@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
@@ -12,12 +12,31 @@ import { cn } from "@/lib/utils"
 
 export function ServerList() {
     const { t } = useLanguage()
-    const { getToken, isSignedIn, isLoaded } = useAuth()
+    const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { searchQuery } = useSearch()
     const [servers, setServers] = useState<Server[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [activeTab, setActiveTab] = useState<"all" | "online" | "offline">("all")
+    const [searchParams, setSearchParams] = useSearchParams()
+
+    const activeTab = useMemo(() => {
+        const tabParam = searchParams.get("tab")
+        if (tabParam === "mine" && !isSignedIn) return "all"
+        if (tabParam === "online" || tabParam === "offline" || tabParam === "mine") {
+            return tabParam
+        }
+        return "all"
+    }, [searchParams, isSignedIn])
+
+    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "mine") => {
+        const newParams = new URLSearchParams(searchParams)
+        if (tab === "all") {
+            newParams.delete("tab")
+        } else {
+            newParams.set("tab", tab)
+        }
+        setSearchParams(newParams)
+    }, [searchParams, setSearchParams])
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -57,6 +76,8 @@ export function ServerList() {
             list = list.filter(s => s.last_status === "online")
         } else if (activeTab === "offline") {
             list = list.filter(s => s.last_status === "offline")
+        } else if (activeTab === "mine") {
+            list = list.filter(s => s.user_id === userId)
         }
 
         // Filtrage par barre de recherche
@@ -68,10 +89,14 @@ export function ServerList() {
                 s.name.toLowerCase().includes(query) ||
                 s.ip.toLowerCase().includes(query)
         )
-    }, [servers, searchQuery, activeTab])
+    }, [servers, searchQuery, activeTab, userId])
 
     const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online").length, [servers])
     const offlineCount = useMemo(() => servers.filter(s => s.last_status === "offline").length, [servers])
+    const myServersCount = useMemo(() => {
+        if (!userId) return 0
+        return servers.filter(s => s.user_id === userId).length
+    }, [servers, userId])
 
     return (
         <Layout onRefresh={load} isLoading={loading}>
@@ -80,7 +105,7 @@ export function ServerList() {
             <div id="server-list-section" className="pt-8 scroll-mt-20 max-w-6xl mx-auto px-2">
                 {/* Filtres par onglets de catégorie */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/50 dark:border-zinc-800/50 pb-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
                             onClick={() => setActiveTab("all")}
                             className={cn(
@@ -97,7 +122,7 @@ export function ServerList() {
                             className={cn(
                                 "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
                                 activeTab === "online"
-                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm font-bold"
+                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20 shadow-sm font-bold"
                                     : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                             )}
                         >
@@ -116,6 +141,19 @@ export function ServerList() {
                             <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                             Hors ligne ({offlineCount})
                         </button>
+                        {isSignedIn && (
+                            <button
+                                onClick={() => setActiveTab("mine")}
+                                className={cn(
+                                    "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
+                                    activeTab === "mine"
+                                        ? "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border border-indigo-500/20 shadow-sm font-bold"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                                )}
+                            >
+                                Mes serveurs ({myServersCount})
+                            </button>
+                        )}
                     </div>
                     
                     <span className="text-xs text-muted-foreground font-medium hidden sm:inline-block">
