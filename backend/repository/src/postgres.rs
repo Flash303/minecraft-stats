@@ -60,50 +60,50 @@ impl Repository for PostgresRepository {
 
     async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>, interval: Duration) -> Result<Vec<Record>, String> {
         let mut query_builder = QueryBuilder::new(
-            "SELECT server_id, date, value FROM ping_records WHERE server_id = "
+            "WITH binned_pings AS (
+                SELECT server_id, date, value,
+                    date_bin("
         );
-
+    
+        query_builder.push_bind(interval);
+        query_builder.push(", date, TIMESTAMP '2000-01-01') as time_bucket
+                FROM ping_records
+                WHERE server_id = ");
+        
         query_builder.push_bind(server_id as i32);
-
-        query_builder.push(" AND date >= ");
-        query_builder.push_bind(from);
-
+        query_builder.push(" AND date >= ").push_bind(from);
+        
         if let Some(to_date) = to {
-            query_builder.push(" AND date <= ");
-            query_builder.push_bind(to_date);
+            query_builder.push(" AND date <= ").push_bind(to_date);
         }
-
-        query_builder.push(" ORDER BY date ASC");
-
+        
+        query_builder.push(
+            ")
+            SELECT DISTINCT ON (time_bucket) server_id, date, value 
+            FROM binned_pings 
+            ORDER BY time_bucket, date ASC"
+        );
+    
         let query = query_builder.build();
-        let rows = query
+        
+        let records = query
             .fetch_all(&self.pool)
             .await
-            .map_err(|e| e.to_string())?;
-
-        let mut records = Vec::new();
-        let mut next_allowed_time = from;
-
-        for row in rows {
-            let date: OffsetDateTime = row.get("date");
-
-            if date >= next_allowed_time {
+            .map_err(|e| e.to_string())?
+            .into_iter()
+            .map(|row| {
                 let server_id_i32: i32 = row.get("server_id");
                 let value_i32: i32 = row.get("value");
-
-                records.push(Record {
+                Record {
                     server_id: server_id_i32 as u32,
-                    date,
+                    date: row.get("date"),
                     value: value_i32 as u32,
-                });
-
-                next_allowed_time = date + interval;
-            }
-        }
-
+                }
+            })
+            .collect();
+    
         Ok(records)
     }
-
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
             "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
@@ -220,7 +220,20 @@ impl Repository for PostgresRepository {
         Ok(result.into())
     }
 
+    async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, String> {
+        let result: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers WHERE user_id = $1")
+            .bind(user_id)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
 
+        let mut rs: Vec<Server> = Vec::new();
+        for row in result {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
 
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, String> {
         let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");

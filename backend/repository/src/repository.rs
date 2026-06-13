@@ -15,7 +15,10 @@ pub trait Repository: Send + Sync {
     async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), String>;
     
     async fn list_servers(&self) -> Result<Vec<Server>, String>;
+    
     async fn get_server(&self, server_id: u32) -> Result<Server, String>;
+    async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, String>;
+    
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, String>;
     async fn count_resolved_endpoints(&self, resolved_endpoint: &str, exclude_id: Option<u32>) -> Result<u32, String>;
     

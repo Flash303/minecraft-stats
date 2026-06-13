@@ -35,7 +35,8 @@ pub fn router() -> Router<AppState> {
 
     Router::new()
         .route("/", get(list_all_servers).route_layer(layer.clone()))
-        .route("/{id}", get(get_server).route_layer(layer))
+        .route("/{id}", get(get_server).route_layer(layer.clone()))
+        .route("/mine", get(get_mine_server).route_layer(layer))
         .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
 }
 
@@ -47,6 +48,21 @@ pub async fn list_all_servers(State(state): State<AppState>) -> Result<ResponseF
     }
 
     Ok(ResponseFormat::success(server_list.unwrap(), StatusCode::OK))
+}
+
+pub async fn get_mine_server(State(state): State<AppState>,
+                            Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+    if account.is_none() {
+        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
+    }
+
+    let result = state.repository.get_servers_of_user(account.unwrap().sub).await;
+    if let Err(error) = result {
+        println!("Error listing servers: {:?}", error);
+        return Err(AppError::FetchingDataError(error));
+    }
+
+    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
 }
 
 pub async fn get_server(State(state): State<AppState>,
