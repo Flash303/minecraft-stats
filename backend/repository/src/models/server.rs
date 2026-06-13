@@ -15,8 +15,12 @@ pub struct Server {
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
+
+    #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,
+    #[serde(skip_serializing)]
     pub motd_hash: Option<String>,
+    #[serde(skip_serializing)]
     pub resolved_endpoint: Option<String>,
 }
 
@@ -73,7 +77,7 @@ pub struct UnregisteredServer {
     pub ip: String,
     pub port: u16,
     pub user_id: Option<String>,
-    
+
     pub favicon_hash: Option<String>,
     pub motd_hash: Option<String>,
     pub resolved_endpoint: Option<String>,
