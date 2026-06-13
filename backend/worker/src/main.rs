@@ -13,6 +13,7 @@ use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 
 const MAX_CONCURENT_PING: usize = 100;
+const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(1);
 
 #[tokio::main]
 async fn main() {
@@ -31,7 +32,7 @@ async fn main() {
 
     let pinger = Arc::new(result.unwrap());
     let pinger_config = Arc::new(PingConfig {
-        timeout: Duration::from_millis(500),
+        timeout: MAX_PING_RESPONSE_TIME,
         ..Default::default()
     });
 
@@ -103,7 +104,7 @@ async fn main() {
             if let Err(e) = repository.update_servers(&updated_servers).await {
                 println!("Error on server saving: {:?}", e);
             }
-            
+
             if let Err(e) = repository.save_pings(&records).await {
                 println!("Error on ping saving: {:?}", e);
             }
