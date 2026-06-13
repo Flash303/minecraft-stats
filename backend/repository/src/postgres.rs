@@ -3,7 +3,7 @@ use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::Record;
-use crate::models::server::{Server, ServerRow, UnregisteredServer};
+use crate::models::server::{self, Server, ServerRow, UnregisteredServer};
 use crate::repository::Repository;
 
 #[derive(Clone)]
@@ -104,30 +104,6 @@ impl Repository for PostgresRepository {
         Ok(records)
     }
 
-    async fn list_servers(&self) -> Result<Vec<Server>, String> {
-        let rows: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers")
-            .fetch_all(&self.pool)
-            .await
-            .map_err(|e| e.to_string())?;
-
-        let mut rs: Vec<Server> = Vec::new();
-        for row in rows {
-            rs.push(row.into());
-        }
-
-        Ok(rs)
-    }
-
-    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
-        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
-            .bind(server_id as i32)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())?;
-
-        Ok(result.into())
-    }
-
     async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
             "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
@@ -163,6 +139,88 @@ impl Repository for PostgresRepository {
 
         Ok(())
     }
+
+      async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), String> {
+        if servers.is_empty() {
+            return Ok(());
+        }
+
+        let mut ids = Vec::with_capacity(servers.len());
+        let mut favicons = Vec::with_capacity(servers.len());
+        let mut statuses = Vec::with_capacity(servers.len());
+        let mut last_connected = Vec::with_capacity(servers.len());
+        let mut versions = Vec::with_capacity(servers.len());
+        let mut favicon_hashes = Vec::with_capacity(servers.len());
+        let mut motd_hashes = Vec::with_capacity(servers.len());
+        let mut endpoints = Vec::with_capacity(servers.len());
+
+        for s in servers {
+            ids.push(s.id as i32);
+            favicons.push(s.last_favicon.clone());
+            statuses.push(s.last_status.clone());
+            last_connected.push(s.last_connected.map(|v| v as i32));
+            versions.push(s.last_version.clone());
+            favicon_hashes.push(s.favicon_hash.clone());
+            motd_hashes.push(s.motd_hash.clone());
+            endpoints.push(s.resolved_endpoint.clone());
+        }
+
+        sqlx::query(
+            r#"
+            UPDATE servers AS s
+            SET
+                last_favicon = u.last_favicon,
+                last_status = u.last_status,
+                last_connected = u.last_connected,
+                last_version = u.last_version,
+                favicon_hash = u.favicon_hash,
+                motd_hash = u.motd_hash,
+                resolved_endpoint = u.resolved_endpoint
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint)
+            WHERE s.id = u.id
+            "#
+        )
+        .bind(&ids)
+        .bind(&favicons)
+        .bind(&statuses)
+        .bind(&last_connected)
+        .bind(&versions)
+        .bind(&favicon_hashes)
+        .bind(&motd_hashes)
+        .bind(&endpoints)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn list_servers(&self) -> Result<Vec<Server>, String> {
+        let rows: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers")
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let mut rs: Vec<Server> = Vec::new();
+        for row in rows {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
+
+    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
+        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(result.into())
+    }
+
+
 
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, String> {
         let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");
