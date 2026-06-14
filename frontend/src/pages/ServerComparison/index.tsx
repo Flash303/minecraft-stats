@@ -3,18 +3,13 @@ import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { Layout } from "@/components/layout"
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/lib/chartUtils"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from "@/components/ui/select"
-import { X, BarChart3 } from "lucide-react"
+import { BarChart3 } from "lucide-react"
 import { MultiServerChart } from "./MultiServerChart"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { SearchBar } from "@/components/layout/SearchBar"
+import { TimeIntervalSelector } from "@/components/ServerDetail/TimeIntervalSelector"
+import { SelectedServersTags } from "@/components/ServerComparison/SelectedServersTags"
 
 export function ServerComparison() {
     const { t } = useLanguage()
@@ -96,56 +91,22 @@ export function ServerComparison() {
                             className="h-10"
                         />
  
-                        <div className="flex items-center gap-2 w-full">
-                            <Select
-                                value={String(selectedRange)}
-                                onValueChange={(v) => setSelectedRange(Number(v))}
-                            >
-                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {TIME_RANGES.map((r) => (
-                                        <SelectItem key={r.value} value={String(r.value)} className="text-xs">
-                                            {r.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Select
-                                value={String(selectedInterval)}
-                                onValueChange={(v) => setSelectedInterval(Number(v))}
-                            >
-                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {INTERVALS.map((i) => (
-                                        <SelectItem key={i.value} value={String(i.value)} className="text-xs">
-                                            {i.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <TimeIntervalSelector
+                            selectedRange={selectedRange}
+                            setSelectedRange={setSelectedRange}
+                            selectedInterval={selectedInterval}
+                            setSelectedInterval={setSelectedInterval}
+                            timeRanges={TIME_RANGES}
+                            intervals={INTERVALS}
+                            containerClassName="w-full"
+                            triggerClassName="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs"
+                        />
                     </div>
  
-                    {selectedServers.length > 0 && (
-                        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
-                            {selectedServers.map(s => (
-                                <div key={s.id} className="flex items-center gap-2 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-3.5 py-1.5 rounded-xl text-xs border border-indigo-500/10 dark:border-indigo-500/20 shadow-xs hover:border-indigo-500/35 transition-colors">
-                                    {s.last_favicon && <img src={s.last_favicon} className="h-4.5 w-4.5 rounded-md object-cover shadow-xs" alt="" />}
-                                    <span className="font-bold">{s.name}</span>
-                                    <button 
-                                        onClick={() => removeServer(s.id)}
-                                        className="hover:text-rose-500 transition-colors ml-1 cursor-pointer focus:outline-none"
-                                    >
-                                        <X className="h-3.5 w-3.5" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <SelectedServersTags 
+                        selectedServers={selectedServers}
+                        removeServer={removeServer}
+                    />
                 </div>
  
                 <div className="flex flex-col gap-4 relative min-h-[340px] sm:min-h-[500px]">

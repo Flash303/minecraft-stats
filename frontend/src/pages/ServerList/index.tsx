@@ -3,12 +3,12 @@ import { Link, useSearchParams } from "react-router-dom"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
+import { ServerListFilters } from "@/components/ServerList/ServerListFilters"
 import { Layout } from "@/components/layout"
 import { useAuth } from "@clerk/react"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Hero3D } from "@/components/ServerList/Hero3D"
-import { cn } from "@/lib/utils"
 
 export function ServerList() {
     const { t } = useLanguage()
@@ -105,63 +105,15 @@ export function ServerList() {
             {!searchQuery && <Hero3D />}
             
             <div id="server-list-section" className="pt-8 scroll-mt-20 max-w-6xl mx-auto px-2">
-                {/* Filtres par onglets de catégorie */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/50 dark:border-zinc-800/50 pb-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            onClick={() => setActiveTab("all")}
-                            className={cn(
-                                "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer",
-                                activeTab === "all"
-                                    ? "bg-slate-900 text-white dark:bg-white dark:text-zinc-950 shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                            )}
-                        >
-                            Tous ({servers.length})
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("online")}
-                            className={cn(
-                                "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
-                                activeTab === "online"
-                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20 shadow-sm font-bold"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                            )}
-                        >
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            En ligne ({onlineCount})
-                        </button>
-                        <button
-                            onClick={() => setActiveTab("offline")}
-                            className={cn(
-                                "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
-                                activeTab === "offline"
-                                    ? "bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/20 shadow-sm font-bold"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                            )}
-                        >
-                            <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                            Hors ligne ({offlineCount})
-                        </button>
-                        {isSignedIn && (
-                            <button
-                                onClick={() => setActiveTab("mine")}
-                                className={cn(
-                                    "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
-                                    activeTab === "mine"
-                                        ? "bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border border-indigo-500/20 shadow-sm font-bold"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                                )}
-                            >
-                                Mes serveurs ({myServersCount})
-                            </button>
-                        )}
-                    </div>
-                    
-                    <span className="text-xs text-muted-foreground font-medium hidden sm:inline-block">
-                        Actualisé en temps réel
-                    </span>
-                </div>
+                <ServerListFilters
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    totalCount={servers.length}
+                    onlineCount={onlineCount}
+                    offlineCount={offlineCount}
+                    myServersCount={myServersCount}
+                    isSignedIn={!!isSignedIn}
+                />
 
                 {loading && servers.length === 0 && (
                     <div className="flex justify-center py-20">
