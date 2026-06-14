@@ -1,11 +1,10 @@
 use std::{net::SocketAddr, time::Instant};
-use axum::{Extension, body::{Body, HttpBody}, extract::{ConnectInfo, Request}, middleware::Next, response::Response};
+use axum::{body::{Body, HttpBody}, extract::{ConnectInfo, Request}, middleware::Next, response::Response};
 
 use crate::{services::{clerk::model::ClerkClaims, statistics::loki::send_to_loki}, utils::real_ip::get_client_ip};
 
 pub async fn stats_middleware(
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    Extension(user): Extension<Option<ClerkClaims>>,
     request: Request<Body>,
     next: Next,
 ) -> Response {
@@ -21,9 +20,12 @@ pub async fn stats_middleware(
     let request_body_size = request.body().size_hint().lower();
     let total_request_size = (request_headers_size as u64) + request_body_size;
 
-    let user_id = user
-        .map(|u| Some(u.id().to_string()))
-        .unwrap_or_else(|| None);
+    let user_id = request
+        .extensions()
+        .get::<Option<ClerkClaims>>()
+        .cloned()
+        .flatten()
+        .map(|u| u.id().to_string());
 
     // Execute all the routes
     let response = next.run(request).await;
