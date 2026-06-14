@@ -3,18 +3,13 @@ import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { Layout } from "@/components/layout"
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/lib/chartUtils"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from "@/components/ui/select"
-import { X, BarChart3 } from "lucide-react"
+import { BarChart3 } from "lucide-react"
 import { MultiServerChart } from "./MultiServerChart"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { SearchBar } from "@/components/layout/SearchBar"
+import { TimeIntervalSelector } from "@/components/ServerDetail/TimeIntervalSelector"
+import { SelectedServersTags } from "@/components/ServerComparison/SelectedServersTags"
 
 export function ServerComparison() {
     const { t } = useLanguage()
@@ -29,34 +24,44 @@ export function ServerComparison() {
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
-
-    const fetchServerRecords = useCallback(async (server: Server) => {
+    const [timeRangeProps, setTimeRangeProps] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
+ 
+    const fetchServerRecords = useCallback(async (server: Server, from: number) => {
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const from = Math.floor((Date.now() - selectedRange) / 1000)
             const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
             setRecordsMap(prev => ({ ...prev, [server.id]: data }))
         } catch (err) {
             console.error(`Failed to load records for server ${server.id}`, err)
         }
-    }, [selectedRange, selectedInterval, isLoaded, isSignedIn, getToken])
-
+    }, [selectedInterval, isLoaded, isSignedIn, getToken])
+ 
     useEffect(() => {
         const refreshAll = async () => {
             setLoadingRecords(true)
-            await Promise.all(selectedServers.map(s => fetchServerRecords(s)))
+            const now = Math.floor(Date.now() / 1000)
+            const from = now - Math.floor(selectedRange / 1000)
+            setTimeRangeProps({ from, to: now })
+            await Promise.all(selectedServers.map(s => fetchServerRecords(s, from)))
             setLoadingRecords(false)
         }
-        if (selectedServers.length > 0) refreshAll()
-        else setRecordsMap({})
+        if (selectedServers.length > 0) {
+            Promise.resolve().then(() => {
+                refreshAll()
+            })
+        } else {
+            Promise.resolve().then(() => {
+                setRecordsMap({})
+            })
+        }
     }, [selectedServers, selectedRange, selectedInterval, fetchServerRecords])
-
+ 
     const addServer = (server: Server) => {
         if (selectedServers.find(s => s.id === server.id)) return
         setSelectedServers(prev => [...prev, server])
         setSearchQuery("")
     }
-
+ 
     const removeServer = (serverId: number) => {
         setSelectedServers(prev => prev.filter(s => s.id !== serverId))
         setRecordsMap(prev => {
@@ -65,16 +70,8 @@ export function ServerComparison() {
             return next
         })
     }
-
+ 
     const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
-
-    const timeRangeProps = useMemo(() => {
-        const now = Math.floor(Date.now() / 1000)
-        return {
-            from: now - Math.floor(selectedRange / 1000),
-            to: now
-        }
-    }, [selectedRange])
 
     return (
         <Layout>
@@ -94,56 +91,22 @@ export function ServerComparison() {
                             className="h-10"
                         />
  
-                        <div className="flex items-center gap-2 w-full">
-                            <Select
-                                value={String(selectedRange)}
-                                onValueChange={(v) => setSelectedRange(Number(v))}
-                            >
-                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {TIME_RANGES.map((r) => (
-                                        <SelectItem key={r.value} value={String(r.value)} className="text-xs">
-                                            {r.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Select
-                                value={String(selectedInterval)}
-                                onValueChange={(v) => setSelectedInterval(Number(v))}
-                            >
-                                <SelectTrigger className="h-10 w-full rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {INTERVALS.map((i) => (
-                                        <SelectItem key={i.value} value={String(i.value)} className="text-xs">
-                                            {i.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <TimeIntervalSelector
+                            selectedRange={selectedRange}
+                            setSelectedRange={setSelectedRange}
+                            selectedInterval={selectedInterval}
+                            setSelectedInterval={setSelectedInterval}
+                            timeRanges={TIME_RANGES}
+                            intervals={INTERVALS}
+                            containerClassName="w-full"
+                            triggerClassName="h-10 rounded-xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 font-medium text-xs shadow-xs"
+                        />
                     </div>
  
-                    {selectedServers.length > 0 && (
-                        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-1 duration-150">
-                            {selectedServers.map(s => (
-                                <div key={s.id} className="flex items-center gap-2 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-3.5 py-1.5 rounded-xl text-xs border border-indigo-500/10 dark:border-indigo-500/20 shadow-xs hover:border-indigo-500/35 transition-colors">
-                                    {s.last_favicon && <img src={s.last_favicon} className="h-4.5 w-4.5 rounded-md object-cover shadow-xs" alt="" />}
-                                    <span className="font-bold">{s.name}</span>
-                                    <button 
-                                        onClick={() => removeServer(s.id)}
-                                        className="hover:text-rose-500 transition-colors ml-1 cursor-pointer focus:outline-none"
-                                    >
-                                        <X className="h-3.5 w-3.5" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <SelectedServersTags 
+                        selectedServers={selectedServers}
+                        removeServer={removeServer}
+                    />
                 </div>
  
                 <div className="flex flex-col gap-4 relative min-h-[340px] sm:min-h-[500px]">

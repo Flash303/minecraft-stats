@@ -1,4 +1,4 @@
-use crate::clerk::account_checker::verify_clerk_token;
+use crate::services::clerk::account_checker::verify_clerk_token;
 use crate::state::AppState;
 use axum::http::header::AUTHORIZATION;
 use axum::{

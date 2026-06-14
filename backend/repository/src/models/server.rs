@@ -11,6 +11,8 @@ pub struct Server {
     pub ip: String,
     pub port: u16,
 
+    pub hidden: bool,
+
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
@@ -34,6 +36,8 @@ pub struct ServerRow {
     ip: String,
     port: i32,
 
+    hidden: bool,
+
     last_favicon: Option<String>,
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
@@ -51,6 +55,7 @@ impl From<ServerRow> for Server {
             user_id: row.user_id,
             ip: row.ip,
             port: row.port as u16,
+            hidden: row.hidden,
             last_favicon: row.last_favicon,
             last_status: row.last_status,
             last_connected: row.last_connected.map(|v| v as u32),

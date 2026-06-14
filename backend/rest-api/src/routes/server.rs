@@ -1,20 +1,20 @@
 use std::time::Duration;
 
-use crate::clerk::account_checker::ClerkClaims;
+use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::error::AppError;
 use crate::response::ResponseFormat;
+use crate::services::clerk::clerk_service;
 use crate::state::AppState;
-use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
+use axum::extract::rejection::{JsonRejection, PathRejection};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use minecraft_pinger::PingConfig;
-use repository::models::record::Record;
+use repository::models::record::{RecordData};
 use repository::models::server::{Server, UnregisteredServer};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use serde::{Deserialize, Serialize};
-use sqlx::query;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
@@ -44,11 +44,11 @@ pub fn router() -> Router<AppState> {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct BiggerServerResponse {
+struct BiggerServerResponse {
     #[serde(flatten)]
     pub server: Server,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub data: Option<Vec<Record>>,
+    pub data: Option<RecordData>,
 }
 
 impl From<Server> for BiggerServerResponse {
@@ -61,12 +61,13 @@ impl From<Server> for BiggerServerResponse {
 }
 
 #[derive(Deserialize)]
-pub struct QueryParams {
+struct QueryParams {
     pub include_stats: Option<bool>,
 }
 
-pub async fn list_all_servers(State(state): State<AppState>,
-                            Query(query): Query<QueryParams>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
+async fn list_all_servers(State(state): State<AppState>,
+                        Query(query): Query<QueryParams>,
+                        Extension(user): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     let include_stats = query.include_stats.unwrap_or(false);
 
     let server_list = state.repository.list_servers().await;
@@ -75,8 +76,10 @@ pub async fn list_all_servers(State(state): State<AppState>,
         return Err(AppError::FetchingDataError(error));
     }
 
+    let is_admin = user.is_some_and(|u| u.is_admin());
     let mut servers: Vec<BiggerServerResponse> = server_list.unwrap()
         .into_iter()
+        .filter(|s| is_admin || !s.hidden)
         .map(BiggerServerResponse::from)
         .collect();
 
@@ -98,23 +101,37 @@ pub async fn list_all_servers(State(state): State<AppState>,
     Ok(ResponseFormat::success(servers, StatusCode::OK))
 }
 
-pub async fn get_mine_server(State(state): State<AppState>,
-                            Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+async fn get_mine_server(State(state): State<AppState>,
+                        Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
+    let account = account.unwrap();
 
-    let result = state.repository.get_servers_of_user(account.unwrap().sub).await;
+    let result = state.repository.get_servers_of_user(account.id().clone()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
+    let result = result.unwrap()
+        .into_iter()
+        .filter(|s| account.is_admin() || !s.hidden)
+        .collect();
 
-    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
+    Ok(ResponseFormat::success(result, StatusCode::OK))
 }
 
-pub async fn get_server(State(state): State<AppState>,
-                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<Server>, AppError> {
+#[derive(Serialize)]
+struct ServerWithUser {
+    #[serde(flatten)]
+    pub server: Server,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<ClerkUser>
+}
+
+async fn get_server(State(state): State<AppState>,
+                    Extension(account): Extension<Option<ClerkClaims>>,
+                    id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -122,13 +139,30 @@ pub async fn get_server(State(state): State<AppState>,
     let result = state.repository.get_server(*id.unwrap()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
-        return Err(AppError::FetchingDataError(error));
+        return Err(AppError::ServerNotFoundError(error));
+    }
+    let mut server = ServerWithUser {
+        server: result.unwrap(),
+        user: None
+    };
+
+    let is_admin = account.is_some_and(|u| u.is_admin());
+    if server.server.hidden && !is_admin {
+        return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
     }
 
-    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
+    let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)
+        .await
+        .ok();
+
+    if let Some(clerk_user) = user {
+        server.user = Some((*clerk_user).clone());
+    }
+
+    Ok(ResponseFormat::success(server, StatusCode::OK))
 }
 
-pub async fn create_server(State(state): State<AppState>,
+async fn create_server(State(state): State<AppState>,
                            Extension(account): Extension<Option<ClerkClaims>>,
                            query: Result<Json<UnregisteredServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
     if account.is_none() {

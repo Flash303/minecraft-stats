@@ -164,7 +164,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
         const locale = language === "fr" ? "fr-FR" : "en-US"
 
         return {
-            width: containerRef.current?.clientWidth ?? 800,
+            width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             plugins: [tooltipPlugin],
@@ -234,7 +234,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
     }, [serverName, theme, tooltipPlugin, timeRange, language, t])
 
     if (data.length === 0) {
-        return <p className="text-center py-4 text-slate-400">{t("comparison.noSelection")}</p>
+        return <p className="text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
     }
 
     return (

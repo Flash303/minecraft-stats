@@ -1,35 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::state::AppState;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use rsa::{RsaPublicKey, BigUint, pkcs1v15::Pkcs1v15Sign};
-use sha2::{Sha256, Digest};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ClerkClaims {
-    /// Unique identifier for the user
-    pub sub: String,
-    /// The instance URL of the Clerk application
-    pub iss: String,
-    /// Expiration time (Unix timestamp)
-    pub exp: u64,
-    /// Issued at (Unix timestamp)
-    pub iat: Option<serde_json::Value>,
-    /// Original issued at (Unix timestamp, useful for session lifetime tracking)
-    pub oiat: Option<serde_json::Value>,
-    /// Not before (Unix timestamp)
-    pub nbf: Option<serde_json::Value>,
-    /// Session ID
-    pub sid: Option<String>,
-    /// Authorized party
-    pub azp: Option<String>,
-    /// Version
-    pub v: Option<serde_json::Value>,
-    /// Session status
-    pub sts: Option<String>,
-    /// Feature version array
-    #[serde(default)]
-    pub fva: Vec<serde_json::Value>,
-}
+use rsa::{pkcs1v15::Pkcs1v15Sign, BigUint, RsaPublicKey};
+use sha2::{Digest, Sha256};
+use crate::services::clerk::model::ClerkClaims;
 
 pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let response = reqwest::get(jwks_url)

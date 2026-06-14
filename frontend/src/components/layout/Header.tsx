@@ -9,6 +9,7 @@ import { AddServerModal } from "./AddServerModal"
 import { SearchBar } from "./SearchBar"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAdmin } from "@/contexts/AdminContext"
 import {
     Select,
     SelectContent,
@@ -26,6 +27,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
     const { isSignedIn, isLoaded } = useAuth()
     const { searchQuery, setSearchQuery } = useSearch()
     const { language, setLanguage, t } = useLanguage()
+    const { isAdmin } = useAdmin()
     const [isSearchOpen, setIsSearchOpen] = useState(false)
 
     // Mobile Search Overlay Mode
@@ -82,6 +84,14 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                                     {t("common.myServers")}
                                 </Link>
                             )}
+                            {isSignedIn && isAdmin && (
+                                <Link 
+                                    to="/dashboard" 
+                                    className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400 hover:text-primary transition-colors whitespace-nowrap"
+                                >
+                                    {t("header.admin")}
+                                </Link>
+                            )}
                         </div>
                     )}
                 </div>
@@ -114,7 +124,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             </Button>
                         )}
                         
-                        <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
+                        <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
                             <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages className="h-4 w-4" />
                             </SelectTrigger>

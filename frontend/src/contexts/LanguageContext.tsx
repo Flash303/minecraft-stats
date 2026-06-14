@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import fr from "../locales/fr.json"
 import en from "../locales/en.json"
@@ -30,6 +31,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     const t = (path: string, replacements?: Record<string, string>) => {
         const keys = path.split(".")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let current: any = translations[language]
 
         for (const key of keys) {

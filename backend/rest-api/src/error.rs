@@ -7,7 +7,12 @@ pub enum AppError {
 
     ServerCreationError(String),
 
+    FeatureDisabledError(String),
+
     AuthenticationError(String),
+    
+    UserNotFoundError(String),
+    ServerNotFoundError(String),
 
     InvalidParamError(String),
     InvalidQueryError(String),
@@ -37,6 +42,15 @@ impl IntoResponse for AppError {
             }
             AppError::InvalidJsonError(e) => {
                 ResponseFormat::<()>::error(e, StatusCode::BAD_REQUEST)
+            }
+            AppError::UserNotFoundError(_) => {
+                ResponseFormat::<()>::error("User not found".to_string(), StatusCode::NOT_FOUND)
+            }
+            AppError::ServerNotFoundError(_) => {
+                ResponseFormat::<()>::error("Server not found".to_string(), StatusCode::NOT_FOUND)
+            }
+            AppError::FeatureDisabledError(_) => {
+                ResponseFormat::<()>::error("This feature is disabled".to_string(), StatusCode::NOT_FOUND)
             }
         }.into_response()
     }

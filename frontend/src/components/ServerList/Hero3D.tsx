@@ -1,29 +1,29 @@
 import { useState, useEffect, useRef } from "react"
 import { ArrowDown } from "lucide-react"
 
+// Predefined heights for the graph nodes (representing server player count stats)
+// Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
+const defaultYValues = [240, 180, 210, 110, 150, 70, 120]
+
+// We will space 7 points evenly along the X-axis
+const pointCount = 7
+const paddingX = 40
+const canvasWidth = 460
+const canvasHeight = 320
+const bottomY = 270 // baseline for chart area fill
+
+const points = defaultYValues.map((y, idx) => {
+    const interval = (canvasWidth - paddingX * 2) / (pointCount - 1)
+    return {
+        x: paddingX + idx * interval,
+        y: y
+    }
+})
+
 export function Hero3D() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
-
-    // Predefined heights for the graph nodes (representing server player count stats)
-    // Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
-    const defaultYValues = [240, 180, 210, 110, 150, 70, 120]
-    
-    // We will space 7 points evenly along the X-axis
-    const pointCount = 7
-    const paddingX = 40
-    const canvasWidth = 460
-    const canvasHeight = 320
-    const bottomY = 270 // baseline for chart area fill
-
-    const points = defaultYValues.map((y, idx) => {
-        const interval = (canvasWidth - paddingX * 2) / (pointCount - 1)
-        return {
-            x: paddingX + idx * interval,
-            y: y
-        }
-    })
 
     // Track mouse hover to highlight nodes
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -185,8 +185,8 @@ export function Hero3D() {
             // Calculate current drawing progress and cursor position
             const easedT = easeInOutCubic(Math.min(1, globalProgress))
 
-            let drawX = currentPoints[0].x
-            let drawY = currentPoints[0].y
+            let drawX: number
+            let drawY: number
 
             if (state === "drawing") {
                 const totalSegments = pointCount - 1

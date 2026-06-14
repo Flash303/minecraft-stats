@@ -26,11 +26,13 @@
       "min": "Minimum"
     },
     "enter": "Entrée",
-    "noData": "Aucune donnée"
+    "noData": "Aucune donnée",
+    "noDataForRange": "Aucune donnée pour cette période"
   },
   "header": {
     "title": "Minecraft Stats",
-    "signIn": "Connexion"
+    "signIn": "Connexion",
+    "admin": "Admin"
   },
   "addServer": {
     "button": "Ajouter un serveur",
@@ -58,6 +60,7 @@
     "notFound": "Serveur non trouvé",
     "playerHistory": "Historique des joueurs",
     "chartLoading": "Chargement du graphique...",
+    "addedBy": "Ajouté par",
     "lastHour": "Dernière heure",
     "last6Hours": "Dernières 6 heures",
     "last24Hours": "Dernières 24 heures",
@@ -77,5 +80,99 @@
     "noSelectionDesc": "Utilisez la recherche ci-dessus pour comparer plusieurs serveurs.",
     "loadingData": "Chargement des données comparatives...",
     "resetZoom": "Réinitialiser le zoom"
+  },
+  "admin": {
+    "title": "Console Admin",
+    "unauthorized": "Accès Refusé",
+    "unauthorizedDesc": "Vous devez être administrateur pour accéder à la console d'administration.",
+    "backHome": "Retour à l'accueil",
+    "loading": "Authentification de la console...",
+    "menu": {
+      "overview": "Vue d'ensemble",
+      "users": "Annuaire Utilisateurs",
+      "servers": "Gestion Serveurs",
+      "logs": "Journal d'Audit",
+      "settings": "Configuration Système"
+    },
+    "overview": {
+      "healthChecks": "Santé du Système",
+      "healthChecksDesc": "Visualisez l'état opérationnel en temps réel des services dépendants.",
+      "dbStatus": "Connexion Base de Données",
+      "pingWorker": "Démon de Ping",
+      "clerkStatus": "Fournisseur d'Auth (Clerk)",
+      "cacheStatus": "Serveur de Cache Redis",
+      "healthy": "Opérationnel",
+      "avgConnected": "Moyenne Connectés",
+      "avgPlayersOnline": "Moyenne Joueurs Connectés",
+      "pingPerformance": "Performance du pingeur API",
+      "serversUptime": "Disponibilité Serveurs",
+      "systemActivity": "Activité du Système",
+      "systemActivityDesc": "Rapport d'activité résumé pour aujourd'hui."
+    },
+    "usersList": "Liste des Utilisateurs",
+    "searchUser": "Rechercher un utilisateur...",
+    "createdServers": "Serveurs Créés",
+    "noServers": "Cet utilisateur n'a créé aucun serveur.",
+    "hideServer": "Masquer",
+    "showServer": "Afficher",
+    "hiddenBadge": "Masqué",
+    "serverIp": "Adresse IP",
+    "serverPort": "Port",
+    "serverStatus": "Statut",
+    "mockRouteWarning": "Point de terminaison `/admin/servers/:id/toggle` appelé. État mis à jour localement pour test.",
+    "statsUsers": "Utilisateurs Totaux",
+    "statsServers": "Serveurs Totaux",
+    "statsOnline": "Serveurs en Ligne",
+    "toast": {
+      "visibilitySuccess": "Visibilité mise à jour avec succès pour {{name}}",
+      "visibilityChanged": "Visibilité modifiée",
+      "visibilityDetails": "{{name}} est désormais {{status}}",
+      "visibilityChangedSimulated": "Visibilité modifiée (Simulée)",
+      "visibilityDetailsSimulated": "{{name}} est désormais {{status}} (simulé)",
+      "rateLimitToggled": "Limitation des requêtes API {{status}}",
+      "rateLimitEnabled": "activée",
+      "rateLimitDisabled": "désactivée",
+      "hidden": "masqué",
+      "visible": "visible"
+    },
+    "users": {
+      "serversCreatedCount_one": "{{count}} serveur créé",
+      "serversCreatedCount_other": "{{count}} serveurs créés",
+      "noUsers": "Aucun utilisateur trouvé",
+      "manageServers": "Gérer les serveurs"
+    },
+    "servers": {
+      "all": "Tous les serveurs",
+      "searchPlaceholder": "Rechercher par nom, IP...",
+      "creator": "Créateur",
+      "actions": "Actions",
+      "noServers": "Aucun serveur trouvé.",
+      "statusAll": "Tous",
+      "statusOnline": "En ligne",
+      "statusOffline": "Hors ligne",
+      "statusHidden": "Masqués",
+      "tableServer": "Serveur",
+      "tablePlayers": "Joueurs",
+      "inspect": "Inspecter"
+    },
+    "auditLogs": {
+      "title": "Activités Récentes",
+      "serverCreated": "Serveur créé : {{name}} par {{user}}",
+      "serverVisibility": "Visibilité modifiée : {{name}} est désormais {{status}}",
+      "userSignup": "Nouvelle inscription : {{user}}",
+      "dbCleanup": "Nettoyage manuel de la base de données exécuté",
+      "maintenanceEnabled": "Mode maintenance activé par l'administrateur",
+      "maintenanceDisabled": "Mode maintenance désactivé par l'administrateur"
+    },
+    "settings": {
+      "title": "Paramètres Admin",
+      "maintenance": "Mode Maintenance",
+      "maintenanceDesc": "Restreindre l'accès à la plateforme publique pour maintenance.",
+      "rateLimit": "Limitation des Requêtes API",
+      "rateLimitDesc": "Protéger les points de terminaison contre les abus (max 100 req/min).",
+      "cleanup": "Maintenance de la Base",
+      "cleanupDesc": "Supprimer les enregistrements obsolètes de plus de 30 jours.",
+      "runCleanup": "Lancer le Nettoyage"
+    }
   }
 }
