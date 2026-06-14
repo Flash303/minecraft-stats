@@ -11,7 +11,7 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use minecraft_pinger::PingConfig;
-use repository::models::record::Record;
+use repository::models::record::{RecordData};
 use repository::models::server::{Server, UnregisteredServer};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use serde::{Deserialize, Serialize};
@@ -48,7 +48,7 @@ struct BiggerServerResponse {
     #[serde(flatten)]
     pub server: Server,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub data: Option<Vec<Record>>,
+    pub data: Option<RecordData>,
 }
 
 impl From<Server> for BiggerServerResponse {
@@ -77,6 +77,7 @@ async fn list_all_servers(State(state): State<AppState>,
 
     let mut servers: Vec<BiggerServerResponse> = server_list.unwrap()
         .into_iter()
+        .filter(|s| !s.hidden)
         .map(BiggerServerResponse::from)
         .collect();
 
@@ -130,12 +131,15 @@ async fn get_server(State(state): State<AppState>,
     let result = state.repository.get_server(*id.unwrap()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
-        return Err(AppError::FetchingDataError(error));
+        return Err(AppError::ServerNotFoundError(error));
     }
     let mut server = ServerWithUser {
         server: result.unwrap(),
         user: None
     };
+    if server.server.hidden {
+        return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
+    }
 
     let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)
         .await

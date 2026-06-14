@@ -6,9 +6,10 @@ use axum::extract::rejection::{PathRejection, QueryRejection};
 use axum::http::{StatusCode};
 use axum::routing::get;
 use axum::Router;
-use repository::models::record::Record;
+use repository::models::record::{RecordData};
 use serde::{Deserialize};
-use time::{Duration, OffsetDateTime};
+use time::{ OffsetDateTime};
+use tokio::time::Instant;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
@@ -31,12 +32,11 @@ struct GetParam {
     pub from: OffsetDateTime,
     #[serde(with = "time::serde::timestamp::option", default)]
     pub to: Option<OffsetDateTime>,
-    pub interval: i64,
 }
 
 async fn fetch_records(State(state): State<AppState>,
                      id: Result<Path<u32>, PathRejection>,
-                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<Vec<Record>>, AppError> {
+                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<RecordData>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -47,10 +47,21 @@ async fn fetch_records(State(state): State<AppState>,
     }
     let query = query.unwrap();
 
-    let result = state.repository.get_pings(id, query.from, query.to, Duration::milliseconds(query.interval)).await;
+    let intant = Instant::now();
+    let server = state.repository.get_server(id).await;
+    if let Err(err) = server {
+        return Err(AppError::ServerNotFoundError(err));
+    }
+    let server = server.unwrap();
+    if server.hidden {
+        return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
+    }
+
+    let result = state.repository.get_pings(id, query.from, query.to).await;
     if let Err(error) = result {
         return Err(AppError::FetchingDataError(error));
     }
+    println!("Time to request all database data {}ms", intant.elapsed().as_millis());
 
     Ok(ResponseFormat::success(result.unwrap(), StatusCode::ACCEPTED))
 }

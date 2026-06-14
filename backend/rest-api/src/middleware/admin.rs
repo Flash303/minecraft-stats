@@ -13,7 +13,6 @@ pub async fn admin_middleware(
     let administrator = match account
     {
         Some(account) => {
-            println!("Found and account");
             state.repository.is_admin(account.id().clone()).await.ok().unwrap_or(false)
         }
         None => {

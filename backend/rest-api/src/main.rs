@@ -9,12 +9,13 @@ pub mod utils;
 
 use crate::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
-use crate::middleware::admin::admin_middleware;
+use crate::routes::admin;
 use crate::state::AppState;
 use crate::utils::cache::TtlCache;
 use axum::{extract::DefaultBodyLimit, http::Method};
 use axum::middleware::from_fn_with_state;
 use axum::Router;
+use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -36,6 +37,7 @@ async fn main() {
             println!("Please set the LISTEN_PORT environment variable, using defaults.");
             DEFAULT_PORT
         });
+        
 
     // Init DB
     let database_url = env::var("DATABASE_URL")
@@ -50,6 +52,7 @@ async fn main() {
         return;
     }
     let repository = result.unwrap();
+    
 
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
@@ -65,6 +68,7 @@ async fn main() {
         return;
     }
     let keys = result.unwrap();
+    
 
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
@@ -72,6 +76,7 @@ async fn main() {
         println!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
     }
     let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
+
 
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
@@ -104,14 +109,11 @@ async fn main() {
     let app = Router::new()
         .nest("/records", routes::record::router())
         .nest("/servers", routes::server::router())
-        .nest(
-            "/admin",
-            routes::admin::users::router()
-                .route_layer(from_fn_with_state(state.clone(), admin_middleware)),
-        )
+        .nest("/admin", admin::routes::router(state.clone()))
         .route_layer(from_fn_with_state(state.clone(), auth_middleware))
         .with_state(state)
         .layer(cors)
+        .layer(CompressionLayer::new())
         .layer(body_limit);
 
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();

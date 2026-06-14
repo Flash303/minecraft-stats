@@ -2,6 +2,9 @@ use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 use time::{OffsetDateTime};
 
+#[derive(Serialize, Deserialize)]
+pub struct RecordData(pub Vec<i64>, pub Vec<u32>);
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Record {
     #[serde(skip_serializing)]
