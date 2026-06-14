@@ -8,11 +8,12 @@ pub mod utils;
 
 use services::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
+use crate::middleware::statistics::stats_middleware;
 use crate::routes::admin;
 use crate::state::AppState;
 use crate::utils::cache::TtlCache;
 use axum::{extract::DefaultBodyLimit, http::Method};
-use axum::middleware::from_fn_with_state;
+use axum::middleware::{from_fn, from_fn_with_state};
 use axum::Router;
 use tower_http::compression::CompressionLayer;
 use std::env;
@@ -36,7 +37,7 @@ async fn main() {
             println!("Please set the LISTEN_PORT environment variable, using defaults.");
             DEFAULT_PORT
         });
-        
+
 
     // Init DB
     let database_url = env::var("DATABASE_URL")
@@ -51,7 +52,7 @@ async fn main() {
         return;
     }
     let repository = result.unwrap();
-    
+
 
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
@@ -67,7 +68,7 @@ async fn main() {
         return;
     }
     let keys = result.unwrap();
-    
+
 
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
@@ -109,6 +110,7 @@ async fn main() {
         .nest("/records", routes::record::router())
         .nest("/servers", routes::server::router())
         .nest("/admin", admin::routes::router(state.clone()))
+        .layer(from_fn(stats_middleware))
         .route_layer(from_fn_with_state(state.clone(), auth_middleware))
         .with_state(state)
         .layer(cors)

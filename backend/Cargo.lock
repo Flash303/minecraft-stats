@@ -2165,6 +2165,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.9",
+ "sqlx",
  "time",
  "tokio",
  "tower-http",
@@ -2602,6 +2603,8 @@ dependencies = [
  "smallvec",
  "thiserror 2.0.18",
  "time",
+ "tokio",
+ "tokio-stream",
  "tracing",
  "url",
 ]
@@ -2641,6 +2644,7 @@ dependencies = [
  "sqlx-sqlite",
  "syn",
  "thiserror 2.0.18",
+ "tokio",
  "url",
 ]
 
