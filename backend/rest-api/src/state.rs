@@ -2,7 +2,8 @@ use std::sync::Arc;
 use minecraft_pinger::MinecraftPinger;
 use repository::repository::Repository;
 
-use crate::{clerk::model::ClerkUser, utils::cache::TtlCache};
+use crate::utils::cache::TtlCache;
+use crate::services::clerk::model::ClerkUser;
 
 #[derive(Clone)]
 pub struct AppState {

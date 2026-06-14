@@ -1,12 +1,12 @@
-use axum::{Router, routing::get, extract::State, http::StatusCode};
+use axum::{extract::State, http::StatusCode, routing::get, Router};
 
 use crate::{
-    clerk::model::ClerkUser,
     error::AppError,
     response::ResponseFormat,
     state::AppState,
-    services::clerk_service,
 };
+use crate::services::clerk::clerk_service;
+use crate::services::clerk::model::ClerkUser;
 
 pub fn router() -> Router<AppState> {
     Router::new()

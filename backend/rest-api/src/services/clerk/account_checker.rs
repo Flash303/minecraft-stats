@@ -1,7 +1,8 @@
-use crate::{clerk::model::ClerkClaims, state::AppState};
+use crate::state::AppState;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use rsa::{RsaPublicKey, BigUint, pkcs1v15::Pkcs1v15Sign};
-use sha2::{Sha256, Digest};
+use rsa::{pkcs1v15::Pkcs1v15Sign, BigUint, RsaPublicKey};
+use sha2::{Digest, Sha256};
+use crate::services::clerk::model::ClerkClaims;
 
 pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let response = reqwest::get(jwks_url)

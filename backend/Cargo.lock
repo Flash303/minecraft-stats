@@ -1650,16 +1650,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38bf9645c8b145698bb0b18a4637dcacbc421ea49bef2317e4fd8065a387cf21"
 
 [[package]]
-name = "num-bigint"
-version = "0.4.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a5e44f723f1133c9deac646763579fdb3ac745e418f2a7af9cd0c431da1f20b9"
-dependencies = [
- "num-integer",
- "num-traits",
-]
-
-[[package]]
 name = "num-bigint-dig"
 version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2169,15 +2159,12 @@ dependencies = [
  "base64",
  "jwt-compact",
  "minecraft-pinger",
- "num-bigint",
  "repository",
  "reqwest",
  "rsa",
  "serde",
  "serde_json",
  "sha2 0.10.9",
- "signature",
- "sqlx",
  "time",
  "tokio",
  "tower-http",
@@ -2615,8 +2602,6 @@ dependencies = [
  "smallvec",
  "thiserror 2.0.18",
  "time",
- "tokio",
- "tokio-stream",
  "tracing",
  "url",
 ]
@@ -2656,7 +2641,6 @@ dependencies = [
  "sqlx-sqlite",
  "syn",
  "thiserror 2.0.18",
- "tokio",
  "url",
 ]
 

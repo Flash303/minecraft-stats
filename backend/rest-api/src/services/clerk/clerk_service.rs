@@ -1,7 +1,8 @@
 use std::{sync::Arc, time::Duration};
 use reqwest::Method;
 
-use crate::{clerk::model::ClerkUser, error::AppError, state::AppState};
+use crate::{error::AppError, state::AppState};
+use crate::services::clerk::model::ClerkUser;
 
 const USER_CACHE_TTL: Duration = Duration::from_hours(2);
 

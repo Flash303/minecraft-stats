@@ -1,4 +1,4 @@
-use crate::clerk::model::ClerkClaims;
+use crate::services::clerk::model::ClerkClaims;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;

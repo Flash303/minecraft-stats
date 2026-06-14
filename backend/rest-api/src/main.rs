@@ -3,11 +3,10 @@ pub mod state;
 pub mod routes;
 pub mod response;
 pub mod middleware;
-pub mod clerk;
 pub mod services;
 pub mod utils;
 
-use crate::clerk::account_checker::fetch_clerk_jwks;
+use services::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
 use crate::routes::admin;
 use crate::state::AppState;

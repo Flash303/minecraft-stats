@@ -1,9 +1,9 @@
 use std::time::Duration;
 
-use crate::clerk::model::{ClerkClaims, ClerkUser};
+use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::services::clerk_service;
+use crate::services::clerk::clerk_service;
 use crate::state::AppState;
 use axum::extract::rejection::{JsonRejection, PathRejection};
 use axum::extract::{Path, Query, State};

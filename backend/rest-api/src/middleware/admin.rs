@@ -2,7 +2,8 @@ use axum::{
     body::Body, http::{Request, StatusCode}, middleware::Next, response::{IntoResponse, Response}
 };
 
-use crate::{clerk::model::{ClerkClaims}, error::AppError};
+use crate::error::AppError;
+use crate::services::clerk::model::ClerkClaims;
 
 pub async fn admin_middleware(
     req: Request<Body>,
