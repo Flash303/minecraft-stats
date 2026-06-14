@@ -5,7 +5,7 @@ use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk_service;
 use crate::state::AppState;
-use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
+use axum::extract::rejection::{JsonRejection, PathRejection};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
