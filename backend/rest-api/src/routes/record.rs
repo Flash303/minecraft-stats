@@ -1,3 +1,4 @@
+use crate::clerk::model::ClerkClaims;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::state::AppState;
@@ -5,7 +6,7 @@ use axum::extract::{Path, Query, State};
 use axum::extract::rejection::{PathRejection, QueryRejection};
 use axum::http::{StatusCode};
 use axum::routing::get;
-use axum::Router;
+use axum::{Extension, Router};
 use repository::models::record::{RecordData};
 use serde::{Deserialize};
 use time::{ OffsetDateTime};
@@ -35,8 +36,9 @@ struct GetParam {
 }
 
 async fn fetch_records(State(state): State<AppState>,
-                     id: Result<Path<u32>, PathRejection>,
-                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<RecordData>, AppError> {
+                    Extension(account): Extension<Option<ClerkClaims>>,
+                    id: Result<Path<u32>, PathRejection>,
+                    query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<RecordData>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -53,7 +55,8 @@ async fn fetch_records(State(state): State<AppState>,
         return Err(AppError::ServerNotFoundError(err));
     }
     let server = server.unwrap();
-    if server.hidden {
+    let is_admin = account.is_some_and(|u| u.is_admin());
+    if server.hidden && !is_admin {
         return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
     }
 

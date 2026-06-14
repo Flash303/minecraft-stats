@@ -6,6 +6,7 @@ import { ServerCard } from "@/components/ServerList/ServerCard"
 import { ServerListFilters } from "@/components/ServerList/ServerListFilters"
 import { Layout } from "@/components/layout"
 import { useAuth } from "@clerk/react"
+import { useAdmin } from "@/contexts/AdminContext"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Hero3D } from "@/components/ServerList/Hero3D"
@@ -13,6 +14,7 @@ import { Hero3D } from "@/components/ServerList/Hero3D"
 export function ServerList() {
     const { t } = useLanguage()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
+    const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
     const [servers, setServers] = useState<Server[]>([])
     const [loading, setLoading] = useState(true)
@@ -22,13 +24,14 @@ export function ServerList() {
     const activeTab = useMemo(() => {
         const tabParam = searchParams.get("tab")
         if (tabParam === "mine" && !isSignedIn) return "all"
-        if (tabParam === "online" || tabParam === "offline" || tabParam === "mine") {
-            return tabParam
+        if (tabParam === "hidden" && !isAdmin) return "all"
+        if (tabParam === "online" || tabParam === "offline" || tabParam === "mine" || tabParam === "hidden") {
+            return tabParam as "all" | "online" | "offline" | "mine" | "hidden"
         }
         return "all"
-    }, [searchParams, isSignedIn])
+    }, [searchParams, isSignedIn, isAdmin])
 
-    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "mine") => {
+    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "mine" | "hidden") => {
         const newParams = new URLSearchParams(searchParams)
         if (tab === "all") {
             newParams.delete("tab")
@@ -73,6 +76,13 @@ export function ServerList() {
     const filteredServers = useMemo(() => {
         let list = servers
 
+        // Filtrage par visibilité (les masqués ne sont vus que dans leur onglet spécifique)
+        if (activeTab === "hidden") {
+            list = list.filter(s => s.hidden === true)
+        } else {
+            list = list.filter(s => s.hidden !== true)
+        }
+
         // Filtrage par onglet de statut
         if (activeTab === "online") {
             list = list.filter(s => s.last_status === "online")
@@ -93,12 +103,14 @@ export function ServerList() {
         )
     }, [servers, searchQuery, activeTab, userId])
 
-    const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online").length, [servers])
-    const offlineCount = useMemo(() => servers.filter(s => s.last_status === "offline").length, [servers])
+    const visibleCount = useMemo(() => servers.filter(s => s.hidden !== true).length, [servers])
+    const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online" && s.hidden !== true).length, [servers])
+    const offlineCount = useMemo(() => servers.filter(s => s.last_status === "offline" && s.hidden !== true).length, [servers])
     const myServersCount = useMemo(() => {
         if (!userId) return 0
-        return servers.filter(s => s.user_id === userId).length
+        return servers.filter(s => s.user_id === userId && s.hidden !== true).length
     }, [servers, userId])
+    const hiddenCount = useMemo(() => servers.filter(s => s.hidden === true).length, [servers])
 
     return (
         <Layout onRefresh={load} isLoading={loading}>
@@ -108,11 +120,13 @@ export function ServerList() {
                 <ServerListFilters
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
-                    totalCount={servers.length}
+                    totalCount={visibleCount}
                     onlineCount={onlineCount}
                     offlineCount={offlineCount}
                     myServersCount={myServersCount}
+                    hiddenCount={hiddenCount}
                     isSignedIn={!!isSignedIn}
+                    isAdmin={isAdmin}
                 />
 
                 {loading && servers.length === 0 && (
