@@ -308,6 +308,16 @@ impl Repository for PostgresRepository {
         Ok(row.0 as u32)
     }
 
+    async fn is_admin(&self, user_id: String) -> Result<bool, String> {
+        let rs = sqlx::query("SELECT user_id FROM admin WHERE user_id = $1")
+            .bind(user_id)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(rs.is_some())
+    }
+
     async fn initialize(&self) -> Result<(), String> {
         sqlx::migrate!("./migrations")
             .run(&self.pool)

@@ -9,6 +9,7 @@ pub mod utils;
 
 use crate::clerk::account_checker::fetch_clerk_jwks;
 use crate::middleware::auth::auth_middleware;
+use crate::middleware::admin::admin_middleware;
 use crate::state::AppState;
 use crate::utils::cache::TtlCache;
 use axum::{extract::DefaultBodyLimit, http::Method};
@@ -103,6 +104,11 @@ async fn main() {
     let app = Router::new()
         .nest("/records", routes::record::router())
         .nest("/servers", routes::server::router())
+        .nest(
+            "/admin",
+            routes::admin::users::router()
+                .route_layer(from_fn_with_state(state.clone(), admin_middleware)),
+        )
         .route_layer(from_fn_with_state(state.clone(), auth_middleware))
         .with_state(state)
         .layer(cors)

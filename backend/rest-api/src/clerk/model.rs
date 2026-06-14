@@ -27,6 +27,12 @@ pub struct ClerkClaims {
     pub fva: Vec<serde_json::Value>,
 }
 
+impl ClerkClaims {
+    pub fn id(&self) -> &String {
+        return &self.sub;
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ClerkUser {
     pub id: String,

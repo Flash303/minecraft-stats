@@ -40,3 +40,23 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
 
     Ok(cached_user)
 }
+
+pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, AppError> {
+    if let None = *state.clerk_secret_key {
+        return Err(AppError::FeatureDisabledError("Clerk secret key is missing".to_string()));
+    }
+    let token = state.clerk_secret_key.as_deref().unwrap();
+
+    let client = reqwest::Client::new();
+
+    let users = client.request(Method::GET, format!("https://api.clerk.com/v1/users"))
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| AppError::FetchingDataError(format!("Failed to fetch user data: {e}")))?
+        .json::<Vec<ClerkUser>>()
+        .await
+        .map_err(|e| AppError::FetchingDataError(format!("Failed to parse user data: {e}")));
+
+    Ok(users?)
+}
