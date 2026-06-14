@@ -26,7 +26,7 @@ pub fn router() -> Router<AppState> {
 }
 
 #[derive(Deserialize)]
-pub struct GetParam {
+struct GetParam {
     #[serde(with = "time::serde::timestamp")]
     pub from: OffsetDateTime,
     #[serde(with = "time::serde::timestamp::option", default)]
@@ -34,7 +34,7 @@ pub struct GetParam {
     pub interval: i64,
 }
 
-pub async fn fetch_records(State(state): State<AppState>,
+async fn fetch_records(State(state): State<AppState>,
                      id: Result<Path<u32>, PathRejection>,
                      query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<Vec<Record>>, AppError> {
     if let Err(error) = id {

@@ -44,7 +44,7 @@ pub fn router() -> Router<AppState> {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct BiggerServerResponse {
+struct BiggerServerResponse {
     #[serde(flatten)]
     pub server: Server,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -61,11 +61,11 @@ impl From<Server> for BiggerServerResponse {
 }
 
 #[derive(Deserialize)]
-pub struct QueryParams {
+struct QueryParams {
     pub include_stats: Option<bool>,
 }
 
-pub async fn list_all_servers(State(state): State<AppState>,
+async fn list_all_servers(State(state): State<AppState>,
                             Query(query): Query<QueryParams>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     let include_stats = query.include_stats.unwrap_or(false);
 
@@ -98,7 +98,7 @@ pub async fn list_all_servers(State(state): State<AppState>,
     Ok(ResponseFormat::success(servers, StatusCode::OK))
 }
 
-pub async fn get_mine_server(State(state): State<AppState>,
+async fn get_mine_server(State(state): State<AppState>,
                             Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
@@ -114,14 +114,14 @@ pub async fn get_mine_server(State(state): State<AppState>,
 }
 
 #[derive(Serialize)]
-pub struct ServerWithUser {
+struct ServerWithUser {
     #[serde(flatten)]
     pub server: Server,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<ClerkUser>
 }
 
-pub async fn get_server(State(state): State<AppState>,
+async fn get_server(State(state): State<AppState>,
                         id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
@@ -148,7 +148,7 @@ pub async fn get_server(State(state): State<AppState>,
     Ok(ResponseFormat::success(server, StatusCode::OK))
 }
 
-pub async fn create_server(State(state): State<AppState>,
+async fn create_server(State(state): State<AppState>,
                            Extension(account): Extension<Option<ClerkClaims>>,
                            query: Result<Json<UnregisteredServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
     if account.is_none() {
