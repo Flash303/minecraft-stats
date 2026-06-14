@@ -66,7 +66,8 @@ struct QueryParams {
 }
 
 async fn list_all_servers(State(state): State<AppState>,
-                            Query(query): Query<QueryParams>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
+                        Query(query): Query<QueryParams>,
+                        Extension(user): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     let include_stats = query.include_stats.unwrap_or(false);
 
     let server_list = state.repository.list_servers().await;
@@ -75,9 +76,10 @@ async fn list_all_servers(State(state): State<AppState>,
         return Err(AppError::FetchingDataError(error));
     }
 
+    let is_admin = user.is_some_and(|u| u.is_admin());
     let mut servers: Vec<BiggerServerResponse> = server_list.unwrap()
         .into_iter()
-        .filter(|s| !s.hidden)
+        .filter(|s| is_admin || !s.hidden)
         .map(BiggerServerResponse::from)
         .collect();
 
@@ -100,18 +102,23 @@ async fn list_all_servers(State(state): State<AppState>,
 }
 
 async fn get_mine_server(State(state): State<AppState>,
-                            Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+                        Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
+    let account = account.unwrap();
 
-    let result = state.repository.get_servers_of_user(account.unwrap().sub).await;
+    let result = state.repository.get_servers_of_user(account.id().clone()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
+    let result = result.unwrap()
+        .into_iter()
+        .filter(|s| account.is_admin() || !s.hidden)
+        .collect();
 
-    Ok(ResponseFormat::success(result.unwrap(), StatusCode::OK))
+    Ok(ResponseFormat::success(result, StatusCode::OK))
 }
 
 #[derive(Serialize)]
@@ -123,7 +130,8 @@ struct ServerWithUser {
 }
 
 async fn get_server(State(state): State<AppState>,
-                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
+                    Extension(account): Extension<Option<ClerkClaims>>,
+                    id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
     if let Err(error) = id {
         return Err(AppError::InvalidParamError(error.to_string()));
     }
@@ -137,7 +145,9 @@ async fn get_server(State(state): State<AppState>,
         server: result.unwrap(),
         user: None
     };
-    if server.server.hidden {
+
+    let is_admin = account.is_some_and(|u| u.is_admin());
+    if server.server.hidden && !is_admin {
         return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
     }
 

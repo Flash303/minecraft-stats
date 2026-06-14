@@ -1,11 +1,10 @@
 use axum::{
-    body::Body, extract::State, http::{Request, StatusCode}, middleware::Next, response::{IntoResponse, Response}
+    body::Body, http::{Request, StatusCode}, middleware::Next, response::{IntoResponse, Response}
 };
 
-use crate::{clerk::model::{ClerkClaims}, error::AppError, state::AppState};
+use crate::{clerk::model::{ClerkClaims}, error::AppError};
 
 pub async fn admin_middleware(
-    State(state): State<AppState>,
     req: Request<Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
@@ -13,10 +12,9 @@ pub async fn admin_middleware(
     let administrator = match account
     {
         Some(account) => {
-            state.repository.is_admin(account.id().clone()).await.ok().unwrap_or(false)
+            account.is_admin.unwrap_or(false)
         }
         None => {
-            println!("no account found");
             false
         },
     };

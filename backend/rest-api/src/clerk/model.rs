@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 pub struct ClerkClaims {
     /// Unique identifier for the user
     pub sub: String,
+
+    pub is_admin: Option<bool>,
+
     /// The instance URL of the Clerk application
     pub iss: String,
     /// Expiration time (Unix timestamp)
@@ -29,7 +32,11 @@ pub struct ClerkClaims {
 
 impl ClerkClaims {
     pub fn id(&self) -> &String {
-        return &self.sub;
+        &self.sub
+    }
+
+    pub fn is_admin(&self) -> bool {
+        self.is_admin.unwrap_or(false)
     }
 }
 

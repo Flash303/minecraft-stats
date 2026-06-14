@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useAuth } from "@clerk/react"
-import { checkAdminStatus } from "@/lib/api"
 
 interface AdminContextType {
     isAdmin: boolean
@@ -10,6 +9,23 @@ interface AdminContextType {
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined)
+
+function parseJwt(token: string) {
+    try {
+        const base64Url = token.split('.')[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const jsonPayload = decodeURIComponent(
+            window.atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+        )
+        return JSON.parse(jsonPayload)
+    } catch (e) {
+        console.error("Error parsing JWT:", e)
+        return null
+    }
+}
 
 export function AdminProvider({ children }: { children: ReactNode }) {
     const { isSignedIn, isLoaded, getToken } = useAuth()
@@ -26,15 +42,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         try {
             const token = await getToken()
             if (token) {
-                const status = await checkAdminStatus(token)
-                setIsAdmin(status)
-                return status
+                const payload = parseJwt(token)
+                const status = payload && (payload.is_admin === true || payload.is_admin === "true" || payload.is_admin === 1)
+                setIsAdmin(!!status)
+                return !!status
             }
         } catch (error) {
             console.error("Error checking admin status:", error)
         } finally {
             setLoadingAdmin(false)
         }
+        setIsAdmin(false)
         return false
     }
 
