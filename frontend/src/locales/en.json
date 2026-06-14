@@ -96,13 +96,18 @@
     },
     "overview": {
       "healthChecks": "System Health",
+      "healthChecksDesc": "View the real-time operational status of dependent services.",
       "dbStatus": "Database Connection",
       "pingWorker": "Ping Worker Daemon",
       "clerkStatus": "Auth Provider (Clerk)",
       "cacheStatus": "Redis Cache Server",
       "healthy": "Operational",
       "avgConnected": "Avg Players Online",
-      "systemActivity": "System Activity"
+      "avgPlayersOnline": "Average Players Online",
+      "pingPerformance": "API Ping Daemon Performance",
+      "serversUptime": "Servers Uptime",
+      "systemActivity": "System Activity",
+      "systemActivityDesc": "Activity summary report for today."
     },
     "usersList": "Users List",
     "searchUser": "Search user by name...",
@@ -118,12 +123,37 @@
     "statsUsers": "Total Users",
     "statsServers": "Total Servers",
     "statsOnline": "Online Servers",
+    "toast": {
+      "visibilitySuccess": "Visibility updated successfully for {{name}}",
+      "visibilityChanged": "Visibility changed",
+      "visibilityDetails": "{{name}} is now {{status}}",
+      "visibilityChangedSimulated": "Visibility changed (Simulated)",
+      "visibilityDetailsSimulated": "{{name}} is now {{status}} (simulated)",
+      "rateLimitToggled": "API Rate limiting {{status}}",
+      "rateLimitEnabled": "enabled",
+      "rateLimitDisabled": "disabled",
+      "hidden": "hidden",
+      "visible": "visible"
+    },
+    "users": {
+      "serversCreatedCount_one": "{{count}} server created",
+      "serversCreatedCount_other": "{{count}} servers created",
+      "noUsers": "No users found",
+      "manageServers": "Manage Servers"
+    },
     "servers": {
       "all": "All Servers",
       "searchPlaceholder": "Search servers by name, IP...",
       "creator": "Creator",
       "actions": "Actions",
-      "noServers": "No servers found."
+      "noServers": "No servers found.",
+      "statusAll": "All",
+      "statusOnline": "Online",
+      "statusOffline": "Offline",
+      "statusHidden": "Hidden",
+      "tableServer": "Server",
+      "tablePlayers": "Players",
+      "inspect": "Inspect"
     },
     "auditLogs": {
       "title": "Recent Activities",

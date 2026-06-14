@@ -96,13 +96,18 @@
     },
     "overview": {
       "healthChecks": "Santé du Système",
+      "healthChecksDesc": "Visualisez l'état opérationnel en temps réel des services dépendants.",
       "dbStatus": "Connexion Base de Données",
       "pingWorker": "Démon de Ping",
       "clerkStatus": "Fournisseur d'Auth (Clerk)",
       "cacheStatus": "Serveur de Cache Redis",
       "healthy": "Opérationnel",
       "avgConnected": "Moyenne Connectés",
-      "systemActivity": "Activité du Système"
+      "avgPlayersOnline": "Moyenne Joueurs Connectés",
+      "pingPerformance": "Performance du pingeur API",
+      "serversUptime": "Disponibilité Serveurs",
+      "systemActivity": "Activité du Système",
+      "systemActivityDesc": "Rapport d'activité résumé pour aujourd'hui."
     },
     "usersList": "Liste des Utilisateurs",
     "searchUser": "Rechercher un utilisateur...",
@@ -118,12 +123,37 @@
     "statsUsers": "Utilisateurs Totaux",
     "statsServers": "Serveurs Totaux",
     "statsOnline": "Serveurs en Ligne",
+    "toast": {
+      "visibilitySuccess": "Visibilité mise à jour avec succès pour {{name}}",
+      "visibilityChanged": "Visibilité modifiée",
+      "visibilityDetails": "{{name}} est désormais {{status}}",
+      "visibilityChangedSimulated": "Visibilité modifiée (Simulée)",
+      "visibilityDetailsSimulated": "{{name}} est désormais {{status}} (simulé)",
+      "rateLimitToggled": "Limitation des requêtes API {{status}}",
+      "rateLimitEnabled": "activée",
+      "rateLimitDisabled": "désactivée",
+      "hidden": "masqué",
+      "visible": "visible"
+    },
+    "users": {
+      "serversCreatedCount_one": "{{count}} serveur créé",
+      "serversCreatedCount_other": "{{count}} serveurs créés",
+      "noUsers": "Aucun utilisateur trouvé",
+      "manageServers": "Gérer les serveurs"
+    },
     "servers": {
       "all": "Tous les serveurs",
       "searchPlaceholder": "Rechercher par nom, IP...",
       "creator": "Créateur",
       "actions": "Actions",
-      "noServers": "Aucun serveur trouvé."
+      "noServers": "Aucun serveur trouvé.",
+      "statusAll": "Tous",
+      "statusOnline": "En ligne",
+      "statusOffline": "Hors ligne",
+      "statusHidden": "Masqués",
+      "tableServer": "Serveur",
+      "tablePlayers": "Joueurs",
+      "inspect": "Inspecter"
     },
     "auditLogs": {
       "title": "Activités Récentes",

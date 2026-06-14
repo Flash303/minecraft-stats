@@ -20,7 +20,7 @@ interface ServersTabProps {
     togglingServerId: number | null
     handleToggleServer: (serverId: number, currentHidden: boolean) => Promise<void>
     getUserDisplayName: (user?: User | null) => string
-    t: (key: string) => string
+    t: (key: string, replacements?: Record<string, string>) => string
 }
 
 export function ServersTab({
@@ -123,18 +123,18 @@ export function ServersTab({
                                 : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
                         }`}
                     >
-                        Tous
+                        {t("admin.servers.statusAll")}
                     </button>
                     <button
                         onClick={() => setServerStatusFilter("online")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "online" 
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20" 
                                 : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
                         }`}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        En ligne
+                        {t("admin.servers.statusOnline")}
                     </button>
                     <button
                         onClick={() => setServerStatusFilter("offline")}
@@ -145,7 +145,7 @@ export function ServersTab({
                         }`}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                        Hors ligne
+                        {t("admin.servers.statusOffline")}
                     </button>
                     <button
                         onClick={() => setServerStatusFilter("hidden")}
@@ -155,7 +155,7 @@ export function ServersTab({
                                 : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
                         }`}
                     >
-                        Masqués
+                        {t("admin.servers.statusHidden")}
                     </button>
                 </div>
             </div>
@@ -170,7 +170,7 @@ export function ServersTab({
                                 onClick={() => handleSort("name")}
                             >
                                 <div className="flex items-center gap-1">
-                                    Serveur
+                                    {t("admin.servers.tableServer")}
                                     {sortField === "name" && (
                                         sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
                                     )}
@@ -214,7 +214,7 @@ export function ServersTab({
                                 onClick={() => handleSort("players")}
                             >
                                 <div className="flex items-center gap-1">
-                                    Joueurs
+                                    {t("admin.servers.tablePlayers")}
                                     {sortField === "players" && (
                                         sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
                                     )}
@@ -300,7 +300,7 @@ export function ServersTab({
                                             <div className="flex items-center justify-end gap-1.5">
                                                 <Link to={`/server/${server.id}`} target="_blank" rel="noopener noreferrer">
                                                     <Button variant="outline" size="sm" className="h-7 text-[10px] cursor-pointer">
-                                                        Inspecter
+                                                        {t("admin.servers.inspect")}
                                                     </Button>
                                                 </Link>
                                                 

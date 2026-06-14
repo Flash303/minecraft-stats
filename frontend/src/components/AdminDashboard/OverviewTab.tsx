@@ -16,7 +16,7 @@ import {
 interface OverviewTabProps {
     users: User[]
     servers: Server[]
-    t: (key: string) => string
+    t: (key: string, replacements?: Record<string, string>) => string
 }
 
 export function OverviewTab({ users, servers, t }: OverviewTabProps) {
@@ -84,7 +84,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                             <ShieldCheck className="h-5 w-5 text-emerald-500" />
                             {t("admin.overview.healthChecks")}
                         </CardTitle>
-                        <CardDescription>Visualisez l'état opérationnel en temps réel des services dépendants.</CardDescription>
+                        <CardDescription>{t("admin.overview.healthChecksDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
                         {/* Item 1: Database */}
@@ -93,7 +93,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                 <Database className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.dbStatus")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border-emerald-500/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
@@ -129,13 +129,13 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                             <Activity className="h-5 w-5 text-indigo-500" />
                             {t("admin.overview.systemActivity")}
                         </CardTitle>
-                        <CardDescription>Rapport d'activité résumé pour aujourd'hui.</CardDescription>
+                        <CardDescription>{t("admin.overview.systemActivityDesc")}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-6">
                         <div className="flex items-center gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between text-xs font-semibold mb-1">
-                                    <span>Moyenne Joueurs Connectés</span>
+                                    <span>{t("admin.overview.avgPlayersOnline")}</span>
                                     <span className="text-primary font-bold">84%</span>
                                 </div>
                                 <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -147,7 +147,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                         <div className="flex items-center gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between text-xs font-semibold mb-1">
-                                    <span>Performance du pingeur API</span>
+                                    <span>{t("admin.overview.pingPerformance")}</span>
                                     <span className="text-emerald-500 font-bold">99.8%</span>
                                 </div>
                                 <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -159,7 +159,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                         <div className="flex items-center gap-4">
                             <div className="flex-1">
                                 <div className="flex justify-between text-xs font-semibold mb-1">
-                                    <span>Disponibilité Serveurs</span>
+                                    <span>{t("admin.overview.serversUptime")}</span>
                                     <span className="text-blue-500 font-bold">92%</span>
                                 </div>
                                 <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">

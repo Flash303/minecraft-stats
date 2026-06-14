@@ -140,15 +140,18 @@ export function AdminDashboard() {
 
             if (result.success) {
                 setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))
-                triggerToast("success", `Visibility updated successfully for ${serverName}`)
+                triggerToast("success", t("admin.toast.visibilitySuccess", { name: serverName }))
                 
                 // Add to audit logs
                 const newLog = {
                     id: `log-${Date.now()}`,
                     timestamp: new Date().toISOString(),
-                    action: "Visibility changed",
+                    action: t("admin.toast.visibilityChanged"),
                     type: "visibility" as const,
-                    details: `${serverName} is now ${!currentHidden ? "hidden" : "visible"}`
+                    details: t("admin.toast.visibilityDetails", { 
+                        name: serverName, 
+                        status: !currentHidden ? t("admin.toast.hidden") : t("admin.toast.visible") 
+                    })
                 }
                 setAuditLogs(prev => [newLog, ...prev])
             } else {
@@ -160,9 +163,12 @@ export function AdminDashboard() {
                 const newLog = {
                     id: `log-${Date.now()}`,
                     timestamp: new Date().toISOString(),
-                    action: "Visibility changed (Simulated)",
+                    action: t("admin.toast.visibilityChangedSimulated"),
                     type: "visibility" as const,
-                    details: `${serverName} is now ${!currentHidden ? "hidden" : "visible"} (mocked)`
+                    details: t("admin.toast.visibilityDetailsSimulated", { 
+                        name: serverName, 
+                        status: !currentHidden ? t("admin.toast.hidden") : t("admin.toast.visible") 
+                    })
                 }
                 setAuditLogs(prev => [newLog, ...prev])
             }
@@ -184,7 +190,7 @@ export function AdminDashboard() {
             const newLog = {
                 id: `log-${Date.now()}`,
                 timestamp: new Date().toISOString(),
-                action: "Database maintenance",
+                action: t("admin.settings.cleanup"),
                 type: "system" as const,
                 details: t("admin.auditLogs.dbCleanup")
             }
@@ -201,7 +207,7 @@ export function AdminDashboard() {
         const newLog = {
             id: `log-${Date.now()}`,
             timestamp: new Date().toISOString(),
-            action: "System config change",
+            action: t("admin.settings.maintenance"),
             type: "system" as const,
             details: nextState ? t("admin.auditLogs.maintenanceEnabled") : t("admin.auditLogs.maintenanceDisabled")
         }
@@ -212,7 +218,9 @@ export function AdminDashboard() {
     const handleToggleRateLimit = () => {
         const nextState = !rateLimiting
         setRateLimiting(nextState)
-        triggerToast("success", `API Rate limiting ${nextState ? "enabled" : "disabled"}`)
+        triggerToast("success", t("admin.toast.rateLimitToggled", {
+            status: nextState ? t("admin.toast.rateLimitEnabled") : t("admin.toast.rateLimitDisabled")
+        }))
     }
 
     // 1. Loading Permissions Check

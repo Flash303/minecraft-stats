@@ -28,7 +28,7 @@ interface UsersTabProps {
     togglingServerId: number | null
     handleToggleServer: (serverId: number, currentHidden: boolean) => Promise<void>
     getUserDisplayName: (user?: User | null) => string
-    t: (key: string) => string
+    t: (key: string, replacements?: Record<string, string>) => string
 }
 
 export function UsersTab({
@@ -117,10 +117,16 @@ export function UsersTab({
                                     {user.id}
                                 </div>
 
-                                {/* Servers count */}
-                                <div className="flex justify-center items-center gap-1.5 mt-5 pt-4 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-semibold text-muted-foreground">
+                                 <div className="flex justify-center items-center gap-1.5 mt-5 pt-4 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-semibold text-muted-foreground">
                                     <ServerIcon className="h-3.5 w-3.5 text-primary/70" />
-                                    <span>{userServers.length} {userServers.length > 1 ? "serveurs créés" : "serveur créé"}</span>
+                                    <span>
+                                        {t(
+                                            userServers.length > 1
+                                                ? "admin.users.serversCreatedCount_other"
+                                                : "admin.users.serversCreatedCount_one",
+                                            { count: String(userServers.length) }
+                                        )}
+                                    </span>
                                 </div>
 
                                 {/* Action CTA */}
@@ -130,14 +136,14 @@ export function UsersTab({
                                     className="w-full mt-4 h-9 text-xs rounded-xl cursor-pointer" 
                                     variant="outline"
                                 >
-                                    Gérer les serveurs
+                                    {t("admin.users.manageServers")}
                                 </Button>
                             </Card>
                         )
                     })
                 ) : (
                     <div className="col-span-full py-16 text-center text-muted-foreground border-2 border-dashed rounded-xl bg-card border-slate-200 dark:border-zinc-800">
-                        Aucun utilisateur trouvé
+                        {t("admin.users.noUsers")}
                     </div>
                 )}
             </div>
