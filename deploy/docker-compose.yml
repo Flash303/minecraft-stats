@@ -1,0 +1,73 @@
+services:
+    postgres:
+        image: postgres:15-alpine
+        container_name: postgres
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        volumes:
+            - ./postgres-data:/var/lib/postgresql/data
+        networks:
+            - stack-network
+        restart: always
+
+    worker:
+        build: ./worker
+        container_name: worker
+        depends_on:
+            - postgres
+        networks:
+            - stack-network
+        restart: always
+        environment:
+          DATABASE_URL: ${DATABASE_URL}
+
+    rest-api:
+        build: ./rest-api
+        container_name: rest-api
+        restart: always
+        depends_on:
+            - postgres
+        networks:
+            - stack-network
+        environment:
+            DATABASE_URL: ${DATABASE_URL}
+            CLERK_URL: ${CLERK_URL}
+            LISTEN_PORT: ${LISTEN_PORT}
+            CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+
+    loki:
+        image: grafana/loki:3.0.0
+        container_name: loki
+        command: -config.file=/etc/loki/local-config.yaml
+        volumes:
+          - ./loki-data:/loki
+        networks:
+          - stack-network
+
+    grafana:
+        image: grafana/grafana:10.4.0
+        container_name: grafana
+        environment:
+            GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+            GF_ANALYTICS_REPORTING_ENABLED: false
+        volumes:
+          - ./grafana-data:/var/lib/grafana
+        networks:
+          - stack-network
+        depends_on:
+          - loki
+
+    frontend:
+        build: ./frontend
+        container_name: frontend
+        restart: always
+        depends_on:
+            - rest-api
+
+networks:
+    stack-network:
+        driver: bridge
+
+# to connect with CLI docker exec -it mineccraft-stats-postgres psql -U anuser -d minecraft-stats
