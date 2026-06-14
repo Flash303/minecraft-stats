@@ -9,6 +9,7 @@ import { AddServerModal } from "./AddServerModal"
 import { SearchBar } from "./SearchBar"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useAdmin } from "@/contexts/AdminContext"
 import {
     Select,
     SelectContent,
@@ -26,6 +27,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
     const { isSignedIn, isLoaded } = useAuth()
     const { searchQuery, setSearchQuery } = useSearch()
     const { language, setLanguage, t } = useLanguage()
+    const { isAdmin } = useAdmin()
     const [isSearchOpen, setIsSearchOpen] = useState(false)
 
     // Mobile Search Overlay Mode
@@ -80,6 +82,14 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                                     className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400 hover:text-primary transition-colors whitespace-nowrap"
                                 >
                                     {t("common.myServers")}
+                                </Link>
+                            )}
+                            {isSignedIn && isAdmin && (
+                                <Link 
+                                    to="/dashboard" 
+                                    className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-zinc-400 hover:text-primary transition-colors whitespace-nowrap"
+                                >
+                                    {t("header.admin")}
                                 </Link>
                             )}
                         </div>

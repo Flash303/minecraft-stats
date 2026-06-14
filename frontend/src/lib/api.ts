@@ -18,6 +18,7 @@ export interface Server {
     last_version: string | null
     user_id: string
     user?: User | null
+    hidden?: boolean
     data?: Record[]
 }
 
@@ -126,3 +127,51 @@ export async function createServer(
         return { success: false }
     }
 }
+
+export async function checkAdminStatus(token: string): Promise<boolean> {
+    try {
+        const res = await fetch(`${API_BASE}/admin`, {
+            headers: getHeaders(token)
+        })
+        if (!res.ok) return false
+        const json = await res.json()
+        return json.success === true
+    } catch (error) {
+        console.error("Failed to check admin status:", error)
+        return false
+    }
+}
+
+export async function fetchAdminUsers(token: string): Promise<User[]> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/users`, {
+            headers: getHeaders(token)
+        })
+        if (!res.ok) return []
+        const json = await res.json()
+        return json.success ? json.data : []
+    } catch (error) {
+        console.error("Failed to fetch admin users:", error)
+        return []
+    }
+}
+
+export async function toggleServerVisibility(
+    serverId: number,
+    token: string,
+    hidden: boolean
+): Promise<{ success: boolean; message?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}/toggle`, {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify({ hidden })
+        })
+        const json = await res.json()
+        return { success: json.success, message: json.message }
+    } catch (error) {
+        console.error(`Failed to toggle visibility for server ${serverId}:`, error)
+        return { success: false }
+    }
+}
+
