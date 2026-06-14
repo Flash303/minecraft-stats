@@ -13,7 +13,9 @@ services:
         restart: always
 
     worker:
-        build: ./worker
+        build:
+            context: ../
+            dockerfile: deploy/worker/Dockerfile
         container_name: worker
         depends_on:
             - postgres
@@ -24,7 +26,9 @@ services:
           DATABASE_URL: ${DATABASE_URL}
 
     rest-api:
-        build: ./rest-api
+        build:
+            context: ../
+            dockerfile: deploy/rest-api/Dockerfile
         container_name: rest-api
         restart: always
         depends_on:
@@ -60,7 +64,12 @@ services:
           - loki
 
     frontend:
-        build: ./frontend
+        build:
+            context: ../
+            dockerfile: deploy/frontend/Dockerfile
+            args:
+                VITE_API_URL: ${VITE_API_URL}
+                VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY}
         container_name: frontend
         restart: always
         depends_on:

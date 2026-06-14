@@ -1,0 +1,29 @@
+# Ignore version control and IDEs
+.git
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Ignore local dependency directories
+**/node_modules
+**/bower_components
+
+# Ignore local build outputs
+**/dist
+**/build
+**/target
+**/out
+
+# Ignore local deployment data (important to avoid permission errors)
+**/postgres-data
+**/loki-data
+**/grafana-data
+**/*.db
+**/*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
