@@ -11,6 +11,8 @@
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
 
+  --breakpoint-xs: 475px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
