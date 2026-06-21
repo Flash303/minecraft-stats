@@ -76,10 +76,16 @@ export function ServerDetail() {
 
     const stats = useMemo(() => {
         if (records.length === 0) return null
-        const values = records.map(r => r.value)
-        const max = Math.max(...values)
-        const min = Math.min(...values)
-        const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length)
+        let max = -Infinity
+        let min = Infinity
+        let sum = 0
+        for (let i = 0; i < records.length; i++) {
+            const val = records[i].value
+            if (val > max) max = val
+            if (val < min) min = val
+            sum += val
+        }
+        const avg = Math.round(sum / records.length)
         return { max, min, avg }
     }, [records])
 
