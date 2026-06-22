@@ -15,6 +15,7 @@ use repository::repository::Repository;
 
 const MAX_CONCURRENT_PING: usize = 100;
 const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(1);
+const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
@@ -153,6 +154,6 @@ async fn main() {
 
         println!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
 
-        sleep(Duration::from_secs(8)).await;
+        sleep(DELAY_BETWEEN_EACH_PING).await;
     }
 }
