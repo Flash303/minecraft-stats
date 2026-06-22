@@ -32,7 +32,8 @@ export function Account() {
             const token = await getToken()
             if (token) {
                 const data = await fetchMyServers(token, true)
-                setServers(data)
+                const sortedData = [...data].sort((a, b) => a.name.localeCompare(b.name))
+                setServers(sortedData)
             }
         } catch (error) {
             console.error(error)
