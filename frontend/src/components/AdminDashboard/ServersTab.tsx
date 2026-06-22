@@ -339,7 +339,7 @@ export function ServersTab({
                                                     )}
                                                 </Button>
                                                 
-                                                <RenameServerModal server={server} onSuccess={onRefresh} />
+                                                <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
                                             </div>
                                         </td>
                                     </tr>
@@ -359,7 +359,7 @@ export function ServersTab({
     )
 }
 
-function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
+function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: any }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(server.name)
@@ -390,32 +390,32 @@ function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: (
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="h-7 text-[10px] cursor-pointer gap-1">
                     <Edit2 className="h-3 w-3" />
-                    Rename
+                    {t("admin.servers.rename")}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Renommer le serveur</DialogTitle>
+                        <DialogTitle>{t("admin.servers.renameTitle")}</DialogTitle>
                         <DialogDescription>
-                            Modifiez le nom d'affichage de ce serveur.
+                            {t("admin.servers.renameDesc")}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Nom du serveur</Label>
+                            <Label htmlFor="name">{t("admin.servers.renameLabel")}</Label>
                             <Input
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="Mon super serveur"
+                                placeholder={t("admin.servers.renamePlaceholder")}
                                 required
                             />
                         </div>
                     </div>
                     <DialogFooter>
                         <Button type="submit" disabled={loading || !name.trim() || name.trim() === server.name}>
-                            {loading ? "Modification..." : "Enregistrer"}
+                            {loading ? t("admin.servers.renameSaving") : t("admin.servers.renameSave")}
                         </Button>
                     </DialogFooter>
                 </form>
