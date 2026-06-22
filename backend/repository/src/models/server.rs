@@ -83,7 +83,7 @@ pub enum ServerStatus {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
-#[sqlx(type_name = "text")]
+#[sqlx(type_name = "varchar")]
 #[sqlx(rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum ServerType {
