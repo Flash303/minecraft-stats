@@ -31,7 +31,7 @@ export function Account() {
         try {
             const token = await getToken()
             if (token) {
-                const data = await fetchMyServers(token)
+                const data = await fetchMyServers(token, true)
                 setServers(data)
             }
         } catch (error) {

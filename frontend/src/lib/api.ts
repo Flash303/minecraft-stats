@@ -79,9 +79,10 @@ export async function fetchServers(token?: string, includeStats?: boolean): Prom
     }
 }
 
-export async function fetchMyServers(token: string): Promise<Server[]> {
+export async function fetchMyServers(token: string, includeStats?: boolean): Promise<Server[]> {
     try {
-        const res = await fetch(`${API_BASE}/servers/mine`, {
+        const url = includeStats ? `${API_BASE}/servers/mine?include_stats=true` : `${API_BASE}/servers/mine`
+        const res = await fetch(url, {
             headers: getHeaders(token)
         })
         if (!res.ok) return []

@@ -8,7 +8,7 @@ use crate::state::AppState;
 use axum::extract::rejection::{JsonRejection, PathRejection};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::routing::{get, post};
+use axum::routing::{get, patch, post};
 use axum::{Extension, Json, Router};
 use minecraft_pinger::config::PingConfig;
 use repository::models::record::{RecordData};
@@ -48,7 +48,7 @@ pub fn router() -> Router<AppState> {
         .route("/{id}", get(get_server).route_layer(layer.clone()))
         .route("/mine", get(get_mine_server).route_layer(layer))
         .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
-        .route("/{id}", axum::routing::patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))
+        .route("/{id}", patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -110,23 +110,41 @@ async fn list_all_servers(State(state): State<AppState>,
 }
 
 async fn get_mine_server(State(state): State<AppState>,
-                        Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<Server>>, AppError> {
+                         Query(query): Query<QueryParams>,
+                         Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
     let account = account.unwrap();
+    let include_stats = query.include_stats.unwrap_or(false);
 
     let result = state.repository.get_servers_of_user(account.id().clone()).await;
     if let Err(error) = result {
         println!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
-    let result = result.unwrap()
+
+    let mut servers: Vec<BiggerServerResponse> = result.unwrap()
         .into_iter()
-        .filter(|s| account.is_admin() || !s.hidden)
+        .map(BiggerServerResponse::from)
         .collect();
 
-    Ok(ResponseFormat::success(result, StatusCode::OK))
+    if include_stats {
+        let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
+
+        let records_result = state.repository.get_last_pings_for_servers(&server_ids).await;
+        if let Err(error) = records_result {
+            println!("Error fetching last pings for servers: {:?}", error);
+            return Err(AppError::FetchingDataError(error));
+        }
+
+        let mut records_map = records_result.unwrap();
+        for s in &mut servers {
+            s.data = records_map.remove(&s.server.id);
+        }
+    }
+
+    Ok(ResponseFormat::success(servers, StatusCode::OK))
 }
 
 #[derive(Serialize)]
