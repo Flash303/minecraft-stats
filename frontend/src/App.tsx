@@ -3,6 +3,7 @@ import { ServerList } from "@/pages/ServerList"
 import { ServerDetail } from "@/pages/ServerDetail"
 import { ServerComparison } from "@/pages/ServerComparison"
 import { AdminDashboard } from "@/pages/AdminDashboard"
+import { Account } from "@/pages/Account"
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
                 <Route path="/" element={<ServerList />} />
                 <Route path="/server/:id" element={<ServerDetail />} />
                 <Route path="/compare" element={<ServerComparison />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<AdminDashboard />} />
                 <Route path="/dashboard/:subview" element={<AdminDashboard />} />

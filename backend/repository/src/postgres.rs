@@ -5,7 +5,7 @@ use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{Server, ServerRow, UnregisteredServer};
+use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::repository::Repository;
 
 #[derive(Clone)]
@@ -131,10 +131,10 @@ impl Repository for PostgresRepository {
         Ok(map)
     }
 
-    async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
+    async fn create_server(&self, server: DraftServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
-            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint, type)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                     RETURNING *")
             .bind(server.name)
             .bind(server.ip)
@@ -143,6 +143,7 @@ impl Repository for PostgresRepository {
             .bind(server.favicon_hash)
             .bind(server.motd_hash)
             .bind(server.resolved_endpoint)
+            .bind(server.server_type)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
@@ -151,7 +152,7 @@ impl Repository for PostgresRepository {
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), String> {
-        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4, favicon_hash = $6, motd_hash = $7, resolved_endpoint = $8, hidden = $9 WHERE id = $5")
+        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4, favicon_hash = $6, motd_hash = $7, resolved_endpoint = $8, hidden = $9, name = $10 WHERE id = $5")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
@@ -161,6 +162,7 @@ impl Repository for PostgresRepository {
             .bind(server.motd_hash.clone())
             .bind(server.resolved_endpoint.clone())
             .bind(server.hidden)
+            .bind(server.name.clone())
             .execute(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
@@ -181,6 +183,7 @@ impl Repository for PostgresRepository {
         let mut favicon_hashes = Vec::with_capacity(servers.len());
         let mut motd_hashes = Vec::with_capacity(servers.len());
         let mut endpoints = Vec::with_capacity(servers.len());
+        let mut names = Vec::with_capacity(servers.len());
 
         for s in servers {
             ids.push(s.id as i32);
@@ -191,12 +194,14 @@ impl Repository for PostgresRepository {
             favicon_hashes.push(s.favicon_hash.clone());
             motd_hashes.push(s.motd_hash.clone());
             endpoints.push(s.resolved_endpoint.clone());
+            names.push(s.name.clone());
         }
 
         sqlx::query(
             r#"
             UPDATE servers AS s
             SET
+                name = u.name,
                 last_favicon = u.last_favicon,
                 last_status = u.last_status,
                 last_connected = u.last_connected,
@@ -204,8 +209,8 @@ impl Repository for PostgresRepository {
                 favicon_hash = u.favicon_hash,
                 motd_hash = u.motd_hash,
                 resolved_endpoint = u.resolved_endpoint
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint)
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name)
             WHERE s.id = u.id
             "#
         )
@@ -217,6 +222,7 @@ impl Repository for PostgresRepository {
         .bind(&favicon_hashes)
         .bind(&motd_hashes)
         .bind(&endpoints)
+        .bind(&names)
         .execute(&self.pool)
         .await
         .map_err(|e| e.to_string())?;

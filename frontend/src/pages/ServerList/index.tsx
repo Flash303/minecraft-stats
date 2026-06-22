@@ -23,15 +23,14 @@ export function ServerList() {
 
     const activeTab = useMemo(() => {
         const tabParam = searchParams.get("tab")
-        if (tabParam === "mine" && !isSignedIn) return "all"
         if (tabParam === "hidden" && !isAdmin) return "all"
-        if (tabParam === "online" || tabParam === "offline" || tabParam === "mine" || tabParam === "hidden") {
-            return tabParam as "all" | "online" | "offline" | "mine" | "hidden"
+        if (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") {
+            return tabParam as "all" | "online" | "offline" | "hidden"
         }
         return "all"
-    }, [searchParams, isSignedIn, isAdmin])
+    }, [searchParams, isAdmin])
 
-    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "mine" | "hidden") => {
+    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => {
         const newParams = new URLSearchParams(searchParams)
         if (tab === "all") {
             newParams.delete("tab")
@@ -88,8 +87,6 @@ export function ServerList() {
             list = list.filter(s => s.last_status === "online")
         } else if (activeTab === "offline") {
             list = list.filter(s => s.last_status === "offline")
-        } else if (activeTab === "mine") {
-            list = list.filter(s => s.user_id === userId)
         }
 
         // Filtrage par barre de recherche
@@ -106,10 +103,6 @@ export function ServerList() {
     const visibleCount = useMemo(() => servers.filter(s => s.hidden !== true).length, [servers])
     const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online" && s.hidden !== true).length, [servers])
     const offlineCount = useMemo(() => servers.filter(s => s.last_status === "offline" && s.hidden !== true).length, [servers])
-    const myServersCount = useMemo(() => {
-        if (!userId) return 0
-        return servers.filter(s => s.user_id === userId && s.hidden !== true).length
-    }, [servers, userId])
     const hiddenCount = useMemo(() => servers.filter(s => s.hidden === true).length, [servers])
 
     return (
@@ -123,9 +116,7 @@ export function ServerList() {
                     totalCount={visibleCount}
                     onlineCount={onlineCount}
                     offlineCount={offlineCount}
-                    myServersCount={myServersCount}
                     hiddenCount={hiddenCount}
-                    isSignedIn={!!isSignedIn}
                     isAdmin={isAdmin}
                 />
 
