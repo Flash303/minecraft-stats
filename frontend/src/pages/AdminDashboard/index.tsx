@@ -463,6 +463,7 @@ export function AdminDashboard() {
                             handleToggleServer={handleToggleServer}
                             getUserDisplayName={getUserDisplayName}
                             t={t}
+                            onRefresh={loadData}
                         />
                     )}
 
