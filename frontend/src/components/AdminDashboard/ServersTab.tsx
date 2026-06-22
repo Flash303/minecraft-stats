@@ -11,8 +11,21 @@ import {
     Server as ServerIcon,
     User as UserIcon,
     Eye,
-    EyeOff
+    EyeOff,
+    Edit2
 } from "lucide-react"
+import { useAuth } from "@clerk/react"
+import { renameServer } from "@/lib/api"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 interface ServersTabProps {
     servers: Server[]
@@ -21,6 +34,7 @@ interface ServersTabProps {
     handleToggleServer: (serverId: number, currentHidden: boolean) => Promise<void>
     getUserDisplayName: (user?: User | null) => string
     t: (key: string, replacements?: Record<string, string>) => string
+    onRefresh: () => void
 }
 
 export function ServersTab({
@@ -29,7 +43,8 @@ export function ServersTab({
     togglingServerId,
     handleToggleServer,
     getUserDisplayName,
-    t
+    t,
+    onRefresh
 }: ServersTabProps) {
     const [serverSearchQuery, setServerSearchQuery] = useState("")
     const [serverStatusFilter, setServerStatusFilter] = useState<"all" | "online" | "offline" | "hidden">("all")
@@ -323,6 +338,8 @@ export function ServersTab({
                                                         </>
                                                     )}
                                                 </Button>
+                                                
+                                                <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
                                             </div>
                                         </td>
                                     </tr>
@@ -339,5 +356,70 @@ export function ServersTab({
                 </table>
             </div>
         </div>
+    )
+}
+
+function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: any }) {
+    const { getToken } = useAuth()
+    const [open, setOpen] = useState(false)
+    const [name, setName] = useState(server.name)
+    const [loading, setLoading] = useState(false)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!name.trim() || name.trim() === server.name) return
+
+        setLoading(true)
+        try {
+            const token = await getToken()
+            if (!token) return
+            const res = await renameServer(server.id, name.trim(), token)
+            if (res.success) {
+                setOpen(false)
+                onSuccess()
+            }
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] cursor-pointer gap-1">
+                    <Edit2 className="h-3 w-3" />
+                    Rename
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>Renommer le serveur</DialogTitle>
+                        <DialogDescription>
+                            Modifiez le nom d'affichage de ce serveur.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name">Nom du serveur</Label>
+                            <Input
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Mon super serveur"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit" disabled={loading || !name.trim() || name.trim() === server.name}>
+                            {loading ? "Modification..." : "Enregistrer"}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     )
 }
