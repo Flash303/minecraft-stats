@@ -339,7 +339,7 @@ export function ServersTab({
                                                     )}
                                                 </Button>
                                                 
-                                                <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
+                                                <RenameServerModal server={server} onSuccess={onRefresh} />
                                             </div>
                                         </td>
                                     </tr>
@@ -359,7 +359,7 @@ export function ServersTab({
     )
 }
 
-function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: any }) {
+function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(server.name)
