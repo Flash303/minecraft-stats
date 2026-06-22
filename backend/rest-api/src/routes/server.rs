@@ -10,9 +10,9 @@ use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
-use minecraft_pinger::PingConfig;
+use minecraft_pinger::config::PingConfig;
 use repository::models::record::{RecordData};
-use repository::models::server::{Server, UnregisteredServer};
+use repository::models::server::{Server, DraftServer, ServerType};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use serde::{Deserialize, Serialize};
 use tower_governor::GovernorLayer;
@@ -34,6 +34,13 @@ pub fn router() -> Router<AppState> {
         .finish()
         .unwrap();
 
+    let patch_server_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(10)
+        .key_extractor(SmartIpKeyExtractor)
+        .finish()
+        .unwrap();
+
     let layer = GovernorLayer::new(get_server_limit);
 
     Router::new()
@@ -41,6 +48,7 @@ pub fn router() -> Router<AppState> {
         .route("/{id}", get(get_server).route_layer(layer.clone()))
         .route("/mine", get(get_mine_server).route_layer(layer))
         .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
+        .route("/{id}", axum::routing::patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -163,8 +171,8 @@ async fn get_server(State(state): State<AppState>,
 }
 
 async fn create_server(State(state): State<AppState>,
-                           Extension(account): Extension<Option<ClerkClaims>>,
-                           query: Result<Json<UnregisteredServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
+                       Extension(account): Extension<Option<ClerkClaims>>,
+                       query: Result<Json<DraftServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
@@ -175,25 +183,49 @@ async fn create_server(State(state): State<AppState>,
     let mut query = query.unwrap().0;
 
     // max 3 try
-    let mut ping_result = None;
+    let mut is_reachable = false;
+    let mut version_name = None;
     for _ in 0..3 {
-        if let Ok(res) = state.pigner.ping_server(query.ip.as_str(), query.port, &PingConfig::default()).await {
-            ping_result = Some(res);
+        let ping_res = match query.server_type {
+            ServerType::Java => {
+                let res = state.pigner.ping_java_server(query.ip.as_str(), query.port, &PingConfig::default()).await;
+                if let Ok(ping) = &res {
+                    query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                    let motd_value = serde_json::to_value(&ping.description).ok();
+                    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                    version_name = Some(ping.version.name.clone());
+                }
+                res.is_ok()
+            },
+            ServerType::Bedrock => {
+                let res = state.pigner.ping_bedrock_server(query.ip.as_str(), query.port, &PingConfig::default()).await;
+                if let Ok(ping) = &res {
+                    query.favicon_hash = None;
+                    let motd_value = serde_json::to_value(&ping.motd).ok();
+                    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                    version_name = Some(ping.version.clone());
+                }
+                res.is_ok()
+            }
+        };
+
+        if ping_res {
+            is_reachable = true;
             break;
         }
     }
 
-    let ping = ping_result.ok_or_else(|| AppError::ServerCreationError("Server not reachable".to_string()))?;
-    query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
-    let motd_value = serde_json::to_value(&ping.description).ok();
-    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+    if !is_reachable {
+        return Err(AppError::ServerCreationError("Server not reachable".to_string()));
+    }
+
     query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
 
     let fingerprint = ServerFingerprint {
         favicon_hash: query.favicon_hash.clone(),
         resolved_endpoint: query.resolved_endpoint.clone(),
         motd_hash: query.motd_hash.clone(),
-        version: Some(ping.version.name.clone()),
+        version: version_name,
     };
 
     if let Some(duplicate) = DuplicateDetectionService::find_duplicate(
@@ -224,4 +256,30 @@ async fn create_server(State(state): State<AppState>,
     }
 
     Ok(ResponseFormat::success(rs.unwrap(), StatusCode::OK))
+}
+
+#[derive(Deserialize)]
+struct UpdateServerPayload {
+    name: String,
+}
+
+async fn update_server_name(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+    Path(id): Path<u32>,
+    Json(payload): Json<UpdateServerPayload>,
+) -> Result<ResponseFormat<Server>, AppError> {
+    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+
+    let mut server = state.repository.get_server(id).await.map_err(|e| AppError::ServerNotFoundError(e))?;
+    
+    let is_owner = server.user_id == account.sub;
+    if !is_owner && !account.is_admin() {
+        return Err(AppError::AuthenticationError("Forbidden".to_string()));
+    }
+
+    server.name = payload.name;
+    state.repository.update_server(&server).await.map_err(|e| AppError::FetchingDataError(e))?;
+
+    Ok(ResponseFormat::success(server, StatusCode::OK))
 }

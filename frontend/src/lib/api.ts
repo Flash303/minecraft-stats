@@ -18,6 +18,7 @@ export interface Server {
     last_version: string | null
     user_id: string
     user?: User | null
+    type?: "java" | "bedrock"
     hidden?: boolean
     data?: Record[]
 }
@@ -205,7 +206,7 @@ export async function fetchRecords(
 }
 
 export async function createServer(
-    server: { name: string; ip: string; port: number },
+    server: { name: string; ip: string; port: number; type: "java" | "bedrock" },
     token: string
 ): Promise<{ success: boolean; message?: string }> {
     try {
@@ -218,6 +219,25 @@ export async function createServer(
         return { success: json.success, message: json.message }
     } catch (error) {
         console.error("Failed to create server:", error)
+        return { success: false }
+    }
+}
+
+export async function renameServer(
+    serverId: number,
+    name: string,
+    token: string
+): Promise<{ success: boolean; message?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/${serverId}`, {
+            method: "PATCH",
+            headers: getHeaders(token),
+            body: JSON.stringify({ name })
+        })
+        const json = await res.json()
+        return { success: json.success, message: json.message }
+    } catch (error) {
+        console.error(`Failed to rename server ${serverId}:`, error)
         return { success: false }
     }
 }

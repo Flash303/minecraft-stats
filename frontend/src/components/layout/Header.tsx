@@ -108,8 +108,8 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                                 </Link>
                                 {isSignedIn && (
                                     <Link 
-                                        to="/?tab=mine" 
-                                        className={getLinkClass("/", "tab=mine")}
+                                        to="/account" 
+                                        className={getLinkClass("/account")}
                                     >
                                         {t("common.myServers")}
                                     </Link>
@@ -217,9 +217,9 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                         </Link>
                         {isSignedIn && (
                             <Link 
-                                to="/?tab=mine" 
+                                to="/account" 
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/", "tab=mine")}
+                                className={getMobileLinkClass("/account")}
                             >
                                 {t("common.myServers")}
                             </Link>

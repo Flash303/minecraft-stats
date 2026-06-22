@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createServer } from "@/lib/api"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -29,7 +30,8 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
     const [formData, setFormData] = useState({
         name: "",
         ip: "",
-        port: "25565"
+        port: "25565",
+        type: "java" as "java" | "bedrock"
     })
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -45,14 +47,15 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                 {
                     name: formData.name,
                     ip: formData.ip,
-                    port: parseInt(formData.port) || 25565
+                    port: parseInt(formData.port) || 25565,
+                    type: formData.type
                 },
                 token
             )
 
             if (result.success) {
                 setOpen(false)
-                setFormData({ name: "", ip: "", port: "25565" })
+                setFormData({ name: "", ip: "", port: "25565", type: "java" })
                 onSuccess?.()
             } else {
                 setError(result.message || t("addServer.error"))
@@ -100,6 +103,21 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                             onChange={(e) => setFormData({ ...formData, ip: e.target.value })}
                             required
                         />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="type">Type</Label>
+                        <Select 
+                            value={formData.type} 
+                            onValueChange={(value: "java" | "bedrock") => setFormData({ ...formData, type: value })}
+                        >
+                            <SelectTrigger id="type">
+                                <SelectValue placeholder="Sélectionner le type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="java">Java</SelectItem>
+                                <SelectItem value="bedrock">Bedrock</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="port">{t("addServer.portLabel")}</Label>

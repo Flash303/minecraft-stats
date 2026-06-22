@@ -1,14 +1,12 @@
 import { cn } from "@/lib/utils"
 
 interface ServerListFiltersProps {
-    activeTab: "all" | "online" | "offline" | "mine" | "hidden"
-    setActiveTab: (tab: "all" | "online" | "offline" | "mine" | "hidden") => void
+    activeTab: "all" | "online" | "offline" | "hidden"
+    setActiveTab: (tab: "all" | "online" | "offline" | "hidden") => void
     totalCount: number
     onlineCount: number
     offlineCount: number
-    myServersCount: number
     hiddenCount: number
-    isSignedIn: boolean
     isAdmin: boolean
 }
 
@@ -18,9 +16,7 @@ export function ServerListFilters({
     totalCount,
     onlineCount,
     offlineCount,
-    myServersCount,
     hiddenCount,
-    isSignedIn,
     isAdmin
 }: ServerListFiltersProps) {
     return (
@@ -61,19 +57,6 @@ export function ServerListFilters({
                     <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                     Hors ligne ({offlineCount})
                 </button>
-                {isSignedIn && (
-                    <button
-                        onClick={() => setActiveTab("mine")}
-                        className={cn(
-                            "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5",
-                            activeTab === "mine"
-                                ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-sm font-bold"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                        )}
-                    >
-                        Mes serveurs ({myServersCount})
-                    </button>
-                )}
                 {isAdmin && (
                     <button
                         onClick={() => setActiveTab("hidden")}

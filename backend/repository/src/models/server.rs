@@ -10,6 +10,8 @@ pub struct Server {
 
     pub ip: String,
     pub port: u16,
+    #[serde(rename = "type")]
+    pub server_type: ServerType,
 
     pub hidden: bool,
 
@@ -36,6 +38,9 @@ pub struct ServerRow {
     ip: String,
     port: i32,
 
+    #[sqlx(rename = "type")]
+    server_type: ServerType,
+
     hidden: bool,
 
     last_favicon: Option<String>,
@@ -55,6 +60,7 @@ impl From<ServerRow> for Server {
             user_id: row.user_id,
             ip: row.ip,
             port: row.port as u16,
+            server_type: row.server_type,
             hidden: row.hidden,
             last_favicon: row.last_favicon,
             last_status: row.last_status,
@@ -76,11 +82,24 @@ pub enum ServerStatus {
     Offline,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
+#[sqlx(type_name = "text")]
+#[sqlx(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
+pub enum ServerType {
+    Java,
+    Bedrock
+}
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct UnregisteredServer {
+pub struct DraftServer {
     pub name: String,
     pub ip: String,
     pub port: u16,
+
+    #[serde(rename = "type")]
+    pub server_type: ServerType,
+
     pub user_id: Option<String>,
 
     pub favicon_hash: Option<String>,

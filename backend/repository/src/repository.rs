@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{Server, UnregisteredServer};
+use crate::models::server::{Server, DraftServer};
 use async_trait::async_trait;
 
 use time::{OffsetDateTime};
@@ -13,7 +13,7 @@ pub trait Repository: Send + Sync {
     async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>) -> Result<RecordData, String>;
     async fn get_last_pings_for_servers(&self, server_ids: &[u32]) -> Result<HashMap<u32, RecordData>, String>;
 
-    async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String>;
+    async fn create_server(&self, server: DraftServer) -> Result<Server, String>;
 
     async fn update_server(&self, server: &Server) -> Result<(), String>;
     async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), String>;

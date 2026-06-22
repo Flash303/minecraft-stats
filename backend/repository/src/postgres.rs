@@ -5,7 +5,7 @@ use sqlx::{PgPool, QueryBuilder, Row};
 use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{Server, ServerRow, UnregisteredServer};
+use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::repository::Repository;
 
 #[derive(Clone)]
@@ -131,7 +131,7 @@ impl Repository for PostgresRepository {
         Ok(map)
     }
 
-    async fn create_server(&self, server: UnregisteredServer) -> Result<Server, String> {
+    async fn create_server(&self, server: DraftServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
             "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
