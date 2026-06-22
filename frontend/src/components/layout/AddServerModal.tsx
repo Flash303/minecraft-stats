@@ -108,7 +108,12 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                         <Label htmlFor="type">Type</Label>
                         <Select 
                             value={formData.type} 
-                            onValueChange={(value: "java" | "bedrock") => setFormData({ ...formData, type: value })}
+                            onValueChange={(value: "java" | "bedrock") => {
+                                let newPort = formData.port;
+                                if (value === "bedrock" && formData.port === "25565") newPort = "19132";
+                                if (value === "java" && formData.port === "19132") newPort = "25565";
+                                setFormData({ ...formData, type: value, port: newPort });
+                            }}
                         >
                             <SelectTrigger id="type">
                                 <SelectValue placeholder="Sélectionner le type" />

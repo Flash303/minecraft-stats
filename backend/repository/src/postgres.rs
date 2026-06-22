@@ -133,7 +133,7 @@ impl Repository for PostgresRepository {
 
     async fn create_server(&self, server: DraftServer) -> Result<Server, String> {
         let server: ServerRow = sqlx::query_as(
-            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint)
+            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint, type)
                     VALUES ($1, $2, $3, $4, $5, $6, $7)
                     RETURNING *")
             .bind(server.name)
@@ -143,6 +143,7 @@ impl Repository for PostgresRepository {
             .bind(server.favicon_hash)
             .bind(server.motd_hash)
             .bind(server.resolved_endpoint)
+            .bind(server.server_type)
             .fetch_one(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
