@@ -1,21 +1,21 @@
-use std::sync::Arc;
-use std::time::{Duration, Instant};
+use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
+use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME};
 use futures::{stream, StreamExt};
 use minecraft_pinger::config::PingConfig;
-use minecraft_pinger::MinecraftPinger;
 use minecraft_pinger::models::bedrock_model::BedrockPing;
 use minecraft_pinger::models::java_model::JavaPing;
 use minecraft_pinger::utils::version_parser::parse_minecraft_version_range;
-use time::OffsetDateTime;
-use tokio::sync::mpsc::Sender;
-use tokio::time::sleep;
+use minecraft_pinger::MinecraftPinger;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::models::record::Record;
 use repository::models::server::{Server, ServerStatus, ServerType};
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
-use crate::{MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME};
-use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
+use std::sync::Arc;
+use std::time::Instant;
+use time::OffsetDateTime;
+use tokio::sync::mpsc::Sender;
+use tokio::time::sleep;
 
 enum PingResultType {
     Java(JavaPing),
@@ -154,6 +154,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
             while let Some((server, record)) = optimised_tasks.next().await {
                 updated_servers.push(server);
+
                 if let Some(rec) = record {
                     records.push(rec);
                 }
@@ -172,6 +173,6 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
         println!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
 
-        sleep(Duration::from_secs(8)).await;
+        sleep(DELAY_BETWEEN_EACH_PING).await;
     }
 }

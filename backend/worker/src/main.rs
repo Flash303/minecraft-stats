@@ -10,7 +10,7 @@ mod tasks;
 
 const MAX_CONCURRENT_PING: usize = 100;
 const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(1);
-const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
+pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
