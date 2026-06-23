@@ -15,7 +15,7 @@ use repository::models::server::{Server, ServerStatus, ServerType};
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use crate::{MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME};
-use crate::tasks::communication::{ServerState, ServerStateChange, WorkerToVerifier};
+use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
 
 enum PingResultType {
     Java(JavaPing),
