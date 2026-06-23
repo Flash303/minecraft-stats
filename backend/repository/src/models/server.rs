@@ -73,7 +73,7 @@ impl From<ServerRow> for Server {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, sqlx::Type)]
+#[derive(Serialize, Deserialize, Eq, PartialEq, Debug, Clone, sqlx::Type)]
 #[sqlx(type_name = "text")]
 #[sqlx(rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
