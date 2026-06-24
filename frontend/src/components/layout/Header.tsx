@@ -101,6 +101,12 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             {/* Desktop Nav Links */}
                             <nav className="hidden md:flex items-center gap-2 lg:gap-3">
                                 <Link 
+                                    to="/" 
+                                    className={getLinkClass("/")}
+                                >
+                                    {t("common.home")}
+                                </Link>
+                                <Link 
                                     to="/compare" 
                                     className={getLinkClass("/compare")}
                                 >
@@ -206,7 +212,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={getMobileLinkClass("/")}
                         >
-                            {t("common.backToHome")}
+                            {t("common.home")}
                         </Link>
                         <Link 
                             to="/compare" 

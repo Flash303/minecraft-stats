@@ -409,7 +409,7 @@ export function Account() {
                                                 className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-slate-200/60 dark:border-slate-800/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
                                             >
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                                                    <span className="text-xs font-semibold tracking-wider text-muted-foreground mb-1">
                                                         {t("profile.alertForServer")} : <strong className="text-slate-900 dark:text-slate-100 ml-1">{alert.serverName}</strong>
                                                     </span>
                                                     <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
