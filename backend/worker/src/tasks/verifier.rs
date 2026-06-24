@@ -19,6 +19,8 @@ pub async fn verifier_worker(
                 let player_number_changer = state.new_status == Online &&
                     state.old_players.unwrap_or(0) != state.new_players.unwrap_or(0);
 
+                println!("State of {} status_changed={} player_number_changer={}", state.name, status_changed, player_number_changer);
+                
                 // If nothing relevant changed, skip alert evaluation
                 if !status_changed && !player_number_changer {
                     continue;
@@ -64,10 +66,10 @@ pub async fn verifier_worker(
                         let notification = TriggeredAlertNotification {
                             alert,
                             server_name: state.name.clone(),
-                            
+
                             old_status: state.old_status.clone(),
                             old_players: state.old_players,
-                            
+
                             new_status: state.new_status.clone(),
                             new_players: state.new_players,
                         };
