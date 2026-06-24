@@ -61,17 +61,7 @@ pub async fn verifier_worker(
                     }
 
                     if is_triggered {
-                        let notification = TriggeredAlertNotification {
-                            alert,
-                            server_name: state.name.clone(),
-
-                            old_status: state.old_status.clone(),
-                            old_players: state.old_players,
-
-                            new_status: state.new_status.clone(),
-                            new_players: state.new_players,
-                        };
-
+                        let notification = TriggeredAlertNotification::from(&state, alert);
                         if let Err(e) = tx_sender.send(VerifierToSender::TriggerNotification(notification)).await {
                             println!("Verifier error sending notification to Sender channel: {:?}", e);
                         }

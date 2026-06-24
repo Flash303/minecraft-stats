@@ -1,4 +1,6 @@
 use std::time::Duration;
+use base64::Engine;
+use axum::response::IntoResponse;
 
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::error::AppError;
@@ -52,6 +54,7 @@ pub fn router() -> Router<AppState> {
         .route("/{id}", patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))
         .route("/{id}/alerts", get(list_alerts).post(create_alert))
         .route("/alerts/{alert_id}", delete(delete_alert))
+        .route("/{id}/icon", get(get_server_icon))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -371,4 +374,24 @@ async fn delete_alert(
         .map_err(|e| AppError::FetchingDataError(e))?;
 
     Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
+}
+
+async fn get_server_icon(
+    State(state): State<AppState>,
+    Path(id): Path<u32>,
+) -> Result<impl axum::response::IntoResponse, AppError> {
+    let server = state.repository.get_server(id).await.map_err(|e| AppError::ServerNotFoundError(e))?;
+    
+    if let Some(favicon) = server.last_favicon {
+        if let Some(base64_data) = favicon.strip_prefix("data:image/png;base64,") {
+            if let Ok(image_bytes) = base64::engine::general_purpose::STANDARD.decode(base64_data) {
+                return Ok((
+                    [(axum::http::header::CONTENT_TYPE, "image/png"), (axum::http::header::CACHE_CONTROL, "public, max-age=86400")],
+                    image_bytes
+                ).into_response());
+            }
+        }
+    }
+    
+    Ok(axum::response::Redirect::temporary("https://wd40.theking90000.be/files/ee292f4a-dfff-4c5f-b65e-1beca56ec24f").into_response())
 }

@@ -14,7 +14,7 @@ minecraft-pinger = { git = "https://github.com/Flash303/minecraft-pinger" }
 
 sqlx = { version = "0.9.0", features = ["postgres", "time", "runtime-tokio"] }
 time = { version = "0.3.47", features = ["serde", "formatting"] }
-tower-http = { version = "0.6.11", features = ["cors", "compression-full"] }
+tower-http = { version = "0.7.0", features = ["cors", "compression-full"] }
 jwt-compact = { version = "0.8.0", features = ["rsa"] }
 reqwest = { version = "0.13.0", features = ["json"] }
 tokio = { version = "1.52.3", features = ["full"] }
