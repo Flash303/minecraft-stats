@@ -132,6 +132,7 @@ async fn get_mine_server(State(state): State<AppState>,
 
     let mut servers: Vec<BiggerServerResponse> = result.unwrap()
         .into_iter()
+        .filter(|s| account.is_admin() || !s.hidden)
         .map(BiggerServerResponse::from)
         .collect();
 
