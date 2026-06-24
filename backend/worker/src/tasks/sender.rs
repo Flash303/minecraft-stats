@@ -96,11 +96,19 @@ pub async fn sender_worker(
                             clean_auth,
                         );
 
-                        // Build VAPID signature builder from PEM bytes
-                        let sig_result = VapidSignatureBuilder::from_pem(
-                            Cursor::new(key_pem_clone.as_bytes()),
-                            &subscription_info
-                        );
+                        // Build VAPID signature builder from PEM bytes or base64
+                        let trimmed_key = key_pem_clone.trim();
+                        let sig_result = if trimmed_key.starts_with("-----BEGIN") {
+                            VapidSignatureBuilder::from_pem(
+                                Cursor::new(trimmed_key.as_bytes()),
+                                &subscription_info
+                            )
+                        } else {
+                            VapidSignatureBuilder::from_base64(
+                                trimmed_key,
+                                &subscription_info
+                            )
+                        };
 
                         let mut sig_builder = match sig_result {
                             Ok(builder) => builder,
