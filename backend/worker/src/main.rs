@@ -2,9 +2,10 @@ use std::env;
 use repository::postgres::PostgresRepository;
 use std::time::Duration;
 use tokio::sync::mpsc;
-use crate::tasks::communication::WorkerToVerifier;
+use crate::tasks::communication::{WorkerToVerifier, VerifierToSender};
 use crate::tasks::pinger::ping_worker;
 use crate::tasks::verifier::verifier_worker;
+use crate::tasks::sender::sender_worker;
 
 mod tasks;
 
@@ -22,14 +23,25 @@ async fn main() {
     let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
     // ping worker -> state verifier
-    let (tx, rx) = mpsc::channel::<WorkerToVerifier>(MAX_CONCURRENT_PING);
+    let (tx_verifier, rx_verifier) = mpsc::channel::<WorkerToVerifier>(MAX_CONCURRENT_PING);
 
+    // state verifier -> notification sender
+    let (tx_sender, rx_sender) = mpsc::channel::<VerifierToSender>(MAX_CONCURRENT_PING);
+
+    // Spawn Pinger
     let repository_worker = repository.clone();
     tokio::spawn(async move {
-        ping_worker(repository_worker, tx).await;   
+        ping_worker(repository_worker, tx_verifier).await;   
     });
 
+    // Spawn Verifier
+    let repository_verifier = repository.clone();
     tokio::spawn(async move {
-        verifier_worker(rx).await;
+        verifier_worker(repository_verifier, rx_verifier, tx_sender).await;
     });
+
+    // Spawn Sender
+    // run the sender to the main thread to keep it alive
+    let repository_sender = repository.clone();
+    sender_worker(repository_sender, rx_sender).await;
 }
