@@ -4,6 +4,7 @@ import { Bell, BellOff, Plus, Trash2, ShieldAlert, CheckCircle2 } from "lucide-r
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { fetchAlerts, createAlert, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice, type Alert } from "@/lib/api"
 
 interface AlertsSectionProps {
@@ -265,17 +266,17 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                     <form onSubmit={handleAddAlert} className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="alert-type" className="text-xs text-muted-foreground">{t("alerts.typeLabel")}</Label>
-                            <select 
-                                id="alert-type"
-                                value={alertType}
-                                onChange={(e) => setAlertType(e.target.value as any)}
-                                className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-900 dark:border-slate-800 dark:focus-visible:ring-slate-300"
-                            >
-                                <option value="status_to_offline">{t("alerts.types.status_to_offline")}</option>
-                                <option value="status_to_online">{t("alerts.types.status_to_online")}</option>
-                                <option value="player_above">{t("alerts.types.player_above")}</option>
-                                <option value="player_below">{t("alerts.types.player_below")}</option>
-                            </select>
+                            <Select value={alertType} onValueChange={(v) => setAlertType(v as any)}>
+                                <SelectTrigger id="alert-type" className="h-9 w-full">
+                                    <SelectValue placeholder={t("alerts.typeLabel")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="status_to_offline">{t("alerts.types.status_to_offline")}</SelectItem>
+                                    <SelectItem value="status_to_online">{t("alerts.types.status_to_online")}</SelectItem>
+                                    <SelectItem value="player_above">{t("alerts.types.player_above")}</SelectItem>
+                                    <SelectItem value="player_below">{t("alerts.types.player_below")}</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         {(alertType === "player_above" || alertType === "player_below") && (
