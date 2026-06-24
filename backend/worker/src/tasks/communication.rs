@@ -45,27 +45,6 @@ pub enum VerifierToSender {
     TriggerNotification(TriggeredAlertNotification),
 }
 
-// Data struct more simple of a server state
-pub struct ServerState {
-    pub id: u32,
-    pub name: String,
-
-    pub status: ServerStatus,
-    pub online_number: Option<u32>,
-}
-
-impl From<&Server> for ServerState {
-    fn from(server: &Server) -> Self {
-        Self {
-            id: server.id,
-            name: server.name.clone(),
-
-            status: server.last_status.clone().unwrap(),
-            online_number: server.last_connected,
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct TriggeredAlertNotification {
     pub alert: Alert,

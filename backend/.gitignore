@@ -3,3 +3,4 @@
 .idea
 deploy/postgres-data
 deploy/postgres-data-old
+update_dep.txt
