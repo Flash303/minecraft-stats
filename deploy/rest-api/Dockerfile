@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM rust:alpine AS builder
-RUN apk add --no-cache musl-dev pkgconfig openssl-dev git
+RUN apk add --no-cache musl-dev pkgconfig openssl-dev git perl
 
 WORKDIR /app
 COPY backend ./backend
