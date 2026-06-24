@@ -66,14 +66,12 @@ pub struct TriggeredAlertNotification {
 
 impl TriggeredAlertNotification {
     pub fn get_logo(&self) -> String {
-        // match self.alert.alert_type {
-        //     AlertType::StatusToOffline => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-        //     AlertType::StatusToOnline => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-        //     AlertType::PlayerAbove => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-        //     AlertType::PlayerBelow => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-        // }
-
-        self.last_favicon.clone().unwrap_or(MC_DEFAULT_ICON.to_string())
+        if self.last_favicon.is_some() {
+            if let Ok(api_base) = std::env::var("API_BASE_URL") {
+                return format!("{}/servers/{}/icon", api_base.trim_end_matches('/'), self.alert.server_id);
+            }
+        }
+        MC_DEFAULT_ICON.to_string()
     }
 
     pub fn from(state: &ServerStateChange, alert: Alert) -> Self {
