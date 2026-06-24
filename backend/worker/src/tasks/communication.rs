@@ -45,7 +45,6 @@ pub enum VerifierToSender {
     TriggerNotification(TriggeredAlertNotification),
 }
 
-#[derive(Clone)]
 pub struct TriggeredAlertNotification {
     pub alert: Alert,
     pub server_name: String,
