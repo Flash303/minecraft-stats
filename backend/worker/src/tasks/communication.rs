@@ -48,7 +48,7 @@ impl From<&Server> for ServerStateChange {
 }
 
 pub enum VerifierToSender {
-    TriggerNotification(TriggeredAlertNotification),
+    TriggerNotifications(Vec<TriggeredAlertNotification>),
 }
 
 pub struct TriggeredAlertNotification {

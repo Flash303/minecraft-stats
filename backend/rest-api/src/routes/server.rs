@@ -333,7 +333,7 @@ async fn list_alerts(
 #[derive(Deserialize)]
 struct CreateAlertPayload {
     pub alert_type: AlertType,
-    pub player_threshold: Option<i32>,
+    pub player_threshold: Option<u32>,
     pub is_active: Option<bool>,
 }
 
