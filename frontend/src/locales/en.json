@@ -203,7 +203,11 @@
     "addSuccess": "Alert created successfully!",
     "deleteSuccess": "Alert deleted successfully!",
     "subscribeSuccess": "This device is now configured to receive notifications!",
-    "unauthenticated": "Sign in to configure alerts."
+    "unauthenticated": "Sign in to configure alerts.",
+    "addRule": "Add a rule",
+    "activeRules": "Active rules",
+    "disable": "Disable",
+    "enable": "Enable"
   },
   "profile": {
     "title": "My Profile",
@@ -215,6 +219,25 @@
     "serversCount": "Server(s)",
     "noAlertsGlobal": "No active alerts on your servers.",
     "alertForServer": "Alert for server",
-    "deleteAlert": "Delete alert"
+    "deleteAlert": "Delete alert",
+    "tabs": {
+      "servers": "My Servers",
+      "alerts": "Alerts",
+      "settings": "Settings"
+    },
+    "servers": {
+      "title": "Your servers",
+      "description": "Manage the Minecraft servers you've added.",
+      "noServersTitle": "No servers",
+      "noServersDescription": "You haven't added any server yet."
+    },
+    "alerts": {
+      "pushTitle": "Push Notifications",
+      "pushDescription": "Receive real-time alerts on this device when your servers cross certain thresholds.",
+      "pushEnabled": "Enabled",
+      "pushDisable": "Disable",
+      "pushEnable": "Enable",
+      "configuredAlerts": "Configured alert rules"
+    }
   }
 }

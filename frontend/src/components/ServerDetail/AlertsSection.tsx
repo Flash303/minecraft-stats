@@ -240,7 +240,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                                 disabled={actionLoading}
                             >
                                 <BellOff className="h-4 w-4 mr-1.5" />
-                                Désactiver
+                                {t("alerts.disable")}
                             </Button>
                         </div>
                     ) : (
@@ -261,7 +261,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Alert Creation Form */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="text-sm font-medium text-slate-900 dark:text-slate-200">Ajouter une règle</h4>
+                    <h4 className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("alerts.addRule")}</h4>
                     <form onSubmit={handleAddAlert} className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="alert-type" className="text-xs text-muted-foreground">{t("alerts.typeLabel")}</Label>
@@ -303,7 +303,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
 
                 {/* Active Alerts List */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="text-sm font-medium text-slate-900 dark:text-slate-200">Règles actives</h4>
+                    <h4 className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("alerts.activeRules")}</h4>
                     
                     {loading ? (
                         <div className="flex flex-col gap-3">

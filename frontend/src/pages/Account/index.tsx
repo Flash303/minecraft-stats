@@ -260,40 +260,51 @@ export function Account() {
             </div>
 
             <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Premium Tabs */}
-                <div className="flex flex-wrap gap-2 p-1.5 bg-slate-100/80 dark:bg-slate-900/50 backdrop-blur-sm rounded-xl border border-slate-200 dark:border-slate-800/80 w-max mb-8">
+                {/* Minimalist Tabs */}
+                <div className="flex flex-wrap items-center gap-6 border-b border-slate-200 dark:border-slate-800 mb-8 px-1">
                     <button
                         onClick={() => handleTabChange('servers')}
-                        className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'servers'
-                                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
-                                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50"
+                                ? "text-slate-900 dark:text-white"
+                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
-                        <ServerIcon className="h-4.5 w-4.5" />
-                        Mes Serveurs
+                        <ServerIcon className="h-4 w-4" />
+                        {t("profile.tabs.servers")}
+                        {activeTab === 'servers' && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                        )}
                     </button>
+                    
                     <button
                         onClick={() => handleTabChange('alerts')}
-                        className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'alerts'
-                                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
-                                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50"
+                                ? "text-slate-900 dark:text-white"
+                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
-                        <Bell className="h-4.5 w-4.5" />
-                        Alertes
+                        <Bell className="h-4 w-4" />
+                        {t("profile.tabs.alerts")}
+                        {activeTab === 'alerts' && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                        )}
                     </button>
+                    
                     <button
                         onClick={() => handleTabChange('profile')}
-                        className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'profile'
-                                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-slate-700"
-                                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50"
+                                ? "text-slate-900 dark:text-white"
+                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
-                        <Settings className="h-4.5 w-4.5" />
-                        Paramètres
+                        <Settings className="h-4 w-4" />
+                        {t("profile.tabs.settings")}
+                        {activeTab === 'profile' && (
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                        )}
                     </button>
                 </div>
 
@@ -303,16 +314,16 @@ export function Account() {
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Vos serveurs</h2>
-                                    <p className="text-muted-foreground mt-1 text-sm">Gérez les serveurs Minecraft que vous avez ajoutés.</p>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("profile.servers.title")}</h2>
+                                    <p className="text-muted-foreground mt-1 text-sm">{t("profile.servers.description")}</p>
                                 </div>
                             </div>
                             
                             {servers.length === 0 ? (
                                 <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center">
                                     <ServerIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Aucun serveur</h3>
-                                    <p className="text-muted-foreground mt-1 max-w-sm">Vous n'avez pas encore ajouté de serveur.</p>
+                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t("profile.servers.noServersTitle")}</h3>
+                                    <p className="text-muted-foreground mt-1 max-w-sm">{t("profile.servers.noServersDescription")}</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -330,107 +341,95 @@ export function Account() {
                     )}
 
                     {activeTab === 'alerts' && (
-                        <div className="space-y-8">
-                            <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/20 dark:to-slate-900 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-6 sm:p-8 shadow-sm">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                    <div className="flex gap-4 items-start">
-                                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl shrink-0 text-indigo-600 dark:text-indigo-400">
-                                            <Activity className="h-6 w-6" />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Notifications Push</h2>
-                                            <p className="text-slate-600 dark:text-slate-400 mt-1 max-w-xl text-sm leading-relaxed">
-                                                Activez les notifications pour recevoir des alertes en temps réel lorsque vos serveurs dépassent ou passent sous certains seuils de joueurs, même quand le site est fermé.
-                                            </p>
-                                        </div>
-                                    </div>
+                        <div className="space-y-8 max-w-4xl">
+                            {/* Push Settings */}
+                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+                                <div>
+                                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t("profile.alerts.pushTitle")}</h2>
+                                    <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                                        {t("profile.alerts.pushDescription")}
+                                    </p>
+                                </div>
 
-                                    <div className="shrink-0 flex items-center justify-start md:justify-end">
-                                        {!isPushSupported ? (
-                                            <span className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-2 flex items-center gap-2 font-medium">
-                                                <ShieldAlert className="h-4.5 w-4.5" />
-                                                Non supporté par le navigateur
+                                <div className="shrink-0 flex items-center justify-start sm:justify-end">
+                                    {!isPushSupported ? (
+                                        <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                                            <ShieldAlert className="h-3.5 w-3.5" />
+                                            {t("alerts.pushNotSupported")}
+                                        </span>
+                                    ) : checkingSubscription ? (
+                                        <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
+                                    ) : isSubscribed ? (
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
+                                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                                {t("profile.alerts.pushEnabled")}
                                             </span>
-                                        ) : checkingSubscription ? (
-                                            <div className="h-10 w-32 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg" />
-                                        ) : isSubscribed ? (
-                                            <div className="flex flex-col sm:flex-row items-center gap-3">
-                                                <span className="text-sm text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 dark:text-emerald-400 rounded-lg px-4 py-2 flex items-center gap-2 font-semibold">
-                                                    <CheckCircle2 className="h-4.5 w-4.5" />
-                                                    Activé
-                                                </span>
-                                                <Button 
-                                                    variant="outline" 
-                                                    className="text-rose-500 hover:text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/20 h-10 px-4 cursor-pointer"
-                                                    onClick={handleUnsubscribe} 
-                                                    disabled={actionLoading}
-                                                >
-                                                    <BellOff className="h-4 w-4 mr-2" />
-                                                    Désactiver
-                                                </Button>
-                                            </div>
-                                        ) : (
                                             <Button 
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white h-10 px-6 cursor-pointer shadow-md shadow-indigo-600/20"
-                                                onClick={handleSubscribe} 
+                                                variant="ghost" 
+                                                size="sm"
+                                                className="text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 h-8"
+                                                onClick={handleUnsubscribe} 
                                                 disabled={actionLoading}
                                             >
-                                                <Bell className="h-4.5 w-4.5 mr-2 animate-bounce" />
-                                                Activer les notifications
+                                                <BellOff className="h-4 w-4 mr-1.5" />
+                                                {t("profile.alerts.pushDisable")}
                                             </Button>
-                                        )}
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <Button 
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-8"
+                                            onClick={handleSubscribe} 
+                                            disabled={actionLoading}
+                                        >
+                                            <Bell className="h-4 w-4 mr-1.5" />
+                                            {t("profile.alerts.pushEnable")}
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
 
+                            {/* Configured Alerts List */}
                             <div>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Règles d'alerte configurées</h3>
-                                    <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-full text-xs font-semibold">
-                                        {allAlerts.length} totale{allAlerts.length > 1 ? 's' : ''}
-                                    </span>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("profile.alerts.configuredAlerts")}</h3>
                                 </div>
                                 
                                 {allAlerts.length === 0 ? (
-                                    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl p-12 flex flex-col items-center justify-center text-center bg-white dark:bg-slate-900/20">
-                                        <Bell className="h-10 w-10 text-slate-300 dark:text-slate-700 mb-4" />
-                                        <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">Aucune alerte configurée</h4>
-                                        <p className="text-muted-foreground mt-1">Allez sur la page d'un serveur pour configurer de nouvelles alertes.</p>
+                                    <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800/60 rounded-xl flex flex-col items-center justify-center text-center text-muted-foreground">
+                                        <p className="text-sm">{t("profile.noAlertsGlobal")}</p>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div className="flex flex-col gap-2.5">
                                         {allAlerts.map((alert) => (
                                             <div 
                                                 key={alert.id} 
-                                                className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                                                className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-slate-200/60 dark:border-slate-800/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
                                             >
-                                                <div>
-                                                    <div className="flex items-start justify-between mb-3">
-                                                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-1 rounded">
-                                                            {alert.serverName}
-                                                        </span>
-                                                        <button 
-                                                            className="text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer p-1"
-                                                            title="Supprimer"
-                                                            onClick={() => handleDeleteAlert(alert.id)}
-                                                        >
-                                                            <Trash2 className="h-4.5 w-4.5" />
-                                                        </button>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300">
-                                                            {alert.alert_type === 'player_above' ? <Activity className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
-                                                        </div>
-                                                        <h4 className="font-semibold text-slate-900 dark:text-white">
-                                                            {t(`alerts.types.${alert.alert_type}`)}
-                                                        </h4>
-                                                    </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                                                        {t("profile.alertForServer")} : <strong className="text-slate-900 dark:text-slate-100 ml-1">{alert.serverName}</strong>
+                                                    </span>
+                                                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                                        {t(`alerts.types.${alert.alert_type}`)}
+                                                    </span>
                                                     {(alert.alert_type === "player_above" || alert.alert_type === "player_below") && (
-                                                        <p className="text-sm text-slate-600 dark:text-slate-400 pl-[44px]">
-                                                            Seuil défini à <strong className="text-slate-900 dark:text-white">{alert.player_threshold}</strong> joueurs
-                                                        </p>
+                                                        <span className="text-xs text-muted-foreground mt-1">
+                                                            {t("alerts.thresholdLabel")} : <strong className="text-slate-900 dark:text-slate-100 font-medium px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded ml-1">{alert.player_threshold}</strong>
+                                                        </span>
                                                     )}
                                                 </div>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                                    title={t("profile.deleteAlert")}
+                                                    onClick={() => handleDeleteAlert(alert.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
                                             </div>
                                         ))}
                                     </div>

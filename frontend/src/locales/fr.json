@@ -203,7 +203,11 @@
     "addSuccess": "Alerte créée avec succès !",
     "deleteSuccess": "Alerte supprimée avec succès !",
     "subscribeSuccess": "Cet appareil est maintenant configuré pour recevoir des notifications !",
-    "unauthenticated": "Connectez-vous pour configurer des alertes."
+    "unauthenticated": "Connectez-vous pour configurer des alertes.",
+    "addRule": "Ajouter une règle",
+    "activeRules": "Règles actives",
+    "disable": "Désactiver",
+    "enable": "Activer"
   },
   "profile": {
     "title": "Mon Profil",
@@ -215,6 +219,25 @@
     "serversCount": "Serveur(s)",
     "noAlertsGlobal": "Aucune alerte active sur vos serveurs.",
     "alertForServer": "Alerte pour le serveur",
-    "deleteAlert": "Supprimer l'alerte"
+    "deleteAlert": "Supprimer l'alerte",
+    "tabs": {
+      "servers": "Mes Serveurs",
+      "alerts": "Alertes",
+      "settings": "Paramètres"
+    },
+    "servers": {
+      "title": "Vos serveurs",
+      "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
+      "noServersTitle": "Aucun serveur",
+      "noServersDescription": "Vous n'avez pas encore ajouté de serveur."
+    },
+    "alerts": {
+      "pushTitle": "Notifications Push",
+      "pushDescription": "Recevez des alertes en temps réel sur cet appareil lorsque vos serveurs dépassent certains seuils.",
+      "pushEnabled": "Activé",
+      "pushDisable": "Désactiver",
+      "pushEnable": "Activer",
+      "configuredAlerts": "Règles d'alerte configurées"
+    }
   }
 }
