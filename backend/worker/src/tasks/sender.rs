@@ -87,10 +87,13 @@ pub async fn sender_worker(
                     let mailto_clone = mailto.clone();
 
                     tokio::spawn(async move {
+                        let clean_p256dh = sub.p256dh.replace('+', "-").replace('/', "_").replace('=', "");
+                        let clean_auth = sub.auth.replace('+', "-").replace('/', "_").replace('=', "");
+
                         let subscription_info = SubscriptionInfo::new(
                             sub.endpoint.clone(),
-                            sub.p256dh.clone(),
-                            sub.auth.clone(),
+                            clean_p256dh,
+                            clean_auth,
                         );
 
                         // Build VAPID signature builder from PEM bytes
