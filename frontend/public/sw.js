@@ -6,8 +6,8 @@ self.addEventListener('push', function(event) {
       const title = payload.title || 'Alerte Minecraft';
       const options = {
         body: payload.body || 'Changement détecté',
-        icon: payload.icon || '/favicon.ico',
-        badge: payload.badge || '/icons.svg',
+        icon: payload.icon || '/logo.png',
+        badge: payload.badge || '/logo.png',
         data: {
           url: payload.url || '/'
         }
@@ -23,7 +23,7 @@ self.addEventListener('push', function(event) {
       event.waitUntil(
         self.registration.showNotification('Alerte Minecraft', {
           body: text,
-          icon: '/favicon.ico'
+          icon: '/logo.png'
         })
       );
     }
