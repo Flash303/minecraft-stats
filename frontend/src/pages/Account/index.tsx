@@ -303,8 +303,8 @@ export function Account() {
                         <div className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Vos serveurs suivis</h2>
-                                    <p className="text-muted-foreground mt-1 text-sm">Gérez les serveurs Minecraft que vous avez ajoutés à vos favoris.</p>
+                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Vos serveurs</h2>
+                                    <p className="text-muted-foreground mt-1 text-sm">Gérez les serveurs Minecraft que vous avez ajoutés.</p>
                                 </div>
                             </div>
                             
@@ -312,7 +312,7 @@ export function Account() {
                                 <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center">
                                     <ServerIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
                                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Aucun serveur</h3>
-                                    <p className="text-muted-foreground mt-1 max-w-sm">Vous n'avez pas encore ajouté de serveur à votre liste. Recherchez un serveur pour l'ajouter.</p>
+                                    <p className="text-muted-foreground mt-1 max-w-sm">Vous n'avez pas encore ajouté de serveur.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
