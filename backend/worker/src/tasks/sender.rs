@@ -34,6 +34,7 @@ pub async fn sender_worker(
         match message {
             VerifierToSender::TriggerNotification(notification) => {
                 let Some(ref key_pem) = private_key_pem else {
+                    println!("Skipped");
                     continue;
                 };
 
@@ -53,6 +54,8 @@ pub async fn sender_worker(
                     }
                 };
 
+                println!("Title {message_title} Body {message_body}");
+                
                 let payload = json!({
                     "title": message_title,
                     "body": message_body,
