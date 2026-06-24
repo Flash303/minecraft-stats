@@ -5,7 +5,9 @@
     "search": "Search for a server...",
     "compare": "Compare",
     "myServers": "My Servers",
+    "mySpace": "My Space",
     "back": "Back",
+    "home": "Home",
     "backToHome": "Back to Home",
     "copy": "Copy",
     "copied": "Copied!",
@@ -153,7 +155,14 @@
       "statusHidden": "Hidden",
       "tableServer": "Server",
       "tablePlayers": "Players",
-      "inspect": "Inspect"
+      "inspect": "Inspect",
+      "rename": "Rename",
+      "renameTitle": "Rename server",
+      "renameDesc": "Edit the display name of this server.",
+      "renameLabel": "Server name",
+      "renamePlaceholder": "My awesome server",
+      "renameSaving": "Saving...",
+      "renameSave": "Save"
     },
     "auditLogs": {
       "title": "Recent Activities",
@@ -173,6 +182,63 @@
       "cleanup": "Database Maintenance",
       "cleanupDesc": "Remove stale records older than 30 days.",
       "runCleanup": "Run DB Cleanup"
+    }
+  },
+  "alerts": {
+    "title": "Notification Alerts",
+    "pushNotSupported": "Web Push notifications are not supported by this browser.",
+    "pushEnabled": "Notifications enabled on this device",
+    "enablePush": "Enable notifications on this device",
+    "noAlerts": "No alerts configured for this server.",
+    "typeLabel": "Alert Type",
+    "thresholdLabel": "Player Threshold (x)",
+    "addAlert": "Add Alert",
+    "delete": "Delete",
+    "types": {
+      "status_to_offline": "Server goes Offline (Online -> Offline)",
+      "status_to_online": "Server goes Online (Offline -> Online)",
+      "player_above": "Player count goes above X",
+      "player_below": "Player count goes below X"
+    },
+    "description": "Receive Web Push notifications on this device when the following events occur.",
+    "addSuccess": "Alert created successfully!",
+    "deleteSuccess": "Alert deleted successfully!",
+    "subscribeSuccess": "This device is now configured to receive notifications!",
+    "unauthenticated": "Sign in to configure alerts.",
+    "addRule": "Add a rule",
+    "activeRules": "Active rules",
+    "disable": "Disable",
+    "enable": "Enable"
+  },
+  "profile": {
+    "title": "My Profile",
+    "tabInfo": "Account Info",
+    "tabServers": "My Servers",
+    "tabAlerts": "Alerts & Push",
+    "userSince": "Member since",
+    "activeAlertsCount": "Active alert(s)",
+    "serversCount": "Server(s)",
+    "noAlertsGlobal": "No active alerts on your servers.",
+    "alertForServer": "Alert for server",
+    "deleteAlert": "Delete alert",
+    "tabs": {
+      "servers": "My Servers",
+      "alerts": "Alerts",
+      "settings": "Settings"
+    },
+    "servers": {
+      "title": "Your servers",
+      "description": "Manage the Minecraft servers you've added.",
+      "noServersTitle": "No servers",
+      "noServersDescription": "You haven't added any server yet."
+    },
+    "alerts": {
+      "pushTitle": "Push Notifications",
+      "pushDescription": "Receive real-time alerts on this device when your servers cross certain thresholds.",
+      "pushEnabled": "Enabled",
+      "pushDisable": "Disable",
+      "pushEnable": "Enable",
+      "configuredAlerts": "Configured alert rules"
     }
   }
 }

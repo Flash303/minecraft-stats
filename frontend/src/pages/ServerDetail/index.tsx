@@ -6,6 +6,7 @@ import { PlayerChart } from "@/components/ServerDetail/PlayerChart"
 import { ServerDetailHeader } from "@/components/ServerDetail/ServerDetailHeader"
 import { TimeIntervalSelector } from "@/components/ServerDetail/TimeIntervalSelector"
 import { StatsSection } from "@/components/ServerDetail/StatsSection"
+import { AlertsSection } from "@/components/ServerDetail/AlertsSection"
 import { Button } from "@/components/ui/button"
 import { BarChart } from "lucide-react"
 import { Layout } from "@/components/layout"
@@ -156,6 +157,8 @@ export function ServerDetail() {
                 {stats && (
                     <StatsSection stats={stats} locale={locale} t={t} />
                 )}
+
+                <AlertsSection serverId={server.id} t={t} />
             </div>
         </Layout>
     )

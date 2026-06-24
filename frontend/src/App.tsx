@@ -12,7 +12,7 @@ function App() {
                 <Route path="/" element={<ServerList />} />
                 <Route path="/server/:id" element={<ServerDetail />} />
                 <Route path="/compare" element={<ServerComparison />} />
-                <Route path="/account" element={<Account />} />
+                <Route path="/account/*" element={<Account />} />
                 <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<AdminDashboard />} />
                 <Route path="/dashboard/:subview" element={<AdminDashboard />} />

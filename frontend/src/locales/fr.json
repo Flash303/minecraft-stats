@@ -5,7 +5,9 @@
     "search": "Rechercher un serveur...",
     "compare": "Comparer",
     "myServers": "Mes serveurs",
+    "mySpace": "Mon Espace",
     "back": "Retour",
+    "home": "Accueil",
     "backToHome": "Retour à l'accueil",
     "copy": "Copier",
     "copied": "Copié !",
@@ -153,7 +155,14 @@
       "statusHidden": "Masqués",
       "tableServer": "Serveur",
       "tablePlayers": "Joueurs",
-      "inspect": "Inspecter"
+      "inspect": "Inspecter",
+      "rename": "Renommer",
+      "renameTitle": "Renommer le serveur",
+      "renameDesc": "Modifiez le nom d'affichage de ce serveur.",
+      "renameLabel": "Nom du serveur",
+      "renamePlaceholder": "Mon super serveur",
+      "renameSaving": "Modification...",
+      "renameSave": "Enregistrer"
     },
     "auditLogs": {
       "title": "Activités Récentes",
@@ -173,6 +182,63 @@
       "cleanup": "Maintenance de la Base",
       "cleanupDesc": "Supprimer les enregistrements obsolètes de plus de 30 jours.",
       "runCleanup": "Lancer le Nettoyage"
+    }
+  },
+  "alerts": {
+    "title": "Alertes de notification",
+    "pushNotSupported": "Les notifications Web Push ne sont pas prises en charge par ce navigateur.",
+    "pushEnabled": "Notifications activées sur cet appareil",
+    "enablePush": "Activer les notifications sur cet appareil",
+    "noAlerts": "Aucune alerte configurée pour ce serveur.",
+    "typeLabel": "Type d'alerte",
+    "thresholdLabel": "Seuil de joueurs (x)",
+    "addAlert": "Ajouter l'alerte",
+    "delete": "Supprimer",
+    "types": {
+      "status_to_offline": "Passage Hors-ligne (Online -> Offline)",
+      "status_to_online": "Passage En-ligne (Offline -> Online)",
+      "player_above": "Nombre de joueurs supérieur à X",
+      "player_below": "Nombre de joueurs inférieur à X"
+    },
+    "description": "Recevez des notifications Push sur cet appareil lorsque les événements ci-dessous se produisent.",
+    "addSuccess": "Alerte créée avec succès !",
+    "deleteSuccess": "Alerte supprimée avec succès !",
+    "subscribeSuccess": "Cet appareil est maintenant configuré pour recevoir des notifications !",
+    "unauthenticated": "Connectez-vous pour configurer des alertes.",
+    "addRule": "Ajouter une règle",
+    "activeRules": "Règles actives",
+    "disable": "Désactiver",
+    "enable": "Activer"
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "tabInfo": "Compte",
+    "tabServers": "Mes Serveurs",
+    "tabAlerts": "Alertes & Push",
+    "userSince": "Membre depuis",
+    "activeAlertsCount": "Alerte(s) active(s)",
+    "serversCount": "Serveur(s)",
+    "noAlertsGlobal": "Aucune alerte active sur vos serveurs.",
+    "alertForServer": "Alerte pour le serveur",
+    "deleteAlert": "Supprimer l'alerte",
+    "tabs": {
+      "servers": "Mes Serveurs",
+      "alerts": "Alertes",
+      "settings": "Paramètres"
+    },
+    "servers": {
+      "title": "Vos serveurs",
+      "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
+      "noServersTitle": "Aucun serveur",
+      "noServersDescription": "Vous n'avez pas encore ajouté de serveur."
+    },
+    "alerts": {
+      "pushTitle": "Notifications Push",
+      "pushDescription": "Recevez des alertes en temps réel sur cet appareil lorsque vos serveurs dépassent certains seuils.",
+      "pushEnabled": "Activé",
+      "pushDisable": "Désactiver",
+      "pushEnable": "Activer",
+      "configuredAlerts": "Règles d'alerte configurées"
     }
   }
 }

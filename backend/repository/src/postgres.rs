@@ -6,6 +6,8 @@ use sqlx::postgres::PgPoolOptions;
 use time::{Duration, OffsetDateTime};
 use crate::models::record::{Record, RecordData};
 use crate::models::server::{Server, ServerRow, DraftServer};
+use crate::models::alert::{Alert, AlertRow, DraftAlert};
+use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
 
 #[derive(Clone)]
@@ -307,6 +309,121 @@ impl Repository for PostgresRepository {
             .map_err(|e| e.to_string())?;
 
         Ok(row.0 as u32)
+    }
+
+    async fn create_alert(&self, alert: DraftAlert) -> Result<Alert, String> {
+        let row: AlertRow = sqlx::query_as(
+            "INSERT INTO alerts (user_id, server_id, alert_type, player_threshold, is_active)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING *"
+        )
+        .bind(alert.user_id)
+        .bind(alert.server_id as i32)
+        .bind(alert.alert_type)
+        .bind(alert.player_threshold)
+        .bind(alert.is_active)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(row.into())
+    }
+
+    async fn delete_alert(&self, alert_id: u32, user_id: String) -> Result<(), String> {
+        sqlx::query(
+            "DELETE FROM alerts WHERE id = $1 AND user_id = $2"
+        )
+        .bind(alert_id as i32)
+        .bind(user_id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn list_alerts_for_server(&self, server_id: u32) -> Result<Vec<Alert>, String> {
+        let rows: Vec<AlertRow> = sqlx::query_as(
+            "SELECT * FROM alerts WHERE server_id = $1"
+        )
+        .bind(server_id as i32)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(rows.into_iter().map(|r| r.into()).collect())
+    }
+
+    async fn get_active_alerts_for_servers(&self, server_ids: &[u32]) -> Result<Vec<Alert>, String> {
+        let ids: Vec<i32> = server_ids.iter().map(|&id| id as i32).collect();
+        let rows: Vec<AlertRow> = sqlx::query_as(
+            "SELECT * FROM alerts WHERE server_id = ANY($1) AND is_active = TRUE"
+        )
+        .bind(&ids)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(rows.into_iter().map(|r| r.into()).collect())
+    }
+
+    async fn create_subscription(&self, subscription: DraftWebPushSubscription) -> Result<WebPushSubscription, String> {
+        let row: WebPushSubscriptionRow = sqlx::query_as(
+            "INSERT INTO web_push_subscriptions (user_id, endpoint, p256dh, auth)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (endpoint) DO UPDATE SET
+                 user_id = EXCLUDED.user_id,
+                 p256dh = EXCLUDED.p256dh,
+                 auth = EXCLUDED.auth,
+                 created_at = NOW()
+             RETURNING *"
+        )
+        .bind(subscription.user_id)
+        .bind(subscription.endpoint)
+        .bind(subscription.p256dh)
+        .bind(subscription.auth)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(row.into())
+    }
+
+    async fn delete_subscription(&self, endpoint: &str, user_id: &str) -> Result<(), String> {
+        sqlx::query(
+            "DELETE FROM web_push_subscriptions WHERE endpoint = $1 AND user_id = $2"
+        )
+        .bind(endpoint)
+        .bind(user_id)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn delete_stale_subscription(&self, endpoint: &str) -> Result<(), String> {
+        sqlx::query(
+            "DELETE FROM web_push_subscriptions WHERE endpoint = $1"
+        )
+        .bind(endpoint)
+        .execute(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    async fn get_subscriptions_for_users(&self, user_ids: &[String]) -> Result<Vec<WebPushSubscription>, String> {
+        let rows: Vec<WebPushSubscriptionRow> = sqlx::query_as(
+            "SELECT * FROM web_push_subscriptions WHERE user_id = ANY($1)"
+        )
+        .bind(user_ids)
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| e.to_string())?;
+
+        Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
     async fn initialize(&self) -> Result<(), String> {

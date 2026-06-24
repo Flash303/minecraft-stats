@@ -33,10 +33,10 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
     const location = useLocation()
     const activeRoute = location.pathname
 
-    const getLinkClass = (path: string, checkSearch?: string) => {
-        const isActive = checkSearch 
-            ? activeRoute === path && location.search.includes(checkSearch)
-            : activeRoute === path && (!location.search || !location.search.includes("tab="))
+    const getLinkClass = (path: string) => {
+        const isActive = path.startsWith("/account") 
+            ? activeRoute.startsWith("/account")
+            : activeRoute === path
         
         return `text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap px-2.5 py-1.5 rounded-md cursor-pointer ${
             isActive 
@@ -45,10 +45,10 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
         }`
     }
 
-    const getMobileLinkClass = (path: string, checkSearch?: string) => {
-        const isActive = checkSearch 
-            ? activeRoute === path && location.search.includes(checkSearch)
-            : activeRoute === path && (!location.search || !location.search.includes("tab="))
+    const getMobileLinkClass = (path: string) => {
+        const isActive = path.startsWith("/account") 
+            ? activeRoute.startsWith("/account")
+            : activeRoute === path
             
         return `text-sm font-semibold transition-all py-2 px-3 rounded-lg flex items-center justify-between cursor-pointer ${
             isActive
@@ -101,6 +101,12 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             {/* Desktop Nav Links */}
                             <nav className="hidden md:flex items-center gap-2 lg:gap-3">
                                 <Link 
+                                    to="/" 
+                                    className={getLinkClass("/")}
+                                >
+                                    {t("common.home")}
+                                </Link>
+                                <Link 
                                     to="/compare" 
                                     className={getLinkClass("/compare")}
                                 >
@@ -108,10 +114,10 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                                 </Link>
                                 {isSignedIn && (
                                     <Link 
-                                        to="/account" 
-                                        className={getLinkClass("/account")}
+                                        to="/account/servers" 
+                                        className={getLinkClass("/account/servers")}
                                     >
-                                        {t("common.myServers")}
+                                        {t("common.mySpace")}
                                     </Link>
                                 )}
                                 {isSignedIn && isAdmin && (
@@ -176,7 +182,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             <>
                                 <AddServerModal onSuccess={onRefresh} />
                                 <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
-                                    <UserButton />
+                                    <UserButton userProfileMode="navigation" userProfileUrl="/account" />
                                 </div>
                             </>
                         ) : (
@@ -206,7 +212,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             onClick={() => setIsMobileMenuOpen(false)}
                             className={getMobileLinkClass("/")}
                         >
-                            {t("common.backToHome")}
+                            {t("common.home")}
                         </Link>
                         <Link 
                             to="/compare" 
@@ -217,11 +223,11 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                         </Link>
                         {isSignedIn && (
                             <Link 
-                                to="/account" 
+                                to="/account/servers" 
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/account")}
+                                className={getMobileLinkClass("/account/servers")}
                             >
-                                {t("common.myServers")}
+                                {t("common.mySpace")}
                             </Link>
                         )}
                         {isSignedIn && isAdmin && (

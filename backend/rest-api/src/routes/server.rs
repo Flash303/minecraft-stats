@@ -8,11 +8,12 @@ use crate::state::AppState;
 use axum::extract::rejection::{JsonRejection, PathRejection};
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::routing::{get, patch, post};
+use axum::routing::{get, patch, post, delete};
 use axum::{Extension, Json, Router};
 use minecraft_pinger::config::PingConfig;
 use repository::models::record::{RecordData};
 use repository::models::server::{Server, DraftServer, ServerType};
+use repository::models::alert::{Alert, AlertType, DraftAlert};
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use serde::{Deserialize, Serialize};
 use tower_governor::GovernorLayer;
@@ -49,6 +50,8 @@ pub fn router() -> Router<AppState> {
         .route("/mine", get(get_mine_server).route_layer(layer))
         .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
         .route("/{id}", patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))
+        .route("/{id}/alerts", get(list_alerts).post(create_alert))
+        .route("/alerts/{alert_id}", delete(delete_alert))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -300,4 +303,72 @@ async fn update_server_name(
     state.repository.update_server(&server).await.map_err(|e| AppError::FetchingDataError(e))?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
+}
+
+async fn list_alerts(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+    Path(server_id): Path<u32>,
+) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
+    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+
+    // Verify server exists
+    state.repository.get_server(server_id).await
+        .map_err(|e| AppError::ServerNotFoundError(e))?;
+
+    let alerts = state.repository.list_alerts_for_server(server_id).await
+        .map_err(|e| AppError::FetchingDataError(e))?;
+
+    let user_alerts: Vec<Alert> = alerts
+        .into_iter()
+        .filter(|a| a.user_id == account.sub)
+        .collect();
+
+    Ok(ResponseFormat::success(user_alerts, StatusCode::OK))
+}
+
+#[derive(Deserialize)]
+struct CreateAlertPayload {
+    pub alert_type: AlertType,
+    pub player_threshold: Option<i32>,
+    pub is_active: Option<bool>,
+}
+
+async fn create_alert(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+    Path(server_id): Path<u32>,
+    Json(payload): Json<CreateAlertPayload>,
+) -> Result<ResponseFormat<Alert>, AppError> {
+    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+
+    // Verify server exists
+    state.repository.get_server(server_id).await
+        .map_err(|e| AppError::ServerNotFoundError(e))?;
+
+    let draft = DraftAlert {
+        user_id: account.sub.clone(),
+        server_id,
+        alert_type: payload.alert_type,
+        player_threshold: payload.player_threshold,
+        is_active: payload.is_active.unwrap_or(true),
+    };
+
+    let alert = state.repository.create_alert(draft).await
+        .map_err(|e| AppError::FetchingDataError(e))?;
+
+    Ok(ResponseFormat::success(alert, StatusCode::CREATED))
+}
+
+async fn delete_alert(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+    Path(alert_id): Path<u32>,
+) -> Result<ResponseFormat<()>, AppError> {
+    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+
+    state.repository.delete_alert(alert_id, account.sub.clone()).await
+        .map_err(|e| AppError::FetchingDataError(e))?;
+
+    Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
 }
