@@ -289,3 +289,104 @@ export async function toggleServerVisibility(
     }
 }
 
+export interface Alert {
+    id: number
+    user_id: string
+    server_id: number
+    alert_type: "status_to_offline" | "status_to_online" | "player_above" | "player_below"
+    player_threshold: number | null
+    is_active: boolean
+    created_at: string
+}
+
+export async function fetchAlerts(serverId: number, token: string): Promise<Alert[]> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/${serverId}/alerts`, {
+            headers: getHeaders(token)
+        })
+        if (!res.ok) return []
+        const json = await res.json()
+        return json.success ? json.data : []
+    } catch (error) {
+        console.error("Failed to fetch alerts:", error)
+        return []
+    }
+}
+
+export async function createAlert(
+    serverId: number,
+    alert: { alert_type: string; player_threshold?: number | null; is_active?: boolean },
+    token: string
+): Promise<Alert | null> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/${serverId}/alerts`, {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify(alert)
+        })
+        if (!res.ok) return null
+        const json = await res.json()
+        return json.success ? json.data : null
+    } catch (error) {
+        console.error("Failed to create alert:", error)
+        return null
+    }
+}
+
+export async function deleteAlert(alertId: number, token: string): Promise<boolean> {
+    try {
+        const res = await fetch(`${API_BASE}/servers/alerts/${alertId}`, {
+            method: "DELETE",
+            headers: getHeaders(token)
+        })
+        return res.ok
+    } catch (error) {
+        console.error(`Failed to delete alert ${alertId}:`, error)
+        return false
+    }
+}
+
+export async function fetchVapidKey(): Promise<string | null> {
+    try {
+        const res = await fetch(`${API_BASE}/notifications/vapid-key`)
+        if (!res.ok) return null
+        const json = await res.json()
+        return json.success ? json.data.public_key : null
+    } catch (error) {
+        console.error("Failed to fetch VAPID key:", error)
+        return null
+    }
+}
+
+export async function subscribeDevice(
+    subscription: { endpoint: string; p256dh: string; auth: string },
+    token: string
+): Promise<boolean> {
+    try {
+        const res = await fetch(`${API_BASE}/notifications/subscribe`, {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify(subscription)
+        })
+        return res.ok
+    } catch (error) {
+        console.error("Failed to subscribe device:", error)
+        return false
+    }
+}
+
+export async function unsubscribeDevice(endpoint: string, token: string): Promise<boolean> {
+    try {
+        const res = await fetch(`${API_BASE}/notifications/unsubscribe`, {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify({ endpoint })
+        })
+        return res.ok
+    } catch (error) {
+        console.error("Failed to unsubscribe device:", error)
+        return false
+    }
+}
+
+
