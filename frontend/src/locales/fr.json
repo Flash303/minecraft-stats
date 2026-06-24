@@ -5,6 +5,7 @@
     "search": "Rechercher un serveur...",
     "compare": "Comparer",
     "myServers": "Mes serveurs",
+    "mySpace": "Mon Espace",
     "back": "Retour",
     "backToHome": "Retour à l'accueil",
     "copy": "Copier",
@@ -203,5 +204,17 @@
     "deleteSuccess": "Alerte supprimée avec succès !",
     "subscribeSuccess": "Cet appareil est maintenant configuré pour recevoir des notifications !",
     "unauthenticated": "Connectez-vous pour configurer des alertes."
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "tabInfo": "Compte",
+    "tabServers": "Mes Serveurs",
+    "tabAlerts": "Alertes & Push",
+    "userSince": "Membre depuis",
+    "activeAlertsCount": "Alerte(s) active(s)",
+    "serversCount": "Serveur(s)",
+    "noAlertsGlobal": "Aucune alerte active sur vos serveurs.",
+    "alertForServer": "Alerte pour le serveur",
+    "deleteAlert": "Supprimer l'alerte"
   }
 }

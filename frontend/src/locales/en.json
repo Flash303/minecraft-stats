@@ -5,6 +5,7 @@
     "search": "Search for a server...",
     "compare": "Compare",
     "myServers": "My Servers",
+    "mySpace": "My Space",
     "back": "Back",
     "backToHome": "Back to Home",
     "copy": "Copy",
@@ -203,5 +204,17 @@
     "deleteSuccess": "Alert deleted successfully!",
     "subscribeSuccess": "This device is now configured to receive notifications!",
     "unauthenticated": "Sign in to configure alerts."
+  },
+  "profile": {
+    "title": "My Profile",
+    "tabInfo": "Account Info",
+    "tabServers": "My Servers",
+    "tabAlerts": "Alerts & Push",
+    "userSince": "Member since",
+    "activeAlertsCount": "Active alert(s)",
+    "serversCount": "Server(s)",
+    "noAlertsGlobal": "No active alerts on your servers.",
+    "alertForServer": "Alert for server",
+    "deleteAlert": "Delete alert"
   }
 }
