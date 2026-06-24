@@ -23,9 +23,7 @@ pub async fn verifier_worker(
                 if !status_changed && !player_number_changer {
                     continue;
                 }
-
-                println!("State of {} status_changed={} player_number_changer={}", state.name, status_changed, player_number_changer);
-
+                
                 // Query active alerts for this server
                 let active_alerts_result = repository.get_active_alerts_for_servers(&[state.id]).await;
                 let active_alerts = match active_alerts_result {

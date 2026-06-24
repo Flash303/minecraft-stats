@@ -34,7 +34,6 @@ pub async fn sender_worker(
         match message {
             VerifierToSender::TriggerNotification(notification) => {
                 let Some(ref key_pem) = private_key_pem else {
-                    println!("Skipped");
                     continue;
                 };
 
@@ -54,8 +53,6 @@ pub async fn sender_worker(
                     }
                 };
 
-                println!("Title {message_title} Body {message_body}");
-
                 let payload = json!({
                     "title": message_title,
                     "body": message_body,
@@ -74,8 +71,6 @@ pub async fn sender_worker(
                         continue;
                     }
                 };
-
-                println!("Nb of clients subscribed {}", subscriptions.len());
 
                 for sub in subscriptions {
                     let repository_clone = repository.clone();
