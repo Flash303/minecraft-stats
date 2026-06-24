@@ -129,7 +129,7 @@ pub async fn sender_worker(
                             Ok(_) => {
                                 println!("Push notification sent successfully to device ID {}", sub.id);
                             }
-                            Err(WebPushError::EndpointNotValid) | Err(WebPushError::EndpointNotFound) => {
+                            Err(WebPushError::EndpointNotValid(_)) | Err(WebPushError::EndpointNotFound(_)) => {
                                 println!("Device subscription expired or invalid (404/410), deleting endpoint: {}", sub.endpoint);
                                 let _ = repository_clone.delete_stale_subscription(&sub.endpoint).await;
                             }
