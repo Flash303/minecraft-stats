@@ -13,17 +13,6 @@ pub enum AlertType {
     PlayerBelow,
 }
 
-impl AlertType {
-    pub fn get_logo(&self) -> String {
-        match self {
-            AlertType::StatusToOffline => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-            AlertType::StatusToOnline => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-            AlertType::PlayerAbove => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-            AlertType::PlayerBelow => "https://wd40.theking90000.be/files/27d66d43-5bd8-487b-8c21-a8f37b5b67fa".to_string(),
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Alert {
     pub id: u32,
