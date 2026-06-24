@@ -320,7 +320,7 @@ impl Repository for PostgresRepository {
         .bind(alert.user_id)
         .bind(alert.server_id as i32)
         .bind(alert.alert_type)
-        .bind(alert.player_threshold)
+        .bind(alert.player_threshold.map(|v| v as i32))
         .bind(alert.is_active)
         .fetch_one(&self.pool)
         .await

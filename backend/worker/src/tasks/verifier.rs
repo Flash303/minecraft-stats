@@ -49,15 +49,15 @@ pub async fn verifier_worker(
                 AlertType::PlayerAbove => {
                     if state.new_status == Online {
                         let threshold = alert.player_threshold.unwrap_or(0);
-                        is_triggered = (state.new_players.unwrap_or(0) as i32) > threshold
-                            && (state.old_players.unwrap_or(0) as i32) <= threshold;
+                        is_triggered = state.new_players.unwrap_or(0) > threshold
+                            && state.old_players.unwrap_or(0) <= threshold;
                     }
                 }
                 AlertType::PlayerBelow => {
                     if state.new_status == Online {
                         let threshold = alert.player_threshold.unwrap_or(0);
-                        is_triggered = (state.new_players.unwrap_or(0) as i32) < threshold
-                            && (state.old_players.unwrap_or(0) as i32) >= threshold;
+                        is_triggered = state.new_players.unwrap_or(0) < threshold
+                            && state.old_players.unwrap_or(0) >= threshold;
                     }
                 }
             }

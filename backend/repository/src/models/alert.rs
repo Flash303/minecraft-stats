@@ -20,7 +20,7 @@ pub struct Alert {
     pub server_id: u32,
     
     pub alert_type: AlertType,
-    pub player_threshold: Option<i32>,
+    pub player_threshold: Option<u32>,
     pub is_active: bool,
     
     pub created_at: OffsetDateTime,
@@ -46,7 +46,7 @@ impl From<AlertRow> for Alert {
             user_id: row.user_id,
             server_id: row.server_id as u32,
             alert_type: row.alert_type,
-            player_threshold: row.player_threshold,
+            player_threshold: row.player_threshold.map(|v| v as u32),
             is_active: row.is_active,
             created_at: row.created_at,
         }
@@ -59,6 +59,6 @@ pub struct DraftAlert {
     pub server_id: u32,
     
     pub alert_type: AlertType,
-    pub player_threshold: Option<i32>,
+    pub player_threshold: Option<u32>,
     pub is_active: bool,
 }
