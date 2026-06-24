@@ -56,7 +56,7 @@ pub async fn sender_worker(
                 let payload = json!({
                     "title": message_title,
                     "body": message_body,
-                    "icon": "/logo.png",
+                    "icon": notification.alert.alert_type.get_logo(),
                     "url": format!("/servers/{}", notification.alert.server_id)
                 });
 
