@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Edit2, Server as ServerIcon, Bell, BellOff, Trash2, ShieldAlert, CheckCircle2, User, Activity, Settings } from "lucide-react"
+import { Edit2, Server as ServerIcon, Bell, BellOff, Trash2, ShieldAlert, CheckCircle2, User, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 interface ExtendedAlert extends Alert {
