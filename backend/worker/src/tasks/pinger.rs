@@ -122,8 +122,6 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                 state.edit_new_status(&server);
                                 let _ = state_updater.send(WorkerToVerifier::ServerStatusUpdated(state)).await;
 
-                                task_repository.update_server(&server).await.unwrap();
-
                                 let record = Record {
                                     server_id: server.id,
                                     date: OffsetDateTime::now_utc(),
@@ -139,8 +137,6 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                 // Send offline state
                                 state.edit_new_status(&server);
                                 let _ = state_updater.send(WorkerToVerifier::ServerStatusUpdated(state.clone())).await;
-
-                                task_repository.update_server(&server).await.unwrap();
                             }
                         }
 
