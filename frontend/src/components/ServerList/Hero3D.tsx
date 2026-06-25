@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { ArrowDown } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 // Predefined heights for the graph nodes (representing server player count stats)
 // Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
@@ -21,6 +22,7 @@ const points = defaultYValues.map((y, idx) => {
 })
 
 export function Hero3D() {
+    const { t } = useLanguage()
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
@@ -324,20 +326,12 @@ export function Hero3D() {
             <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-800/80 bg-slate-100/60 dark:bg-zinc-900/40 text-slate-500 dark:text-zinc-400 text-[10.5px] font-bold uppercase tracking-wider">
-                        <span className="flex h-1.5 w-1.5 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-indigo-500"></span>
-                        </span>
-                        Données en direct
-                    </div>
-                    
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
-                        Dashboard <span className="text-slate-900 dark:text-white font-black">Analytique</span>
+                        {t("hero.title1")} <span className="text-slate-900 dark:text-white font-black">{t("hero.title2")}</span>
                     </h1>
                     
                     <p className="text-slate-500 dark:text-zinc-400 text-sm sm:text-base leading-relaxed">
-                        Suivez, comparez et analysez l'activité de vos serveurs Minecraft. Profitez d'une interface sobre, d'analyses fluides et de graphiques haute performance pour surveiller vos mondes.
+                        {t("hero.description")}
                     </p>
                     
                     <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
@@ -345,7 +339,7 @@ export function Hero3D() {
                             onClick={handleScrollDown}
                             className="h-11 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-semibold transition-all duration-300 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-xs"
                         >
-                            Consulter la liste
+                            {t("hero.cta")}
                             <ArrowDown className="h-4 w-4 animate-bounce" />
                         </button>
                     </div>

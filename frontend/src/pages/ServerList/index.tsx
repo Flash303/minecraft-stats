@@ -31,12 +31,30 @@ export function ServerList() {
         return "all"
     }, [searchParams, isAdmin])
 
+    const activePlatform = useMemo(() => {
+        const platformParam = searchParams.get("platform")
+        if (platformParam === "java" || platformParam === "bedrock") {
+            return platformParam
+        }
+        return "all"
+    }, [searchParams])
+
     const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => {
         const newParams = new URLSearchParams(searchParams)
         if (tab === "all") {
             newParams.delete("tab")
         } else {
             newParams.set("tab", tab)
+        }
+        setSearchParams(newParams)
+    }, [searchParams, setSearchParams])
+
+    const setActivePlatform = useCallback((platform: "all" | "java" | "bedrock") => {
+        const newParams = new URLSearchParams(searchParams)
+        if (platform === "all") {
+            newParams.delete("platform")
+        } else {
+            newParams.set("platform", platform)
         }
         setSearchParams(newParams)
     }, [searchParams, setSearchParams])
@@ -100,6 +118,13 @@ export function ServerList() {
             list = list.filter(s => s.last_status === "offline")
         }
 
+        // Filtrage par plateforme
+        if (activePlatform === "java") {
+            list = list.filter(s => s.type === "java")
+        } else if (activePlatform === "bedrock") {
+            list = list.filter(s => s.type === "bedrock")
+        }
+
         // Filtrage par barre de recherche
         const query = searchQuery.toLowerCase().trim()
         if (!query) return list
@@ -109,7 +134,7 @@ export function ServerList() {
                 s.name.toLowerCase().includes(query) ||
                 s.ip.toLowerCase().includes(query)
         )
-    }, [servers, searchQuery, activeTab, userId])
+    }, [servers, searchQuery, activeTab, activePlatform, userId])
 
     const visibleCount = useMemo(() => servers.filter(s => s.hidden !== true).length, [servers])
     const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online" && s.hidden !== true).length, [servers])
@@ -124,6 +149,8 @@ export function ServerList() {
                 <ServerListFilters
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
+                    activePlatform={activePlatform}
+                    setActivePlatform={setActivePlatform}
                     totalCount={visibleCount}
                     onlineCount={onlineCount}
                     offlineCount={offlineCount}
