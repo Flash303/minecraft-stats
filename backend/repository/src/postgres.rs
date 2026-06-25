@@ -102,7 +102,7 @@ impl Repository for PostgresRepository {
         let records = sqlx::query(
             "SELECT 
                 server_id,
-                date_bin('5 minutes'::interval, date, TIMESTAMP '2000-01-01') as time_bucket,
+                time_bucket('5 minutes', date) as time_bucket,
                 MAX(value)::integer as agg_value
             FROM ping_records
             WHERE server_id = ANY($1) AND date >= $2
