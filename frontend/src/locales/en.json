@@ -55,7 +55,23 @@
     "loading": "Loading servers...",
     "noServers": "No servers found.",
     "noResults": "No servers match your search \"{{query}}\".",
-    "error": "Failed to load servers"
+    "error": "Failed to load servers",
+    "filters": {
+      "all": "All",
+      "online": "Online",
+      "offline": "Offline",
+      "hidden": "Hidden",
+      "platform": "Platform",
+      "allPlatforms": "All platforms",
+      "java": "Java",
+      "bedrock": "Bedrock"
+    }
+  },
+  "hero": {
+    "title1": "Analytics",
+    "title2": "Dashboard",
+    "description": "Track, compare, and analyze your Minecraft servers activity. Enjoy a clean interface, smooth analytics, and high-performance charts to monitor your servers.",
+    "cta": "View the list"
   },
   "serverDetail": {
     "loading": "Loading details...",
@@ -212,6 +228,10 @@
   },
   "profile": {
     "title": "My Profile",
+    "hello": "Hello, {{name}}",
+    "defaultUser": "User",
+    "loggedInAs": "Logged in as {{email}}",
+    "unauthenticated": "You must be signed in to access your space.",
     "tabInfo": "Account Info",
     "tabServers": "My Servers",
     "tabAlerts": "Alerts & Push",
@@ -230,7 +250,12 @@
       "title": "Your servers",
       "description": "Manage the Minecraft servers you've added.",
       "noServersTitle": "No servers",
-      "noServersDescription": "You haven't added any server yet."
+      "noServersDescription": "You haven't added any server yet.",
+      "renameTitle": "Rename server",
+      "renameDesc": "Enter the new name for your server.",
+      "renameLabel": "Name",
+      "renameSaving": "Saving...",
+      "renameSave": "Save"
     },
     "alerts": {
       "pushTitle": "Push Notifications",

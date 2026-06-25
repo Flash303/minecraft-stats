@@ -55,7 +55,23 @@
     "loading": "Chargement des serveurs...",
     "noServers": "Aucun serveur trouvé.",
     "noResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
-    "error": "Impossible de charger les serveurs"
+    "error": "Impossible de charger les serveurs",
+    "filters": {
+      "all": "Tous",
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "hidden": "Masqués",
+      "platform": "Plateforme",
+      "allPlatforms": "Toutes plateformes",
+      "java": "Java",
+      "bedrock": "Bedrock"
+    }
+  },
+  "hero": {
+    "title1": "Dashboard",
+    "title2": "Analytique",
+    "description": "Suivez, comparez et analysez l'activité de vos serveurs Minecraft. Profitez d'une interface sobre, d'analyses fluides et de graphiques haute performance pour surveiller vos serveurs.",
+    "cta": "Consulter la liste"
   },
   "serverDetail": {
     "loading": "Chargement des détails...",
@@ -212,6 +228,10 @@
   },
   "profile": {
     "title": "Mon Profil",
+    "hello": "Bonjour, {{name}}",
+    "defaultUser": "Utilisateur",
+    "loggedInAs": "Connecté en tant que {{email}}",
+    "unauthenticated": "Vous devez être connecté pour accéder à votre espace.",
     "tabInfo": "Compte",
     "tabServers": "Mes Serveurs",
     "tabAlerts": "Alertes & Push",
@@ -230,7 +250,12 @@
       "title": "Vos serveurs",
       "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
       "noServersTitle": "Aucun serveur",
-      "noServersDescription": "Vous n'avez pas encore ajouté de serveur."
+      "noServersDescription": "Vous n'avez pas encore ajouté de serveur.",
+      "renameTitle": "Renommer le serveur",
+      "renameDesc": "Entrez le nouveau nom de votre serveur.",
+      "renameLabel": "Nom",
+      "renameSaving": "Enregistrement...",
+      "renameSave": "Enregistrer"
     },
     "alerts": {
       "pushTitle": "Notifications Push",
