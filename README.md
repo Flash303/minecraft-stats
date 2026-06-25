@@ -100,3 +100,7 @@ Ouvrez `http://localhost:5173` dans votre navigateur pour voir l'application.
 ## 📝 Licence
 
 Ce projet est sous licence **GPL-3.0**. Consultez le fichier [LICENSE](LICENSE) pour plus de détails.
+
+<p align="center">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=flash303.minecraft-stats&left_text=Visiteurs" alt="visitors">
+</p>
