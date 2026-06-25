@@ -228,6 +228,10 @@
   },
   "profile": {
     "title": "Mon Profil",
+    "hello": "Bonjour, {{name}}",
+    "defaultUser": "Utilisateur",
+    "loggedInAs": "Connecté en tant que {{email}}",
+    "unauthenticated": "Vous devez être connecté pour accéder à votre espace.",
     "tabInfo": "Compte",
     "tabServers": "Mes Serveurs",
     "tabAlerts": "Alertes & Push",
@@ -246,7 +250,12 @@
       "title": "Vos serveurs",
       "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
       "noServersTitle": "Aucun serveur",
-      "noServersDescription": "Vous n'avez pas encore ajouté de serveur."
+      "noServersDescription": "Vous n'avez pas encore ajouté de serveur.",
+      "renameTitle": "Renommer le serveur",
+      "renameDesc": "Entrez le nouveau nom de votre serveur.",
+      "renameLabel": "Nom",
+      "renameSaving": "Enregistrement...",
+      "renameSave": "Enregistrer"
     },
     "alerts": {
       "pushTitle": "Notifications Push",
