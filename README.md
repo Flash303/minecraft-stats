@@ -1,4 +1,8 @@
-# Minecraft Stats
+<p align="center">
+  <img src="frontend/src/assets/logo.png" alt="Minecraft Stats Logo" width="200" />
+</p>
+
+<h1 align="center">Minecraft Stats</h1>
 
 🌍 **Accessible en ligne sur : [mc-stats.fr](https://mc-stats.fr)**
 
