@@ -9,6 +9,7 @@ use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
+use futures::stream::StreamExt;
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -78,13 +79,17 @@ impl Repository for PostgresRepository {
         query_builder.push(" ORDER BY date ASC");
 
         let query = query_builder.build();
-        let rows = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let mut rows = query.fetch(&self.pool);
 
-        let capacity = rows.len();
-        let mut dates = Vec::with_capacity(capacity);
-        let mut values = Vec::with_capacity(capacity);
+        let mut dates = Vec::new();
+        let mut values = Vec::new();
 
-        for row in rows {
+        while let Some(row) = rows.next().await {
+            if let Err(err) = row {
+                return Err(err.to_string());
+            }
+            let row = row.unwrap();
+
             let date: OffsetDateTime = row.get("date");
             let value_i32: i32 = row.get("value");
 
