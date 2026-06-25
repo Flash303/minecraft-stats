@@ -1,11 +1,11 @@
-import { Layout } from "@/components/layout"
+
 import { useLanguage } from "@/contexts/LanguageContext"
 
 export function Privacy() {
     const { t } = useLanguage()
 
     return (
-        <Layout>
+        <>
             <div className="max-w-4xl mx-auto px-4 py-12 select-text">
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-zinc-100 mb-2">
                     {t("legal.privacy.title")}
@@ -31,6 +31,6 @@ export function Privacy() {
                     ))}
                 </div>
             </div>
-        </Layout>
+        </>
     )
 }

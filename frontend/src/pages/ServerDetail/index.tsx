@@ -9,7 +9,7 @@ import { StatsSection } from "@/components/ServerDetail/StatsSection"
 import { AlertsSection } from "@/components/ServerDetail/AlertsSection"
 import { Button } from "@/components/ui/button"
 import { BarChart } from "lucide-react"
-import { Layout } from "@/components/layout"
+
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
@@ -113,9 +113,9 @@ export function ServerDetail() {
     const locale = language === "fr" ? "fr-FR" : "en-US"
 
     return (
-        <Layout>
+        <>
             <div className="flex flex-col gap-8 pb-12">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+                <div className="flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center">
                     <ServerDetailHeader server={server} t={t} />
 
                     <TimeIntervalSelector
@@ -130,19 +130,24 @@ export function ServerDetail() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <BarChart className="h-5 w-5 text-primary" />
+                    <h2 className="flex items-center gap-2 text-lg font-semibold">
+                        <BarChart className="text-primary h-5 w-5" />
                         {t("serverDetail.playerHistory")}
                         {isOnline && (
-                            <span className="text-sm font-normal text-muted-foreground">
-                                ({new Intl.NumberFormat(locale).format(server.last_connected ?? 0)} {t("common.currentPlayers")})
+                            <span className="text-muted-foreground text-sm font-normal">
+                                (
+                                {new Intl.NumberFormat(locale).format(
+                                    server.last_connected ?? 0
+                                )}{" "}
+                                {t("common.currentPlayers")})
                             </span>
                         )}
                     </h2>
-                    
-                    <div className="bg-card rounded-xl border p-4 shadow-sm min-h-[340px] sm:min-h-[500px] flex items-center justify-center relative">
+
+                    <div className="bg-card relative flex min-h-[340px] items-center justify-center rounded-xl border p-4 shadow-sm sm:min-h-[500px]">
                         {loadingRecords ? (
-                            <p className="text-muted-foreground text-sm animate-pulse">{t("serverDetail.chartLoading")}</p>
+                            // <p className="text-muted-foreground text-sm animate-pulse">{t("serverDetail.chartLoading")}</p>
+                            <p>{t("serverDetail.chartLoading")}</p>
                         ) : (
                             <PlayerChart
                                 data={records}
@@ -154,12 +159,10 @@ export function ServerDetail() {
                     </div>
                 </div>
 
-                {stats && (
-                    <StatsSection stats={stats} locale={locale} t={t} />
-                )}
+                {stats && <StatsSection stats={stats} locale={locale} t={t} />}
 
                 <AlertsSection serverId={server.id} t={t} />
             </div>
-        </Layout>
+        </>
     )
 }
