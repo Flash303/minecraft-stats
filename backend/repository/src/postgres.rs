@@ -232,6 +232,16 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
+    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
+        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(result.into())
+    }
+
     async fn list_servers(&self) -> Result<Vec<Server>, String> {
         let rows: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers")
             .fetch_all(&self.pool)
@@ -244,16 +254,6 @@ impl Repository for PostgresRepository {
         }
 
         Ok(rs)
-    }
-
-    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
-        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
-            .bind(server_id as i32)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())?;
-
-        Ok(result.into())
     }
 
     async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, String> {
