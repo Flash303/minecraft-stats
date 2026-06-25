@@ -14,7 +14,13 @@ struct LokiStream {
     values: Vec<[String; 2]>, // [Timestamp_Nano, Log_Message]
 }
 
-pub async fn send_to_loki(route: &str, method: &str, status: u16, duration: u128, request_size: u64, reponse_size: u64, ip: &str, user_id: Option<String>) {
+pub async fn send_to_loki(route: &str,
+                          method: &str,
+                          status: u16,
+                          duration: u128,
+                          request_size: u64,
+                          reponse_size: u64,
+                          ip: &str, user_id: Option<String>) {
     let log_content = serde_json::json!({
         "route": route,
         "method": method,

@@ -10,14 +10,9 @@ pub async fn admin_middleware(
     next: Next,
 ) -> Result<Response, StatusCode> {
     let account = req.extensions().get::<Option<ClerkClaims>>().cloned().flatten();
-    let administrator = match account
-    {
-        Some(account) => {
-            account.is_admin.unwrap_or(false)
-        }
-        None => {
-            false
-        },
+    let administrator = match account {
+        Some(account) => account.is_admin.unwrap_or(false),
+        None => false,
     };
 
     if !administrator {

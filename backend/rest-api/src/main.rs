@@ -108,7 +108,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/records", routes::record::router())
-        .nest("/servers", routes::server::router())
+        .nest("/servers", routes::server::router::router())
         .nest("/notifications", routes::notification::router())
         .nest("/admin", admin::routes::router(state.clone()))
         .layer(from_fn(stats_middleware))

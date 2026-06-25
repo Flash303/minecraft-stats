@@ -50,7 +50,7 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
 
     let client = reqwest::Client::new();
 
-    let users = client.request(Method::GET, format!("https://api.clerk.com/v1/users"))
+    let users = client.request(Method::GET,"https://api.clerk.com/v1/users")
         .bearer_auth(token)
         .send()
         .await
