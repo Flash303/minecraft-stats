@@ -22,11 +22,13 @@ function App() {
                     <Route path="/account/*" element={<Account />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/dashboard" element={<AdminDashboard />} />
-                    <Route path="/dashboard/:subview" element={<AdminDashboard />} />
+
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
+
+                <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<AdminDashboard />} />
+                <Route path="/dashboard/:subview" element={<AdminDashboard />} />
             </Routes>
         </BrowserRouter>
     )
