@@ -1,8 +1,18 @@
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/contexts/LanguageContext"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 interface ServerListFiltersProps {
     activeTab: "all" | "online" | "offline" | "hidden"
     setActiveTab: (tab: "all" | "online" | "offline" | "hidden") => void
+    activePlatform: "all" | "java" | "bedrock"
+    setActivePlatform: (platform: "all" | "java" | "bedrock") => void
     totalCount: number
     onlineCount: number
     offlineCount: number
@@ -13,12 +23,16 @@ interface ServerListFiltersProps {
 export function ServerListFilters({
     activeTab,
     setActiveTab,
+    activePlatform,
+    setActivePlatform,
     totalCount,
     onlineCount,
     offlineCount,
     hiddenCount,
     isAdmin
 }: ServerListFiltersProps) {
+    const { t } = useLanguage()
+
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/50 dark:border-zinc-800/50 pb-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -31,7 +45,7 @@ export function ServerListFilters({
                             : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                     )}
                 >
-                    Tous ({totalCount})
+                    {t("serverList.filters.all")} ({totalCount})
                 </button>
                 <button
                     onClick={() => setActiveTab("online")}
@@ -43,7 +57,7 @@ export function ServerListFilters({
                     )}
                 >
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    En ligne ({onlineCount})
+                    {t("serverList.filters.online")} ({onlineCount})
                 </button>
                 <button
                     onClick={() => setActiveTab("offline")}
@@ -55,7 +69,7 @@ export function ServerListFilters({
                     )}
                 >
                     <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                    Hors ligne ({offlineCount})
+                    {t("serverList.filters.offline")} ({offlineCount})
                 </button>
                 {isAdmin && (
                     <button
@@ -68,14 +82,26 @@ export function ServerListFilters({
                         )}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        Masqués ({hiddenCount})
+                        {t("serverList.filters.hidden")} ({hiddenCount})
                     </button>
                 )}
             </div>
             
-            <span className="text-xs text-muted-foreground font-medium hidden sm:inline-block">
-                Actualisé en temps réel
-            </span>
+            <div className="w-full sm:w-auto">
+                <Select
+                    value={activePlatform}
+                    onValueChange={(val) => setActivePlatform(val as "all" | "java" | "bedrock")}
+                >
+                    <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
+                        <SelectValue placeholder={t("serverList.filters.platform")} />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-200 dark:border-zinc-800 shadow-lg">
+                        <SelectItem value="all" className="rounded-lg cursor-pointer">{t("serverList.filters.allPlatforms")}</SelectItem>
+                        <SelectItem value="java" className="rounded-lg cursor-pointer">{t("serverList.filters.java")}</SelectItem>
+                        <SelectItem value="bedrock" className="rounded-lg cursor-pointer">{t("serverList.filters.bedrock")}</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
     )
 }

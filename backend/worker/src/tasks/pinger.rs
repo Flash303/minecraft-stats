@@ -71,7 +71,6 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
         if let Ok(servers) = possible_servers {
             let mut optimised_tasks = stream::iter(servers)
                 .map(|mut server| {
-                    let task_repository = repository.clone();
                     let pinger = pinger.clone();
                     let pinger_config = pinger_config.clone();
                     let state_updater = state_updater.clone();

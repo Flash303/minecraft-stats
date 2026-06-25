@@ -16,11 +16,8 @@ pub async fn auth_middleware(
 ) -> Result<Response, StatusCode> {
     let auth_user = match req.headers().get(AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
-        .and_then(|token| token.strip_prefix("Bearer "))
-    {
-        Some(token) => {
-            verify_clerk_token(&state, token).ok()
-        }
+        .and_then(|token| token.strip_prefix("Bearer ")) {
+        Some(token) => verify_clerk_token(&state, token).ok(),
         None => None,
     };
 

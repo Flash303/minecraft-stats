@@ -55,7 +55,23 @@
     "loading": "Loading servers...",
     "noServers": "No servers found.",
     "noResults": "No servers match your search \"{{query}}\".",
-    "error": "Failed to load servers"
+    "error": "Failed to load servers",
+    "filters": {
+      "all": "All",
+      "online": "Online",
+      "offline": "Offline",
+      "hidden": "Hidden",
+      "platform": "Platform",
+      "allPlatforms": "All platforms",
+      "java": "Java",
+      "bedrock": "Bedrock"
+    }
+  },
+  "hero": {
+    "title1": "Analytics",
+    "title2": "Dashboard",
+    "description": "Track, compare, and analyze your Minecraft servers activity. Enjoy a clean interface, smooth analytics, and high-performance charts to monitor your servers.",
+    "cta": "View the list"
   },
   "serverDetail": {
     "loading": "Loading details...",
@@ -212,6 +228,10 @@
   },
   "profile": {
     "title": "My Profile",
+    "hello": "Hello, {{name}}",
+    "defaultUser": "User",
+    "loggedInAs": "Logged in as {{email}}",
+    "unauthenticated": "You must be signed in to access your space.",
     "tabInfo": "Account Info",
     "tabServers": "My Servers",
     "tabAlerts": "Alerts & Push",
@@ -230,7 +250,12 @@
       "title": "Your servers",
       "description": "Manage the Minecraft servers you've added.",
       "noServersTitle": "No servers",
-      "noServersDescription": "You haven't added any server yet."
+      "noServersDescription": "You haven't added any server yet.",
+      "renameTitle": "Rename server",
+      "renameDesc": "Enter the new name for your server.",
+      "renameLabel": "Name",
+      "renameSaving": "Saving...",
+      "renameSave": "Save"
     },
     "alerts": {
       "pushTitle": "Push Notifications",
@@ -239,6 +264,56 @@
       "pushDisable": "Disable",
       "pushEnable": "Enable",
       "configuredAlerts": "Configured alert rules"
+    }
+  },
+  "footer": {
+    "description": "Modern analytics platform for Minecraft servers. Track, compare, and observe your favorite servers' activity in real-time.",
+    "home": "Home",
+    "github": "GitHub",
+    "rights": "All rights reserved.",
+    "madeWith": "Made with",
+    "forCommunity": "for the Minecraft community",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {{date}}",
+      "p1": "These Terms of Service (\"Terms\") govern your use of the Minecraft Stats platform. By accessing or using our services, you agree to be bound by these Terms and our Privacy Policy.",
+      "s1Title": "1. Description of Service",
+      "s1Content": "Minecraft Stats provides an analytics and tracking platform for public Minecraft servers. We gather, aggregate, and display statistics (such as player counts and server status) for informational purposes.",
+      "s2Title": "2. Account Registration and Security",
+      "s2Content": "To access certain features, you must register for an account. We use Clerk as our secure authentication provider. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must notify us immediately of any unauthorized use.",
+      "s3Title": "3. Acceptable Use",
+      "s3Content": "You agree not to misuse our services. This includes, but is not limited to: scraping data without permission, launching denial-of-service attacks, attempting to exploit our API, or using the platform to harass others or display inappropriate content.",
+      "s4Title": "4. Intellectual Property",
+      "s4Content": "The Minecraft Stats platform, its original content, features, and functionality are owned by us and are protected by international copyright, trademark, and other intellectual property laws. Minecraft is a trademark of Mojang Synergies AB; we are not affiliated with or endorsed by Mojang.",
+      "s5Title": "5. Disclaimer of Warranties",
+      "s5Content": "Our services are provided \"as is\" and \"as available\" without warranties of any kind. We do not guarantee the accuracy, completeness, or timeliness of the server statistics provided, as they rely on external queries to third-party servers.",
+      "s6Title": "6. Limitation of Liability",
+      "s6Content": "To the fullest extent permitted by law, Minecraft Stats shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, resulting from your use of the service.",
+      "s7Title": "7. Termination",
+      "s7Content": "We reserve the right to suspend or terminate your account and access to the services at our sole discretion, without notice or liability, for any reason, including if you breach these Terms."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}",
+      "p1": "This Privacy Policy explains how Minecraft Stats (\"we\", \"our\", or \"us\") collects, uses, and discloses information about you when you access or use our website.",
+      "s1Title": "1. Information Collection and Use",
+      "s1Content": "We collect information that you provide directly to us, such as when you create an account, update your profile, or communicate with us. Since we use Clerk for our authentication system, your registration information (like email address, username, and password) is securely processed and managed by Clerk.",
+      "s2Title": "2. Automatically Collected Information",
+      "s2Content": "When you access our services, we automatically collect certain information about your device and how you interact with our platform. This may include your IP address, browser type, operating system, and log data. We use this information to analyze trends and ensure the security of our platform.",
+      "s3Title": "3. Cookies and Tracking Technologies",
+      "s3Content": "We use cookies and similar tracking technologies to enhance your experience, remember your preferences, and understand how you navigate our site. You can control cookie settings through your browser, but disabling them may limit some functionalities of our service.",
+      "s4Title": "4. Data Sharing and Third Parties",
+      "s4Content": "We do not sell your personal data. We may share information with trusted third-party service providers (like Clerk for authentication and hosting providers) solely to operate and improve our services. These partners are bound by strict confidentiality obligations.",
+      "s5Title": "5. Data Security",
+      "s5Content": "We take reasonable measures to help protect your personal information from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction. However, please understand that no internet transmission is 100% secure.",
+      "s6Title": "6. Your Rights",
+      "s6Content": "Depending on your jurisdiction (such as under the GDPR or CCPA), you may have rights to access, correct, delete, or restrict the processing of your personal data. You can manage your account settings directly or contact us to exercise these rights.",
+      "s7Title": "7. Changes to this Policy",
+      "s7Content": "We may update this Privacy Policy from time to time. If we make material changes, we will notify you by updating the date at the top of this policy and, in some cases, providing additional notice."
     }
   }
 }

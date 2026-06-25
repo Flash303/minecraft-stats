@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useAuth, useUser, UserProfile } from "@clerk/react"
 import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/lib/api"
 import type { Server, Alert } from "@/lib/api"
-import { Layout } from "@/components/layout"
+import { useLayoutConfig } from "@/components/layout"
 import { ServerCard } from "@/components/ServerList/ServerCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Button } from "@/components/ui/button"
@@ -60,6 +60,7 @@ export function Account() {
     const [servers, setServers] = useState<Server[]>([])
     const [allAlerts, setAllAlerts] = useState<ExtendedAlert[]>([])
     const [loading, setLoading] = useState(true)
+    const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     // Web Push State
     const isPushSupported = "serviceWorker" in navigator && "PushManager" in window
@@ -117,6 +118,16 @@ export function Account() {
             checkSubscription()
         }
     }, [isLoaded, loadData, checkSubscription])
+
+    useEffect(() => {
+        setOnRefresh(() => loadData)
+        return () => setOnRefresh(undefined)
+    }, [loadData, setOnRefresh])
+
+    useEffect(() => {
+        setIsLoading(loading && servers.length === 0)
+        return () => setIsLoading(undefined)
+    }, [loading, servers.length, setIsLoading])
 
     const handleSubscribe = async () => {
         if (!isPushSupported) return
@@ -208,19 +219,19 @@ export function Account() {
 
     if (!isSignedIn && isLoaded) {
         return (
-            <Layout>
+            <>
                 <div className="flex justify-center items-center min-h-[60vh]">
                     <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
                         <User className="h-16 w-16 text-muted-foreground/30" />
-                        <p className="text-muted-foreground text-lg font-medium">Vous devez être connecté pour accéder à votre espace.</p>
+                        <p className="text-muted-foreground text-lg font-medium">{t("profile.unauthenticated")}</p>
                     </div>
                 </div>
-            </Layout>
+            </>
         )
     }
 
     return (
-        <Layout isLoading={loading && servers.length === 0} onRefresh={loadData}>
+        <>
             {/* Header section with gradient background */}
             <div className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
@@ -236,22 +247,22 @@ export function Account() {
                             )}
                             <div>
                                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                    Bonjour, {user?.firstName || user?.username || "Utilisateur"}
+                                    {t("profile.hello", { name: user?.firstName || user?.username || t("profile.defaultUser") })}
                                 </h1>
                                 <p className="text-slate-500 dark:text-zinc-400 mt-1 flex items-center gap-2">
                                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-                                    Connecté en tant que {user?.primaryEmailAddress?.emailAddress}
+                                    {t("profile.loggedInAs", { email: user?.primaryEmailAddress?.emailAddress || "" })}
                                 </p>
                             </div>
                         </div>
                         
                         <div className="flex gap-4">
                             <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm min-w-[120px]">
-                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Serveurs</span>
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.servers")}</span>
                                 <span className="text-2xl font-bold text-primary">{servers.length}</span>
                             </div>
                             <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm min-w-[120px]">
-                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Alertes</span>
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.alerts")}</span>
                                 <span className="text-2xl font-bold text-indigo-500 dark:text-indigo-400">{allAlerts.length}</span>
                             </div>
                         </div>
@@ -454,11 +465,12 @@ export function Account() {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     )
 }
 
 function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
+    const { t } = useLanguage()
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(server.name)
@@ -492,14 +504,14 @@ function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: (
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Renommer le serveur</DialogTitle>
+                    <DialogTitle>{t("profile.servers.renameTitle")}</DialogTitle>
                     <DialogDescription>
-                        Entrez le nouveau nom de votre serveur.
+                        {t("profile.servers.renameDesc")}
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Nom</Label>
+                        <Label htmlFor="name">{t("profile.servers.renameLabel")}</Label>
                         <Input
                             id="name"
                             value={name}
@@ -509,7 +521,7 @@ function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: (
                     </div>
                     <DialogFooter>
                         <Button type="submit" disabled={loading}>
-                            {loading ? "Enregistrement..." : "Enregistrer"}
+                            {loading ? t("profile.servers.renameSaving") : t("profile.servers.renameSave")}
                         </Button>
                     </DialogFooter>
                 </form>

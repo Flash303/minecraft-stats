@@ -55,7 +55,23 @@
     "loading": "Chargement des serveurs...",
     "noServers": "Aucun serveur trouvé.",
     "noResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
-    "error": "Impossible de charger les serveurs"
+    "error": "Impossible de charger les serveurs",
+    "filters": {
+      "all": "Tous",
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "hidden": "Masqués",
+      "platform": "Plateforme",
+      "allPlatforms": "Toutes plateformes",
+      "java": "Java",
+      "bedrock": "Bedrock"
+    }
+  },
+  "hero": {
+    "title1": "Dashboard",
+    "title2": "Analytique",
+    "description": "Suivez, comparez et analysez l'activité de vos serveurs Minecraft. Profitez d'une interface sobre, d'analyses fluides et de graphiques haute performance pour surveiller vos serveurs.",
+    "cta": "Consulter la liste"
   },
   "serverDetail": {
     "loading": "Chargement des détails...",
@@ -212,6 +228,10 @@
   },
   "profile": {
     "title": "Mon Profil",
+    "hello": "Bonjour, {{name}}",
+    "defaultUser": "Utilisateur",
+    "loggedInAs": "Connecté en tant que {{email}}",
+    "unauthenticated": "Vous devez être connecté pour accéder à votre espace.",
     "tabInfo": "Compte",
     "tabServers": "Mes Serveurs",
     "tabAlerts": "Alertes & Push",
@@ -230,7 +250,12 @@
       "title": "Vos serveurs",
       "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
       "noServersTitle": "Aucun serveur",
-      "noServersDescription": "Vous n'avez pas encore ajouté de serveur."
+      "noServersDescription": "Vous n'avez pas encore ajouté de serveur.",
+      "renameTitle": "Renommer le serveur",
+      "renameDesc": "Entrez le nouveau nom de votre serveur.",
+      "renameLabel": "Nom",
+      "renameSaving": "Enregistrement...",
+      "renameSave": "Enregistrer"
     },
     "alerts": {
       "pushTitle": "Notifications Push",
@@ -239,6 +264,56 @@
       "pushDisable": "Désactiver",
       "pushEnable": "Activer",
       "configuredAlerts": "Règles d'alerte configurées"
+    }
+  },
+  "footer": {
+    "description": "Plateforme analytique moderne pour serveurs Minecraft. Suivez, comparez et observez l'activité de vos serveurs favoris en temps réel.",
+    "home": "Accueil",
+    "github": "GitHub",
+    "rights": "Tous droits réservés.",
+    "madeWith": "Fait avec",
+    "forCommunity": "pour la communauté Minecraft",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité"
+  },
+  "legal": {
+    "terms": {
+      "title": "Conditions Générales d'Utilisation (CGU)",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "p1": "Les présentes Conditions Générales d'Utilisation (\"CGU\") régissent votre accès et votre utilisation de Minecraft Stats. En utilisant nos services, vous acceptez d'être lié par ces CGU et notre Politique de Confidentialité.",
+      "s1Title": "1. Description du Service",
+      "s1Content": "Minecraft Stats est une plateforme d'analyse et de suivi de serveurs Minecraft publics. Nous récoltons, agrégeons et affichons des statistiques (joueurs, statut) à titre informatif.",
+      "s2Title": "2. Inscription et Sécurité du Compte",
+      "s2Content": "L'accès à certaines fonctionnalités nécessite un compte. Nous utilisons Clerk comme fournisseur d'authentification sécurisé. Vous êtes responsable de la confidentialité de vos identifiants et de toutes les activités effectuées sous votre compte.",
+      "s3Title": "3. Utilisation Acceptable",
+      "s3Content": "Vous vous engagez à ne pas faire un usage abusif de nos services (ex: moissonnage de données non autorisé, attaques par déni de service, exploitation abusive de l'API, ou comportements malveillants).",
+      "s4Title": "4. Propriété Intellectuelle",
+      "s4Content": "La plateforme Minecraft Stats, son contenu original et ses fonctionnalités nous appartiennent et sont protégés par les lois sur la propriété intellectuelle. Minecraft est une marque déposée de Mojang Synergies AB ; nous ne sommes ni affiliés ni approuvés par Mojang.",
+      "s5Title": "5. Exclusion de Garanties",
+      "s5Content": "Nos services sont fournis \"en l'état\" et \"selon la disponibilité\". Nous ne garantissons pas l'exactitude, l'exhaustivité ou la ponctualité des statistiques de serveurs, celles-ci dépendant de requêtes externes vers des serveurs tiers.",
+      "s6Title": "6. Limitation de Responsabilité",
+      "s6Content": "Dans les limites autorisées par la loi, Minecraft Stats ne sera pas tenu responsable des dommages indirects, accessoires, consécutifs ou punitifs, ou de toute perte de profits, résultant de l'utilisation de nos services.",
+      "s7Title": "7. Résiliation",
+      "s7Content": "Nous nous réservons le droit de suspendre ou de résilier votre compte et votre accès aux services à notre entière discrétion, sans préavis, notamment en cas de violation de ces CGU."
+    },
+    "privacy": {
+      "title": "Politique de Confidentialité",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "p1": "Cette Politique de Confidentialité explique comment Minecraft Stats (\"nous\", \"notre\" ou \"nos\") collecte, utilise et partage les informations vous concernant lorsque vous utilisez notre site web.",
+      "s1Title": "1. Collecte et utilisation des informations",
+      "s1Content": "Nous collectons les informations que vous nous fournissez directement, par exemple lors de la création d'un compte. Étant donné que nous utilisons Clerk pour notre système d'authentification, vos informations d'inscription (comme l'adresse e-mail et le nom d'utilisateur) sont traitées et gérées de manière sécurisée par Clerk.",
+      "s2Title": "2. Informations collectées automatiquement",
+      "s2Content": "Lors de votre accès à nos services, nous collectons automatiquement certaines données relatives à votre appareil et à votre navigation, incluant votre adresse IP, type de navigateur et données de journal. Cela nous aide à analyser les tendances et sécuriser la plateforme.",
+      "s3Title": "3. Cookies et technologies de suivi",
+      "s3Content": "Nous utilisons des cookies pour améliorer votre expérience et mémoriser vos préférences. Vous pouvez gérer ces cookies via votre navigateur, bien que leur désactivation puisse limiter l'accès à certaines fonctionnalités.",
+      "s4Title": "4. Partage de données et Tiers",
+      "s4Content": "Nous ne vendons pas vos données personnelles. Nous pouvons partager certaines informations avec des prestataires de services de confiance (comme Clerk pour l'authentification) uniquement dans le but de faire fonctionner et d'améliorer nos services, sous de strictes obligations de confidentialité.",
+      "s5Title": "5. Sécurité des données",
+      "s5Content": "Nous prenons des mesures raisonnables pour protéger vos données contre la perte, le vol et l'accès non autorisé. Néanmoins, aucune transmission sur Internet n'est totalement sécurisée à 100 %.",
+      "s6Title": "6. Vos Droits",
+      "s6Content": "Selon votre juridiction (ex: RGPD), vous pouvez disposer de droits d'accès, de rectification, de suppression ou de limitation du traitement de vos données. Vous pouvez exercer ces droits depuis vos paramètres de compte ou en nous contactant.",
+      "s7Title": "7. Modifications de cette politique",
+      "s7Content": "Nous pouvons mettre à jour cette politique périodiquement. En cas de changement majeur, nous mettrons à jour la date en haut du document et pourrons vous fournir une notification supplémentaire."
     }
   }
 }
