@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
-import { Layout } from "@/components/layout"
+
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { BarChart3 } from "lucide-react"
 import { MultiServerChart } from "./MultiServerChart"
@@ -74,7 +74,7 @@ export function ServerComparison() {
     const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
 
     return (
-        <Layout>
+        <>
             <div className="flex flex-col gap-8 max-w-6xl mx-auto px-2">
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
@@ -140,6 +140,6 @@ export function ServerComparison() {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     )
 }

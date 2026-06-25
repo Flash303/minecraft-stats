@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useAuth, useUser, UserProfile } from "@clerk/react"
 import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/lib/api"
 import type { Server, Alert } from "@/lib/api"
-import { Layout } from "@/components/layout"
+import { useLayoutConfig } from "@/components/layout"
 import { ServerCard } from "@/components/ServerList/ServerCard"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Button } from "@/components/ui/button"
@@ -60,6 +60,7 @@ export function Account() {
     const [servers, setServers] = useState<Server[]>([])
     const [allAlerts, setAllAlerts] = useState<ExtendedAlert[]>([])
     const [loading, setLoading] = useState(true)
+    const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     // Web Push State
     const isPushSupported = "serviceWorker" in navigator && "PushManager" in window
@@ -117,6 +118,16 @@ export function Account() {
             checkSubscription()
         }
     }, [isLoaded, loadData, checkSubscription])
+
+    useEffect(() => {
+        setOnRefresh(() => loadData)
+        return () => setOnRefresh(undefined)
+    }, [loadData, setOnRefresh])
+
+    useEffect(() => {
+        setIsLoading(loading && servers.length === 0)
+        return () => setIsLoading(undefined)
+    }, [loading, servers.length, setIsLoading])
 
     const handleSubscribe = async () => {
         if (!isPushSupported) return
@@ -208,19 +219,19 @@ export function Account() {
 
     if (!isSignedIn && isLoaded) {
         return (
-            <Layout>
+            <>
                 <div className="flex justify-center items-center min-h-[60vh]">
                     <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
                         <User className="h-16 w-16 text-muted-foreground/30" />
                         <p className="text-muted-foreground text-lg font-medium">Vous devez être connecté pour accéder à votre espace.</p>
                     </div>
                 </div>
-            </Layout>
+            </>
         )
     }
 
     return (
-        <Layout isLoading={loading && servers.length === 0} onRefresh={loadData}>
+        <>
             {/* Header section with gradient background */}
             <div className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
@@ -454,7 +465,7 @@ export function Account() {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     )
 }
 

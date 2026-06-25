@@ -4,7 +4,7 @@ import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
 import { ServerListFilters } from "@/components/ServerList/ServerListFilters"
-import { Layout } from "@/components/layout"
+import { useLayoutConfig } from "@/components/layout"
 import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/contexts/AdminContext"
 import { useSearch } from "@/contexts/SearchContext"
@@ -20,6 +20,7 @@ export function ServerList() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
+    const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     const activeTab = useMemo(() => {
         const tabParam = searchParams.get("tab")
@@ -72,6 +73,16 @@ export function ServerList() {
         })
     }, [load, isLoaded])
 
+    useEffect(() => {
+        setOnRefresh(() => load)
+        return () => setOnRefresh(undefined)
+    }, [load, setOnRefresh])
+
+    useEffect(() => {
+        setIsLoading(loading)
+        return () => setIsLoading(undefined)
+    }, [loading, setIsLoading])
+
     const filteredServers = useMemo(() => {
         let list = servers
 
@@ -106,7 +117,7 @@ export function ServerList() {
     const hiddenCount = useMemo(() => servers.filter(s => s.hidden === true).length, [servers])
 
     return (
-        <Layout onRefresh={load} isLoading={loading}>
+        <>
             {!searchQuery && <Hero3D />}
             
             <div id="server-list-section" className="pt-8 scroll-mt-20 max-w-6xl mx-auto px-2">
@@ -157,6 +168,6 @@ export function ServerList() {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     )
 }
