@@ -23,7 +23,7 @@ impl PostgresRepository {
 
     pub async fn from_url(url: String) -> Result<Self, String> {
         let pool = PgPoolOptions::new()
-            .max_connections(20)
+            .max_connections(50)
             .acquire_timeout(std::time::Duration::from_secs(3))
             .connect(&url)
             .await
