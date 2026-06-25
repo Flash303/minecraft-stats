@@ -46,7 +46,7 @@ export function Footer() {
                         {t("footer.privacy")}
                     </Link>
                     <a 
-                        href="https://github.com" 
+                        href="https://github.com/Flash303/minecraft-stats" 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="hover:text-indigo-650 dark:hover:text-indigo-400 transition-colors"
