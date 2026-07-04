@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { ArrowDown } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
