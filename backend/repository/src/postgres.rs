@@ -9,6 +9,7 @@ use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
+use futures::stream::StreamExt;
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -22,7 +23,7 @@ impl PostgresRepository {
 
     pub async fn from_url(url: String) -> Result<Self, String> {
         let pool = PgPoolOptions::new()
-            .max_connections(5)
+            .max_connections(50)
             .acquire_timeout(std::time::Duration::from_secs(3))
             .connect(&url)
             .await
@@ -78,13 +79,17 @@ impl Repository for PostgresRepository {
         query_builder.push(" ORDER BY date ASC");
 
         let query = query_builder.build();
-        let rows = query.fetch_all(&self.pool).await.map_err(|e| e.to_string())?;
+        let mut rows = query.fetch(&self.pool);
 
-        let capacity = rows.len();
-        let mut dates = Vec::with_capacity(capacity);
-        let mut values = Vec::with_capacity(capacity);
+        let mut dates = Vec::new();
+        let mut values = Vec::new();
 
-        for row in rows {
+        while let Some(row) = rows.next().await {
+            if let Err(err) = row {
+                return Err(err.to_string());
+            }
+            let row = row.unwrap();
+
             let date: OffsetDateTime = row.get("date");
             let value_i32: i32 = row.get("value");
 
@@ -102,7 +107,7 @@ impl Repository for PostgresRepository {
         let records = sqlx::query(
             "SELECT 
                 server_id,
-                date_bin('5 minutes'::interval, date, TIMESTAMP '2000-01-01') as time_bucket,
+                time_bucket('5 minutes', date) as time_bucket,
                 MAX(value)::integer as agg_value
             FROM ping_records
             WHERE server_id = ANY($1) AND date >= $2
@@ -232,6 +237,16 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
+    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
+        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_one(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(result.into())
+    }
+
     async fn list_servers(&self) -> Result<Vec<Server>, String> {
         let rows: Vec<ServerRow> = sqlx::query_as("SELECT * FROM servers")
             .fetch_all(&self.pool)
@@ -244,16 +259,6 @@ impl Repository for PostgresRepository {
         }
 
         Ok(rs)
-    }
-
-    async fn get_server(&self, server_id: u32) -> Result<Server, String> {
-        let result: ServerRow = sqlx::query_as("SELECT * FROM servers WHERE id = $1")
-            .bind(server_id as i32)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| e.to_string())?;
-
-        Ok(result.into())
     }
 
     async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, String> {
