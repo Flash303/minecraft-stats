@@ -25,7 +25,7 @@ export function Hero3D() {
     const { t } = useLanguage()
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const [hoveredPoint, setHoveredPoint] = useState<number | null>(null)
+    const hoveredPointRef = useRef<number | null>(null)
 
     // Track mouse hover to highlight nodes
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -47,11 +47,11 @@ export function Hero3D() {
                 closestIdx = idx
             }
         })
-        setHoveredPoint(closestIdx)
+        hoveredPointRef.current = closestIdx
     }
 
     const handleMouseLeave = () => {
-        setHoveredPoint(null)
+        hoveredPointRef.current = null
     }
 
     useEffect(() => {
@@ -275,7 +275,7 @@ export function Hero3D() {
                 const nodeScale = state === "drawing" ? getPointScale(i, globalProgress) : 1.0
                 if (nodeScale <= 0) continue
 
-                const isHovered = hoveredPoint === i
+                const isHovered = hoveredPointRef.current === i
                 const baseDotRadius = isHovered ? 6 : 4.5
                 const baseRingRadius = isHovered ? 12 : 9
                 
@@ -309,7 +309,7 @@ export function Hero3D() {
         return () => {
             cancelAnimationFrame(animationFrameId)
         }
-    }, [hoveredPoint])
+    }, [])
 
     const handleScrollDown = () => {
         const target = document.getElementById("server-list-section")
