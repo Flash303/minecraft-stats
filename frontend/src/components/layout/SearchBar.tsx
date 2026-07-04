@@ -24,12 +24,17 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const [allServers, setAllServers] = useState<Server[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [internalValue, setInternalValue] = useState("")
+    const [selectedIndex, setSelectedIndex] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
 
     const placeholder = propPlaceholder || t("common.search")
     const value = propValue !== undefined ? propValue : internalValue
     const onChange = propOnChange || setInternalValue
+
+    useEffect(() => {
+        setSelectedIndex(0)
+    }, [value])
 
     useEffect(() => {
         const loadAll = async () => {
@@ -63,8 +68,24 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     }, [navigate, onChange, onSelect])
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!showSuggestions && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+            setShowSuggestions(true)
+            return
+        }
+
         if (e.key === 'Enter' && filteredSuggestions.length > 0) {
-            handleSelect(filteredSuggestions[0])
+            e.preventDefault()
+            const targetIndex = selectedIndex >= 0 && selectedIndex < filteredSuggestions.length ? selectedIndex : 0
+            handleSelect(filteredSuggestions[targetIndex])
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            setSelectedIndex((prev) => (prev < filteredSuggestions.length - 1 ? prev + 1 : prev))
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0))
+        } else if (e.key === 'Escape') {
+            e.preventDefault()
+            setShowSuggestions(false)
         }
     }
 
@@ -131,9 +152,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                         <button
                             key={s.id}
                             onClick={() => handleSelect(s)}
+                            onMouseEnter={() => setSelectedIndex(idx)}
                             className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer",
-                                idx === 0 ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-slate-700 dark:text-zinc-300"
+                                idx === selectedIndex ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-slate-700 dark:text-zinc-300"
                             )}
                         >
                             {s.last_favicon ? (
@@ -142,10 +164,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center font-bold text-[10px] text-muted-foreground">MC</div>
                             )}
                             <div className="flex flex-col min-w-0 flex-1">
-                                <span className={cn("text-xs font-bold line-clamp-1", idx === 0 ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
+                                <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none mt-0.5">{s.ip}</span>
                             </div>
-                            {idx === 0 && (
+                            {idx === selectedIndex && (
                                 <div className="text-[9px] text-primary/80 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wide font-bold">{t("common.enter")}</div>
                             )}
                         </button>
