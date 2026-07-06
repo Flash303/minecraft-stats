@@ -61,7 +61,9 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
     }
 
     let pinger = Arc::new(result.unwrap());
-    let pinger_config = Arc::new(PingConfig::builder().set_timeout(MAX_PING_RESPONSE_TIME).build());
+    let pinger_config = Arc::new(PingConfig::builder()
+        .set_timeout(MAX_PING_RESPONSE_TIME)
+        .build());
 
     loop {
         let possible_servers = repository.list_servers().await;

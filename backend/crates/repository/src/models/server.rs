@@ -19,6 +19,7 @@ pub struct Server {
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
+    
 
     #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,

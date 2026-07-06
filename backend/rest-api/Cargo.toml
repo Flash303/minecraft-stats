@@ -8,7 +8,7 @@ name = "rest-api"
 path = "src/main.rs"
 
 [dependencies]
-repository = { path = "../repository" }
+repository = { path = "../crates/repository" }
 #minecraft-pinger = { path = "../../../minecraft-pinger" }
 minecraft-pinger = { git = "https://github.com/Flash303/minecraft-pinger" }
 
