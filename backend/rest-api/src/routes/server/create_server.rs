@@ -2,6 +2,7 @@ use axum::{Extension, Json};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::State;
 use axum::http::StatusCode;
+use log::info;
 use minecraft_pinger::config::PingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
@@ -73,7 +74,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         &fingerprint,
         None,
     ).await.map_err(|e| AppError::ServerCreationError(e))? {
-        println!(
+        info!(
             "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
             query.name,
             duplicate.server.name,
@@ -91,7 +92,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
 
     let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {
-        println!("Error creating server: {:?}", error);
+        info!("Error creating server: {:?}", error);
         return Err(AppError::ServerCreationError(error));
     }
 

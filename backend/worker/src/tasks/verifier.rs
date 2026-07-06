@@ -1,3 +1,4 @@
+use log::info;
 use crate::tasks::communication::{WorkerToVerifier, VerifierToSender, TriggeredAlertNotification};
 use repository::models::server::ServerStatus::{Offline, Online};
 use repository::models::alert::AlertType;
@@ -10,7 +11,7 @@ pub async fn verifier_worker(
     mut rx: Receiver<WorkerToVerifier>,
     tx_sender: Sender<VerifierToSender>,
 ) {
-    println!("Verifier task started");
+    info!("Verifier task started");
 
     while let Some(message) = rx.recv().await {
         let WorkerToVerifier::ServerStatusUpdated(state) = message;
@@ -29,7 +30,7 @@ pub async fn verifier_worker(
         let active_alerts = match active_alerts_result {
             Ok(alerts) => alerts,
             Err(e) => {
-                println!("Verifier error fetching alerts for server {}: {:?}", state.id, e);
+                info!("Verifier error fetching alerts for server {}: {:?}", state.id, e);
                 continue;
             }
         };
@@ -70,7 +71,7 @@ pub async fn verifier_worker(
 
         if !triggered_notifications.is_empty() {
             if let Err(e) = tx_sender.send(VerifierToSender::TriggerNotifications(triggered_notifications)).await {
-                println!("Verifier error sending batch notifications to Sender channel: {:?}", e);
+                info!("Verifier error sending batch notifications to Sender channel: {:?}", e);
             }
         }
     }

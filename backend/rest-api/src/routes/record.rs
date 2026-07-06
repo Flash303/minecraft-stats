@@ -7,6 +7,7 @@ use axum::extract::rejection::{PathRejection, QueryRejection};
 use axum::http::{StatusCode};
 use axum::routing::get;
 use axum::{Extension, Router};
+use log::info;
 use repository::models::record::{RecordData};
 use serde::{Deserialize};
 use time::{ OffsetDateTime};
@@ -64,7 +65,7 @@ async fn fetch_records(State(state): State<AppState>,
     if let Err(error) = result {
         return Err(AppError::FetchingDataError(error));
     }
-    println!("Time to request all database data {}ms", intant.elapsed().as_millis());
+    info!("Time to request all database data {}ms", intant.elapsed().as_millis());
 
     Ok(ResponseFormat::success(result.unwrap(), StatusCode::ACCEPTED))
 }

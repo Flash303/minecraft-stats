@@ -6,6 +6,7 @@ use serde_json::json;
 use std::collections::HashMap;
 use std::env;
 use std::io::Cursor;
+use log::info;
 use tokio::sync::mpsc::Receiver;
 use web_push::*;
 
@@ -13,11 +14,11 @@ pub async fn sender_worker(
     repository: PostgresRepository,
     mut rx: Receiver<VerifierToSender>,
 ) {
-    println!("Sender task started");
+    info!("Sender task started");
 
     let private_key_pem = env::var("VAPID_PRIVATE_KEY").ok();
     if private_key_pem.is_none() {
-        println!("WARNING: VAPID_PRIVATE_KEY is not set. Web Push notifications will be disabled.");
+        info!("WARNING: VAPID_PRIVATE_KEY is not set. Web Push notifications will be disabled.");
     }
 
     let mailto = env::var("VAPID_MAILTO").unwrap_or_else(|_| "mailto:admin@localhost".to_string());
@@ -26,7 +27,7 @@ pub async fn sender_worker(
     let client = match IsahcWebPushClient::new() {
         Ok(c) => c,
         Err(e) => {
-            println!("Sender critical error creating WebPushClient: {:?}", e);
+            info!("Sender critical error creating WebPushClient: {:?}", e);
             return;
         }
     };
@@ -42,7 +43,7 @@ pub async fn sender_worker(
     });
 
     if partial_vapid_builder.is_none() && private_key_pem.is_some() {
-        println!("Sender critical error parsing VAPID key");
+        info!("Sender critical error parsing VAPID key");
     }
 
     while let Some(message) = rx.recv().await {
@@ -71,7 +72,7 @@ pub async fn sender_worker(
         let subscriptions = match repository.get_subscriptions_for_users(&user_ids).await {
             Ok(subs) => subs,
             Err(e) => {
-                println!("Sender error fetching subscriptions for batch: {:?}", e);
+                info!("Sender error fetching subscriptions for batch: {:?}", e);
                 continue;
             }
         };
@@ -143,7 +144,7 @@ pub async fn sender_worker(
                     let signature = match sig_builder.build() {
                         Ok(sig) => sig,
                         Err(e) => {
-                            println!("Sender error signing VAPID claims for device ID {}: {:?}", sub_clone.id, e);
+                            info!("Sender error signing VAPID claims for device ID {}: {:?}", sub_clone.id, e);
                             return;
                         }
                     };
@@ -155,21 +156,21 @@ pub async fn sender_worker(
                     let message = match builder.build() {
                         Ok(msg) => msg,
                         Err(e) => {
-                            println!("Sender error building push message for device ID {}: {:?}", sub_clone.id, e);
+                            info!("Sender error building push message for device ID {}: {:?}", sub_clone.id, e);
                             return;
                         }
                     };
 
                     match client_clone.send(message).await {
                         Ok(_) => {
-                            println!("Push notification sent successfully to device ID {}", sub_clone.id);
+                            info!("Push notification sent successfully to device ID {}", sub_clone.id);
                         }
                         Err(WebPushError::EndpointNotValid(_)) | Err(WebPushError::EndpointNotFound(_)) => {
-                            println!("Device subscription expired or invalid (404/410), deleting endpoint: {}", sub_clone.endpoint);
+                            info!("Device subscription expired or invalid (404/410), deleting endpoint: {}", sub_clone.endpoint);
                             let _ = repository_clone.delete_stale_subscription(&sub_clone.endpoint).await;
                         }
                         Err(e) => {
-                            println!("Failed to send Web Push to device ID {}: {:?}", sub_clone.id, e);
+                            info!("Failed to send Web Push to device ID {}: {:?}", sub_clone.id, e);
                         }
                     }
                 });

@@ -10,6 +10,7 @@ use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
 use futures::stream::StreamExt;
+use log::{info};
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -28,13 +29,13 @@ impl PostgresRepository {
             .connect(&url)
             .await
             .map_err(|e| e.to_string())?;
-        println!("PostgreSQL connection success !");
+        info!("PostgreSQL connection success !");
 
         let repository = PostgresRepository::new(pool);
         repository.initialize()
             .await
             .map_err(|e| e.to_string())?;
-        println!("Initialized successfully!");
+        info!("Initialized successfully!");
 
         Ok(repository)
     }

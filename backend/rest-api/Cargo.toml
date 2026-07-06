@@ -22,6 +22,9 @@ axum = { version = "0.8.9", features = ["tokio"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.150"
 
+thiserror = "2.0.18"
+log = "0.4.33"
+
 base64 = "0.22.1"
 rsa = "0.9.10"
 sha2 = "0.10.8"

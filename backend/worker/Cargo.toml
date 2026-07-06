@@ -16,3 +16,4 @@ web-push = "0.11.0"
 base64 = "0.22.1"
 openssl = { version = "0.10", features = ["vendored"] }
 
+log = "0.4.33"

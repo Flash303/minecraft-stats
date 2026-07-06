@@ -19,6 +19,7 @@ use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use log::info;
 use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
@@ -28,13 +29,13 @@ const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
-    println!("Starting server");
+    info!("Starting server");
 
     // Port
     let port = env::var("LISTEN_PORT")
         .map(|p| p.parse::<u16>().unwrap_or(DEFAULT_PORT))
         .unwrap_or_else(|_| {
-            println!("Please set the LISTEN_PORT environment variable, using defaults.");
+            info!("Please set the LISTEN_PORT environment variable, using defaults.");
             DEFAULT_PORT
         });
 
@@ -42,13 +43,13 @@ async fn main() {
     // Init DB
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| {
-            println!("Please set the DATABASE_URL environment variable, using defaults.");
+            info!("Please set the DATABASE_URL environment variable, using defaults.");
             "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
         });
 
     let result = PostgresRepository::from_url(database_url).await;
     if let Err(err) = result {
-        println!("Error on database init: {}", err);
+        info!("Error on database init: {}", err);
         return;
     }
     let repository = result.unwrap();
@@ -57,14 +58,14 @@ async fn main() {
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
     if let Err(_) = clerk_instance {
-        println!("Please provide a CLERK_URL environment variable.");
+        info!("Please provide a CLERK_URL environment variable.");
         return;
     }
     let clerk_instance = clerk_instance.unwrap();
 
     let result = fetch_clerk_jwks(format!("{}/.well-known/jwks.json", clerk_instance).as_str()).await;
     if let Err(err) = result {
-        println!("Error on clerk init: {}", err);
+        info!("Error on clerk init: {}", err);
         return;
     }
     let keys = result.unwrap();
@@ -73,7 +74,7 @@ async fn main() {
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
     if let Err(_) = clerk_secret_key {
-        println!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
+        info!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
     }
     let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
 
@@ -81,7 +82,7 @@ async fn main() {
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
     if let Err(err) = pinger {
-        println!("Error on pinger init: {}", err);
+        info!("Error on pinger init: {}", err);
         return;
     }
     let pinger = pinger.unwrap();
@@ -120,6 +121,6 @@ async fn main() {
 
     let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
 
-    println!("Listening on {}", listener.local_addr().unwrap());
+    info!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.unwrap();
 }

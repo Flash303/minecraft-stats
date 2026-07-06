@@ -2,11 +2,12 @@ use axum::Extension;
 use axum::extract::{Path, Query, State};
 use axum::extract::rejection::PathRejection;
 use axum::http::StatusCode;
+use log::info;
 use serde::Serialize;
 use repository::models::server::Server;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::routes::server::router::{BiggerServerResponse, QueryParams};
+use crate::routes::server::router::{include_stats, BiggerServerResponse, QueryParams};
 use crate::services::clerk::clerk_service;
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::state::AppState;
@@ -26,11 +27,11 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
     let account = account.unwrap();
-    let include_stats = query.include_stats.unwrap_or(false);
+    let do_include_stats = query.include_stats.unwrap_or(false);
 
     let result = state.repository.get_servers_of_user(account.id().clone()).await;
     if let Err(error) = result {
-        println!("Error listing servers: {:?}", error);
+        info!("Error listing servers: {:?}", error);
         return Err(AppError::FetchingDataError(error));
     }
 
@@ -40,20 +41,7 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
         .map(BiggerServerResponse::from)
         .collect();
 
-    if include_stats {
-        let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
-
-        let records_result = state.repository.get_last_pings_for_servers(&server_ids).await;
-        if let Err(error) = records_result {
-            println!("Error fetching last pings for servers: {:?}", error);
-            return Err(AppError::FetchingDataError(error));
-        }
-
-        let mut records_map = records_result.unwrap();
-        for s in &mut servers {
-            s.data = records_map.remove(&s.server.id);
-        }
-    }
+    include_stats(do_include_stats, &state, &mut servers).await?;
 
     Ok(ResponseFormat::success(servers, StatusCode::OK))
 }
@@ -67,7 +55,7 @@ pub(super) async fn get_server(State(state): State<AppState>,
 
     let result = state.repository.get_server(*id.unwrap()).await;
     if let Err(error) = result {
-        println!("Error listing servers: {:?}", error);
+        info!("Error listing servers: {:?}", error);
         return Err(AppError::ServerNotFoundError(error));
     }
     let mut server = ServerWithUser {
