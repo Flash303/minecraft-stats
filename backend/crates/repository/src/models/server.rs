@@ -19,7 +19,8 @@ pub struct Server {
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
-    
+    pub last_max_players: Option<i64>,
+    pub last_motd: Option<String>,
 
     #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,
@@ -48,6 +49,9 @@ pub struct ServerRow {
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
     last_version: Option<String>,
+    last_max_players: Option<i64>,
+    last_motd: Option<String>,
+
     favicon_hash: Option<String>,
     motd_hash: Option<String>,
     resolved_endpoint: Option<String>,
@@ -63,10 +67,14 @@ impl From<ServerRow> for Server {
             port: row.port as u16,
             server_type: row.server_type,
             hidden: row.hidden,
+
             last_favicon: row.last_favicon,
             last_status: row.last_status,
             last_connected: row.last_connected.map(|v| v as u32),
             last_version: row.last_version.map(|v| v.to_string()),
+            last_motd: row.last_motd,
+            last_max_players: row.last_max_players,
+
             favicon_hash: row.favicon_hash,
             motd_hash: row.motd_hash,
             resolved_endpoint: row.resolved_endpoint,
