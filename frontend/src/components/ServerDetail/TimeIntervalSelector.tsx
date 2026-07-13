@@ -101,7 +101,6 @@ export function TimeIntervalSelector({
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
-                            initialFocus
                             mode="range"
                             defaultMonth={customRange?.from}
                             selected={customRange}

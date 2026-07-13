@@ -135,8 +135,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
-                destroy: (u: uPlot) => {
-
+                destroy: (_u: uPlot) => {
                     tooltipRef.current?.remove()
                     tooltipRef.current = null
                     mouseEnterRef.current = null

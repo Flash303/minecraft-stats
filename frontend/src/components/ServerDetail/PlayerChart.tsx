@@ -123,8 +123,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
-                destroy: (u: uPlot) => {
-
+                destroy: () => {
                     tooltipRef.current?.remove()
                     tooltipRef.current = null
                     mouseEnterRef.current = null
