@@ -7,7 +7,7 @@ use serde::Serialize;
 use repository::models::server::Server;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::routes::server::router::{include_stats, BiggerServerResponse, QueryParams};
+use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
 use crate::services::clerk::clerk_service;
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::state::AppState;
@@ -21,8 +21,8 @@ pub(super) struct ServerWithUser {
 }
 
 pub(super) async fn get_mine_server(State(state): State<AppState>,
-                         Query(query): Query<QueryParams>,
-                         Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
+                                    Query(query): Query<ServerListQueryParams>,
+                                    Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }

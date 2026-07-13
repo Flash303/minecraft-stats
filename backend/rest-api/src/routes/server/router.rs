@@ -17,6 +17,7 @@ use crate::routes::server::get_server::{get_mine_server, get_server};
 use crate::routes::server::list_alert::list_alerts;
 use crate::routes::server::list_server::list_all_servers;
 use crate::routes::server::update_server::update_server_name;
+use crate::services::clerk::model::ClerkUser;
 use crate::state::AppState;
 
 pub fn router() -> Router<AppState> {
@@ -79,8 +80,9 @@ pub(super) async fn include_stats(include_stats: bool,
 }
 
 #[derive(Deserialize)]
-pub(super) struct QueryParams {
+pub(super) struct ServerListQueryParams {
     pub include_stats: Option<bool>,
+    pub include_owners: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -89,13 +91,24 @@ pub(super) struct BiggerServerResponse {
     pub server: Server,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<RecordData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<ClerkUser>,
 }
 
-impl From<Server> for BiggerServerResponse {
-    fn from(server: Server) -> Self {
-        BiggerServerResponse {
+impl BiggerServerResponse {
+    pub fn from_with_user(server: Server, user: Option<ClerkUser>) -> BiggerServerResponse {
+        Self {
             server,
             data: None,
+            user
+        }
+    }
+
+    pub fn from(server: Server) -> BiggerServerResponse {
+        Self {
+            server,
+            data: None,
+            user: None
         }
     }
 }

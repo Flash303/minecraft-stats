@@ -3079,6 +3079,7 @@ dependencies = [
  "axum",
  "base64 0.22.1",
  "env_logger",
+ "futures",
  "jwt-compact",
  "log",
  "minecraft-pinger",
