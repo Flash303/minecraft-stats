@@ -54,7 +54,8 @@
   "serverList": {
     "loading": "Loading servers...",
     "noServers": "No servers found.",
-    "noResults": "No servers match your search \"{{query}}\".",
+    "noSearchResults": "No servers match your search \"{{query}}\".",
+    "noFilterResults": "No servers match these filters.",
     "error": "Failed to load servers",
     "filters": {
       "all": "All",

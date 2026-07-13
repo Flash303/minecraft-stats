@@ -54,7 +54,8 @@
   "serverList": {
     "loading": "Chargement des serveurs...",
     "noServers": "Aucun serveur trouvé.",
-    "noResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
+    "noSearchResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
+    "noFilterResults": "Aucun serveur ne correspond à ces filtres.",
     "error": "Impossible de charger les serveurs",
     "filters": {
       "all": "Tous",

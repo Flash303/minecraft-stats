@@ -101,8 +101,31 @@ export function ServerList() {
         return () => setIsLoading(undefined)
     }, [loading, setIsLoading])
 
-    const filteredServers = useMemo(() => {
+    const baseServersForCounts = useMemo(() => {
         let list = servers
+
+        // Filtrage par plateforme
+        if (activePlatform === "java") {
+            list = list.filter(s => s.type === "java")
+        } else if (activePlatform === "bedrock") {
+            list = list.filter(s => s.type === "bedrock")
+        }
+
+        // Filtrage par barre de recherche
+        const query = searchQuery.toLowerCase().trim()
+        if (query) {
+            list = list.filter(
+                (s) =>
+                    s.name.toLowerCase().includes(query) ||
+                    s.ip.toLowerCase().includes(query)
+            )
+        }
+
+        return list
+    }, [servers, searchQuery, activePlatform])
+
+    const filteredServers = useMemo(() => {
+        let list = baseServersForCounts
 
         // Filtrage par visibilité (les masqués ne sont vus que dans leur onglet spécifique)
         if (activeTab === "hidden") {
@@ -118,28 +141,13 @@ export function ServerList() {
             list = list.filter(s => s.last_status === "offline")
         }
 
-        // Filtrage par plateforme
-        if (activePlatform === "java") {
-            list = list.filter(s => s.type === "java")
-        } else if (activePlatform === "bedrock") {
-            list = list.filter(s => s.type === "bedrock")
-        }
+        return list
+    }, [baseServersForCounts, activeTab, userId])
 
-        // Filtrage par barre de recherche
-        const query = searchQuery.toLowerCase().trim()
-        if (!query) return list
-
-        return list.filter(
-            (s) =>
-                s.name.toLowerCase().includes(query) ||
-                s.ip.toLowerCase().includes(query)
-        )
-    }, [servers, searchQuery, activeTab, activePlatform, userId])
-
-    const visibleCount = useMemo(() => servers.filter(s => s.hidden !== true).length, [servers])
-    const onlineCount = useMemo(() => servers.filter(s => s.last_status === "online" && s.hidden !== true).length, [servers])
-    const offlineCount = useMemo(() => servers.filter(s => s.last_status === "offline" && s.hidden !== true).length, [servers])
-    const hiddenCount = useMemo(() => servers.filter(s => s.hidden === true).length, [servers])
+    const visibleCount = useMemo(() => baseServersForCounts.filter(s => s.hidden !== true).length, [baseServersForCounts])
+    const onlineCount = useMemo(() => baseServersForCounts.filter(s => s.last_status === "online" && s.hidden !== true).length, [baseServersForCounts])
+    const offlineCount = useMemo(() => baseServersForCounts.filter(s => s.last_status === "offline" && s.hidden !== true).length, [baseServersForCounts])
+    const hiddenCount = useMemo(() => baseServersForCounts.filter(s => s.hidden === true).length, [baseServersForCounts])
 
     return (
         <>
@@ -183,7 +191,11 @@ export function ServerList() {
                         ) : (
                             <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
                                 <p className="text-muted-foreground italic">
-                                    {t("serverList.noResults", { query: searchQuery })}
+                                    {searchQuery 
+                                        ? t("serverList.noSearchResults", { query: searchQuery }) 
+                                        : (activeTab !== "all" || activePlatform !== "all") 
+                                            ? t("serverList.noFilterResults") 
+                                            : t("serverList.noServers")}
                                 </p>
                             </div>
                         )}
