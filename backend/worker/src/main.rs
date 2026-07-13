@@ -1,6 +1,7 @@
 use std::env;
 use repository::postgres::PostgresRepository;
 use std::time::Duration;
+use log::info;
 use tokio::sync::mpsc;
 use crate::tasks::communication::{WorkerToVerifier, VerifierToSender};
 use crate::tasks::pinger::ping_worker;
@@ -15,7 +16,9 @@ pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
-    println!("Starting server");
+    env_logger::init();
+
+    info!("Starting server");
 
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://anuser:password@localhost:5432/minecraft-stats".to_string());

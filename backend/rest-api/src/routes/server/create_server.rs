@@ -2,6 +2,7 @@ use axum::{Extension, Json};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::State;
 use axum::http::StatusCode;
+use log::info;
 use minecraft_pinger::config::PingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
@@ -16,11 +17,8 @@ pub(super) async fn create_server(State(state): State<AppState>,
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
-
-    if let Err(error) = query {
-        return Err(AppError::InvalidJsonError(error.to_string()));
-    }
-    let mut query = query.unwrap().0;
+    
+    let mut query = query?.0;
 
     // max 3 try
     let mut is_reachable = false;
@@ -73,7 +71,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         &fingerprint,
         None,
     ).await.map_err(|e| AppError::ServerCreationError(e))? {
-        println!(
+        info!(
             "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
             query.name,
             duplicate.server.name,
@@ -91,7 +89,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
 
     let rs = state.repository.create_server(query).await;
     if let Err(error) = rs {
-        println!("Error creating server: {:?}", error);
+        info!("Error creating server: {:?}", error);
         return Err(AppError::ServerCreationError(error));
     }
 

@@ -10,6 +10,7 @@ use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
 use futures::stream::StreamExt;
+use log::{info};
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -28,13 +29,13 @@ impl PostgresRepository {
             .connect(&url)
             .await
             .map_err(|e| e.to_string())?;
-        println!("PostgreSQL connection success !");
+        info!("PostgreSQL connection success !");
 
         let repository = PostgresRepository::new(pool);
         repository.initialize()
             .await
             .map_err(|e| e.to_string())?;
-        println!("Initialized successfully!");
+        info!("Initialized successfully!");
 
         Ok(repository)
     }
@@ -159,11 +160,26 @@ impl Repository for PostgresRepository {
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), String> {
-        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4, favicon_hash = $6, motd_hash = $7, resolved_endpoint = $8, hidden = $9, name = $10 WHERE id = $5")
+        sqlx::query("UPDATE servers SET
+                   last_favicon = $1,
+                   last_status = $2,
+                   last_connected = $3,
+                   last_version = $4,
+                   last_max_players = $5,
+                   last_motd = $6,
+
+                   favicon_hash = $7,
+                   motd_hash = $8,
+                   resolved_endpoint = $9,
+                   hidden = $10,
+                   name = $11
+               WHERE id = $5")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
             .bind(server.last_version.clone())
+            .bind(server.last_max_players.clone())
+            .bind(server.last_motd.clone())
             .bind(server.id as i32)
             .bind(server.favicon_hash.clone())
             .bind(server.motd_hash.clone())
@@ -191,6 +207,8 @@ impl Repository for PostgresRepository {
         let mut motd_hashes = Vec::with_capacity(servers.len());
         let mut endpoints = Vec::with_capacity(servers.len());
         let mut names = Vec::with_capacity(servers.len());
+        let mut last_max_players = Vec::with_capacity(servers.len());
+        let mut last_motds = Vec::with_capacity(servers.len());
 
         for s in servers {
             ids.push(s.id as i32);
@@ -202,6 +220,8 @@ impl Repository for PostgresRepository {
             motd_hashes.push(s.motd_hash.clone());
             endpoints.push(s.resolved_endpoint.clone());
             names.push(s.name.clone());
+            last_max_players.push(s.last_max_players);
+            last_motds.push(s.last_motd.clone());
         }
 
         sqlx::query(
@@ -215,9 +235,11 @@ impl Repository for PostgresRepository {
                 last_version = u.last_version,
                 favicon_hash = u.favicon_hash,
                 motd_hash = u.motd_hash,
-                resolved_endpoint = u.resolved_endpoint
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name)
+                resolved_endpoint = u.resolved_endpoint,
+                last_max_players = u.last_max_players,
+                last_motd = u.last_motd
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd)
             WHERE s.id = u.id
             "#
         )
@@ -230,6 +252,8 @@ impl Repository for PostgresRepository {
         .bind(&motd_hashes)
         .bind(&endpoints)
         .bind(&names)
+        .bind(&last_max_players)
+        .bind(&last_motds)
         .execute(&self.pool)
         .await
         .map_err(|e| e.to_string())?;

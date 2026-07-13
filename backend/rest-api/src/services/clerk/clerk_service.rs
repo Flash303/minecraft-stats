@@ -17,14 +17,9 @@ pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Re
 
 pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
     if let None = *state.clerk_secret_key {
-        return Err(AppError::FeatureDisabledError("Clerk secret key is missing".to_string()));
+        return Err(AppError::FeatureDisabledError);
     }
     let token = state.clerk_secret_key.as_deref().unwrap();
-
-    if user_id.is_empty() {
-        return Err(AppError::InvalidParamError("User ID is empty".to_string()));
-    }
-
     let client = reqwest::Client::new();
 
     let user = client.request(Method::GET, format!("https://api.clerk.com/v1/users/{user_id}"))
@@ -44,10 +39,9 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
 
 pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, AppError> {
     if let None = *state.clerk_secret_key {
-        return Err(AppError::FeatureDisabledError("Clerk secret key is missing".to_string()));
+        return Err(AppError::FeatureDisabledError);
     }
     let token = state.clerk_secret_key.as_deref().unwrap();
-
     let client = reqwest::Client::new();
 
     let users = client.request(Method::GET,"https://api.clerk.com/v1/users")

@@ -1,57 +1,49 @@
+use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use crate::response::ResponseFormat;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
+use thiserror::Error;
 
+#[derive(Error, Debug)]
 pub enum AppError {
+    #[error("Fetching data failed")]
     FetchingDataError(String),
 
+    #[error("Server creation failed: {0}")]
     ServerCreationError(String),
 
-    FeatureDisabledError(String),
+    #[error("This feature is disabled")]
+    FeatureDisabledError,
 
+    #[error("Authentification error: {0}")]
     AuthenticationError(String),
-    
-    UserNotFoundError(String),
+
+    #[error("Server not found")]
     ServerNotFoundError(String),
 
-    InvalidParamError(String),
-    InvalidQueryError(String),
-    InvalidJsonError(String),
+    #[error("{0}")]
+    InvalidParamError(#[from] PathRejection),
+    
+    #[error("{0}")]
+    InvalidQueryError(#[from] QueryRejection),
+    
+    #[error("{0}")]
+    InvalidJsonError(#[from] JsonRejection),
 }
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        match self {
-            AppError::FetchingDataError(_) => {
-                ResponseFormat::<()>::error("Fetching data failed".to_string(), StatusCode::INTERNAL_SERVER_ERROR)
-            }
+        let status = match &self {
+            AppError::FetchingDataError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::ServerCreationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::FeatureDisabledError => StatusCode::NOT_FOUND,
+            AppError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
+            AppError::ServerNotFoundError(_) => StatusCode::NOT_FOUND,
+            AppError::InvalidParamError(_) => StatusCode::BAD_REQUEST,
+            AppError::InvalidQueryError(_) => StatusCode::BAD_REQUEST,
+            AppError::InvalidJsonError(_) => StatusCode::BAD_REQUEST,
+        };
 
-            AppError::ServerCreationError(e) => {
-                ResponseFormat::<()>::error(format!("Server creation failed: {e}"), StatusCode::INTERNAL_SERVER_ERROR)
-            }
-
-            AppError::AuthenticationError(error) => {
-                ResponseFormat::<()>::error(format!("Authentification error: {error}"), StatusCode::UNAUTHORIZED)
-            }
-
-            AppError::InvalidParamError(e) => {
-                ResponseFormat::<()>::error(e, StatusCode::BAD_REQUEST)
-            }
-            AppError::InvalidQueryError(e) => {
-                ResponseFormat::<()>::error(e, StatusCode::BAD_REQUEST)
-            }
-            AppError::InvalidJsonError(e) => {
-                ResponseFormat::<()>::error(e, StatusCode::BAD_REQUEST)
-            }
-            AppError::UserNotFoundError(_) => {
-                ResponseFormat::<()>::error("User not found".to_string(), StatusCode::NOT_FOUND)
-            }
-            AppError::ServerNotFoundError(_) => {
-                ResponseFormat::<()>::error("Server not found".to_string(), StatusCode::NOT_FOUND)
-            }
-            AppError::FeatureDisabledError(_) => {
-                ResponseFormat::<()>::error("This feature is disabled".to_string(), StatusCode::NOT_FOUND)
-            }
-        }.into_response()
+        ResponseFormat::<()>::error(self.to_string(), status).into_response()
     }
 }

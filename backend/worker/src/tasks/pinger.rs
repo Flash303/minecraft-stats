@@ -13,6 +13,7 @@ use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use std::sync::Arc;
 use std::time::Instant;
+use log::info;
 use time::OffsetDateTime;
 use tokio::sync::mpsc::Sender;
 use tokio::time::sleep;
@@ -31,6 +32,8 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_version = parse_minecraft_version_range(&ping.version.name)
                 .map(|(first, last)| format!("{} - {}", first, last))
                 .or(None);
+            server.last_max_players = Some(ping.players.max as i32);
+            server.last_motd = serde_json::to_value(&ping.description).ok();
 
             // Update fingerprints
             server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
@@ -43,6 +46,8 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.current_players);
             server.last_version = Some(ping.version.clone());
+            server.last_max_players = Some(ping.max_players as i32);
+            server.last_motd = serde_json::to_value(ping.motd.clone()).ok();
 
             // Update fingerprints
             server.favicon_hash = None;
@@ -56,17 +61,19 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
 pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<WorkerToVerifier>) {
     let result = MinecraftPinger::new();
     if let Err(error) = result {
-        println!("Failed to create minecraft ping client: {}", error);
+        info!("Failed to create minecraft ping client: {}", error);
         return;
     }
 
     let pinger = Arc::new(result.unwrap());
-    let pinger_config = Arc::new(PingConfig::builder().set_timeout(MAX_PING_RESPONSE_TIME).build());
+    let pinger_config = Arc::new(PingConfig::builder()
+        .set_timeout(MAX_PING_RESPONSE_TIME)
+        .build());
 
     loop {
         let possible_servers = repository.list_servers().await;
         let count_time = Instant::now();
-        println!("Pinging...");
+        info!("Pinging...");
 
         if let Ok(servers) = possible_servers {
             let mut optimised_tasks = stream::iter(servers)
@@ -129,7 +136,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
                                 return (server, Some(record));
                             } else if i == 2 {
-                                println!("Error in ping the server {} : {:?}", server.name, err_msg);
+                                info!("Error in ping the server {} : {:?}", server.name, err_msg);
                                 server.last_status = Some(ServerStatus::Offline);
                                 server.last_connected = None;
 
@@ -156,17 +163,17 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
             }
 
             if let Err(e) = repository.update_servers(&updated_servers).await {
-                println!("Error on server saving: {:?}", e);
+                info!("Error on server saving: {:?}", e);
             }
 
             if let Err(e) = repository.save_pings(&records).await {
-                println!("Error on ping saving: {:?}", e);
+                info!("Error on ping saving: {:?}", e);
             }
         } else {
-            println!("Failed to retrieve possible servers: {:?}", possible_servers.err());
+            info!("Failed to retrieve possible servers: {:?}", possible_servers.err());
         }
 
-        println!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
+        info!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
 
         sleep(DELAY_BETWEEN_EACH_PING).await;
     }
