@@ -4,6 +4,7 @@ import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
+import { BarChart3 } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
 
@@ -42,7 +43,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             if (chartRef.current && containerRef.current) {
                 const height = window.innerWidth < 640 ? 300 : 450
                 chartRef.current.setSize({
-                    width: containerRef.current.clientWidth,
+                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
                     height: height
                 })
             }
@@ -72,15 +73,6 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     u.over.appendChild(overlay)
 
                     tooltipRef.current = overlay
-
-                    const onMouseEnter = () => { if (tooltipRef.current) tooltipRef.current.style.display = "block" }
-                    const onMouseLeave = () => { if (tooltipRef.current) tooltipRef.current.style.display = "none" }
-
-                    mouseEnterRef.current = onMouseEnter
-                    mouseLeaveRef.current = onMouseLeave
-
-                    u.over.addEventListener("mouseenter", onMouseEnter)
-                    u.over.addEventListener("mouseleave", onMouseLeave)
                 },
                 setCursor: (u: uPlot) => {
                     const overlay = tooltipRef.current
@@ -143,10 +135,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
-                destroy: (u: uPlot) => {
-                    if (mouseEnterRef.current) u.over.removeEventListener("mouseenter", mouseEnterRef.current)
-                    if (mouseLeaveRef.current) u.over.removeEventListener("mouseleave", mouseLeaveRef.current)
-
+                destroy: (_u: uPlot) => {
                     tooltipRef.current?.remove()
                     tooltipRef.current = null
                     mouseEnterRef.current = null
@@ -187,6 +176,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             series.push({
                 label: serverNames[i],
                 stroke: color,
+                fill: color + "1a", // 10% opacity fill
                 width: 2,
                 spanGaps: false, // Match PlayerChart - show gaps for server offline status
                 value: (_u: uPlot, val: number) => {
@@ -246,13 +236,19 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex justify-end">
-                <Button variant="outline" size="sm" onClick={handleResetZoom}>
-                    {t("comparison.resetZoom")}
-                </Button>
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 items-start">
+                <h2 className="flex items-center gap-2 text-lg font-semibold truncate w-full sm:w-auto">
+                    <BarChart3 className="text-primary h-5 w-5 shrink-0" />
+                    <span className="truncate">{t("serverDetail.playerHistory")}</span>
+                </h2>
+                <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+                    <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                        {t("comparison.resetZoom")}
+                    </Button>
+                </div>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border min-h-[520px] flex items-center justify-center relative shadow-sm">
+            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
                 {data[0].length === 0 ? (
                     <p className="text-center py-4 text-slate-400 font-medium animate-pulse">
                         {t("comparison.loadingData")}

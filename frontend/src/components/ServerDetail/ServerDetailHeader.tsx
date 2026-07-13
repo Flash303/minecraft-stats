@@ -27,7 +27,7 @@ export function ServerDetailHeader({ server, t }: ServerDetailHeaderProps) {
     return (
         <div className="flex items-center gap-3 min-w-0">
             <Link to="/">
-                <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                <Button variant="ghost" size="icon" className="flex-shrink-0">
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
             </Link>
