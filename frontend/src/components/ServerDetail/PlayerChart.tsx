@@ -161,6 +161,19 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     }, [onVisibleRangeChange])
 
+    const disableLegendClickPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                ready: (u: uPlot) => {
+                    const legend = u.root.querySelector('.u-legend') as HTMLElement
+                    if (legend) {
+                        legend.style.pointerEvents = 'none'
+                    }
+                }
+            }
+        }
+    }, [])
+
     // Reset Zoom calé directement sur les props issues du parent
     const handleResetZoom = () => {
         if (chartRef.current) {
@@ -185,7 +198,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
-            plugins: [tooltipPlugin, scaleHookPlugin],
+            plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin],
             scales: {
                 x: {
                     time: true,
