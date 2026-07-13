@@ -236,12 +236,12 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex justify-between items-center gap-4">
-                <h2 className="flex items-center gap-2 text-lg font-semibold">
-                    <BarChart3 className="text-primary h-5 w-5" />
-                    {t("serverDetail.playerHistory")}
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 items-start">
+                <h2 className="flex items-center gap-2 text-lg font-semibold truncate w-full sm:w-auto">
+                    <BarChart3 className="text-primary h-5 w-5 shrink-0" />
+                    <span className="truncate">{t("serverDetail.playerHistory")}</span>
                 </h2>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
                     <Button variant="outline" size="sm" onClick={handleResetZoom}>
                         {t("comparison.resetZoom")}
                     </Button>

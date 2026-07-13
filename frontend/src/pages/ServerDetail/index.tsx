@@ -265,11 +265,13 @@ export function ServerDetail() {
                                 timeRange={timeLimits}
                                 onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                 header={
-                                    <h2 className="flex items-center gap-2 text-lg font-semibold">
-                                        <BarChart className="text-primary h-5 w-5" />
-                                        {t("serverDetail.playerHistory")}
+                                    <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">
+                                        <div className="flex items-center gap-2 truncate">
+                                            <BarChart className="text-primary h-5 w-5 shrink-0" />
+                                            <span className="truncate">{t("serverDetail.playerHistory")}</span>
+                                        </div>
                                         {isOnline && (
-                                            <span className="text-muted-foreground text-sm font-normal">
+                                            <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
                                                 (
                                                 {new Intl.NumberFormat(locale).format(
                                                     server.last_connected ?? 0

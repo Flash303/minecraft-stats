@@ -260,9 +260,9 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex justify-between items-center gap-4">
-                <div>{header}</div>
-                <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 items-start">
+                <div className="w-full sm:w-auto overflow-hidden">{header}</div>
+                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                     <span className="text-xs text-muted-foreground italic">
                         {t("common.pointsCount", { count: String(data.length) })}
                     </span>
