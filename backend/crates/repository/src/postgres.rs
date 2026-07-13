@@ -238,7 +238,7 @@ impl Repository for PostgresRepository {
                 resolved_endpoint = u.resolved_endpoint,
                 last_max_players = u.last_max_players,
                 last_motd = u.last_motd
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int8[], $11::text[])
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[])
             AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd)
             WHERE s.id = u.id
             "#

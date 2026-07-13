@@ -19,7 +19,7 @@ pub struct Server {
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
-    pub last_max_players: Option<i64>,
+    pub last_max_players: Option<i32>,
     pub last_motd: Option<String>,
 
     #[serde(skip_serializing)]
@@ -49,7 +49,7 @@ pub struct ServerRow {
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
     last_version: Option<String>,
-    last_max_players: Option<i64>,
+    last_max_players: Option<i32>,
     last_motd: Option<String>,
 
     favicon_hash: Option<String>,
