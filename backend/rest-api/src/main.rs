@@ -29,6 +29,8 @@ const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     info!("Starting server");
 
     // Port

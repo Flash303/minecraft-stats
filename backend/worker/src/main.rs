@@ -16,6 +16,8 @@ pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     info!("Starting server");
 
     let database_url = env::var("DATABASE_URL")
