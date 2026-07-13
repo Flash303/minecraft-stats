@@ -49,11 +49,7 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
 pub(super) async fn get_server(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
-    if let Err(error) = id {
-        return Err(AppError::InvalidParamError(error.to_string()));
-    }
-
-    let result = state.repository.get_server(*id.unwrap()).await;
+    let result = state.repository.get_server(*id?).await;
     if let Err(error) = result {
         info!("Error listing servers: {:?}", error);
         return Err(AppError::ServerNotFoundError(error));

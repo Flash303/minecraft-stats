@@ -17,11 +17,8 @@ pub(super) async fn create_server(State(state): State<AppState>,
     if account.is_none() {
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
-
-    if let Err(error) = query {
-        return Err(AppError::InvalidJsonError(error.to_string()));
-    }
-    let mut query = query.unwrap().0;
+    
+    let mut query = query?.0;
 
     // max 3 try
     let mut is_reachable = false;

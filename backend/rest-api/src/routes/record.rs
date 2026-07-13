@@ -40,17 +40,10 @@ async fn fetch_records(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>,
                     query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<RecordData>, AppError> {
-    if let Err(error) = id {
-        return Err(AppError::InvalidParamError(error.to_string()));
-    }
-    let id = *id.unwrap();
+    let id = *id?;
+    let query = query?;
 
-    if let Err(error) = query {
-        return Err(AppError::InvalidQueryError(error.to_string()));
-    }
-    let query = query.unwrap();
-
-    let intant = Instant::now();
+    let instant = Instant::now();
     let server = state.repository.get_server(id).await;
     if let Err(err) = server {
         return Err(AppError::ServerNotFoundError(err));
@@ -65,7 +58,7 @@ async fn fetch_records(State(state): State<AppState>,
     if let Err(error) = result {
         return Err(AppError::FetchingDataError(error));
     }
-    info!("Time to request all database data {}ms", intant.elapsed().as_millis());
+    info!("Time to request all database data {}ms", instant.elapsed().as_millis());
 
     Ok(ResponseFormat::success(result.unwrap(), StatusCode::ACCEPTED))
 }

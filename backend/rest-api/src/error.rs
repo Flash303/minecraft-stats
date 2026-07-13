@@ -1,3 +1,4 @@
+use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use crate::response::ResponseFormat;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
@@ -21,13 +22,13 @@ pub enum AppError {
     ServerNotFoundError(String),
 
     #[error("{0}")]
-    InvalidParamError(String),
+    InvalidParamError(#[from] PathRejection),
     
     #[error("{0}")]
-    InvalidQueryError(String),
+    InvalidQueryError(#[from] QueryRejection),
     
     #[error("{0}")]
-    InvalidJsonError(String),
+    InvalidJsonError(#[from] JsonRejection),
 }
 
 impl IntoResponse for AppError {
