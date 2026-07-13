@@ -160,11 +160,26 @@ impl Repository for PostgresRepository {
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), String> {
-        sqlx::query("UPDATE servers SET last_favicon = $1, last_status = $2, last_connected = $3, last_version = $4, favicon_hash = $6, motd_hash = $7, resolved_endpoint = $8, hidden = $9, name = $10 WHERE id = $5")
+        sqlx::query("UPDATE servers SET
+                   last_favicon = $1,
+                   last_status = $2,
+                   last_connected = $3,
+                   last_version = $4,
+                   last_max_players = $5,
+                   last_motd = $6,
+
+                   favicon_hash = $7,
+                   motd_hash = $8,
+                   resolved_endpoint = $9,
+                   hidden = $10,
+                   name = $11
+               WHERE id = $5")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
             .bind(server.last_version.clone())
+            .bind(server.last_max_players.clone())
+            .bind(server.last_motd.clone())
             .bind(server.id as i32)
             .bind(server.favicon_hash.clone())
             .bind(server.motd_hash.clone())
