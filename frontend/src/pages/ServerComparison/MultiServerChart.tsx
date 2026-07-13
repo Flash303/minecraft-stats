@@ -177,6 +177,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             series.push({
                 label: serverNames[i],
                 stroke: color,
+                fill: color + "1a", // 10% opacity fill
                 width: 2,
                 spanGaps: false, // Match PlayerChart - show gaps for server offline status
                 value: (_u: uPlot, val: number) => {
