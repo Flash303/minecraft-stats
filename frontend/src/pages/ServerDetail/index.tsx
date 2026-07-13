@@ -13,6 +13,7 @@ import { BarChart } from "lucide-react"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
+import { cn } from "@/lib/utils"
 
 export function ServerDetail() {
     const { t, language } = useLanguage()
@@ -27,10 +28,13 @@ export function ServerDetail() {
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
+    const [appliedRange, setAppliedRange] = useState(86400000)
+    const [appliedInterval, setAppliedInterval] = useState(60000)
     const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
     const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
     const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>([])
     const [loadedFrom, setLoadedFrom] = useState<number>(Infinity)
+    const [records, setRecords] = useState<{ date: number; value: number }[]>([])
  
     const loadServer = useCallback(async () => {
         if (!id) return
@@ -72,40 +76,54 @@ export function ServerDetail() {
         }
     }, [server, selectedRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
 
-    const records = useMemo(() => {
-        if (rawRecords.length === 0) return []
-        
-        const now = Math.floor(Date.now() / 1000)
-        const from = now - Math.floor(selectedRange / 1000)
-        
-        // Filter raw records within selected range
-        const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
-        
-        if (selectedInterval && selectedInterval > 0) {
-            const intervalSec = selectedInterval / 1000
-            const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
-
-            for (let i = 0; i < filtered.length; i++) {
-                const r = filtered[i]
-                const bucketTime = Math.floor(r.date / intervalSec) * intervalSec
-                if (!buckets[bucketTime]) {
-                    buckets[bucketTime] = { sum: 0, count: 0 }
-                }
-                buckets[bucketTime].sum += r.value
-                buckets[bucketTime].count += 1
-            }
-
-            return Object.keys(buckets).map(k => {
-                const bucketTime = Number(k)
-                const b = buckets[bucketTime]
-                return {
-                    date: bucketTime,
-                    value: Math.round(b.sum / b.count)
-                }
-            }).sort((a, b) => a.date - b.date)
+    useEffect(() => {
+        if (rawRecords.length === 0) {
+            setRecords([])
+            setAppliedRange(selectedRange)
+            setAppliedInterval(selectedInterval)
+            return
         }
         
-        return filtered
+        const timer = setTimeout(() => {
+            const now = Math.floor(Date.now() / 1000)
+            const from = now - Math.floor(selectedRange / 1000)
+            
+            // Filter raw records within selected range
+            const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
+            
+            if (selectedInterval && selectedInterval > 0) {
+                const intervalSec = selectedInterval / 1000
+                const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
+
+                for (let i = 0; i < filtered.length; i++) {
+                    const r = filtered[i]
+                    const bucketTime = Math.floor(r.date / intervalSec) * intervalSec
+                    if (!buckets[bucketTime]) {
+                        buckets[bucketTime] = { sum: 0, count: 0 }
+                    }
+                    buckets[bucketTime].sum += r.value
+                    buckets[bucketTime].count += 1
+                }
+
+                const newRecords = Object.keys(buckets).map(k => {
+                    const bucketTime = Number(k)
+                    const b = buckets[bucketTime]
+                    return {
+                        date: bucketTime,
+                        value: Math.round(b.sum / b.count)
+                    }
+                }).sort((a, b) => a.date - b.date)
+                
+                setRecords(newRecords)
+            } else {
+                setRecords(filtered)
+            }
+            
+            setAppliedRange(selectedRange)
+            setAppliedInterval(selectedInterval)
+        }, 10) // small delay to ensure UI paints
+        
+        return () => clearTimeout(timer)
     }, [rawRecords, selectedRange, selectedInterval])
  
     useEffect(() => {
@@ -204,19 +222,22 @@ export function ServerDetail() {
                         )}
                     </h2>
 
-                    <div className="bg-card relative flex min-h-[340px] items-center justify-center rounded-xl border p-4 shadow-sm sm:min-h-[500px]">
-                        {loadingRecords ? (
-                            // <p className="text-muted-foreground text-sm animate-pulse">{t("serverDetail.chartLoading")}</p>
-                            <p>{t("serverDetail.chartLoading")}</p>
-                        ) : (
+                    <div className="bg-card relative flex min-h-[340px] w-full items-center justify-center rounded-xl border p-4 shadow-sm sm:min-h-[500px] overflow-hidden">
+                        {(loadingRecords || selectedRange !== appliedRange || selectedInterval !== appliedInterval) && (
+                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-card/40 backdrop-blur-[2px] transition-all duration-200">
+                                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                <p className="text-muted-foreground text-sm animate-pulse font-medium">{t("serverDetail.chartLoading")}</p>
+                            </div>
+                        )}
+                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || selectedRange !== appliedRange || selectedInterval !== appliedInterval) ? "opacity-30 pointer-events-none" : "opacity-100")}>
                             <PlayerChart
                                 data={records}
                                 serverName={server.name}
-                                interval={selectedInterval}
+                                interval={appliedInterval}
                                 timeRange={timeLimits}
                                 onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                             />
-                        )}
+                        </div>
                     </div>
                 </div>
 
