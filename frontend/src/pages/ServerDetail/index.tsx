@@ -19,7 +19,6 @@ export function ServerDetail() {
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const [server, setServer] = useState<Server | null>(null)
-    const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingRecords, setLoadingRecords] = useState(false)
 
@@ -29,6 +28,9 @@ export function ServerDetail() {
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
     const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
+    const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
+    const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>([])
+    const [loadedFrom, setLoadedFrom] = useState<number>(Infinity)
  
     const loadServer = useCallback(async () => {
         if (!id) return
@@ -46,20 +48,65 @@ export function ServerDetail() {
  
     const loadRecords = useCallback(async () => {
         if (!server) return
+        
+        const now = Math.floor(Date.now() / 1000)
+        const from = now - Math.floor(selectedRange / 1000)
+        
+        if (from >= loadedFrom && rawRecords.length > 0) {
+            setTimeLimits({ from, to: now })
+            return
+        }
+
         setLoadingRecords(true)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const now = Math.floor(Date.now() / 1000)
-            const from = now - Math.floor(selectedRange / 1000)
-            const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
-            setRecords(data)
+            // Fetch raw records without bucketing from API
+            const data = await fetchRecords(server.id, from, undefined, token ?? undefined)
+            setRawRecords(data)
+            setLoadedFrom(from)
             setTimeLimits({ from, to: now })
         } catch {
-            setRecords([])
+            if (rawRecords.length === 0) setRawRecords([])
         } finally {
             setLoadingRecords(false)
         }
-    }, [server, selectedRange, selectedInterval, getToken, isSignedIn, isLoaded])
+    }, [server, selectedRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
+
+    const records = useMemo(() => {
+        if (rawRecords.length === 0) return []
+        
+        const now = Math.floor(Date.now() / 1000)
+        const from = now - Math.floor(selectedRange / 1000)
+        
+        // Filter raw records within selected range
+        const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
+        
+        if (selectedInterval && selectedInterval > 0) {
+            const intervalSec = selectedInterval / 1000
+            const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
+
+            for (let i = 0; i < filtered.length; i++) {
+                const r = filtered[i]
+                const bucketTime = Math.floor(r.date / intervalSec) * intervalSec
+                if (!buckets[bucketTime]) {
+                    buckets[bucketTime] = { sum: 0, count: 0 }
+                }
+                buckets[bucketTime].sum += r.value
+                buckets[bucketTime].count += 1
+            }
+
+            return Object.keys(buckets).map(k => {
+                const bucketTime = Number(k)
+                const b = buckets[bucketTime]
+                return {
+                    date: bucketTime,
+                    value: Math.round(b.sum / b.count)
+                }
+            }).sort((a, b) => a.date - b.date)
+        }
+        
+        return filtered
+    }, [rawRecords, selectedRange, selectedInterval])
  
     useEffect(() => {
         if (!isLoaded) return
@@ -80,15 +127,28 @@ export function ServerDetail() {
         let max = -Infinity
         let min = Infinity
         let sum = 0
+        let count = 0
+        
+        const minTime = visibleRange ? visibleRange.min : 0
+        const maxTime = visibleRange ? visibleRange.max : Infinity
+        
         for (let i = 0; i < records.length; i++) {
-            const val = records[i].value
-            if (val > max) max = val
-            if (val < min) min = val
-            sum += val
+            const r = records[i]
+            const t = r.date > 1000000000000 ? r.date / 1000 : r.date
+            
+            if (t >= minTime && t <= maxTime) {
+                const val = r.value
+                if (val > max) max = val
+                if (val < min) min = val
+                sum += val
+                count++
+            }
         }
-        const avg = Math.round(sum / records.length)
+        
+        if (count === 0) return null
+        const avg = Math.round(sum / count)
         return { max, min, avg }
-    }, [records])
+    }, [records, visibleRange])
 
     if (loading) {
         return (
@@ -154,6 +214,7 @@ export function ServerDetail() {
                                 serverName={server.name}
                                 interval={selectedInterval}
                                 timeRange={timeLimits}
+                                onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                             />
                         )}
                     </div>

@@ -20,9 +20,10 @@ interface PlayerChartProps {
         from: number
         to: number
     }
+    onVisibleRangeChange?: (min: number, max: number) => void
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -139,9 +140,26 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
                     mouseEnterRef.current = null
                     mouseLeaveRef.current = null
                 }
-            }
+            },
         }
     }, [serverName, language, t])
+
+    const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                setSelect: (u: uPlot) => {
+                    if (u.scales.x.min != null && u.scales.x.max != null) {
+                        onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max)
+                    }
+                },
+                setScale: (u: uPlot, key: string) => {
+                    if (key === 'x' && u.scales.x.min != null && u.scales.x.max != null) {
+                        onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max)
+                    }
+                }
+            }
+        }
+    }, [onVisibleRangeChange])
 
     // Reset Zoom calé directement sur les props issues du parent
     const handleResetZoom = () => {
@@ -167,7 +185,7 @@ export function PlayerChart({ data, serverName, interval, timeRange }: PlayerCha
             width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
-            plugins: [tooltipPlugin],
+            plugins: [tooltipPlugin, scaleHookPlugin],
             scales: {
                 x: {
                     time: true,
