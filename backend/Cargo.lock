@@ -1701,9 +1701,9 @@ dependencies = [
 
 [[package]]
 name = "http-body-util"
-version = "0.1.3"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b021d93e26becf5dc7e1b75b1bed1fd93124b374ceb73f43d4d4eafec896a64a"
+checksum = "e9f41fd6a08e4d4ec69df65976da761afd5ad5e58a9d4acb46bd1c953a9e3ff2"
 dependencies = [
  "bytes",
  "futures-core",
@@ -2307,7 +2307,7 @@ checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 [[package]]
 name = "minecraft-pinger"
 version = "0.1.0"
-source = "git+https://github.com/Flash303/minecraft-pinger#856f54b0765626770292dddb52fe285b64638edf"
+source = "git+https://github.com/Flash303/minecraft-pinger#65a53de13c376dad3d475d7ef91165ad530f8061"
 dependencies = [
  "bytes",
  "csv",
