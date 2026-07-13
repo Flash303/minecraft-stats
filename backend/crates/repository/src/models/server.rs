@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::FromRow;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,7 +21,7 @@ pub struct Server {
     pub last_connected: Option<u32>,
     pub last_version: Option<String>,
     pub last_max_players: Option<i32>,
-    pub last_motd: Option<String>,
+    pub last_motd: Option<Value>,
 
     #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,
@@ -72,7 +73,8 @@ impl From<ServerRow> for Server {
             last_status: row.last_status,
             last_connected: row.last_connected.map(|v| v as u32),
             last_version: row.last_version.map(|v| v.to_string()),
-            last_motd: row.last_motd,
+            last_motd: row.last_motd.as_deref()
+                .and_then(|s| serde_json::from_str(s).ok()),
             last_max_players: row.last_max_players,
 
             favicon_hash: row.favicon_hash,
