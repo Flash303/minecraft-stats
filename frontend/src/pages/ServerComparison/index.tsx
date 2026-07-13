@@ -73,7 +73,10 @@ export function ServerComparison() {
  
     const addServer = (server: Server) => {
         if (selectedServers.find(s => s.id === server.id)) return
-        setSelectedServers(prev => [...prev, server])
+        setSelectedServers(prev => {
+            const next = [...prev, server]
+            return next.sort((a, b) => (b.last_connected ?? 0) - (a.last_connected ?? 0))
+        })
         setSearchQuery("")
     }
  
