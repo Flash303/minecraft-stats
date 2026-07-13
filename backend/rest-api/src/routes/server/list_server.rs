@@ -8,7 +8,7 @@ use axum::http::StatusCode;
 use axum::Extension;
 use futures::{stream, StreamExt};
 use log::info;
-use crate::services::clerk::clerk_service::get_clerk_user;
+use crate::services::clerk::clerk_service::{get_clerk_user, get_clerk_user_with_cache};
 
 pub(super) async fn list_all_servers(State(state): State<AppState>,
                                      Query(query): Query<ServerListQueryParams>,
@@ -28,17 +28,17 @@ pub(super) async fn list_all_servers(State(state): State<AppState>,
         .map(async |server| {
             let mut server_creator: Option<ClerkUser> = None;
             if query.include_owners.is_some_and(|t| t) {
-                server_creator = get_clerk_user(&state, &server.user_id).await
+                server_creator = get_clerk_user_with_cache(&state, &server.user_id).await
                     .ok()
                     .map(|u| (*u).clone());
             }
-            
+
             BiggerServerResponse::from_with_user(server.into(), server_creator)
         })
         .buffered(5)
         .collect()
         .await;
-    
+
     include_stats(do_include_stats, &state, &mut servers).await?;
 
     Ok(ResponseFormat::success(servers, StatusCode::OK))

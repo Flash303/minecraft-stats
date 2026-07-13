@@ -20,7 +20,6 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
         return Err(AppError::FeatureDisabledError);
     }
     let token = state.clerk_secret_key.as_deref().unwrap();
-
     let client = reqwest::Client::new();
 
     let user = client.request(Method::GET, format!("https://api.clerk.com/v1/users/{user_id}"))
