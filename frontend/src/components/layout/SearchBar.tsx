@@ -27,6 +27,8 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const [selectedIndex, setSelectedIndex] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
+    const [isMac, setIsMac] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
 
     const placeholder = propPlaceholder || t("common.search")
     const value = propValue !== undefined ? propValue : internalValue
@@ -35,6 +37,11 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     useEffect(() => {
         setSelectedIndex(0)
     }, [value])
+
+    useEffect(() => {
+        setIsMac(typeof window !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0)
+        setIsMobile(typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
+    }, [])
 
     useEffect(() => {
         const loadAll = async () => {
@@ -139,11 +146,11 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                     >
                         <X className="h-3.5 w-3.5" />
                     </Button>
-                ) : (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center gap-0.5 rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-1.5 font-mono text-[9px] font-bold text-slate-400 dark:text-zinc-500 shadow-xs sm:flex">
-                        <span className="text-[10px]">⌘</span>K
+                ) : !isMobile ? (
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-1.5 font-sans text-[10px] font-medium text-slate-400 dark:text-zinc-500 shadow-xs sm:flex">
+                        {isMac ? '⌘K' : 'Ctrl+K'}
                     </kbd>
-                )}
+                ) : null}
             </div>
 
             {showSuggestions && filteredSuggestions.length > 0 && (
