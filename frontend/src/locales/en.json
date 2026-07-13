@@ -87,6 +87,7 @@
     "last30Days": "Last 30 days",
     "last60Days": "Last 2 months",
     "custom": "Custom",
+    "selectCustomRange": "Please select a start and end date",
     "interval10s": "10 sec",
     "interval1m": "1 min",
     "interval5m": "5 min",

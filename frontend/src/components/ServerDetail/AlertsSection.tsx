@@ -295,7 +295,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                             </div>
                         )}
 
-                        <Button type="submit" size="sm" className="w-full mt-2 h-9">
+                        <Button type="submit" size="sm" className="w-full mt-2">
                             <Plus className="h-4 w-4 mr-1.5" />
                             {t("alerts.addAlert")}
                         </Button>

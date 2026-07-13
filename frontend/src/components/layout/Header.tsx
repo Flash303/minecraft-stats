@@ -187,7 +187,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             </>
                         ) : (
                             <SignInButton mode="modal">
-                                <Button size="sm" className="h-8 text-[11px] sm:text-xs px-3">{t("header.signIn")}</Button>
+                                <Button size="sm">{t("header.signIn")}</Button>
                             </SignInButton>
                         )}
                     </div>

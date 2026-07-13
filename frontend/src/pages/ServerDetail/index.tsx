@@ -221,6 +221,7 @@ export function ServerDetail() {
     const isOnline = server.last_status === "online"
     const locale = language === "fr" ? "fr-FR" : "en-US"
 
+    const isCustomRangeIncomplete = selectedRange === -1 && (!customRange?.from || !customRange?.to);
     const isPending = selectedRange !== appliedRange || selectedInterval !== appliedInterval || (selectedRange === -1 && (customRange?.from?.getTime() !== appliedCustomRange?.from?.getTime() || customRange?.to?.getTime() !== appliedCustomRange?.to?.getTime()));
 
     return (
@@ -243,26 +244,17 @@ export function ServerDetail() {
                     />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold">
-                        <BarChart className="text-primary h-5 w-5" />
-                        {t("serverDetail.playerHistory")}
-                        {isOnline && (
-                            <span className="text-muted-foreground text-sm font-normal">
-                                (
-                                {new Intl.NumberFormat(locale).format(
-                                    server.last_connected ?? 0
-                                )}{" "}
-                                {t("common.currentPlayers")})
-                            </span>
-                        )}
-                    </h2>
-
-                    <div className="bg-card relative flex min-h-[340px] w-full items-center justify-center rounded-xl border p-4 shadow-sm sm:min-h-[500px] overflow-hidden">
+                    <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
                         {(loadingRecords || isPending) && (
-                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-card/40 backdrop-blur-[2px] transition-all duration-200">
-                                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                                <p className="text-muted-foreground text-sm animate-pulse font-medium">{t("serverDetail.chartLoading")}</p>
+                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/60 backdrop-blur-[2px] transition-all duration-200 rounded-xl">
+                                {isCustomRangeIncomplete ? (
+                                    <p className="text-muted-foreground font-medium text-sm">{t("serverDetail.selectCustomRange")}</p>
+                                ) : (
+                                    <>
+                                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                        <p className="text-muted-foreground text-sm animate-pulse font-medium">{t("serverDetail.chartLoading")}</p>
+                                    </>
+                                )}
                             </div>
                         )}
                         <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
@@ -272,10 +264,24 @@ export function ServerDetail() {
                                 interval={appliedInterval}
                                 timeRange={timeLimits}
                                 onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
+                                header={
+                                    <h2 className="flex items-center gap-2 text-lg font-semibold">
+                                        <BarChart className="text-primary h-5 w-5" />
+                                        {t("serverDetail.playerHistory")}
+                                        {isOnline && (
+                                            <span className="text-muted-foreground text-sm font-normal">
+                                                (
+                                                {new Intl.NumberFormat(locale).format(
+                                                    server.last_connected ?? 0
+                                                )}{" "}
+                                                {t("common.currentPlayers")})
+                                            </span>
+                                        )}
+                                    </h2>
+                                }
                             />
                         </div>
                     </div>
-                </div>
 
                 {stats && <StatsSection stats={stats} locale={locale} t={t} />}
 

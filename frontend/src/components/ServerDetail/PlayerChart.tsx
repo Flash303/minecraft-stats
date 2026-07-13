@@ -21,9 +21,10 @@ interface PlayerChartProps {
         to: number
     }
     onVisibleRangeChange?: (min: number, max: number) => void
+    header?: React.ReactNode
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, header }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -76,15 +77,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     u.over.appendChild(overlay)
 
                     tooltipRef.current = overlay
-
-                    const onMouseEnter = () => { if (tooltipRef.current) tooltipRef.current.style.display = "block" }
-                    const onMouseLeave = () => { if (tooltipRef.current) tooltipRef.current.style.display = "none" }
-
-                    mouseEnterRef.current = onMouseEnter
-                    mouseLeaveRef.current = onMouseLeave
-
-                    u.over.addEventListener("mouseenter", onMouseEnter)
-                    u.over.addEventListener("mouseleave", onMouseLeave)
                 },
                 setCursor: (u: uPlot) => {
                     const overlay = tooltipRef.current
@@ -132,8 +124,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     overlay.style.display = "block"
                 },
                 destroy: (u: uPlot) => {
-                    if (mouseEnterRef.current) u.over.removeEventListener("mouseenter", mouseEnterRef.current)
-                    if (mouseLeaveRef.current) u.over.removeEventListener("mouseleave", mouseLeaveRef.current)
 
                     tooltipRef.current?.remove()
                     tooltipRef.current = null
@@ -270,13 +260,16 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex justify-end items-center gap-4">
-                <span className="text-xs text-muted-foreground italic">
-                    {t("common.pointsCount", { count: String(data.length) })}
-                </span>
-                <Button variant="outline" size="sm" onClick={handleResetZoom}>
-                    {t("comparison.resetZoom")}
-                </Button>
+            <div className="flex justify-between items-center gap-4">
+                <div>{header}</div>
+                <div className="flex items-center gap-4">
+                    <span className="text-xs text-muted-foreground italic">
+                        {t("common.pointsCount", { count: String(data.length) })}
+                    </span>
+                    <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                        {t("comparison.resetZoom")}
+                    </Button>
+                </div>
             </div>
 
             <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">

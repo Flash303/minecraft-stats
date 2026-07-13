@@ -314,7 +314,7 @@ export function ServersTab({
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-1.5">
                                                 <Link to={`/server/${server.id}`} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="outline" size="sm" className="h-7 text-[10px] cursor-pointer">
+                                                    <Button variant="outline" size="sm">
                                                         {t("admin.servers.inspect")}
                                                     </Button>
                                                 </Link>
@@ -322,7 +322,7 @@ export function ServersTab({
                                                 <Button 
                                                     variant={isHidden ? "default" : "destructive"} 
                                                     size="sm" 
-                                                    className="h-7 text-[10px] cursor-pointer gap-1"
+                                                    className="gap-1"
                                                     disabled={togglingServerId === server.id}
                                                     onClick={() => handleToggleServer(server.id, isHidden)}
                                                 >
@@ -388,7 +388,7 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 text-[10px] cursor-pointer gap-1">
+                <Button variant="outline" size="sm" className="gap-1">
                     <Edit2 className="h-3 w-3" />
                     {t("admin.servers.rename")}
                 </Button>

@@ -216,7 +216,7 @@ export function UsersTab({
 
                                             <div className="flex items-center gap-2">
                                                 <Link to={`/server/${server.id}`} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="outline" size="icon" className="h-7 w-7 cursor-pointer">
+                                                    <Button variant="outline" size="icon">
                                                         <ExternalLink className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </Link>
