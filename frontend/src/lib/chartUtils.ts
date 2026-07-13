@@ -143,7 +143,8 @@ export function getTimeRanges(t: (key: string) => string) {
         { label: t("serverDetail.last6Hours"), value: 21600000 },
         { label: t("serverDetail.last24Hours"), value: 86400000 },
         { label: t("serverDetail.last7Days"), value: 604800000 },
-        { label: t("serverDetail.last30Days"), value: 2592000000 }
+        { label: t("serverDetail.last30Days"), value: 2592000000 },
+        { label: t("serverDetail.last60Days"), value: 5184000000 }
     ]
 }
 

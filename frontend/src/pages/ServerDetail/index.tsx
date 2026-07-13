@@ -15,6 +15,11 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn } from "@/lib/utils"
 
+export type DateRange = {
+    from: Date | undefined;
+    to?: Date | undefined;
+};
+
 export function ServerDetail() {
     const { t, language } = useLanguage()
     const { id } = useParams<{ id: string }>()
@@ -30,6 +35,8 @@ export function ServerDetail() {
     const [selectedInterval, setSelectedInterval] = useState(60000)
     const [appliedRange, setAppliedRange] = useState(86400000)
     const [appliedInterval, setAppliedInterval] = useState(60000)
+    const [customRange, setCustomRange] = useState<DateRange | undefined>()
+    const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
     const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
     const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
     const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>([])
@@ -53,8 +60,17 @@ export function ServerDetail() {
     const loadRecords = useCallback(async () => {
         if (!server) return
         
-        const now = Math.floor(Date.now() / 1000)
-        const from = now - Math.floor(selectedRange / 1000)
+        let now = 0;
+        let from = 0;
+        
+        if (selectedRange === -1) {
+            if (!customRange?.from || !customRange?.to) return;
+            from = Math.floor(customRange.from.getTime() / 1000);
+            now = Math.floor(customRange.to.getTime() / 1000) + 86399; // Include the entire end day
+        } else {
+            now = Math.floor(Date.now() / 1000);
+            from = now - Math.floor(selectedRange / 1000);
+        }
         
         if (from >= loadedFrom && rawRecords.length > 0) {
             setTimeLimits({ from, to: now })
@@ -74,19 +90,33 @@ export function ServerDetail() {
         } finally {
             setLoadingRecords(false)
         }
-    }, [server, selectedRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
+    }, [server, selectedRange, customRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
 
     useEffect(() => {
         if (rawRecords.length === 0) {
             setRecords([])
             setAppliedRange(selectedRange)
             setAppliedInterval(selectedInterval)
+            setAppliedCustomRange(customRange)
             return
         }
         
+        // Wait until both dates are selected
+        if (selectedRange === -1 && (!customRange?.from || !customRange?.to)) {
+            return;
+        }
+        
         const timer = setTimeout(() => {
-            const now = Math.floor(Date.now() / 1000)
-            const from = now - Math.floor(selectedRange / 1000)
+            let now = 0;
+            let from = 0;
+            
+            if (selectedRange === -1 && customRange?.from && customRange?.to) {
+                from = Math.floor(customRange.from.getTime() / 1000);
+                now = Math.floor(customRange.to.getTime() / 1000) + 86399;
+            } else {
+                now = Math.floor(Date.now() / 1000);
+                from = now - Math.floor(selectedRange / 1000);
+            }
             
             // Filter raw records within selected range
             const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
@@ -121,10 +151,11 @@ export function ServerDetail() {
             
             setAppliedRange(selectedRange)
             setAppliedInterval(selectedInterval)
+            setAppliedCustomRange(customRange)
         }, 10) // small delay to ensure UI paints
         
         return () => clearTimeout(timer)
-    }, [rawRecords, selectedRange, selectedInterval])
+    }, [rawRecords, selectedRange, selectedInterval, customRange])
  
     useEffect(() => {
         if (!isLoaded) return
@@ -190,6 +221,8 @@ export function ServerDetail() {
     const isOnline = server.last_status === "online"
     const locale = language === "fr" ? "fr-FR" : "en-US"
 
+    const isPending = selectedRange !== appliedRange || selectedInterval !== appliedInterval || (selectedRange === -1 && (customRange?.from?.getTime() !== appliedCustomRange?.from?.getTime() || customRange?.to?.getTime() !== appliedCustomRange?.to?.getTime()));
+
     return (
         <>
             <div className="flex flex-col gap-8 pb-12">
@@ -201,9 +234,12 @@ export function ServerDetail() {
                         setSelectedRange={setSelectedRange}
                         selectedInterval={selectedInterval}
                         setSelectedInterval={setSelectedInterval}
+                        customRange={customRange}
+                        setCustomRange={setCustomRange}
                         timeRanges={TIME_RANGES}
                         intervals={INTERVALS}
                         containerClassName="w-full md:w-auto md:ml-auto"
+                        t={t}
                     />
                 </div>
 
@@ -223,13 +259,13 @@ export function ServerDetail() {
                     </h2>
 
                     <div className="bg-card relative flex min-h-[340px] w-full items-center justify-center rounded-xl border p-4 shadow-sm sm:min-h-[500px] overflow-hidden">
-                        {(loadingRecords || selectedRange !== appliedRange || selectedInterval !== appliedInterval) && (
+                        {(loadingRecords || isPending) && (
                             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-card/40 backdrop-blur-[2px] transition-all duration-200">
                                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                                 <p className="text-muted-foreground text-sm animate-pulse font-medium">{t("serverDetail.chartLoading")}</p>
                             </div>
                         )}
-                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || selectedRange !== appliedRange || selectedInterval !== appliedInterval) ? "opacity-30 pointer-events-none" : "opacity-100")}>
+                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
                             <PlayerChart
                                 data={records}
                                 serverName={server.name}

@@ -85,6 +85,8 @@
     "last24Hours": "Dernières 24 heures",
     "last7Days": "Derniers 7 jours",
     "last30Days": "Derniers 30 jours",
+    "last60Days": "Derniers 2 mois",
+    "custom": "Personnalisé",
     "interval10s": "10 sec",
     "interval1m": "1 min",
     "interval5m": "5 min",
