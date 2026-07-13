@@ -207,6 +207,8 @@ impl Repository for PostgresRepository {
         let mut motd_hashes = Vec::with_capacity(servers.len());
         let mut endpoints = Vec::with_capacity(servers.len());
         let mut names = Vec::with_capacity(servers.len());
+        let mut last_max_players = Vec::with_capacity(servers.len());
+        let mut last_motds = Vec::with_capacity(servers.len());
 
         for s in servers {
             ids.push(s.id as i32);
@@ -218,6 +220,8 @@ impl Repository for PostgresRepository {
             motd_hashes.push(s.motd_hash.clone());
             endpoints.push(s.resolved_endpoint.clone());
             names.push(s.name.clone());
+            last_max_players.push(s.last_max_players);
+            last_motds.push(s.last_motd.clone());
         }
 
         sqlx::query(
@@ -231,9 +235,11 @@ impl Repository for PostgresRepository {
                 last_version = u.last_version,
                 favicon_hash = u.favicon_hash,
                 motd_hash = u.motd_hash,
-                resolved_endpoint = u.resolved_endpoint
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name)
+                resolved_endpoint = u.resolved_endpoint,
+                last_max_players = u.last_max_players,
+                last_motd = u.last_motd
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int8[], $11::text[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd)
             WHERE s.id = u.id
             "#
         )
@@ -246,6 +252,8 @@ impl Repository for PostgresRepository {
         .bind(&motd_hashes)
         .bind(&endpoints)
         .bind(&names)
+        .bind(&last_max_players)
+        .bind(&last_motds)
         .execute(&self.pool)
         .await
         .map_err(|e| e.to_string())?;
