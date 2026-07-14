@@ -4,7 +4,7 @@ import type { Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 
 interface ServerDetailHeaderProps {
     server: Server
@@ -15,11 +15,10 @@ export function ServerDetailHeader({ server, t }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     const isOnline = server.last_status === "online"
-    const displayIp = server.port === 25565 ? server.ip : `${server.ip}:${server.port}`
-    const fullIp = `${server.ip}:${server.port}`
+    const { displayIp } = getServerIp(server.ip, server.port)
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(fullIp)
+        copyServerIp(server.ip, server.port)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }

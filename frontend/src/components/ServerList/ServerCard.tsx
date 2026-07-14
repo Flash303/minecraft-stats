@@ -3,7 +3,7 @@ import type { Server } from "@/lib/api"
 import { fetchRecords } from "@/lib/api"
 import { MiniChart } from "./MiniChart"
 import default_icon from "@/assets/default_favicon.svg"
-import { cn } from "@/lib/utils"
+import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 import { Check, Copy } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
@@ -35,13 +35,12 @@ export function ServerCard({ server }: ServerCardProps) {
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
 
-    const displayIp = server.port === 25565 ? server.ip : `${server.ip}:${server.port}`
-    const fullIp = `${server.ip}:${server.port}`
+    const { displayIp } = getServerIp(server.ip, server.port)
 
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        navigator.clipboard.writeText(fullIp).then()
+        copyServerIp(server.ip, server.port).then()
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }

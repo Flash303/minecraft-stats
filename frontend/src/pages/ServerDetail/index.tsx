@@ -42,6 +42,14 @@ export function ServerDetail() {
     const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>([])
     const [loadedFrom, setLoadedFrom] = useState<number>(Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
+
+    useEffect(() => {
+        setLoading(true)
+        setServer(null)
+        setRawRecords([])
+        setRecords([])
+        setLoadedFrom(Infinity)
+    }, [id])
  
     const loadServer = useCallback(async () => {
         if (!id) return
