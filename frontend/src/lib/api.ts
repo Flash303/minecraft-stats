@@ -15,7 +15,10 @@ export interface Server {
     last_favicon: string | null
     last_status: "online" | "offline" | null
     last_connected: number | null
+    max_players?: number | null
+    last_max_players?: number | null
     last_version: string | null
+    last_motd?: { [key: string]: any } | null
     user_id: string
     user?: User | null
     type?: "java" | "bedrock"
