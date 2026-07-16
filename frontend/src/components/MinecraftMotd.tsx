@@ -16,8 +16,12 @@ export type MotdComponent =
       }
 
 interface MinecraftMotdProps {
-    motd: MotdComponent | MotdComponent[]
+    motd: MotdComponent | MotdComponent[] | any
     className?: string
+    serverName?: string
+    currentPlayers?: number
+    maxPlayers?: number
+    favicon?: string | null
 }
 
 const MINECRAFT_COLORS: Record<string, string> = {
@@ -243,14 +247,7 @@ const MotdNode = ({
     )
 }
 
-interface MinecraftMotdProps {
-    motd: MotdComponent | MotdComponent[] | any
-    className?: string
-    serverName?: string
-    currentPlayers?: number
-    maxPlayers?: number
-    favicon?: string | null
-}
+
 
 export function MinecraftMotd({ 
     motd, 

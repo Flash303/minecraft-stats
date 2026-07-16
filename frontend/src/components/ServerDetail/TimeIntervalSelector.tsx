@@ -8,6 +8,8 @@ import {
 import { cn } from "@/lib/utils"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
+import { fr, enUS } from "date-fns/locale"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export type DateRange = {
     from: Date | undefined;
@@ -48,8 +50,11 @@ export function TimeIntervalSelector({
     triggerClassName,
     t
 }: TimeIntervalSelectorProps) {
+    const { language } = useLanguage()
+    const locale = language === "fr" ? fr : enUS
+
     return (
-        <div className={cn("flex flex-row items-center gap-2", containerClassName)}>
+        <div className={cn("flex flex-col md:flex-row items-stretch md:items-center gap-2", containerClassName)}>
             <Select
                 value={String(selectedRange)}
                 onValueChange={(v: string) => setSelectedRange(Number(v))}
@@ -107,6 +112,7 @@ export function TimeIntervalSelector({
                             onSelect={setCustomRange}
                             numberOfMonths={2}
                             disabled={(date) => date > new Date()}
+                            locale={locale}
                         />
                     </PopoverContent>
                 </Popover>
