@@ -15,6 +15,8 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn } from "@/lib/utils"
 
+import { MinecraftMotd } from "@/components/MinecraftMotd"
+
 export type DateRange = {
     from: Date | undefined;
     to?: Date | undefined;
@@ -235,22 +237,39 @@ export function ServerDetail() {
     return (
         <>
             <div className="flex flex-col gap-8 pb-12">
-                <div className="flex flex-col justify-between gap-4 border-b pb-6 md:flex-row md:items-center">
-                    <ServerDetailHeader server={server} t={t} />
+                <div className="flex flex-col gap-6 border-b pb-6">
+                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                        <ServerDetailHeader server={server} t={t} />
 
-                    <TimeIntervalSelector
-                        selectedRange={selectedRange}
-                        setSelectedRange={setSelectedRange}
-                        selectedInterval={selectedInterval}
-                        setSelectedInterval={setSelectedInterval}
-                        customRange={customRange}
-                        setCustomRange={setCustomRange}
-                        timeRanges={TIME_RANGES}
-                        intervals={INTERVALS}
-                        containerClassName="w-full md:w-auto md:ml-auto"
-                        t={t}
-                    />
+                        <TimeIntervalSelector
+                            selectedRange={selectedRange}
+                            setSelectedRange={setSelectedRange}
+                            selectedInterval={selectedInterval}
+                            setSelectedInterval={setSelectedInterval}
+                            customRange={customRange}
+                            setCustomRange={setCustomRange}
+                            timeRanges={TIME_RANGES}
+                            intervals={INTERVALS}
+                            containerClassName="w-full md:w-auto md:ml-auto"
+                            t={t}
+                        />
+                    </div>
+                    
                 </div>
+
+                {server.last_motd && (
+                    <div className="w-full flex justify-center mt-[-1rem]">
+                        <div className="w-full max-w-[610px] transform hover:scale-[1.02] transition-transform duration-300 shadow-xl rounded-md overflow-hidden">
+                            <MinecraftMotd 
+                                motd={server.last_motd} 
+                                serverName={server.name}
+                                currentPlayers={server.last_connected ?? 0}
+                                maxPlayers={server.max_players ?? server.last_max_players ?? 20}
+                                favicon={server.last_favicon}
+                            />
+                        </div>
+                    </div>
+                )}
 
                     <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
                         {(loadingRecords || isPending) && (

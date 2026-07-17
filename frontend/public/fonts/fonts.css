@@ -1,0 +1,88 @@
+/* Minecraft Default */
+@font-face {
+    font-family: 'Minecraft Default';
+    src: url('MinecraftDefault-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Default';
+    src: url('MinecraftDefault-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Default';
+    src: url('MinecraftDefault-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Minecraft Default';
+    src: url('MinecraftDefault-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Minecraft Enchanting (Galactic Alphabet) */
+@font-face {
+    font-family: 'Minecraft Enchanting';
+    src: url('MinecraftEnchanting-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Enchanting';
+    src: url('MinecraftEnchanting-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Enchanting';
+    src: url('MinecraftEnchanting-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Minecraft Enchanting';
+    src: url('MinecraftEnchanting-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Minecraft Illager Runes */
+@font-face {
+    font-family: 'Minecraft Illager';
+    src: url('MinecraftIllagerRunes-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Illager';
+    src: url('MinecraftIllagerRunes-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Minecraft Illager';
+    src: url('MinecraftIllagerRunes-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+@font-face {
+    font-family: 'Minecraft Illager';
+    src: url('MinecraftIllagerRunes-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Utilities classes to apply the fonts quickly */
+.font-minecraft {
+    font-family: 'Minecraft Default', sans-serif;
+}
+.font-enchanting {
+    font-family: 'Minecraft Enchanting', sans-serif;
+}
+.font-illager {
+    font-family: 'Minecraft Illager', sans-serif;
+}

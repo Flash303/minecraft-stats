@@ -1,4 +1,5 @@
 use axum::{Router, extract::{Path, Query, State, rejection::{PathRejection, QueryRejection}}, routing::post};
+use log::info;
 use reqwest::StatusCode;
 use serde::Deserialize;
 
@@ -30,6 +31,7 @@ async fn update_server_status(State(state): State<AppState>,
     server.hidden = query.hidden;
     let rs = state.repository.update_server(&server).await;
     if let Err(err) = rs {
+        info!("Error on status change {err}");
         return Err(AppError::FetchingDataError(err));
     }
 
