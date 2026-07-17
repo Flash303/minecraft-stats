@@ -31,7 +31,7 @@ export function SettingsTab({
         <div className="flex flex-col gap-6">
             
             {/* Option 1: Maintenance Mode */}
-            <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">
@@ -60,7 +60,7 @@ export function SettingsTab({
             </Card>
 
             {/* Option 2: Rate Limit Switch */}
-            <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">
@@ -88,7 +88,7 @@ export function SettingsTab({
             </Card>
 
             {/* Option 3: Manual Database Cleanup */}
-            <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
                 <CardHeader className="pb-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">

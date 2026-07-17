@@ -32,7 +32,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
             
             {/* Key Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -46,7 +46,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -60,7 +60,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -78,7 +78,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
 
             {/* System Health Checkups */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800">
+                <Card className="bg-card border-slate-200/60 dark:border-zinc-800">
                     <CardHeader>
                         <CardTitle className="text-md font-semibold flex items-center gap-2">
                             <ShieldCheck className="h-5 w-5 text-emerald-500" />
@@ -88,7 +88,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
                         {/* Item 1: Database */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-zinc-950/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
                             <div className="flex items-center gap-3">
                                 <Database className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.dbStatus")}</span>
@@ -99,7 +99,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                         </div>
 
                         {/* Item 2: Ping worker */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-zinc-950/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
                             <div className="flex items-center gap-3">
                                 <Cpu className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.pingWorker")}</span>
@@ -110,7 +110,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                         </div>
 
                         {/* Item 3: Clerk Auth */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-zinc-950/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
                             <div className="flex items-center gap-3">
                                 <Lock className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.clerkStatus")}</span>
@@ -123,7 +123,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                 </Card>
 
                 {/* System activity placeholder */}
-                <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800">
+                <Card className="bg-card border-slate-200/60 dark:border-zinc-800">
                     <CardHeader>
                         <CardTitle className="text-md font-semibold flex items-center gap-2">
                             <Activity className="h-5 w-5 text-indigo-500" />

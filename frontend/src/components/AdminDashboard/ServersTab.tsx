@@ -36,6 +36,7 @@ interface ServersTabProps {
     getUserDisplayName: (user?: User | null) => string
     t: (key: string, replacements?: Record<string, string>) => string
     onRefresh: () => void
+    triggerToast?: (type: "success" | "warning" | "error", text: string) => void
 }
 
 export function ServersTab({
@@ -45,7 +46,8 @@ export function ServersTab({
     handleToggleServer,
     getUserDisplayName,
     t,
-    onRefresh
+    onRefresh,
+    triggerToast
 }: ServersTabProps) {
     const [serverSearchQuery, setServerSearchQuery] = useState("")
     const [serverStatusFilter, setServerStatusFilter] = useState<"all" | "online" | "offline" | "hidden">("all")
@@ -126,7 +128,7 @@ export function ServersTab({
                         placeholder={t("admin.servers.searchPlaceholder")}
                         value={serverSearchQuery}
                         onChange={(e) => setServerSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200/85 dark:border-zinc-855"
+                        className="pl-9 h-10 rounded-xl bg-background border-slate-200/85 dark:border-zinc-855"
                     />
                 </div>
                 
@@ -177,7 +179,7 @@ export function ServersTab({
             </div>
 
             {/* Servers Data Table */}
-            <div className="border rounded-xl bg-white dark:bg-zinc-900 overflow-x-auto shadow-xs border-slate-200/60 dark:border-zinc-800">
+            <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-slate-200/60 dark:border-zinc-800">
                 <table className="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr className="border-b bg-slate-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
@@ -341,7 +343,7 @@ export function ServersTab({
                                                 </Button>
                                                 
                                                 <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
-                                                <DeleteServerModal server={server} onSuccess={onRefresh} />
+                                                <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} />
                                             </div>
                                         </td>
                                     </tr>
@@ -426,7 +428,7 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
     )
 }
 
-function DeleteServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
+function DeleteServerModal({ server, onSuccess, triggerToast }: { server: Server, onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [confirmText, setConfirmText] = useState("")
@@ -444,6 +446,9 @@ function DeleteServerModal({ server, onSuccess }: { server: Server, onSuccess: (
                 if (res.success) {
                     setOpen(false)
                     onSuccess()
+                    if (triggerToast) {
+                        triggerToast("success", `Le serveur ${server.name} a été supprimé.`)
+                    }
                 }
             }
         } catch (error) {

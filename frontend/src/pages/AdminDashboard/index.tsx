@@ -226,7 +226,7 @@ export function AdminDashboard() {
     // 1. Loading Permissions Check
     if (!isLoaded || loadingAdmin) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-zinc-950">
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
                 <RefreshCw className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-muted-foreground animate-pulse text-sm font-medium">
                     {t("admin.loading")}
@@ -238,7 +238,7 @@ export function AdminDashboard() {
     // 2. Unauthorized screen
     if (!isSignedIn || !isAdmin) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-zinc-950 px-4">
+            <div className="flex min-h-screen items-center justify-center bg-background px-4">
                 <div className="flex max-w-md w-full flex-col items-center justify-center gap-6 text-center bg-card p-8 rounded-2xl border shadow-lg">
                     <div className="rounded-full bg-destructive/15 p-4 text-destructive">
                         <ShieldAlert className="h-10 w-10" />
@@ -264,10 +264,10 @@ export function AdminDashboard() {
 
     // 3. Authorized Console layout
     return (
-        <div className="min-h-screen bg-slate-50/50 dark:bg-zinc-950 text-foreground flex flex-col md:flex-row font-sans">
+        <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
             
             {/* Sidebar Navigation */}
-            <aside className={`fixed md:sticky top-0 z-40 h-screen w-64 border-r bg-white dark:bg-zinc-900 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 ${
+            <aside className={`fixed md:sticky top-0 z-40 h-screen w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 ${
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full"
             }`}>
                 {/* Sidebar Header */}
@@ -350,7 +350,7 @@ export function AdminDashboard() {
                 </nav>
 
                 {/* Sidebar Footer */}
-                <div className="p-4 border-t bg-slate-50/50 dark:bg-zinc-900/50">
+                <div className="p-4 border-t bg-background/50">
                     <Link to="/">
                         <Button variant="ghost" size="sm" className="w-full gap-2 text-xs font-semibold justify-start">
                             <ArrowLeft className="h-3.5 w-3.5" />
@@ -372,7 +372,7 @@ export function AdminDashboard() {
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
                 
                 {/* Header panel */}
-                <header className="sticky top-0 z-20 h-14 border-b bg-white/95 dark:bg-zinc-900/95 backdrop-blur flex items-center justify-between px-6 flex-shrink-0 shadow-xs">
+                <header className="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-6 flex-shrink-0 shadow-xs">
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={() => setIsSidebarOpen(true)}
@@ -404,7 +404,7 @@ export function AdminDashboard() {
                 </header>
 
                 {/* Main page view scroll container */}
-                <main className="flex-1 p-6 md:p-8 max-w-6xl w-full mx-auto flex flex-col gap-6">
+                <main className="flex-1 p-6 md:p-8 w-full max-w-full mx-auto flex flex-col gap-6">
                     
                     {/* Simulation Alerts */}
                     {toastMessage && (
@@ -464,6 +464,7 @@ export function AdminDashboard() {
                             getUserDisplayName={getUserDisplayName}
                             t={t}
                             onRefresh={loadData}
+                            triggerToast={triggerToast}
                         />
                     )}
 
