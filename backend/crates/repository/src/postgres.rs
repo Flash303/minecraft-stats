@@ -173,19 +173,19 @@ impl Repository for PostgresRepository {
                    resolved_endpoint = $9,
                    hidden = $10,
                    name = $11
-               WHERE id = $5")
+               WHERE id = $12")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
             .bind(server.last_version.clone())
             .bind(server.last_max_players.clone())
             .bind(server.last_motd.clone())
-            .bind(server.id as i32)
             .bind(server.favicon_hash.clone())
             .bind(server.motd_hash.clone())
             .bind(server.resolved_endpoint.clone())
             .bind(server.hidden)
             .bind(server.name.clone())
+            .bind(server.id as i32)
             .execute(&self.pool)
             .await
             .map_err(|e| e.to_string())?;
