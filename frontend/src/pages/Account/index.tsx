@@ -529,3 +529,4 @@ function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: (
         </Dialog>
     )
 }
+

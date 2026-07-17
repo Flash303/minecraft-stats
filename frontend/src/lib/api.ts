@@ -246,6 +246,24 @@ export async function renameServer(
     }
 }
 
+export async function deleteServer(
+    serverId: number,
+    token: string
+): Promise<{ success: boolean; message?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}`, {
+            method: "DELETE",
+            headers: getHeaders(token)
+        })
+        if (res.status === 204 || res.status === 200) return { success: true }
+        const json = await res.json()
+        return { success: json.success, message: json.message }
+    } catch (error) {
+        console.error(`Failed to delete server ${serverId}:`, error)
+        return { success: false }
+    }
+}
+
 export async function checkAdminStatus(token: string): Promise<boolean> {
     try {
         const res = await fetch(`${API_BASE}/admin`, {

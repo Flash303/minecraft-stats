@@ -24,7 +24,7 @@ interface LogsTabProps {
 export function LogsTab({ auditLogs, t }: LogsTabProps) {
     return (
         <div className="flex flex-col gap-6">
-            <Card className="bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
                 <CardHeader>
                     <CardTitle className="text-md font-semibold flex items-center gap-2">
                         <Activity className="h-5 w-5 text-indigo-500" />
@@ -57,7 +57,7 @@ export function LogsTab({ auditLogs, t }: LogsTabProps) {
                             return (
                                 <div key={log.id} className="relative flex flex-col gap-1.5">
                                     {/* Timeline node icon bubble */}
-                                    <div className={`absolute -left-[35px] top-0.5 h-6.5 w-6.5 rounded-full flex items-center justify-center border shadow-xs bg-white dark:bg-zinc-900 ${bg}`}>
+                                    <div className={`absolute -left-[35px] top-0.5 h-6.5 w-6.5 rounded-full flex items-center justify-center border shadow-xs bg-background ${bg}`}>
                                         {icon}
                                     </div>
                                     <div className="flex flex-wrap items-center justify-between gap-2">

@@ -455,6 +455,32 @@ impl Repository for PostgresRepository {
         Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
+    async fn delete_server(&self, server_id: u32) -> Result<(), String> {
+        let mut tx = self.pool.begin().await.map_err(|e| e.to_string())?;
+
+        sqlx::query("DELETE FROM alerts WHERE server_id = $1")
+            .bind(server_id as i32)
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        sqlx::query("DELETE FROM ping_records WHERE server_id = $1")
+            .bind(server_id as i32)
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        sqlx::query("DELETE FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        tx.commit().await.map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
     async fn initialize(&self) -> Result<(), String> {
         sqlx::migrate!("./migrations")
             .run(&self.pool)

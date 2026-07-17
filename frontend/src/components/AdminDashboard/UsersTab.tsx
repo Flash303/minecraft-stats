@@ -80,7 +80,7 @@ export function UsersTab({
                         placeholder={t("admin.searchUser")}
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200/85 dark:border-zinc-850"
+                        className="pl-9 h-10 rounded-xl bg-background border-slate-200/85 dark:border-zinc-850"
                     />
                 </div>
             </div>
@@ -90,7 +90,7 @@ export function UsersTab({
                     filteredUsers.map((user) => {
                         const userServers = servers.filter(s => s.user_id === user.id)
                         return (
-                            <Card key={user.id} className="hover:shadow-md transition-all duration-300 bg-white dark:bg-zinc-900 border-slate-200/60 dark:border-zinc-800 rounded-2xl flex flex-col text-center p-6 gap-0">
+                            <Card key={user.id} className="hover:shadow-md transition-all duration-300 bg-card border-slate-200/60 dark:border-zinc-800 rounded-2xl flex flex-col text-center p-6 gap-0">
                                 {/* Avatar */}
                                 {user.image_url ? (
                                     <img
@@ -188,7 +188,7 @@ export function UsersTab({
                                             className={`flex items-center justify-between gap-4 p-3 rounded-xl border transition-all duration-300 ${
                                                 isHidden 
                                                     ? "bg-slate-100/40 dark:bg-slate-900/10 border-dashed border-slate-300 dark:border-zinc-800 opacity-70" 
-                                                    : "bg-white dark:bg-zinc-900/20 border-slate-200 dark:border-zinc-850 hover:shadow-xs"
+                                                    : "bg-card border-slate-200 dark:border-zinc-850 hover:shadow-xs"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
