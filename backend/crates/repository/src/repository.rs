@@ -19,6 +19,7 @@ pub trait Repository: Send + Sync {
     async fn create_server(&self, server: DraftServer) -> Result<Server, String>;
     async fn update_server(&self, server: &Server) -> Result<(), String>;
     async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), String>;
+
     // Gets
     async fn get_server(&self, server_id: u32) -> Result<Server, String>;
     async fn list_servers(&self) -> Result<Vec<Server>, String>;
@@ -37,6 +38,8 @@ pub trait Repository: Send + Sync {
     async fn delete_subscription(&self, endpoint: &str, user_id: &str) -> Result<(), String>;
     async fn delete_stale_subscription(&self, endpoint: &str) -> Result<(), String>;
     async fn get_subscriptions_for_users(&self, user_ids: &[String]) -> Result<Vec<WebPushSubscription>, String>;
+    
+    async fn delete_server(&self, server_id: u32) -> Result<(), String>;
 
     async fn initialize(&self) -> Result<(), String>;
 }
