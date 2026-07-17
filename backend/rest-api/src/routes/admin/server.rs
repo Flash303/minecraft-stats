@@ -11,7 +11,6 @@ pub fn router() -> Router<AppState> {
         .route("/servers/{id}", delete(delete_server))
 }
 
-
 #[derive(Deserialize)]
 struct QueryParam {
     hidden: bool

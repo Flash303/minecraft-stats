@@ -12,10 +12,11 @@ import {
     User as UserIcon,
     Eye,
     EyeOff,
-    Edit2
+    Edit2,
+    Trash2
 } from "lucide-react"
 import { useAuth } from "@clerk/react"
-import { renameServer } from "@/lib/api"
+import { renameServer, deleteServer } from "@/lib/api"
 import {
     Dialog,
     DialogContent,
@@ -340,6 +341,7 @@ export function ServersTab({
                                                 </Button>
                                                 
                                                 <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
+                                                <DeleteServerModal server={server} onSuccess={onRefresh} />
                                             </div>
                                         </td>
                                     </tr>
@@ -416,6 +418,74 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
                     <DialogFooter>
                         <Button type="submit" disabled={loading || !name.trim() || name.trim() === server.name}>
                             {loading ? t("admin.servers.renameSaving") : t("admin.servers.renameSave")}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+function DeleteServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
+    const { getToken } = useAuth()
+    const [open, setOpen] = useState(false)
+    const [confirmText, setConfirmText] = useState("")
+    const [loading, setLoading] = useState(false)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (confirmText !== "CONFIRMER") return
+
+        setLoading(true)
+        try {
+            const token = await getToken()
+            if (token) {
+                const res = await deleteServer(server.id, token)
+                if (res.success) {
+                    setOpen(false)
+                    onSuccess()
+                }
+            }
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={(v) => {
+            if (!v) setConfirmText("")
+            setOpen(v)
+        }}>
+            <DialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="gap-1">
+                    <Trash2 className="h-3 w-3" />
+                    Supprimer
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Supprimer le serveur</DialogTitle>
+                    <DialogDescription>
+                        Êtes-vous sûr de vouloir supprimer le serveur <strong>{server.name}</strong> ? Cette action est irréversible.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor={`confirm-${server.id}`}>Veuillez taper <strong>CONFIRMER</strong> pour valider</Label>
+                        <Input
+                            id={`confirm-${server.id}`}
+                            value={confirmText}
+                            onChange={(e) => setConfirmText(e.target.value)}
+                            placeholder="CONFIRMER"
+                            required
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
+                        <Button type="submit" variant="destructive" disabled={loading || confirmText !== "CONFIRMER"}>
+                            {loading ? "Suppression..." : "Supprimer"}
                         </Button>
                     </DialogFooter>
                 </form>
