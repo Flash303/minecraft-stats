@@ -258,7 +258,7 @@ export function ServerDetail() {
                 </div>
 
                 {server.last_motd && (
-                    <div className="w-full flex justify-center mt-[-1rem]">
+                    <div className="hidden md:flex w-full justify-center mt-[-1rem]">
                         <div className="w-full max-w-[610px] transform hover:scale-[1.02] transition-transform duration-300 shadow-xl rounded-md overflow-hidden">
                             <MinecraftMotd 
                                 motd={server.last_motd} 
