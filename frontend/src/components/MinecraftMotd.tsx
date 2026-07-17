@@ -7,6 +7,7 @@ export type MotdComponent =
     | {
           text?: string
           color?: string
+          font?: string
           bold?: boolean
           italic?: boolean
           underlined?: boolean
@@ -32,7 +33,7 @@ const CODE_TO_COLOR: Record<string, string> = {
     "0": "#000000", "1": "#0000AA", "2": "#00AA00", "3": "#00AAAA", "4": "#AA0000", "5": "#AA00AA", "6": "#FFAA00", "7": "#AAAAAA", "8": "#555555", "9": "#5555FF", "a": "#55FF55", "b": "#55FFFF", "c": "#FF5555", "d": "#FF55FF", "e": "#FFFF55", "f": "#FFFFFF"
 }
 
-// 1. Flatten MOTD JSON into a string with legacy codes (§) and hex codes (&#RRGGBB;)
+// 1. Flatten MOTD JSON into a string with legacy codes (§), hex codes (&#RRGGBB;) and fonts (&f{font};)
 function flattenMotd(node: any, inherited: any = {}): string {
     if (typeof node === "string") return node;
     if (Array.isArray(node)) return node.map(n => flattenMotd(n, inherited)).join("");
@@ -44,6 +45,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
 
     let needsReset = false;
     if (node.color && node.color !== inherited.color) needsReset = true;
+    if (node.font && node.font !== inherited.font) needsReset = true;
     if (node.bold === false && inherited.bold) needsReset = true;
     if (node.italic === false && inherited.italic) needsReset = true;
     if (node.underlined === false && inherited.underlined) needsReset = true;
@@ -51,6 +53,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
     if (node.obfuscated === false && inherited.obfuscated) needsReset = true;
 
     if (node.color) current.color = node.color;
+    if (node.font) current.font = node.font;
     if (node.bold !== undefined) current.bold = node.bold;
     if (node.italic !== undefined) current.italic = node.italic;
     if (node.underlined !== undefined) current.underlined = node.underlined;
@@ -64,12 +67,14 @@ function flattenMotd(node: any, inherited: any = {}): string {
         } else {
             res += "§r";
         }
+        if (current.font) res += `&f{${current.font}};`;
         if (current.bold) res += "§l";
         if (current.italic) res += "§o";
         if (current.underlined) res += "§n";
         if (current.strikethrough) res += "§m";
         if (current.obfuscated) res += "§k";
     } else {
+        if (node.font && !inherited.font) res += `&f{${node.font}};`;
         if (node.bold && !inherited.bold) res += "§l";
         if (node.italic && !inherited.italic) res += "§o";
         if (node.underlined && !inherited.underlined) res += "§n";
@@ -91,6 +96,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
         if (MINECRAFT_COLORS[inherited.color]) res += "§" + MINECRAFT_COLORS[inherited.color];
         else if (typeof inherited.color === 'string' && inherited.color.startsWith("#")) res += `&${inherited.color}`;
     }
+    if (inherited.font) res += `&f{${inherited.font}};`;
     if (inherited.bold) res += "§l";
     if (inherited.italic) res += "§o";
     if (inherited.underlined) res += "§n";
@@ -102,17 +108,78 @@ function flattenMotd(node: any, inherited: any = {}): string {
 
 function getCharWidth(c: string, bold: boolean): number {
     if (c === '\n') return 0;
-    if (c === ' ') return 4 + (bold ? 1 : 0);
     
     let w = 5;
-    switch (c) {
-        case 'i': case '!': case '.': case ',': case ':': case ';': case '\'': case '|': w = 1; break;
-        case 'l': w = 2; break;
-        case 'I': case 't': case '[': case ']': case '"': case '`': w = 3; break;
-        case 'f': case 'k': case '(': case ')': case '<': case '>': case '{': case '}': w = 4; break;
-        case '@': case '~': w = 6; break;
-    }
+    if ("ı!',.:;i|¡·".includes(c)) w = 1;
+    else if ("`lìí".includes(c)) w = 2;
+    else if ("Íİ \"()*I[]t{}ïî".includes(c)) w = 3;
+    else if ("<>fkªº▌⌡°ⁿ²".includes(c)) w = 4;
+    else if ("@~«»σ≡≈√".includes(c)) w = 6;
+    else if ("®½¼░╢╖╣║╗╝╜∞∅⌠".includes(c)) w = 7;
+    else if ("▒▓└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┌█▄▐▀".includes(c)) w = 8;
+    else if ("ŒœæÆ".includes(c)) w = 9;
+
     return w + 1 + (bold ? 1 : 0);
+}
+
+const OBFUSCATION_CHARS = "ÀÁÂÈÊËÍÓÔÕÚßãõğİıŒœŞşŴŵŽž       !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜø£Ø×ƒáíóúñÑªº¿®¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αβΓπΣσμτΦΘΩδ∞∅∈∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■";
+const OBFUSCATION_MAP_NORMAL: Record<number, string[]> = {};
+const OBFUSCATION_MAP_BOLD: Record<number, string[]> = {};
+
+for (let i = 0; i < OBFUSCATION_CHARS.length; i++) {
+    const c = OBFUSCATION_CHARS[i];
+    const wNormal = getCharWidth(c, false);
+    if (!OBFUSCATION_MAP_NORMAL[wNormal]) OBFUSCATION_MAP_NORMAL[wNormal] = [];
+    OBFUSCATION_MAP_NORMAL[wNormal].push(c);
+    
+    const wBold = getCharWidth(c, true);
+    if (!OBFUSCATION_MAP_BOLD[wBold]) OBFUSCATION_MAP_BOLD[wBold] = [];
+    OBFUSCATION_MAP_BOLD[wBold].push(c);
+}
+
+function ObfuscatedText({ text, isBold }: { text: string, isBold: boolean }) {
+    const [scrambled, setScrambled] = React.useState(text);
+    
+    React.useEffect(() => {
+        const map = isBold ? OBFUSCATION_MAP_BOLD : OBFUSCATION_MAP_NORMAL;
+        
+        const interval = setInterval(() => {
+            let newText = "";
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                const w = getCharWidth(c, isBold);
+                const options = map[w];
+                if (options && options.length > 0) {
+                    newText += options[Math.floor(Math.random() * options.length)];
+                } else {
+                    newText += c;
+                }
+            }
+            setScrambled(newText);
+        }, 50);
+        
+        return () => clearInterval(interval);
+    }, [text, isBold]);
+
+    return (
+        <>
+            {scrambled.split('').map((char, i) => {
+                const advance = getCharWidth(char, isBold);
+                return (
+                    <span 
+                        key={i} 
+                        style={{ 
+                            display: 'inline-block', 
+                            width: `${advance * 2}px`, // guiScale = 2
+                            textAlign: 'left' 
+                        }}
+                    >
+                        {char}
+                    </span>
+                );
+            })}
+        </>
+    );
 }
 
 // 2. Compute true Minecraft widths and insert \n where it wraps
@@ -130,6 +197,7 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
     const getFormatFromString = (s: string) => {
         let color = "";
         let formats = "";
+        let font = "";
         for (let i = 0; i < s.length; i++) {
             if (s[i] === '§' && i + 1 < s.length) {
                 const code = s[i+1].toLowerCase();
@@ -158,9 +226,15 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
                     formats = "";
                     i += 7;
                 }
+            } else if (s[i] === '&' && s[i+1] === 'f' && s[i+2] === '{') {
+                const end = s.indexOf('};', i+3);
+                if (end !== -1) {
+                    font = s.substring(i, end+2);
+                    i = end + 1;
+                }
             }
         }
-        return color + formats;
+        return color + font + formats;
     };
 
     for (let i = 0; i < text.length; i++) {
@@ -186,6 +260,13 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
             if (/^[0-9a-f]{6}$/i.test(text.substring(i+2, i+8))) {
                 isBold = false;
                 i += 7;
+                continue;
+            }
+        }
+        if (text[i] === '&' && text[i+1] === 'f' && text[i+2] === '{') {
+            const end = text.indexOf('};', i+3);
+            if (end !== -1) {
+                i = end + 1;
                 continue;
             }
         }
@@ -230,10 +311,11 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
 
 // 3. Convert formatted string with \n into React nodes
 function parseLegacyText(text: string): React.ReactNode[] {
-    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6})/i);
+    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};)/i);
     const elements: React.ReactNode[] = [];
     
     let currentColor: string | undefined = undefined;
+    let currentFont: string | undefined = undefined;
     let currentBold = false;
     let currentItalic = false;
     let currentUnderlined = false;
@@ -242,9 +324,11 @@ function parseLegacyText(text: string): React.ReactNode[] {
 
     parts.forEach((part, i) => {
         if (!part) return;
-        if (part.startsWith("§") || part.startsWith("&#")) {
+        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{")) {
             const code = part.toLowerCase();
-            if (code.startsWith('&#')) {
+            if (code.startsWith('&f{')) {
+                currentFont = part.substring(3, part.length - 2);
+            } else if (code.startsWith('&#')) {
                 currentColor = part.substring(1, 8); // e.g. #FF0000
                 currentBold = false;
                 currentItalic = false;
@@ -301,10 +385,11 @@ function parseLegacyText(text: string): React.ReactNode[] {
                         currentItalic && "italic",
                         currentUnderlined && "underline",
                         currentStrikethrough && "line-through",
-                        currentObfuscated && "blur-[2px]"
+                        currentFont === "minecraft:illageralt" && "font-illager",
+                        currentFont === "minecraft:alt" && "font-enchanting"
                     )}
                 >
-                    {part}
+                    {currentObfuscated ? <ObfuscatedText text={part} isBold={currentBold} /> : part}
                 </span>
             );
         }

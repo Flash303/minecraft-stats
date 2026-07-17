@@ -2,32 +2,96 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: 'Minecraft';
-  src: url('/fonts/1_Minecraft-Regular.woff') format('woff');
+  font-family: 'Minecraft Default';
+  src: url('/fonts/MinecraftDefault-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Minecraft';
-  src: url('/fonts/2_Minecraft-Italic.woff') format('woff');
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Minecraft';
-  src: url('/fonts/3_Minecraft-Bold.woff') format('woff');
+  font-family: 'Minecraft Default';
+  src: url('/fonts/MinecraftDefault-Bold.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Minecraft';
-  src: url('/fonts/4_Minecraft-BoldItalic.woff') format('woff');
+  font-family: 'Minecraft Default';
+  src: url('/fonts/MinecraftDefault-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Default';
+  src: url('/fonts/MinecraftDefault-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Enchanting';
+  src: url('/fonts/MinecraftEnchanting-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Enchanting';
+  src: url('/fonts/MinecraftEnchanting-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Enchanting';
+  src: url('/fonts/MinecraftEnchanting-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Enchanting';
+  src: url('/fonts/MinecraftEnchanting-BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Illager';
+  src: url('/fonts/MinecraftIllagerRunes-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Illager';
+  src: url('/fonts/MinecraftIllagerRunes-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Illager';
+  src: url('/fonts/MinecraftIllagerRunes-Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Minecraft Illager';
+  src: url('/fonts/MinecraftIllagerRunes-BoldItalic.ttf') format('truetype');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -41,7 +105,7 @@
   --font-sans: "Plus Jakarta Sans", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
-  --font-minecraft: "Minecraft", "Geist Mono", monospace;
+  --font-minecraft: "Minecraft Default", "Minecraft", "Geist Mono", monospace;
 
   --breakpoint-xs: 475px;
 
