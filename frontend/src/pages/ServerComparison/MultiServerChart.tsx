@@ -145,6 +145,30 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         }
     }, [serverNames, language, t])
 
+    const touchScrubPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                ready: (u: uPlot) => {
+                    const over = u.over
+                    // Allow vertical scrolling, but capture horizontal touch for scrubbing
+                    over.style.touchAction = "pan-y"
+                    
+                    const handleTouchMove = (e: TouchEvent) => {
+                        if (e.touches.length === 1) {
+                            const rect = over.getBoundingClientRect()
+                            u.setCursor({
+                                left: e.touches[0].clientX - rect.left,
+                                top: e.touches[0].clientY - rect.top
+                            })
+                        }
+                    }
+
+                    over.addEventListener("touchmove", handleTouchMove, { passive: true })
+                }
+            }
+        }
+    }, [])
+
     const handleResetZoom = () => {
         if (chartRef.current) {
             chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
@@ -189,9 +213,9 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         return {
             width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
-            plugins: [tooltipPlugin],
+            plugins: [tooltipPlugin, touchScrubPlugin],
             cursor: {
-                drag: { setScale: true }
+                drag: { x: window.innerWidth >= 640, y: false, setScale: window.innerWidth >= 640 }
             },
             scales: {
                 x: {
@@ -232,7 +256,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             ],
             series: series
         } as uPlot.Options
-    }, [serverNames, theme, tooltipPlugin, timeRange, language, t])
+    }, [serverNames, theme, tooltipPlugin, touchScrubPlugin, timeRange, language, t])
 
     return (
         <div className="w-full space-y-4">

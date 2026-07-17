@@ -163,6 +163,30 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     }, [])
 
+    const touchScrubPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                ready: (u: uPlot) => {
+                    const over = u.over
+                    // Allow vertical scrolling, but capture horizontal touch for scrubbing
+                    over.style.touchAction = "pan-y"
+                    
+                    const handleTouchMove = (e: TouchEvent) => {
+                        if (e.touches.length === 1) {
+                            const rect = over.getBoundingClientRect()
+                            u.setCursor({
+                                left: e.touches[0].clientX - rect.left,
+                                top: e.touches[0].clientY - rect.top
+                            })
+                        }
+                    }
+
+                    over.addEventListener("touchmove", handleTouchMove, { passive: true })
+                }
+            }
+        }
+    }, [])
+
     // Reset Zoom calé directement sur les props issues du parent
     const handleResetZoom = () => {
         if (chartRef.current) {
@@ -187,7 +211,10 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
-            plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin],
+            plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin, touchScrubPlugin],
+            cursor: {
+                drag: { x: window.innerWidth >= 640, y: false, setScale: window.innerWidth >= 640 }
+            },
             scales: {
                 x: {
                     time: true,
@@ -251,7 +278,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 }
             ]
         } as uPlot.Options
-    }, [serverName, theme, tooltipPlugin, timeRange, language, t])
+    }, [serverName, theme, tooltipPlugin, touchScrubPlugin, timeRange, language, t])
 
     if (data.length === 0) {
         return <p className="text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
