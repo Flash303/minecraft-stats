@@ -1,6 +1,11 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import pingIcon from "@/assets/ping.png"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export type MotdComponent =
     | string
@@ -23,6 +28,7 @@ interface MinecraftMotdProps {
     currentPlayers?: number
     maxPlayers?: number
     favicon?: string | null
+    pingTime?: number | null
 }
 
 const MINECRAFT_COLORS: Record<string, string> = {
@@ -404,7 +410,8 @@ export function MinecraftMotd({
     serverName = "Minecraft Server",
     currentPlayers = 0,
     maxPlayers = 20,
-    favicon
+    favicon,
+    pingTime
 }: MinecraftMotdProps) {
     if (!motd) return null;
     
@@ -455,13 +462,29 @@ export function MinecraftMotd({
                         {currentPlayers}
                         <span className="mx-[2px] text-[#555555]">/</span>
                         {maxPlayers}
-                        <img
-                            className="flex-shrink-0 ml-[4px]"
-                            style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
-                            src={pingIcon}
-                            alt="ping"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                        />
+                        <div className="flex items-center ml-[4px]">
+                            <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                    <div>
+                                        <img
+                                            className="flex-shrink-0"
+                                            style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
+                                            src={pingIcon}
+                                            alt="ping"
+                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                        />
+                                    </div>
+                                </TooltipTrigger>
+                                {pingTime != null && (
+                                    <TooltipContent 
+                                        side="top" 
+                                        className="bg-[#111111] border-[#333333] text-white px-2 py-1 text-xs"
+                                    >
+                                        <p>{pingTime} ms</p>
+                                    </TooltipContent>
+                                )}
+                            </Tooltip>
+                        </div>
                     </span>
                 </div>
                 <pre
