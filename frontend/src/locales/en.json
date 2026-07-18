@@ -29,7 +29,8 @@
     },
     "enter": "Enter",
     "noData": "No data",
-    "noDataForRange": "No data for this range"
+    "noDataForRange": "No data for this range",
+    "cancel": "Cancel"
   },
   "header": {
     "title": "Minecraft Stats",
@@ -182,7 +183,27 @@
       "renameLabel": "Server name",
       "renamePlaceholder": "My awesome server",
       "renameSaving": "Saving...",
-      "renameSave": "Save"
+      "renameSave": "Save",
+      "bulkVisibilitySuccess": "{{count}} server(s) have been {{action}}.",
+      "bulkVisibilityHidden": "hidden",
+      "bulkVisibilityShown": "shown",
+      "bulkError": "Error during bulk operation.",
+      "selectedCount": "{{count}} server(s) selected",
+      "showBulk": "Show",
+      "hideBulk": "Hide",
+      "deleteBulk": "Delete {{count}}",
+      "deleteBulkSuccess": "{{count}} server(s) have been deleted.",
+      "deleteBulkTitle": "Delete {{count}} servers",
+      "deleteBulkDesc": "Are you sure you want to delete {{count}} servers? This action cannot be undone.",
+      "typeConfirmBulk": "Please type CONFIRM to validate",
+      "confirmText": "CONFIRM",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "deleteSuccess": "The server {{name}} has been deleted.",
+      "deleteTitle": "Delete Server",
+      "deleteDesc": "Are you sure you want to delete the server {{name}}? This action cannot be undone.",
+      "typeConfirm": "Please type CONFIRM to validate",
+      "deleteError": "Error during deletion."
     },
     "auditLogs": {
       "title": "Recent Activities",
