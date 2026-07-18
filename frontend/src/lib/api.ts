@@ -23,6 +23,7 @@ export interface Server {
     user?: User | null
     type?: "java" | "bedrock"
     hidden?: boolean
+    registered_date?: number
     data?: Record[]
 }
 
