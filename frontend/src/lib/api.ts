@@ -214,7 +214,7 @@ export async function fetchRecords(
 export async function createServer(
     server: { name: string; ip: string; port: number; type: "java" | "bedrock" },
     token: string
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/servers`, {
             method: "POST",
@@ -222,7 +222,7 @@ export async function createServer(
             body: JSON.stringify(server)
         })
         const json = await res.json()
-        return { success: json.success, message: json.message }
+        return { success: json.success, message: json.message, message_key: json.message_key }
     } catch (error) {
         console.error("Failed to create server:", error)
         return { success: false }
@@ -233,7 +233,7 @@ export async function renameServer(
     serverId: number,
     name: string,
     token: string
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/servers/${serverId}`, {
             method: "PATCH",
@@ -241,7 +241,7 @@ export async function renameServer(
             body: JSON.stringify({ name })
         })
         const json = await res.json()
-        return { success: json.success, message: json.message }
+        return { success: json.success, message: json.message, message_key: json.message_key }
     } catch (error) {
         console.error(`Failed to rename server ${serverId}:`, error)
         return { success: false }
@@ -251,7 +251,7 @@ export async function renameServer(
 export async function deleteServer(
     serverId: number,
     token: string
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/admin/servers/${serverId}`, {
             method: "DELETE",
@@ -259,7 +259,7 @@ export async function deleteServer(
         })
         if (res.status === 204 || res.status === 200) return { success: true }
         const json = await res.json()
-        return { success: json.success, message: json.message }
+        return { success: json.success, message: json.message, message_key: json.message_key }
     } catch (error) {
         console.error(`Failed to delete server ${serverId}:`, error)
         return { success: false }
@@ -298,14 +298,14 @@ export async function toggleServerVisibility(
     serverId: number,
     token: string,
     hidden: boolean
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/admin/servers/${serverId}?hidden=${hidden}`, {
             method: "POST",
             headers: getHeaders(token)
         })
         const json = await res.json()
-        return { success: json.success, message: json.message }
+        return { success: json.success, message: json.message, message_key: json.message_key }
     } catch (error) {
         console.error(`Failed to toggle visibility for server ${serverId}:`, error)
         return { success: false }

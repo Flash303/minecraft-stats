@@ -58,7 +58,7 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                 setFormData({ name: "", ip: "", port: "25565", type: "java" })
                 onSuccess?.()
             } else {
-                setError(result.message || t("addServer.error"))
+                setError(result.message_key ? t(result.message_key) : (result.message || t("addServer.error")))
             }
         } catch (err) {
             setError(t("common.error"))

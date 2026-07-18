@@ -340,5 +340,22 @@
       "s7Title": "7. Changes to this Policy",
       "s7Content": "We may update this Privacy Policy from time to time. If we make material changes, we will notify you by updating the date at the top of this policy and, in some cases, providing additional notice."
     }
+  },
+  "error": {
+    "server_creation": {
+      "not_reachable": "Server not reachable.",
+      "already_exist": "Server creation failed: Server already exists.",
+      "duplicate": "A similar server already exists.",
+      "database_problem": "A database error occurred while adding the server."
+    },
+    "fetching_data": "Failed to fetch data from the server.",
+    "disabled_feature": "This feature is currently disabled.",
+    "authentification": "Authentication failed. Please login again.",
+    "server_not_found": "The requested server could not be found.",
+    "validation": {
+      "invalid_param": "Invalid parameter provided in the request.",
+      "invalid_query": "Invalid query parameters provided.",
+      "invalid_json": "Invalid JSON format in the request body."
+    }
   }
 }
