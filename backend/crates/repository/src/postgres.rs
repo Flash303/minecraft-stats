@@ -172,8 +172,9 @@ impl Repository for PostgresRepository {
                    motd_hash = $8,
                    resolved_endpoint = $9,
                    hidden = $10,
-                   name = $11
-               WHERE id = $12")
+                   name = $11,
+                   last_ping_time = $12
+               WHERE id = $13")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
@@ -185,6 +186,7 @@ impl Repository for PostgresRepository {
             .bind(server.resolved_endpoint.clone())
             .bind(server.hidden)
             .bind(server.name.clone())
+            .bind(server.last_ping_time.map(|v| v as i32))
             .bind(server.id as i32)
             .execute(&self.pool)
             .await
@@ -209,6 +211,7 @@ impl Repository for PostgresRepository {
         let mut names = Vec::with_capacity(servers.len());
         let mut last_max_players = Vec::with_capacity(servers.len());
         let mut last_motds = Vec::with_capacity(servers.len());
+        let mut last_ping_times = Vec::with_capacity(servers.len());
 
         for s in servers {
             ids.push(s.id as i32);
@@ -222,6 +225,7 @@ impl Repository for PostgresRepository {
             names.push(s.name.clone());
             last_max_players.push(s.last_max_players);
             last_motds.push(s.last_motd.clone());
+            last_ping_times.push(s.last_ping_time.map(|v| v as i32));
         }
 
         sqlx::query(
@@ -237,9 +241,10 @@ impl Repository for PostgresRepository {
                 motd_hash = u.motd_hash,
                 resolved_endpoint = u.resolved_endpoint,
                 last_max_players = u.last_max_players,
-                last_motd = u.last_motd
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd)
+                last_motd = u.last_motd,
+                last_ping_time = u.last_ping_time
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[], $12::int4[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd, last_ping_time)
             WHERE s.id = u.id
             "#
         )
@@ -254,6 +259,7 @@ impl Repository for PostgresRepository {
         .bind(&names)
         .bind(&last_max_players)
         .bind(&last_motds)
+        .bind(&last_ping_times)
         .execute(&self.pool)
         .await
         .map_err(|e| e.to_string())?;

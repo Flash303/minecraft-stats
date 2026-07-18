@@ -32,7 +32,8 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_version = parse_minecraft_version_range(&ping.version.name)
                 .map(|(first, last)| format!("{} - {}", first, last))
                 .or(None);
-            server.last_max_players = Some(ping.players.max as i32);
+            server.last_max_players = Some(ping.players.max);
+            server.last_ping_time = Some(ping.latency);
             server.last_motd = serde_json::to_value(&ping.description).ok();
 
             // Update fingerprints
@@ -47,6 +48,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_connected = Some(ping.current_players);
             server.last_version = Some(ping.version.clone());
             server.last_max_players = Some(ping.max_players as i32);
+            server.last_ping_time = Some(ping.latency);
             server.last_motd = serde_json::to_value(ping.motd.clone()).ok();
 
             // Update fingerprints
