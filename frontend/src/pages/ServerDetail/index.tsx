@@ -257,20 +257,18 @@ export function ServerDetail() {
                     
                 </div>
 
-                {server.last_motd && (
-                    <div className="hidden md:flex w-full justify-center mt-[-1rem]">
-                        <div className="w-full max-w-[610px] transform hover:scale-[1.02] transition-transform duration-300 shadow-xl rounded-md overflow-hidden">
-                            <MinecraftMotd 
-                                motd={server.last_motd} 
-                                serverName={server.name}
-                                currentPlayers={server.last_connected ?? 0}
-                                maxPlayers={server.max_players ?? server.last_max_players ?? 20}
-                                favicon={server.last_favicon}
-                                pingTime={server.last_ping_time}
-                            />
-                        </div>
+                <div className="hidden md:flex w-full justify-center mt-[-1rem]">
+                    <div className="w-full max-w-[610px] transform hover:scale-[1.02] transition-transform duration-300 shadow-xl rounded-md overflow-hidden">
+                        <MinecraftMotd 
+                            motd={server.last_motd} 
+                            serverName={server.name}
+                            currentPlayers={server.last_connected ?? 0}
+                            maxPlayers={server.max_players ?? server.last_max_players ?? 20}
+                            favicon={server.last_favicon}
+                            pingTime={server.last_ping_time}
+                        />
                     </div>
-                )}
+                </div>
 
                     <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
                         {(loadingRecords || isPending) && (
