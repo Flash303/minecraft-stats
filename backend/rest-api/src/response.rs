@@ -13,6 +13,9 @@ pub struct ResponseFormat<T> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_key: Option<String>,
+
     #[serde(skip)]
     pub status: StatusCode,
 }
@@ -23,6 +26,7 @@ impl<T> ResponseFormat<T> {
             success: true,
             data: Some(data),
             message: None,
+            message_key: None,
             status,
         }
     }
@@ -32,6 +36,17 @@ impl<T> ResponseFormat<T> {
             success: false,
             data: None,
             message: Some(message),
+            message_key: None,
+            status,
+        }
+    }
+
+    pub fn error_translation(message: String, translation: String, status: StatusCode) -> Self {
+        ResponseFormat {
+            success: false,
+            data: None,
+            message: Some(message),
+            message_key: Some(translation),
             status,
         }
     }
