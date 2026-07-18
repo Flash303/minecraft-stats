@@ -317,6 +317,33 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
 }
 
 // 3. Convert formatted string with \n into React nodes
+function generateHiddenString(targetWidth: number): string {
+    let res = "";
+    let current = 0;
+    while (current < targetWidth) {
+        if (targetWidth - current >= 6) {
+            res += "-";
+            current += 6;
+        } else if (targetWidth - current === 5) {
+            res += "f";
+            current += 5;
+        } else if (targetWidth - current === 4) {
+            res += " ";
+            current += 4;
+        } else if (targetWidth - current === 3) {
+            res += "l";
+            current += 3;
+        } else if (targetWidth - current === 2) {
+            res += "i";
+            current += 2;
+        } else {
+            res += "i";
+            current += 2;
+        }
+    }
+    return res;
+}
+
 function parseLegacyText(text: string): React.ReactNode[] {
     const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};)/i);
     const elements: React.ReactNode[] = [];
@@ -420,7 +447,7 @@ export function MinecraftMotd({
 
     const guiScale = 2;
     const listWidth = 304; // Standard Minecraft list width
-    const textMaxWidth = listWidth - 32 - 2; // Width in MC pixels (270)
+    const textMaxWidth = listWidth - 32 - 2; // Width in MC pixels
     
     const fontHeight = 9 * guiScale;
     const iconSize = 32 * guiScale;
@@ -436,9 +463,9 @@ export function MinecraftMotd({
 
     return (
         <div className={cn(
-            "flex w-full bg-[#000000] p-[4px] mx-auto",
+            "flex bg-[#000000] p-[4px] mx-auto w-fit",
             className
-        )} style={{ maxWidth: `${listWidth * guiScale + 8}px` }}>
+        )} style={{ maxWidth: '100%' }}>
             <div 
                 className="flex items-start shrink-0"
                 style={{ marginRight: `${margin}px` }}
@@ -452,8 +479,16 @@ export function MinecraftMotd({
             </div>
             <div 
                 className="flex flex-col flex-grow overflow-hidden"
-                style={{ width: `${textMaxWidth * guiScale}px`, maxWidth: '100%' }}
+                style={{ maxWidth: '100%' }}
             >
+                {/* Hidden string to force exact rendered width of MC text */}
+                <div 
+                    className="h-0 overflow-hidden pointer-events-none select-none font-minecraft opacity-0" 
+                    aria-hidden="true"
+                    style={{ fontSize: `${fontHeight}px`, whiteSpace: 'pre' }}
+                >
+                    {generateHiddenString(textMaxWidth)}
+                </div>
                 <div 
                     className="flex w-full items-center font-minecraft"
                     style={{ fontSize: `${fontHeight}px`, height: `${fontHeight}px`, marginBottom: '4px' }}
