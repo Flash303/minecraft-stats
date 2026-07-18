@@ -4,7 +4,7 @@ import { fetchRecords } from "@/lib/api"
 import { MiniChart } from "./MiniChart"
 import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
-import { Check, Copy } from "lucide-react"
+import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 
 interface ServerCardProps {
@@ -149,8 +149,12 @@ export function ServerCard({ server }: ServerCardProps) {
                     )}
                 </div>
 
-                <div className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
-                    {isOnline ? "En ligne" : "Hors ligne"}
+                <div className={cn(
+                    "flex items-center gap-1 text-[10px] font-medium",
+                    isOnline ? "text-emerald-500/90 dark:text-emerald-400/90" : "text-rose-500/90 dark:text-rose-400/90"
+                )}>
+                    {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+                    {isOnline ? t("common.online") : t("common.offline")}
                 </div>
             </div>
         </div>

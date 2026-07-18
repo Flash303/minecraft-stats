@@ -1,6 +1,7 @@
 import React from "react"
 import { cn } from "@/lib/utils"
 import pingIcon from "@/assets/ping.png"
+import default_icon from "@/assets/default_favicon.svg"
 import {
   Tooltip,
   TooltipContent,
@@ -413,9 +414,9 @@ export function MinecraftMotd({
     favicon,
     pingTime
 }: MinecraftMotdProps) {
-    if (!motd) return null;
+    const actualMotd = motd || { text: "A Minecraft Server", color: "dark_gray" };
     
-    const displayFavicon = favicon || "/assets/default_favicon.png";
+    const displayFavicon = favicon || default_icon;
 
     const guiScale = 2;
     const listWidth = 304; // Standard Minecraft list width
@@ -427,7 +428,7 @@ export function MinecraftMotd({
     const maxLines = 2;
 
     // Fully parse MOTD to replicate exact Minecraft text wrapping
-    const flatMotd = flattenMotd(motd);
+    const flatMotd = flattenMotd(actualMotd);
     const wrappedMotd = wrapMinecraftText(flatMotd, textMaxWidth);
     // Limit to exactly 2 lines
     const finalLines = wrappedMotd.split('\n').slice(0, 2).join('\n');

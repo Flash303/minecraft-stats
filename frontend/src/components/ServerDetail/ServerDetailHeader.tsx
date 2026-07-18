@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
+import default_icon from "@/assets/default_favicon.svg"
 
 interface ServerDetailHeaderProps {
     server: Server
@@ -36,9 +37,15 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
                     <img
                         src={server.last_favicon}
                         alt=""
-                        className="h-10 w-10 rounded shadow-sm flex-shrink-0"
+                        className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
                     />
-                ) : null}
+                ) : (
+                    <img
+                        src={default_icon}
+                        alt=""
+                        className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
+                    />
+                )}
                 <div className="flex flex-col min-w-0">
                     <h1 className="font-bold text-xl leading-none mb-1 line-clamp-1">
                         {server.name}
