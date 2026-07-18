@@ -245,6 +245,12 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         }
     }
 
+    useEffect(() => {
+        if (chartRef.current) {
+            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
+        }
+    }, [timeRange.from, timeRange.to])
+
     const options = useMemo(() => {
         const isDark = theme === "dark"
         const gridColor = isDark ? "#374151" : "#e5e7eb"
@@ -286,6 +292,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
             scales: {
                 x: {
                     time: true,
+                    auto: false,
                     min: timeRange.from,
                     max: timeRange.to,
                     range: (u: uPlot, min: number, max: number) => {

@@ -10,27 +10,31 @@ import { Layout } from "@/components/layout"
 import { ScrollToTop } from "@/components/ScrollToTop"
 
 
+import { TooltipProvider } from "@/components/ui/tooltip"
+
 function App() {
     return (
-        <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-                <Route element={<Layout />}>
-                    <Route path="/" element={<ServerList />} />
-                    <Route path="/server/:id" element={<ServerDetail />} />
-                    <Route path="/compare" element={<ServerComparison />} />
-                    <Route path="/account/*" element={<Account />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/privacy" element={<Privacy />} />
+        <TooltipProvider>
+            <BrowserRouter>
+                <ScrollToTop />
+                <Routes>
+                    <Route element={<Layout />}>
+                        <Route path="/" element={<ServerList />} />
+                        <Route path="/server/:id" element={<ServerDetail />} />
+                        <Route path="/compare" element={<ServerComparison />} />
+                        <Route path="/account/*" element={<Account />} />
+                        <Route path="/terms" element={<Terms />} />
+                        <Route path="/privacy" element={<Privacy />} />
 
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Route>
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                    </Route>
 
-                <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<AdminDashboard />} />
-                <Route path="/dashboard/:subview" element={<AdminDashboard />} />
-            </Routes>
-        </BrowserRouter>
+                    <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/dashboard" element={<AdminDashboard />} />
+                    <Route path="/dashboard/:subview" element={<AdminDashboard />} />
+                </Routes>
+            </BrowserRouter>
+        </TooltipProvider>
     )
 }
 
