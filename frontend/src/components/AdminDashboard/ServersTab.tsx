@@ -515,9 +515,11 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(server.name)
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setError(null)
         if (!name.trim() || name.trim() === server.name) return
 
         setLoading(true)
@@ -528,9 +530,12 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
             if (res.success) {
                 setOpen(false)
                 onSuccess()
+            } else {
+                setError(res.message_key ? t(res.message_key) : (res.message || t("admin.servers.renameError")))
             }
         } catch (error) {
             console.error(error)
+            setError(t("admin.servers.renameError"))
         } finally {
             setLoading(false)
         }
@@ -564,6 +569,7 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
                             />
                         </div>
                     </div>
+                    {error && <div className="px-6 pb-4"><p className="text-sm font-medium text-destructive">{error}</p></div>}
                     <DialogFooter>
                         <Button type="submit" disabled={loading || !name.trim() || name.trim() === server.name}>
                             {loading ? t("admin.servers.renameSaving") : t("admin.servers.renameSave")}
@@ -595,6 +601,10 @@ function DeleteServerModal({ server, onSuccess, triggerToast, t }: { server: Ser
                     onSuccess()
                     if (triggerToast) {
                         triggerToast("success", t("admin.servers.deleteSuccess", { name: server.name }))
+                    }
+                } else {
+                    if (triggerToast) {
+                        triggerToast("error", res.message_key ? t(res.message_key) : (res.message || t("admin.servers.deleteError")))
                     }
                 }
             }

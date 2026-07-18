@@ -340,5 +340,22 @@
       "s7Title": "7. Modifications de cette politique",
       "s7Content": "Nous pouvons mettre à jour cette politique périodiquement. En cas de changement majeur, nous mettrons à jour la date en haut du document et pourrons vous fournir une notification supplémentaire."
     }
+  },
+  "error": {
+    "server_creation": {
+      "not_reachable": "Le serveur est injoignable.",
+      "already_exist": "La création du serveur a échoué : Ce serveur existe déjà.",
+      "duplicate": "Un serveur similaire existe déjà.",
+      "database_problem": "Une erreur de base de données s'est produite lors de l'ajout du serveur."
+    },
+    "fetching_data": "Impossible de récupérer les données du serveur.",
+    "disabled_feature": "Cette fonctionnalité est actuellement désactivée.",
+    "authentification": "Échec de l'authentification. Veuillez vous reconnecter.",
+    "server_not_found": "Le serveur demandé est introuvable.",
+    "validation": {
+      "invalid_param": "Paramètre invalide fourni dans la requête.",
+      "invalid_query": "Paramètres de requête invalides.",
+      "invalid_json": "Format JSON invalide dans le corps de la requête."
+    }
   }
 }

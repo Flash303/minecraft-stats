@@ -154,6 +154,8 @@ export function AdminDashboard() {
                     })
                 }
                 setAuditLogs(prev => [newLog, ...prev])
+            } else if (result.message_key || result.message) {
+                triggerToast("error", result.message_key ? t(result.message_key) : result.message!)
             } else {
                 // Fallback simulation
                 setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))

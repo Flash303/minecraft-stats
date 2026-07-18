@@ -6,7 +6,7 @@ use log::info;
 use minecraft_pinger::config::PingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
-use crate::error::AppError;
+use crate::error::{AppError, ServerCreationError};
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
@@ -54,7 +54,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
     }
 
     if !is_reachable {
-        return Err(AppError::ServerCreationError("Server not reachable".to_string()));
+        return Err(AppError::ServerCreationError(ServerCreationError::NotReachable));
     }
 
     query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
@@ -70,7 +70,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         state.repository.as_ref(),
         &fingerprint,
         None,
-    ).await.map_err(|e| AppError::ServerCreationError(e))? {
+    ).await.map_err(|e| AppError::ServerCreationError(ServerCreationError::DuplicationDetection(e)))? {
         info!(
             "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
             query.name,
@@ -81,16 +81,15 @@ pub(super) async fn create_server(State(state): State<AppState>,
         );
 
         drop(fingerprint);
-        return Err(AppError::ServerCreationError("Server already exists".to_string()));
+        return Err(AppError::ServerCreationError(ServerCreationError::AlreadyExist));
     }
     drop(fingerprint);
 
     query.user_id = Some(account.unwrap().sub);
 
     let rs = state.repository.create_server(query).await;
-    if let Err(error) = rs {
-        info!("Error creating server: {:?}", error);
-        return Err(AppError::ServerCreationError(error));
+    if let Err(_error) = rs {
+        return Err(AppError::ServerCreationError(ServerCreationError::Database));
     }
 
     Ok(ResponseFormat::success(rs.unwrap(), StatusCode::OK))
