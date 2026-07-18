@@ -264,6 +264,12 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     }
 
+    useEffect(() => {
+        if (chartRef.current) {
+            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
+        }
+    }, [timeRange.from, timeRange.to])
+
     // Configuration globale du graphique
     const options = useMemo(() => {
         const isDark = theme === "dark"
@@ -284,6 +290,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             scales: {
                 x: {
                     time: true,
+                    auto: false,
                     min: timeRange.from,
                     max: timeRange.to,
                     range: (u: uPlot, min: number, max: number) => {
