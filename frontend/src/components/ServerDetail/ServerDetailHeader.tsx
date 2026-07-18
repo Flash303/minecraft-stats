@@ -3,15 +3,16 @@ import { Link } from "react-router-dom"
 import type { Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon } from "lucide-react"
+import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 
 interface ServerDetailHeaderProps {
     server: Server
     t: (key: string) => string
+    locale?: string
 }
 
-export function ServerDetailHeader({ server, t }: ServerDetailHeaderProps) {
+export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     const isOnline = server.last_status === "online"
@@ -81,6 +82,12 @@ export function ServerDetailHeader({ server, t }: ServerDetailHeaderProps) {
                                 <span className="font-medium text-foreground">
                                     {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
                                 </span>
+                            </div>
+                        )}
+                        {server.registered_date && (
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                                <Calendar className="h-3 w-3" />
+                                <span>{new Date(server.registered_date * 1000).toLocaleDateString(locale)}</span>
                             </div>
                         )}
                     </div>

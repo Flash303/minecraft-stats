@@ -29,7 +29,8 @@
     },
     "enter": "Entrée",
     "noData": "Aucune donnée",
-    "noDataForRange": "Aucune donnée pour cette période"
+    "noDataForRange": "Aucune donnée pour cette période",
+    "cancel": "Annuler"
   },
   "header": {
     "title": "Minecraft Stats",
@@ -182,7 +183,27 @@
       "renameLabel": "Nom du serveur",
       "renamePlaceholder": "Mon super serveur",
       "renameSaving": "Modification...",
-      "renameSave": "Enregistrer"
+      "renameSave": "Enregistrer",
+      "bulkVisibilitySuccess": "{{count}} serveur(s) ont été {{action}}.",
+      "bulkVisibilityHidden": "caché(s)",
+      "bulkVisibilityShown": "affiché(s)",
+      "bulkError": "Erreur lors de l'opération en masse.",
+      "selectedCount": "{{count}} serveur(s) sélectionné(s)",
+      "showBulk": "Montrer",
+      "hideBulk": "Cacher",
+      "deleteBulk": "Supprimer {{count}}",
+      "deleteBulkSuccess": "{{count}} serveur(s) ont été supprimés.",
+      "deleteBulkTitle": "Supprimer {{count}} serveurs",
+      "deleteBulkDesc": "Êtes-vous sûr de vouloir supprimer {{count}} serveurs ? Cette action est irréversible.",
+      "typeConfirmBulk": "Veuillez taper CONFIRMER pour valider",
+      "confirmText": "CONFIRMER",
+      "deleting": "Suppression...",
+      "delete": "Supprimer",
+      "deleteSuccess": "Le serveur {{name}} a été supprimé.",
+      "deleteTitle": "Supprimer le serveur",
+      "deleteDesc": "Êtes-vous sûr de vouloir supprimer le serveur {{name}} ? Cette action est irréversible.",
+      "typeConfirm": "Veuillez taper CONFIRMER pour valider",
+      "deleteError": "Erreur lors de la suppression."
     },
     "auditLogs": {
       "title": "Activités Récentes",

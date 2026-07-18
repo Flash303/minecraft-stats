@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::FromRow;
+use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Server {
@@ -15,6 +16,9 @@ pub struct Server {
     pub server_type: ServerType,
 
     pub hidden: bool,
+
+    #[serde(with = "time::serde::timestamp")]
+    pub registered_date: OffsetDateTime,
 
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
@@ -46,6 +50,8 @@ pub struct ServerRow {
 
     hidden: bool,
 
+    registered_date: OffsetDateTime,
+
     last_favicon: Option<String>,
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
@@ -68,6 +74,7 @@ impl From<ServerRow> for Server {
             port: row.port as u16,
             server_type: row.server_type,
             hidden: row.hidden,
+            registered_date: row.registered_date,
 
             last_favicon: row.last_favicon,
             last_status: row.last_status,

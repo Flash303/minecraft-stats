@@ -239,7 +239,7 @@ export function ServerDetail() {
             <div className="flex flex-col gap-8 pb-12">
                 <div className="flex flex-col gap-6 border-b pb-6">
                     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                        <ServerDetailHeader server={server} t={t} />
+                        <ServerDetailHeader server={server} t={t} locale={locale} />
 
                         <TimeIntervalSelector
                             selectedRange={selectedRange}

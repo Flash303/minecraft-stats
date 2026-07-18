@@ -66,12 +66,12 @@ export function ServersTab({
             const token = await getToken()
             if (!token) return
             await Promise.all(selectedIds.map(id => toggleServerVisibility(id, token, hide)))
-            if (triggerToast) triggerToast("success", `${selectedIds.length} serveur(s) ont été ${hide ? "caché(s)" : "affiché(s)"}.`)
+            if (triggerToast) triggerToast("success", t("admin.servers.bulkVisibilitySuccess", { count: selectedIds.length.toString(), action: hide ? t("admin.servers.bulkVisibilityHidden") : t("admin.servers.bulkVisibilityShown") }))
             onRefresh()
             setSelectedIds([])
         } catch (error) {
             console.error(error)
-            if (triggerToast) triggerToast("error", t("common.error") || "Erreur lors de l'opération en masse.")
+            if (triggerToast) triggerToast("error", t("admin.servers.bulkError"))
         } finally {
             setIsBulkLoading(false)
         }
@@ -216,7 +216,7 @@ export function ServersTab({
             {selectedIds.length > 0 && (
                 <div className="flex items-center gap-3 bg-muted/30 border border-slate-200 dark:border-zinc-800 rounded-xl p-3 shadow-xs">
                     <span className="text-sm font-semibold text-foreground">
-                        {selectedIds.length} serveur(s) sélectionné(s)
+                        {t("admin.servers.selectedCount", { count: selectedIds.length.toString() })}
                     </span>
                     <div className="flex items-center gap-2 ml-auto">
                         <Button 
@@ -226,7 +226,7 @@ export function ServersTab({
                             disabled={isBulkLoading}
                             onClick={() => handleBulkVisibility(false)}
                         >
-                            <Eye className="h-3 w-3" /> Montrer
+                            <Eye className="h-3 w-3" /> {t("admin.servers.showBulk")}
                         </Button>
                         <Button 
                             variant="outline" 
@@ -235,9 +235,9 @@ export function ServersTab({
                             disabled={isBulkLoading}
                             onClick={() => handleBulkVisibility(true)}
                         >
-                            <EyeOff className="h-3 w-3" /> Cacher
+                            <EyeOff className="h-3 w-3" /> {t("admin.servers.hideBulk")}
                         </Button>
-                        <BulkDeleteModal selectedIds={selectedIds} onClear={() => setSelectedIds([])} onSuccess={onRefresh} triggerToast={triggerToast} />
+                        <BulkDeleteModal selectedIds={selectedIds} onClear={() => setSelectedIds([])} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                     </div>
                 </div>
             )}
@@ -421,7 +421,7 @@ export function ServersTab({
                                                 </Button>
                                                 
                                                 <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
-                                                <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} />
+                                                <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                             </div>
                                         </td>
                                     </tr>
@@ -441,7 +441,7 @@ export function ServersTab({
     )
 }
 
-function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear }: { selectedIds: number[], onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void, onClear: () => void }) {
+function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear, t }: { selectedIds: number[], onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void, onClear: () => void, t: any }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [confirmText, setConfirmText] = useState("")
@@ -449,7 +449,7 @@ function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear }: { se
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (confirmText !== "CONFIRMER") return
+        if (confirmText !== t("admin.servers.confirmText")) return
 
         setLoading(true)
         try {
@@ -459,13 +459,13 @@ function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear }: { se
                 setOpen(false)
                 onSuccess()
                 if (triggerToast) {
-                    triggerToast("success", `${selectedIds.length} serveur(s) ont été supprimés.`)
+                    triggerToast("success", t("admin.servers.deleteBulkSuccess", { count: selectedIds.length.toString() }))
                 }
                 onClear()
             }
         } catch (error) {
             console.error(error)
-            if (triggerToast) triggerToast("error", "Erreur lors de la suppression.")
+            if (triggerToast) triggerToast("error", t("admin.servers.deleteError"))
         } finally {
             setLoading(false)
         }
@@ -479,31 +479,29 @@ function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear }: { se
             <DialogTrigger asChild>
                 <Button variant="destructive" size="sm" className="h-7 text-xs gap-1">
                     <Trash2 className="h-3 w-3" />
-                    Supprimer {selectedIds.length}
+                    {t("admin.servers.deleteBulk", { count: selectedIds.length.toString() })}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Supprimer {selectedIds.length} serveurs</DialogTitle>
-                    <DialogDescription>
-                        Êtes-vous sûr de vouloir supprimer <strong>{selectedIds.length}</strong> serveurs ? Cette action est irréversible.
-                    </DialogDescription>
+                    <DialogTitle>{t("admin.servers.deleteBulkTitle", { count: selectedIds.length.toString() })}</DialogTitle>
+                    <DialogDescription dangerouslySetInnerHTML={{ __html: t("admin.servers.deleteBulkDesc", { count: selectedIds.length.toString() }) }} />
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="bulk-confirm">Veuillez taper <strong>CONFIRMER</strong> pour valider</Label>
+                        <Label htmlFor="bulk-confirm" dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirmBulk") }} />
                         <Input
                             id="bulk-confirm"
                             value={confirmText}
                             onChange={(e) => setConfirmText(e.target.value)}
-                            placeholder="CONFIRMER"
+                            placeholder={t("admin.servers.confirmText")}
                             required
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-                        <Button type="submit" variant="destructive" disabled={loading || confirmText !== "CONFIRMER"}>
-                            {loading ? "Suppression..." : "Supprimer"}
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+                        <Button type="submit" variant="destructive" disabled={loading || confirmText !== t("admin.servers.confirmText")}>
+                            {loading ? t("admin.servers.deleting") : t("admin.servers.delete")}
                         </Button>
                     </DialogFooter>
                 </form>
@@ -577,7 +575,7 @@ function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess
     )
 }
 
-function DeleteServerModal({ server, onSuccess, triggerToast }: { server: Server, onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void }) {
+function DeleteServerModal({ server, onSuccess, triggerToast, t }: { server: Server, onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void, t: any }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [confirmText, setConfirmText] = useState("")
@@ -585,7 +583,7 @@ function DeleteServerModal({ server, onSuccess, triggerToast }: { server: Server
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (confirmText !== "CONFIRMER") return
+        if (confirmText !== t("admin.servers.confirmText")) return
 
         setLoading(true)
         try {
@@ -596,12 +594,13 @@ function DeleteServerModal({ server, onSuccess, triggerToast }: { server: Server
                     setOpen(false)
                     onSuccess()
                     if (triggerToast) {
-                        triggerToast("success", `Le serveur ${server.name} a été supprimé.`)
+                        triggerToast("success", t("admin.servers.deleteSuccess", { name: server.name }))
                     }
                 }
             }
         } catch (error) {
             console.error(error)
+            if (triggerToast) triggerToast("error", t("admin.servers.deleteError"))
         } finally {
             setLoading(false)
         }
@@ -615,31 +614,29 @@ function DeleteServerModal({ server, onSuccess, triggerToast }: { server: Server
             <DialogTrigger asChild>
                 <Button variant="destructive" size="sm" className="gap-1">
                     <Trash2 className="h-3 w-3" />
-                    Supprimer
+                    {t("admin.servers.delete")}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Supprimer le serveur</DialogTitle>
-                    <DialogDescription>
-                        Êtes-vous sûr de vouloir supprimer le serveur <strong>{server.name}</strong> ? Cette action est irréversible.
-                    </DialogDescription>
+                    <DialogTitle>{t("admin.servers.deleteTitle")}</DialogTitle>
+                    <DialogDescription dangerouslySetInnerHTML={{ __html: t("admin.servers.deleteDesc", { name: server.name }) }} />
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor={`confirm-${server.id}`}>Veuillez taper <strong>CONFIRMER</strong> pour valider</Label>
+                        <Label htmlFor={`confirm-${server.id}`} dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirm") }} />
                         <Input
                             id={`confirm-${server.id}`}
                             value={confirmText}
                             onChange={(e) => setConfirmText(e.target.value)}
-                            placeholder="CONFIRMER"
+                            placeholder={t("admin.servers.confirmText")}
                             required
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-                        <Button type="submit" variant="destructive" disabled={loading || confirmText !== "CONFIRMER"}>
-                            {loading ? "Suppression..." : "Supprimer"}
+                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+                        <Button type="submit" variant="destructive" disabled={loading || confirmText !== t("admin.servers.confirmText")}>
+                            {loading ? t("admin.servers.deleting") : t("admin.servers.delete")}
                         </Button>
                     </DialogFooter>
                 </form>
