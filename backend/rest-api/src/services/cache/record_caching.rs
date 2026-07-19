@@ -71,7 +71,9 @@ pub async fn cache_missing_records(state: AppState,
         if let Ok(dt) = OffsetDateTime::from_unix_timestamp(*ts) {
             let day: HumainDay = dt.into();
             let key = format!("{}_{}", day.to_value_key(), id);
-            pipe.zadd(key, val, *ts as u32).ignore();
+            // ZSET members must be unique. Using `val` alone causes identical values 
+            // on the same day to overwrite each other. Using "{ts}:{val}" guarantees uniqueness.
+            pipe.zadd(key, format!("{}:{}", ts, val), *ts as u32).ignore();
         }
     }
     

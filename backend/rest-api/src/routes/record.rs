@@ -81,11 +81,18 @@ async fn fetch_records(State(state): State<AppState>,
                 let query_start = range.0.max(from_ts);
                 let query_end = range.1.min(to_ts);
 
-                let result: Result<Vec<(u32, u32)>, _> = redis_con.zrangebyscore_withscores(&key, query_start, query_end).await;
-                if let Ok(data) = result {
-                    for (value, score) in data {
-                        final_timestamps.push(score as i64);
-                        final_values.push(value);
+                if query_start <= query_end {
+                    let result: Result<Vec<(String, u32)>, _> = redis_con.zrangebyscore_withscores(&key, query_start, query_end).await;
+                    if let Ok(data) = result {
+                        for (member, score) in data {
+                            let value = if let Some((_, val_str)) = member.split_once(':') {
+                                val_str.parse::<u32>().unwrap_or(0)
+                            } else {
+                                member.parse::<u32>().unwrap_or(0)
+                            };
+                            final_timestamps.push(score as i64);
+                            final_values.push(value);
+                        }
                     }
                 }
             }
@@ -96,11 +103,11 @@ async fn fetch_records(State(state): State<AppState>,
 
         // Identify missing gaps to fetch from SQL
         for &(start, end) in &rs.merged_ranges {
-            let intersection_start = start.max(current_ts);
+            let intersection_start = start.max(current_ts).min(to_ts);
             if intersection_start > current_ts {
                 missing_ranges.push((current_ts, intersection_start));
             }
-            current_ts = current_ts.max(end);
+            current_ts = current_ts.max(end).min(to_ts);
         }
         if current_ts < to_ts {
             missing_ranges.push((current_ts, to_ts));
