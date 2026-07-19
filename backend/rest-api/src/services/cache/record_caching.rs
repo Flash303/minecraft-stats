@@ -76,10 +76,24 @@ pub async fn cache_missing_records(state: AppState,
     }
     
     for (start, end) in missing_ranges {
-        if let Ok(dt) = OffsetDateTime::from_unix_timestamp(start as i64) {
-            let day: HumainDay = dt.into();
-            let key = format!("{}_{}", day.to_hash_key(), id);
-            pipe.hset(key, start, end).ignore();
+        let mut current = start;
+        while current < end {
+            if let Ok(dt) = OffsetDateTime::from_unix_timestamp(current as i64) {
+                let day: HumainDay = dt.into();
+                let key = format!("{}_{}", day.to_hash_key(), id);
+                
+                // End of the current day (start of next day)
+                let next_day_dt = dt.replace_time(time::Time::MIDNIGHT) + time::Duration::days(1);
+                let next_day_ts = next_day_dt.unix_timestamp() as u32;
+                
+                let chunk_end = end.min(next_day_ts);
+                
+                pipe.hset(key, current, chunk_end).ignore();
+                
+                current = chunk_end;
+            } else {
+                break;
+            }
         }
     }
     
