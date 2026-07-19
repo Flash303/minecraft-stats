@@ -19,8 +19,10 @@ use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use log::info;
+use deadpool_redis::{Config, Runtime};
+use log::{error, info, warn};
 use minecraft_pinger::MinecraftPinger;
+use redis::Client;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use repository::postgres::PostgresRepository;
@@ -37,7 +39,7 @@ async fn main() {
     let port = env::var("LISTEN_PORT")
         .map(|p| p.parse::<u16>().unwrap_or(DEFAULT_PORT))
         .unwrap_or_else(|_| {
-            info!("Please set the LISTEN_PORT environment variable, using defaults.");
+            warn!("Please set the LISTEN_PORT environment variable, using defaults.");
             DEFAULT_PORT
         });
 
@@ -45,29 +47,45 @@ async fn main() {
     // Init DB
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| {
-            info!("Please set the DATABASE_URL environment variable, using defaults.");
+            warn!("Please set the DATABASE_URL environment variable, using defaults.");
             "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
         });
 
     let result = PostgresRepository::from_url(database_url).await;
     if let Err(err) = result {
-        info!("Error on database init: {}", err);
+        error!("Error on database init: {}", err);
         return;
     }
     let repository = result.unwrap();
 
 
+    // Init redis
+    let redis_url = env::var("REDIS_URL")
+        .unwrap_or_else(|_| {
+            warn!("Please set the REDIS_URL environment variable, using defaults.");
+            "redis://default:mR5YtEPugXsGaQQf1ASG@minecraftstats-redis-5izo6v:6379".to_string()
+        });
+
+    let redis_config = Config::from_url(redis_url);
+
+    let redis_pool = redis_config.create_pool(Some(Runtime::Tokio1));
+    if let Err(e) = redis_pool {
+        error!("Redis pool creation failed {}", e);
+        return;
+    }
+    let redis_pool = redis_pool.unwrap();
+
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
     if let Err(_) = clerk_instance {
-        info!("Please provide a CLERK_URL environment variable.");
+        error!("Please provide a CLERK_URL environment variable.");
         return;
     }
     let clerk_instance = clerk_instance.unwrap();
 
     let result = fetch_clerk_jwks(format!("{}/.well-known/jwks.json", clerk_instance).as_str()).await;
     if let Err(err) = result {
-        info!("Error on clerk init: {}", err);
+        error!("Error on clerk init: {}", err);
         return;
     }
     let keys = result.unwrap();
@@ -76,7 +94,7 @@ async fn main() {
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
     if let Err(_) = clerk_secret_key {
-        info!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
+        warn!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
     }
     let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
 
@@ -84,7 +102,7 @@ async fn main() {
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
     if let Err(err) = pinger {
-        info!("Error on pinger init: {}", err);
+        error!("Error on pinger init: {}", err);
         return;
     }
     let pinger = pinger.unwrap();
@@ -100,6 +118,7 @@ async fn main() {
 
     let state = AppState {
         repository: Arc::new(repository),
+        redis_client: redis_pool,
         pigner: Arc::new(pinger),
 
         jwks: Arc::new(keys),
