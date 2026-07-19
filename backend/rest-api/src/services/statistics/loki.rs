@@ -24,7 +24,6 @@ pub async fn send_to_loki(route: &str,
                           ip: &str, user_id: Option<String>) {
     let result = env::var("LOKI_URL");
     if let Err(_) = result {
-        info!("Url not found for loki");
         return;
     }
 
@@ -57,11 +56,5 @@ pub async fn send_to_loki(route: &str,
             .json(&payload)
             .send()
             .await;
-
-        if let Err(err) = res {
-            info!("Error on push data {}", err)
-        } else {
-            info!("Code {}" , res.unwrap().status())
-        }
     });
 }
