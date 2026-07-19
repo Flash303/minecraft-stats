@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::env;
-use log::info;
 use serde::Serialize;
 use time::OffsetDateTime;
 
@@ -52,7 +51,7 @@ pub async fn send_to_loki(route: &str,
 
     tokio::spawn(async move {
         let client = reqwest::Client::new();
-        let res = client.post(result.unwrap())
+        let _ = client.post(result.unwrap())
             .json(&payload)
             .send()
             .await;
