@@ -1,20 +1,21 @@
 use crate::services::clerk::model::ClerkClaims;
 use crate::error::AppError;
-use crate::response::ResponseFormat;
 use crate::state::AppState;
 use axum::extract::{Path, Query, State};
 use axum::extract::rejection::{PathRejection, QueryRejection};
 use axum::http::{StatusCode};
 use axum::routing::get;
 use axum::{Extension, Router};
+use axum::http::header::{CONTENT_TYPE};
+use axum::response::IntoResponse;
 use log::info;
-use repository::models::record::{RecordData};
 use serde::{Deserialize};
 use time::{ OffsetDateTime};
 use tokio::time::Instant;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::key_extractor::SmartIpKeyExtractor;
+use crate::response::ResponseFormat;
 
 pub fn router() -> Router<AppState> {
     let rate_limit_config = GovernorConfigBuilder::default()
@@ -34,12 +35,13 @@ struct GetParam {
     pub from: OffsetDateTime,
     #[serde(with = "time::serde::timestamp::option", default)]
     pub to: Option<OffsetDateTime>,
+    pub json: Option<bool>,
 }
 
 async fn fetch_records(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>,
-                    query: Result<Query<GetParam>, QueryRejection>) -> Result<impl axum::response::IntoResponse, AppError> {
+                    query: Result<Query<GetParam>, QueryRejection>) -> Result<impl IntoResponse, AppError> {
     let id = *id?;
     let query = query?;
 
@@ -63,9 +65,13 @@ async fn fetch_records(State(state): State<AppState>,
 
     let data = result.unwrap();
     
-    Ok((
-        StatusCode::ACCEPTED,
-        [(axum::http::header::CONTENT_TYPE, "application/octet-stream")],
-        data.into_binary()
-    ))
+    if query.json.unwrap_or(false) {
+        Ok((
+            StatusCode::OK,
+            [(CONTENT_TYPE, "application/octet-stream")],
+            data.into_binary()
+        ).into_response())
+    } else {
+        Ok(ResponseFormat::success(data, StatusCode::OK).into_response())
+    }
 }
