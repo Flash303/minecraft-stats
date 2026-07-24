@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
+use axum::response::{IntoResponse, Response};
 use axum::Json;
-use axum::response::IntoResponse;
-use serde::{Serialize};
+use serde::Serialize;
 
 #[derive(Serialize, Debug)]
 pub struct ResponseFormat<T> {
@@ -53,7 +53,7 @@ impl<T> ResponseFormat<T> {
 }
 
 impl<T: Serialize> IntoResponse for ResponseFormat<T> {
-    fn into_response(self) -> axum::response::Response {
+    fn into_response(self) -> Response {
         let status = self.status;
         let body = Json(self);
         (status, body).into_response()
