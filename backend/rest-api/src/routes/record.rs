@@ -64,8 +64,8 @@ async fn fetch_records(State(state): State<AppState>,
     info!("Time to request all database data {}ms", instant.elapsed().as_millis());
 
     let data = result.unwrap();
-    
-    if query.json.unwrap_or(false) {
+
+    if query.json.unwrap_or(true) {
         Ok((
             StatusCode::OK,
             [(CONTENT_TYPE, "application/octet-stream")],
