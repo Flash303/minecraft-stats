@@ -166,19 +166,34 @@ export async function fetchRecords(
             headers: getHeaders(token)
         })
         if (!res.ok) return []
-        const json = await res.json()
-        if (!json.success || !json.data || json.data.length < 2) return []
+        
+        const buffer = await res.arrayBuffer()
+        if (buffer.byteLength < 4) return []
 
-        const dates = json.data[0] || []
-        const values = json.data[1] || []
+        const dataView = new DataView(buffer)
+        const len = dataView.getUint32(0, true)
+        if (len === 0) return []
+
+        const baseTimestamp = Number(dataView.getBigInt64(4, true))
+
+        const deltasOffset = 12
+        const valuesOffset = 12 + len * 4
+
+        const deltas = new Uint32Array(buffer, deltasOffset, len)
+        const valuesArr = new Uint32Array(buffer, valuesOffset, len)
+
+        const dates = new Float64Array(len)
+        for (let i = 0; i < len; i++) {
+            dates[i] = baseTimestamp + deltas[i]
+        }
 
         if (interval && interval > 0) {
             const intervalSec = interval / 1000
             const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
 
-            for (let i = 0; i < dates.length; i++) {
+            for (let i = 0; i < len; i++) {
                 const t = dates[i]
-                const val = values[i]
+                const val = valuesArr[i]
                 const bucketTime = Math.floor(t / intervalSec) * intervalSec
                 if (!buckets[bucketTime]) {
                     buckets[bucketTime] = { sum: 0, count: 0 }
@@ -197,10 +212,10 @@ export async function fetchRecords(
             }).sort((a, b) => a.date - b.date)
         } else {
             const records: Record[] = []
-            for (let i = 0; i < dates.length; i++) {
+            for (let i = 0; i < len; i++) {
                 records.push({
                     date: dates[i],
-                    value: values[i]
+                    value: valuesArr[i]
                 })
             }
             return records

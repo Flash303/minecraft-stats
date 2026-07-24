@@ -39,7 +39,7 @@ struct GetParam {
 async fn fetch_records(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>,
-                    query: Result<Query<GetParam>, QueryRejection>) -> Result<ResponseFormat<RecordData>, AppError> {
+                    query: Result<Query<GetParam>, QueryRejection>) -> Result<impl axum::response::IntoResponse, AppError> {
     let id = *id?;
     let query = query?;
 
@@ -58,7 +58,14 @@ async fn fetch_records(State(state): State<AppState>,
     if let Err(error) = result {
         return Err(AppError::FetchingDataError(error));
     }
+    
     info!("Time to request all database data {}ms", instant.elapsed().as_millis());
 
-    Ok(ResponseFormat::success(result.unwrap(), StatusCode::ACCEPTED))
+    let data = result.unwrap();
+    
+    Ok((
+        StatusCode::ACCEPTED,
+        [(axum::http::header::CONTENT_TYPE, "application/octet-stream")],
+        data.into_binary()
+    ))
 }
