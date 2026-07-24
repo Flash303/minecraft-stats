@@ -65,7 +65,7 @@ async fn fetch_records(State(state): State<AppState>,
 
     let data = result.unwrap();
 
-    if query.json.unwrap_or(true) {
+    if !query.json.unwrap_or(true) {
         Ok((
             StatusCode::OK,
             [(CONTENT_TYPE, "application/octet-stream")],
