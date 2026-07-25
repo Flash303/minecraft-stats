@@ -18,9 +18,7 @@ const PING_TRY_COUNT: usize = 2;
 pub(super) async fn create_server(State(state): State<AppState>,
                        Extension(account): Extension<Option<ClerkClaims>>,
                        query: Result<Json<DraftServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
-    if account.is_none() {
-        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
-    }
+    let account = account.ok_or(AppError::AuthenticationError)?;
     
     let mut draft = query?.0;
 
@@ -55,7 +53,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         return Err(AppError::ServerCreationError(ServerCreationError::AlreadyExist));
     }
 
-    draft.user_id = Some(account.unwrap().sub);
+    draft.user_id = Some(account.sub);
 
     let rs = state.repository.create_server(draft).await?;
     Ok(ResponseFormat::success(rs, StatusCode::OK))

@@ -12,7 +12,7 @@ pub(super) async fn list_alerts(
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(server_id): Path<u32>,
 ) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::AuthenticationError)?;
 
     // Verify server exists
     state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFoundError)?;

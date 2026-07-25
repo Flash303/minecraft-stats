@@ -22,10 +22,7 @@ pub(super) struct ServerWithUser {
 pub(super) async fn get_mine_server(State(state): State<AppState>,
                                     Query(query): Query<ServerListQueryParams>,
                                     Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
-    if account.is_none() {
-        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
-    }
-    let account = account.unwrap();
+    let account = account.ok_or(AppError::AuthenticationError)?;
     let do_include_stats = query.include_stats.unwrap_or(false);
 
     let result = state.repository.get_servers_of_user(account.id().clone()).await?;

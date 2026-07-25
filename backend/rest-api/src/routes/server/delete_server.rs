@@ -11,7 +11,7 @@ pub(super) async fn delete_alert(
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(alert_id): Path<u32>,
 ) -> Result<ResponseFormat<()>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::AuthenticationError)?;
 
     state.repository.delete_alert(alert_id, account.sub.clone()).await?;
 

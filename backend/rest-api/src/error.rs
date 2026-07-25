@@ -44,8 +44,8 @@ pub enum AppError {
     #[error("This feature is disabled")]
     FeatureDisabledError,
 
-    #[error("Authentification error: {0}")]
-    AuthenticationError(String),
+    #[error("Unauthorized")]
+    AuthenticationError,
 
     #[error("Server not found")]
     ServerNotFoundError,
@@ -70,7 +70,7 @@ impl AppError {
             AppError::ServerCreationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::RequestError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::FeatureDisabledError => StatusCode::NOT_FOUND,
-            AppError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
+            AppError::AuthenticationError => StatusCode::UNAUTHORIZED,
             AppError::ServerNotFoundError => StatusCode::NOT_FOUND,
             AppError::InvalidParamError(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidQueryError(_) => StatusCode::BAD_REQUEST,
@@ -84,7 +84,7 @@ impl AppError {
             AppError::ServerCreationError(e) => e.translation_key(),
             AppError::RequestError(_) => "error.fetch_failed".into(),
             AppError::FeatureDisabledError => "error.disabled_feature".into(),
-            AppError::AuthenticationError(_) => "error.authentification".into(),
+            AppError::AuthenticationError => "error.authentification".into(),
             AppError::ServerNotFoundError => "error.server_not_found".into(),
             AppError::InvalidParamError(_) => "error.validation.invalid_param".into(),
             AppError::InvalidQueryError(_) => "error.validation.invalid_query".into(),

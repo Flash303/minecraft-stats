@@ -16,10 +16,7 @@ pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Re
 }
 
 pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
-    if let None = *state.clerk_secret_key {
-        return Err(AppError::FeatureDisabledError);
-    }
-    let token = state.clerk_secret_key.as_deref().unwrap();
+    let token = state.clerk_secret_key.as_deref().ok_or(AppError::FeatureDisabledError)?;
     let client = reqwest::Client::new();
 
     let user = client.request(Method::GET, format!("https://api.clerk.com/v1/users/{user_id}"))
@@ -36,10 +33,7 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
 }
 
 pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, AppError> {
-    if let None = *state.clerk_secret_key {
-        return Err(AppError::FeatureDisabledError);
-    }
-    let token = state.clerk_secret_key.as_deref().unwrap();
+    let token = state.clerk_secret_key.as_deref().ok_or(AppError::FeatureDisabledError)?;
     let client = reqwest::Client::new();
 
     let users = client.request(Method::GET,"https://api.clerk.com/v1/users")

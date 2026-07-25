@@ -21,7 +21,7 @@ pub(super) async fn create_alert(
     Path(server_id): Path<u32>,
     Json(payload): Json<CreateAlertPayload>,
 ) -> Result<ResponseFormat<Alert>, AppError> {
-    let account = account.ok_or(AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::AuthenticationError)?;
 
     // Verify server exists
     state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFoundError)?;
