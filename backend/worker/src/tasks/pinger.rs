@@ -1,3 +1,4 @@
+use std::ops::Sub;
 use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
 use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME, PING_TRY_COUNT};
 use futures::{stream, StreamExt};
@@ -182,7 +183,6 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
         }
 
         info!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
-
-        sleep(DELAY_BETWEEN_EACH_PING).await;
+        sleep(DELAY_BETWEEN_EACH_PING.clone().sub(count_time.elapsed())).await;
     }
 }
