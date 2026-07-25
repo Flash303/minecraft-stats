@@ -11,7 +11,7 @@ use crate::tasks::sender::sender_worker;
 mod tasks;
 
 const MAX_CONCURRENT_PING: usize = 100;
-const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(1);
+const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(2);
 pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]

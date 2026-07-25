@@ -12,7 +12,7 @@ use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
 
-const ADD_TIMEOUT: Duration = Duration::from_secs(3);
+const ADD_TIMEOUT: Duration = Duration::from_secs(2);
 
 pub(super) async fn create_server(State(state): State<AppState>,
                        Extension(account): Extension<Option<ClerkClaims>>,
@@ -30,7 +30,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
     let cfg = PingConfig::builder()
         .set_timeout(ADD_TIMEOUT)
         .build();
-    
+
     for _ in 0..3 {
         let ping_res = match query.server_type {
             ServerType::Java => {
