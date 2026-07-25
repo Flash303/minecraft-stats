@@ -1,3 +1,4 @@
+use std::time::Duration;
 use axum::{Extension, Json};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::State;
@@ -11,6 +12,8 @@ use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
 
+const ADD_TIMEOUT: Duration = Duration::from_secs(3);
+
 pub(super) async fn create_server(State(state): State<AppState>,
                        Extension(account): Extension<Option<ClerkClaims>>,
                        query: Result<Json<DraftServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
@@ -23,24 +26,29 @@ pub(super) async fn create_server(State(state): State<AppState>,
     // max 3 try
     let mut is_reachable = false;
     let mut version_name = None;
+
+    let cfg = PingConfig::builder()
+        .set_timeout(ADD_TIMEOUT)
+        .build();
+    
     for _ in 0..3 {
         let ping_res = match query.server_type {
             ServerType::Java => {
-                let res = state.pigner.ping_java_server(query.ip.as_str(), query.port, &PingConfig::default()).await;
+                let res = state.pigner.ping_java_server(query.ip.as_str(), query.port, &cfg).await;
                 if let Ok(ping) = &res {
                     query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
                     let motd_value = serde_json::to_value(&ping.description).ok();
                     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
                     version_name = Some(ping.version.name.clone());
                 }
-                
+
                 if let Err(err) = &res {
                     error!("Could not add java the server {} error {}", query.ip, err)
                 }
                 res.is_ok()
             },
             ServerType::Bedrock => {
-                let res = state.pigner.ping_bedrock_server(query.ip.as_str(), query.port, &PingConfig::default()).await;
+                let res = state.pigner.ping_bedrock_server(query.ip.as_str(), query.port, &cfg).await;
                 if let Ok(ping) = &res {
                     query.favicon_hash = None;
                     let motd_value = serde_json::to_value(&ping.motd).ok();
