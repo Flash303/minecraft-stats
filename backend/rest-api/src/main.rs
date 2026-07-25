@@ -1,3 +1,4 @@
+use std::io::Write;
 pub mod error;
 pub mod state;
 pub mod routes;
@@ -19,6 +20,7 @@ use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use chrono::Local;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
@@ -29,7 +31,17 @@ const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
+    env_logger::builder()
+        .format(|buf, record| {
+            writeln!(
+                buf,
+                "[{}] {} {}",
+                Local::now().format("%Y-%m-%dT%H:%M:%S"),
+                record.level(),
+                record.args()
+            )
+        })
+        .init();
 
     info!("Starting server");
 

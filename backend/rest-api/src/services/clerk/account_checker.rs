@@ -1,6 +1,6 @@
 use crate::state::AppState;
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use rsa::{pkcs1v15::Pkcs1v15Sign, BigUint, RsaPublicKey};
+use rsa::{pkcs1v15::Pkcs1v15Sign, BoxedUint, RsaPublicKey};
 use sha2::{Digest, Sha256};
 use crate::services::clerk::model::ClerkClaims;
 
@@ -43,8 +43,13 @@ pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, 
     let n_bytes = URL_SAFE_NO_PAD.decode(n).map_err(|e| e.to_string())?;
     let e_bytes = URL_SAFE_NO_PAD.decode(e).map_err(|e| e.to_string())?;
 
-    let n_big = BigUint::from_bytes_be(&n_bytes);
-    let e_big = BigUint::from_bytes_be(&e_bytes);
+    let n_bits = (n_bytes.len() * 8) as u32;
+    let e_bits = (e_bytes.len() * 8) as u32;
+
+    let n_big = BoxedUint::from_be_slice(&n_bytes, n_bits)
+        .map_err(|e| format!("Parsing N error: {}", e))?;
+    let e_big = BoxedUint::from_be_slice(&e_bytes, e_bits)
+        .map_err(|e| format!("Parsing E error: {}", e))?;
 
     let rsa_key = RsaPublicKey::new(n_big, e_big)
         .map_err(|e| format!("Key error: {}", e))?;

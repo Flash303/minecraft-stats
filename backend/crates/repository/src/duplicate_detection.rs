@@ -1,6 +1,9 @@
 use sha2::{Sha256, Digest};
 use hickory_resolver::TokioResolver;
 use std::net::IpAddr;
+use hickory_proto::rr::RData;
+use regex::Regex;
+use serde_json::Value;
 use crate::models::server::Server;
 use crate::repository::Repository;
 
@@ -40,12 +43,17 @@ impl DuplicateDetectionService {
         Some(hex::encode(hasher.finalize()))
     }
 
-    pub fn flatten_motd(node: &serde_json::Value) -> String {
+    pub fn flatten_motd(node: &Value) -> String {
         match node {
-            serde_json::Value::String(s) => s.clone(),
-            serde_json::Value::Array(arr) => arr.iter().map(Self::flatten_motd).collect(),
-            serde_json::Value::Object(obj) => {
-                let mut text = obj.get("text").and_then(|v| v.as_str()).unwrap_or("").to_string();
+            Value::String(s) => s.clone(),
+            Value::Array(arr) => arr.iter()
+                .map(Self::flatten_motd).collect(),
+            Value::Object(obj) => {
+                let mut text = obj.get("text")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+
                 if let Some(extra) = obj.get("extra") {
                     text += &Self::flatten_motd(extra);
                 }
@@ -55,20 +63,23 @@ impl DuplicateDetectionService {
         }
     }
 
-    pub fn hash_motd(motd: Option<&serde_json::Value>) -> Option<String> {
+    pub fn hash_motd(motd: Option<&Value>) -> Option<String> {
         let motd = motd?;
         let flattened = Self::flatten_motd(motd);
         
         // Remove color codes (§x) and digits
-        let re_color = regex::Regex::new("§.").unwrap();
-        let re_digits = regex::Regex::new("\\d").unwrap();
+        let re_color = Regex::new("§.").unwrap();
+        let re_digits = Regex::new("\\d").unwrap();
         
         let normalized = re_digits.replace_all(
             &re_color.replace_all(&flattened, ""), 
             ""
         ).to_lowercase();
         
-        let normalized = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
+        let normalized = normalized.split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ");
+
         let normalized = normalized.trim();
         
         if normalized.chars().count() < 4 { return None; }
@@ -100,7 +111,7 @@ impl DuplicateDetectionService {
         if let Ok(srv) = resolver.srv_lookup(&srv_name).await {
             let srv_records: Vec<_> = srv.answers().iter()
                 .filter_map(|record| {
-                    if let hickory_proto::rr::RData::SRV(srv) = &record.data {
+                    if let RData::SRV(srv) = &record.data {
                         Some(srv)
                     } else {
                         None
