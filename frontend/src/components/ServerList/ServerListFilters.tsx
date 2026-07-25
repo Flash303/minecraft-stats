@@ -18,6 +18,8 @@ interface ServerListFiltersProps {
     offlineCount: number
     hiddenCount: number
     isAdmin: boolean
+    activeSort: "popularity" | "name" | "recent"
+    setActiveSort: (sort: "popularity" | "name" | "recent") => void
 }
 
 export function ServerListFilters({
@@ -29,7 +31,9 @@ export function ServerListFilters({
     onlineCount,
     offlineCount,
     hiddenCount,
-    isAdmin
+    isAdmin,
+    activeSort,
+    setActiveSort
 }: ServerListFiltersProps) {
     const { t } = useLanguage()
 
@@ -87,7 +91,21 @@ export function ServerListFilters({
                 )}
             </div>
             
-            <div className="w-full sm:w-auto">
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                <Select
+                    value={activeSort}
+                    onValueChange={(val) => setActiveSort(val as "popularity" | "name" | "recent")}
+                >
+                    <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
+                        <SelectValue placeholder={t("serverList.filters.sort")} />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-200 dark:border-zinc-800 shadow-lg">
+                        <SelectItem value="popularity" className="rounded-lg cursor-pointer">{t("serverList.filters.sortPopularity")}</SelectItem>
+                        <SelectItem value="name" className="rounded-lg cursor-pointer">{t("serverList.filters.sortName")}</SelectItem>
+                        <SelectItem value="recent" className="rounded-lg cursor-pointer">{t("serverList.filters.sortRecent")}</SelectItem>
+                    </SelectContent>
+                </Select>
+
                 <Select
                     value={activePlatform}
                     onValueChange={(val) => setActivePlatform(val as "all" | "java" | "bedrock")}

@@ -66,7 +66,16 @@
       "platform": "Plateforme",
       "allPlatforms": "Toutes plateformes",
       "java": "Java",
-      "bedrock": "Bedrock"
+      "bedrock": "Bedrock",
+      "sort": "Trier par",
+      "sortPopularity": "Popularité",
+      "sortName": "Nom",
+      "sortRecent": "Ajouté récemment"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {{current}} sur {{total}}"
     }
   },
   "hero": {
