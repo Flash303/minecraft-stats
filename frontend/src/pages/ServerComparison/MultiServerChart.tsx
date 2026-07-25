@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react"
+import { useMemo, useRef, useEffect, useState } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
@@ -15,6 +15,8 @@ interface MultiServerChartProps {
         from: number
         to: number
     }
+    zoomResetId?: string
+    onZoomChange?: (isZoomed: boolean) => void
 }
 
 const COLORS = [
@@ -28,12 +30,16 @@ const COLORS = [
     "#84cc16", // lime
 ]
 
-export function MultiServerChart({ data, serverNames, timeRange }: MultiServerChartProps) {
+export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange }: MultiServerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const tooltipRef = useRef<HTMLDivElement | null>(null)
+    const [isZoomed, setIsZoomed] = useState(false)
+    const timeRangeRef = useRef(timeRange)
+    timeRangeRef.current = timeRange
+
 
     const mouseEnterRef = useRef<(() => void) | null>(null)
     const mouseLeaveRef = useRef<(() => void) | null>(null)
@@ -235,6 +241,23 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         }
     }, [])
 
+    const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                setScale: (u: uPlot, key: string) => {
+                    if (key === 'x' && u.scales.x.min != null && u.scales.x.max != null) {
+                        const tr = timeRangeRef.current;
+                        if (Math.abs(u.scales.x.min - tr.from) > 1 || Math.abs(u.scales.x.max - tr.to) > 1) {
+                            setIsZoomed(true);
+                        } else {
+                            setIsZoomed(false);
+                        }
+                    }
+                }
+            }
+        }
+    }, [])
+
     const handleResetZoom = () => {
         if (chartRef.current) {
             chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
@@ -246,10 +269,20 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
     }
 
     useEffect(() => {
+        onZoomChange?.(isZoomed)
+    }, [isZoomed, onZoomChange])
+
+    useEffect(() => {
+        if (chartRef.current && !isZoomed) {
+            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
+        }
+    }, [timeRange.from, timeRange.to, isZoomed])
+
+    useEffect(() => {
         if (chartRef.current) {
             chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
         }
-    }, [timeRange.from, timeRange.to])
+    }, [zoomResetId])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"
@@ -285,7 +318,7 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
         return {
             width: 800,
             height: window.innerWidth < 640 ? 300 : 450,
-            plugins: [tooltipPlugin, touchInteractPlugin],
+            plugins: [tooltipPlugin, touchInteractPlugin, scaleHookPlugin],
             cursor: {
                 drag: { x: window.innerWidth >= 640, y: false, setScale: window.innerWidth >= 640 }
             },
@@ -339,9 +372,11 @@ export function MultiServerChart({ data, serverNames, timeRange }: MultiServerCh
                     <span className="truncate">{t("serverDetail.playerHistory")}</span>
                 </h2>
                 <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
-                    <Button variant="outline" size="sm" onClick={handleResetZoom}>
-                        {t("comparison.resetZoom")}
-                    </Button>
+                    {isZoomed && (
+                        <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                            {t("comparison.resetZoom")}
+                        </Button>
+                    )}
                 </div>
             </div>
 
