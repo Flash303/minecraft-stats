@@ -77,7 +77,13 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
         let count_time = Instant::now();
         info!("Pinging...");
 
-        if let Ok(servers) = possible_servers {
+        if let Ok(mut servers) = possible_servers {
+            servers.sort_by_key(|server| match &server.last_status {
+                Some(ServerStatus::Online) => 0,
+                Some(ServerStatus::Offline) => 1,
+                None => 2,
+            }); // start with offline server
+
             let mut optimised_tasks = stream::iter(servers)
                 .map(|mut server| {
                     let pinger = pinger.clone();

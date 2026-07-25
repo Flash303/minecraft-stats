@@ -399,7 +399,9 @@ impl Repository for PostgresRepository {
         .await
         .map_err(|e| e.to_string())?;
 
-        Ok(rows.into_iter().map(|r| r.into()).collect())
+        Ok(rows.into_iter()
+            .map(|r| r.into())
+            .collect())
     }
 
     async fn create_subscription(&self, subscription: DraftWebPushSubscription) -> Result<WebPushSubscription, String> {
