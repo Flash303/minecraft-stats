@@ -57,10 +57,10 @@ pub struct TriggeredAlertNotification {
     pub server_name: String,
     pub last_favicon: Option<String>,
 
-    pub old_status: Option<ServerStatus>,
-    pub old_players: Option<u32>,
+    pub _old_status: Option<ServerStatus>,
+    pub _old_players: Option<u32>,
 
-    pub new_status: ServerStatus,
+    pub _new_status: ServerStatus,
     pub new_players: Option<u32>,
 }
 
@@ -81,10 +81,10 @@ impl TriggeredAlertNotification {
             server_name: state.name.clone(),
             last_favicon: state.last_favicon.clone(),
 
-            old_status: state.old_status.clone(),
-            old_players: state.old_players,
+            _old_status: state.old_status.clone(),
+            _old_players: state.old_players,
 
-            new_status: state.new_status.clone(),
+            _new_status: state.new_status.clone(),
             new_players: state.new_players,
         }
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
 
@@ -38,15 +38,17 @@ export function ServerComparison() {
         }
     }, [selectedInterval, isLoaded, isSignedIn, getToken])
  
+    const isChartZoomed = useRef(false)
+
     useEffect(() => {
-        const refreshAll = async () => {
-            setLoadingRecords(true)
+        const refreshAll = async (isBackground = false) => {
+            if (!isBackground) setLoadingRecords(true)
             let now = 0;
             let from = 0;
             
             if (selectedRange === -1) {
                 if (!customRange?.from || !customRange?.to) {
-                    setLoadingRecords(false);
+                    if (!isBackground) setLoadingRecords(false);
                     return;
                 }
                 from = Math.floor(customRange.from.getTime() / 1000);
@@ -58,7 +60,7 @@ export function ServerComparison() {
             
             setTimeRangeProps({ from, to: now })
             await Promise.all(selectedServers.map(s => fetchServerRecords(s, from)))
-            setLoadingRecords(false)
+            if (!isBackground) setLoadingRecords(false)
         }
         if (selectedServers.length > 0) {
             Promise.resolve().then(() => {
@@ -68,6 +70,18 @@ export function ServerComparison() {
             Promise.resolve().then(() => {
                 setRecordsMap({})
             })
+        }
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && selectedServers.length > 0 && !isChartZoomed.current) {
+                refreshAll(true)
+            }
+        }
+        window.addEventListener('visibilitychange', handleVisibilityChange)
+        window.addEventListener('focus', handleVisibilityChange)
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange)
+            window.removeEventListener('focus', handleVisibilityChange)
         }
     }, [selectedServers, selectedRange, selectedInterval, customRange, fetchServerRecords])
  
@@ -148,6 +162,8 @@ export function ServerComparison() {
                             data={chartData} 
                             serverNames={selectedServers.map(s => s.name)} 
                             timeRange={timeRangeProps} 
+                            zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                            onZoomChange={(z) => isChartZoomed.current = z}
                         />
                     )}
  

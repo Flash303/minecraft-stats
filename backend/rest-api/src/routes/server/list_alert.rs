@@ -12,14 +12,12 @@ pub(super) async fn list_alerts(
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(server_id): Path<u32>,
 ) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::Authentication)?;
 
     // Verify server exists
-    state.repository.get_server(server_id).await
-        .map_err(|e| AppError::ServerNotFoundError(e))?;
+    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFound)?;
 
-    let alerts = state.repository.list_alerts_for_server(server_id).await
-        .map_err(|e| AppError::FetchingDataError(e))?;
+    let alerts = state.repository.list_alerts_for_server(server_id).await?;
 
     let user_alerts: Vec<Alert> = alerts
         .into_iter()

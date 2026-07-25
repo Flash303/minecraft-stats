@@ -100,7 +100,7 @@ async fn main() {
 
     let state = AppState {
         repository: Arc::new(repository),
-        pigner: Arc::new(pinger),
+        pinger: Arc::new(pinger),
 
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),

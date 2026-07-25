@@ -3,7 +3,9 @@ use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use crate::response::ResponseFormat;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
+use reqwest::Error;
 use thiserror::Error;
+use repository::error::RepositoryError;
 
 #[derive(Error, Debug)]
 pub enum ServerCreationError {
@@ -34,54 +36,59 @@ impl ServerCreationError {
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("Fetching data failed")]
-    FetchingDataError(String),
+    FetchingData(#[from] RepositoryError),
 
     #[error("Server creation failed: {0}")]
-    ServerCreationError(ServerCreationError),
+    ServerCreation(ServerCreationError),
 
     #[error("This feature is disabled")]
-    FeatureDisabledError,
+    FeatureDisabled,
 
-    #[error("Authentification error: {0}")]
-    AuthenticationError(String),
+    #[error("Unauthorized")]
+    Authentication,
 
     #[error("Server not found")]
-    ServerNotFoundError(String),
+    ServerNotFound,
+
+    #[error("Fetch failed")]
+    Request(#[from] Error),
 
     #[error("{0}")]
-    InvalidParamError(#[from] PathRejection),
+    InvalidParam(#[from] PathRejection),
     
     #[error("{0}")]
-    InvalidQueryError(#[from] QueryRejection),
+    InvalidQuery(#[from] QueryRejection),
     
     #[error("{0}")]
-    InvalidJsonError(#[from] JsonRejection),
+    InvalidJson(#[from] JsonRejection),
 }
 
 impl AppError {
     fn status(&self) -> StatusCode {
         match &self {
-            AppError::FetchingDataError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::ServerCreationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::FeatureDisabledError => StatusCode::NOT_FOUND,
-            AppError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
-            AppError::ServerNotFoundError(_) => StatusCode::NOT_FOUND,
-            AppError::InvalidParamError(_) => StatusCode::BAD_REQUEST,
-            AppError::InvalidQueryError(_) => StatusCode::BAD_REQUEST,
-            AppError::InvalidJsonError(_) => StatusCode::BAD_REQUEST,
+            AppError::FetchingData(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::ServerCreation(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::Request(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::FeatureDisabled => StatusCode::NOT_FOUND,
+            AppError::Authentication => StatusCode::UNAUTHORIZED,
+            AppError::ServerNotFound => StatusCode::NOT_FOUND,
+            AppError::InvalidParam(_) => StatusCode::BAD_REQUEST,
+            AppError::InvalidQuery(_) => StatusCode::BAD_REQUEST,
+            AppError::InvalidJson(_) => StatusCode::BAD_REQUEST,
         }
     }
 
     fn translation_key(&self) -> String {
         match &self {
-            AppError::FetchingDataError(_) => "error.fetching_data".into(),
-            AppError::ServerCreationError(e) => e.translation_key(),
-            AppError::FeatureDisabledError => "error.disabled_feature".into(),
-            AppError::AuthenticationError(_) => "error.authentification".into(),
-            AppError::ServerNotFoundError(_) => "error.server_not_found".into(),
-            AppError::InvalidParamError(_) => "error.validation.invalid_param".into(),
-            AppError::InvalidQueryError(_) => "error.validation.invalid_query".into(),
-            AppError::InvalidJsonError(_) => "error.validation.invalid_json".into(),
+            AppError::FetchingData(_) => "error.fetching_data".into(),
+            AppError::ServerCreation(e) => e.translation_key(),
+            AppError::Request(_) => "error.fetch_failed".into(),
+            AppError::FeatureDisabled => "error.disabled_feature".into(),
+            AppError::Authentication => "error.authentification".into(),
+            AppError::ServerNotFound => "error.server_not_found".into(),
+            AppError::InvalidParam(_) => "error.validation.invalid_param".into(),
+            AppError::InvalidQuery(_) => "error.validation.invalid_query".into(),
+            AppError::InvalidJson(_) => "error.validation.invalid_json".into(),
         }
     }
 }

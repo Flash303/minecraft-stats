@@ -4,6 +4,7 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 
 use crate::{error::AppError, response::ResponseFormat, state::AppState};
+use crate::error::AppError::ServerNotFound;
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -22,17 +23,10 @@ async fn update_server_status(State(state): State<AppState>,
     let query = query?;
     let id = id?;
 
-    let server = state.repository.get_server(*id).await;
-    if let Err(err) = server {
-        return Err(AppError::ServerNotFoundError(err))
-    }
-
-    let mut server = server.unwrap();
+    let mut server = state.repository.get_server(*id).await?.ok_or(ServerNotFound)?;
     server.hidden = query.hidden;
-    let rs = state.repository.update_server(&server).await;
-    if let Err(err) = rs {
-        return Err(AppError::FetchingDataError(err));
-    }
+
+    state.repository.update_server(&server).await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
 }
@@ -40,10 +34,6 @@ async fn update_server_status(State(state): State<AppState>,
 async fn delete_server(State(state): State<AppState>,
                        id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<()>, AppError> {
     let id = id?;
-
-    if let Err(err) = state.repository.delete_server(*id).await {
-        return Err(AppError::FetchingDataError(err));
-    }
-
+    state.repository.delete_server(*id).await?;
     Ok(ResponseFormat::success((), StatusCode::OK))
 }

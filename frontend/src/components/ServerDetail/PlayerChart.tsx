@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from "react"
+import { useMemo, useRef, useEffect, useState } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
@@ -21,15 +21,21 @@ interface PlayerChartProps {
         to: number
     }
     onVisibleRangeChange?: (min: number, max: number) => void
+    onZoomChange?: (isZoomed: boolean) => void
     header?: React.ReactNode
+    zoomResetId?: string
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, header }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, zoomResetId }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const tooltipRef = useRef<HTMLDivElement | null>(null)
+    const [isZoomed, setIsZoomed] = useState(false)
+    const timeRangeRef = useRef(timeRange)
+    timeRangeRef.current = timeRange
+
 
     const mouseEnterRef = useRef<(() => void) | null>(null)
     const mouseLeaveRef = useRef<(() => void) | null>(null)
@@ -144,6 +150,12 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 setScale: (u: uPlot, key: string) => {
                     if (key === 'x' && u.scales.x.min != null && u.scales.x.max != null) {
                         onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max)
+                        const tr = timeRangeRef.current;
+                        if (Math.abs(u.scales.x.min - tr.from) > 1 || Math.abs(u.scales.x.max - tr.to) > 1) {
+                            setIsZoomed(true);
+                        } else {
+                            setIsZoomed(false);
+                        }
                     }
                 }
             }
@@ -265,10 +277,20 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     }
 
     useEffect(() => {
+        onZoomChange?.(isZoomed)
+    }, [isZoomed, onZoomChange])
+
+    useEffect(() => {
+        if (chartRef.current && !isZoomed) {
+            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
+        }
+    }, [timeRange.from, timeRange.to, isZoomed])
+
+    useEffect(() => {
         if (chartRef.current) {
             chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
         }
-    }, [timeRange.from, timeRange.to])
+    }, [zoomResetId])
 
     // Configuration globale du graphique
     const options = useMemo(() => {
@@ -365,9 +387,11 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     <span className="text-xs text-muted-foreground italic">
                         {t("common.pointsCount", { count: String(data.length) })}
                     </span>
-                    <Button variant="outline" size="sm" onClick={handleResetZoom}>
-                        {t("comparison.resetZoom")}
-                    </Button>
+                    {isZoomed && (
+                        <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                            {t("comparison.resetZoom")}
+                        </Button>
+                    )}
                 </div>
             </div>
 

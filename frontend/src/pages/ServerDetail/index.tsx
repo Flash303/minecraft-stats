@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useParams, Link } from "react-router-dom"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
@@ -53,9 +53,9 @@ export function ServerDetail() {
         setLoadedFrom(Infinity)
     }, [id])
  
-    const loadServer = useCallback(async () => {
+    const loadServer = useCallback(async (isBackground = false) => {
         if (!id) return
-        setLoading(true)
+        if (!isBackground) setLoading(true)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchServer(Number(id), token ?? undefined)
@@ -63,11 +63,11 @@ export function ServerDetail() {
         } catch {
             setServer(null)
         } finally {
-            setLoading(false)
+            if (!isBackground) setLoading(false)
         }
     }, [id, getToken, isSignedIn, isLoaded])
  
-    const loadRecords = useCallback(async () => {
+    const loadRecords = useCallback(async (isBackground = false) => {
         if (!server) return
         
         let now = 0;
@@ -82,12 +82,12 @@ export function ServerDetail() {
             from = now - Math.floor(selectedRange / 1000);
         }
         
-        if (from >= loadedFrom && rawRecords.length > 0) {
+        if (!isBackground && from >= loadedFrom && rawRecords.length > 0) {
             setTimeLimits({ from, to: now })
             return
         }
 
-        setLoadingRecords(true)
+        if (!isBackground) setLoadingRecords(true)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             // Fetch raw records without bucketing from API
@@ -98,7 +98,7 @@ export function ServerDetail() {
         } catch {
             if (rawRecords.length === 0) setRawRecords([])
         } finally {
-            setLoadingRecords(false)
+            if (!isBackground) setLoadingRecords(false)
         }
     }, [server, selectedRange, customRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
 
@@ -180,6 +180,23 @@ export function ServerDetail() {
             loadRecords()
         })
     }, [loadRecords, isLoaded])
+
+    const isChartZoomed = useRef(false)
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && isLoaded && !isChartZoomed.current) {
+                loadServer(true)
+                loadRecords(true)
+            }
+        }
+        window.addEventListener('visibilitychange', handleVisibilityChange)
+        window.addEventListener('focus', handleVisibilityChange)
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange)
+            window.removeEventListener('focus', handleVisibilityChange)
+        }
+    }, [loadServer, loadRecords, isLoaded])
 
     const stats = useMemo(() => {
         if (records.length === 0) return null
@@ -289,7 +306,9 @@ export function ServerDetail() {
                                 serverName={server.name}
                                 interval={appliedInterval}
                                 timeRange={timeLimits}
+                                zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                 onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
+                                onZoomChange={(z) => isChartZoomed.current = z}
                                 header={
                                     <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">
                                         <div className="flex items-center gap-2 truncate">

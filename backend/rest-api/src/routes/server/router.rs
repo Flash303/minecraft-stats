@@ -1,13 +1,3 @@
-use std::time::Duration;
-use axum::Router;
-use axum::routing::{delete, get, patch, post};
-use log::info;
-use serde::{Deserialize, Serialize};
-use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::GovernorLayer;
-use tower_governor::key_extractor::SmartIpKeyExtractor;
-use repository::models::record::RecordData;
-use repository::models::server::Server;
 use crate::error::AppError;
 use crate::routes::server::create_alert::create_alert;
 use crate::routes::server::create_server::create_server;
@@ -19,6 +9,15 @@ use crate::routes::server::list_server::list_all_servers;
 use crate::routes::server::update_server::update_server_name;
 use crate::services::clerk::model::ClerkUser;
 use crate::state::AppState;
+use axum::routing::{delete, get, patch, post};
+use axum::Router;
+use repository::models::record::RecordData;
+use repository::models::server::Server;
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
+use tower_governor::GovernorLayer;
 
 pub fn router() -> Router<AppState> {
     let get_server_limit = GovernorConfigBuilder::default()
@@ -64,13 +63,7 @@ pub(super) async fn include_stats(include_stats: bool,
     if include_stats {
         let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
 
-        let records_result = state.repository.get_last_pings_for_servers(&server_ids).await;
-        if let Err(error) = records_result {
-            info!("Error fetching last pings for servers: {:?}", error);
-            return Err(AppError::FetchingDataError(error));
-        }
-
-        let mut records_map = records_result.unwrap();
+        let mut records_map = state.repository.get_last_pings_for_servers(&server_ids).await?;
         for s in servers {
             s.data = records_map.remove(&s.server.id);
         }

@@ -16,7 +16,7 @@ pub async fn admin_middleware(
     };
 
     if !administrator {
-        return Ok(AppError::AuthenticationError("Admin authorisation required".to_string()).into_response())
+        return Ok(AppError::Authentication.into_response())
     }
 
     Ok(next.run(req).await)

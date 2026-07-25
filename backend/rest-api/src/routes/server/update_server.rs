@@ -19,17 +19,17 @@ pub(super) async fn update_server_name(
     Path(id): Path<u32>,
     Json(payload): Json<UpdateServerPayload>,
 ) -> Result<ResponseFormat<Server>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::Authentication)?;
 
-    let mut server = state.repository.get_server(id).await.map_err(|e| AppError::ServerNotFoundError(e))?;
+    let mut server = state.repository.get_server(id).await?.ok_or(AppError::ServerNotFound)?;
 
     let is_owner = server.user_id == account.sub;
     if !is_owner && !account.is_admin() {
-        return Err(AppError::AuthenticationError("Forbidden".to_string()));
+        return Err(AppError::Authentication);
     }
 
     server.name = payload.name;
-    state.repository.update_server(&server).await.map_err(|e| AppError::FetchingDataError(e))?;
+    state.repository.update_server(&server).await?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
 }

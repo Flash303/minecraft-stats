@@ -40,7 +40,7 @@ async fn subscribe_device(
     Extension(account): Extension<Option<ClerkClaims>>,
     Json(payload): Json<SubscribePayload>,
 ) -> Result<ResponseFormat<WebPushSubscription>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::Authentication)?;
 
     let draft = DraftWebPushSubscription {
         user_id: account.sub.clone(),
@@ -49,9 +49,7 @@ async fn subscribe_device(
         auth: payload.auth,
     };
 
-    let subscription = state.repository.create_subscription(draft).await
-        .map_err(|e| AppError::FetchingDataError(e))?;
-
+    let subscription = state.repository.create_subscription(draft).await?;
     Ok(ResponseFormat::success(subscription, StatusCode::CREATED))
 }
 
@@ -65,10 +63,8 @@ async fn unsubscribe_device(
     Extension(account): Extension<Option<ClerkClaims>>,
     Json(payload): Json<UnsubscribePayload>,
 ) -> Result<ResponseFormat<()>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::Authentication)?;
 
-    state.repository.delete_subscription(&payload.endpoint, &account.sub).await
-        .map_err(|e| AppError::FetchingDataError(e))?;
-
+    state.repository.delete_subscription(&payload.endpoint, &account.sub).await?;
     Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
 }

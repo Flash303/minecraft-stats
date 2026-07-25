@@ -21,11 +21,10 @@ pub(super) async fn create_alert(
     Path(server_id): Path<u32>,
     Json(payload): Json<CreateAlertPayload>,
 ) -> Result<ResponseFormat<Alert>, AppError> {
-    let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
+    let account = account.ok_or(AppError::Authentication)?;
 
     // Verify server exists
-    state.repository.get_server(server_id).await
-        .map_err(|e| AppError::ServerNotFoundError(e))?;
+    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFound)?;
 
     let draft = DraftAlert {
         user_id: account.sub.clone(),
@@ -35,8 +34,6 @@ pub(super) async fn create_alert(
         is_active: payload.is_active.unwrap_or(true),
     };
 
-    let alert = state.repository.create_alert(draft).await
-        .map_err(|e| AppError::FetchingDataError(e))?;
-
+    let alert = state.repository.create_alert(draft).await?;
     Ok(ResponseFormat::success(alert, StatusCode::CREATED))
 }

@@ -1,16 +1,15 @@
-use axum::Extension;
-use axum::extract::{Path, Query, State};
-use axum::extract::rejection::PathRejection;
-use axum::http::StatusCode;
-use log::info;
-use serde::Serialize;
-use repository::models::server::Server;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
 use crate::services::clerk::clerk_service;
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::state::AppState;
+use axum::extract::rejection::PathRejection;
+use axum::extract::{Path, Query, State};
+use axum::http::StatusCode;
+use axum::Extension;
+use repository::models::server::Server;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub(super) struct ServerWithUser {
@@ -23,19 +22,11 @@ pub(super) struct ServerWithUser {
 pub(super) async fn get_mine_server(State(state): State<AppState>,
                                     Query(query): Query<ServerListQueryParams>,
                                     Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
-    if account.is_none() {
-        return Err(AppError::AuthenticationError("Unauthorized".to_string()));
-    }
-    let account = account.unwrap();
+    let account = account.ok_or(AppError::Authentication)?;
     let do_include_stats = query.include_stats.unwrap_or(false);
 
-    let result = state.repository.get_servers_of_user(account.id().clone()).await;
-    if let Err(error) = result {
-        info!("Error listing servers: {:?}", error);
-        return Err(AppError::FetchingDataError(error));
-    }
-
-    let mut servers: Vec<BiggerServerResponse> = result.unwrap()
+    let result = state.repository.get_servers_of_user(account.id().clone()).await?;
+    let mut servers: Vec<BiggerServerResponse> = result
         .into_iter()
         .filter(|s| account.is_admin() || !s.hidden)
         .map(BiggerServerResponse::from)
@@ -49,19 +40,17 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
 pub(super) async fn get_server(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
-    let result = state.repository.get_server(*id?).await;
-    if let Err(error) = result {
-        info!("Error listing servers: {:?}", error);
-        return Err(AppError::ServerNotFoundError(error));
-    }
+    let result = state.repository.get_server(*id?).await?
+        .ok_or(AppError::ServerNotFound)?;
+
     let mut server = ServerWithUser {
-        server: result.unwrap(),
+        server: result,
         user: None
     };
 
     let is_admin = account.is_some_and(|u| u.is_admin());
     if server.server.hidden && !is_admin {
-        return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
+        return Err(AppError::ServerNotFound);
     }
 
     let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)
