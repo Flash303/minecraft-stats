@@ -8,6 +8,7 @@ import { useAuth } from "@clerk/react"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useSearch } from "@/contexts/SearchContext"
 
 interface SearchBarProps {
     value?: string
@@ -20,6 +21,7 @@ interface SearchBarProps {
 export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, placeholder: propPlaceholder, className }: SearchBarProps) {
     const navigate = useNavigate()
     const { t } = useLanguage()
+    const { refreshCounter } = useSearch()
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const [allServers, setAllServers] = useState<Server[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
@@ -54,7 +56,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
             }
         }
         if (isLoaded) loadAll()
-    }, [isLoaded, isSignedIn, getToken])
+    }, [isLoaded, isSignedIn, getToken, refreshCounter])
 
     const filteredSuggestions = useMemo(() => {
         if (!value.trim()) return []

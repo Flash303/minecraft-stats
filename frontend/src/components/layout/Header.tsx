@@ -25,7 +25,7 @@ interface HeaderProps {
 
 export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
     const { isSignedIn, isLoaded } = useAuth()
-    const { searchQuery, setSearchQuery } = useSearch()
+    const { searchQuery, setSearchQuery, triggerRefresh } = useSearch()
     const { language, setLanguage, t } = useLanguage()
     const { isAdmin } = useAdmin()
     const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -180,7 +180,10 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
                         ) : isSignedIn ? (
                             <>
-                                <AddServerModal onSuccess={onRefresh} />
+                                <AddServerModal onSuccess={() => {
+                                    if (onRefresh) onRefresh()
+                                    triggerRefresh()
+                                }} />
                                 <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
                                     <UserButton userProfileMode="navigation" userProfileUrl="/account" />
                                 </div>
