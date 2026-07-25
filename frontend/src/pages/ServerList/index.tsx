@@ -261,10 +261,10 @@ export function ServerList() {
                                             className="rounded-xl h-10 px-4 flex items-center gap-2"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
-                                            <span className="hidden sm:inline">{t("pagination.previous", "Précédent")}</span>
+                                            <span className="hidden sm:inline">{t("serverList.pagination.previous")}</span>
                                         </Button>
                                         <div className="text-sm font-medium text-muted-foreground">
-                                            {t("pagination.page", { current: safeCurrentPage, total: totalPages })}
+                                            {t("serverList.pagination.page", { current: safeCurrentPage.toString(), total: totalPages.toString() })}
                                         </div>
                                         <Button
                                             variant="outline"
@@ -273,7 +273,7 @@ export function ServerList() {
                                             disabled={safeCurrentPage >= totalPages}
                                             className="rounded-xl h-10 px-4 flex items-center gap-2"
                                         >
-                                            <span className="hidden sm:inline">{t("pagination.next", "Suivant")}</span>
+                                            <span className="hidden sm:inline">{t("serverList.pagination.next")}</span>
                                             <ChevronRight className="w-4 h-4" />
                                         </Button>
                                     </div>
