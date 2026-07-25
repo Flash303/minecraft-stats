@@ -10,6 +10,8 @@ import { useAdmin } from "@/contexts/AdminContext"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Hero3D } from "@/components/ServerList/Hero3D"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export function ServerList() {
     const { t } = useLanguage()
@@ -39,6 +41,22 @@ export function ServerList() {
         return "all"
     }, [searchParams])
 
+    const activeSort = useMemo(() => {
+        const sortParam = searchParams.get("sort")
+        if (sortParam === "name" || sortParam === "recent") {
+            return sortParam
+        }
+        return "popularity"
+    }, [searchParams])
+
+    const currentPage = useMemo(() => {
+        const pageParam = searchParams.get("page")
+        if (pageParam && !isNaN(Number(pageParam))) {
+            return Math.max(1, Number(pageParam))
+        }
+        return 1
+    }, [searchParams])
+
     const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => {
         const newParams = new URLSearchParams(searchParams)
         if (tab === "all") {
@@ -46,6 +64,7 @@ export function ServerList() {
         } else {
             newParams.set("tab", tab)
         }
+        newParams.delete("page")
         setSearchParams(newParams)
     }, [searchParams, setSearchParams])
 
@@ -56,6 +75,28 @@ export function ServerList() {
         } else {
             newParams.set("platform", platform)
         }
+        newParams.delete("page")
+        setSearchParams(newParams)
+    }, [searchParams, setSearchParams])
+
+    const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => {
+        const newParams = new URLSearchParams(searchParams)
+        if (sort === "popularity") {
+            newParams.delete("sort")
+        } else {
+            newParams.set("sort", sort)
+        }
+        newParams.delete("page")
+        setSearchParams(newParams)
+    }, [searchParams, setSearchParams])
+
+    const setCurrentPage = useCallback((page: number) => {
+        const newParams = new URLSearchParams(searchParams)
+        if (page <= 1) {
+            newParams.delete("page")
+        } else {
+            newParams.set("page", page.toString())
+        }
         setSearchParams(newParams)
     }, [searchParams, setSearchParams])
 
@@ -65,18 +106,7 @@ export function ServerList() {
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchServers(token ?? undefined, true)
-            
-            // Trie par nombre de connectés décroissant
-            const sorted = [...data].sort((a, b) => {
-                const countA = a.last_status === "online" ? (a.last_connected ?? 0) : -1
-                const countB = b.last_status === "online" ? (b.last_connected ?? 0) : -1
-                
-                if (countB !== countA) {
-                    return countB - countA
-                }
-                return b.id - a.id
-            })
-            setServers(sorted)
+            setServers(data)
         } catch {
             setError(t("serverList.error"))
         } finally {
@@ -144,6 +174,36 @@ export function ServerList() {
         return list
     }, [baseServersForCounts, activeTab, userId])
 
+    const ITEMS_PER_PAGE = 12
+
+    const sortedServers = useMemo(() => {
+        const list = [...filteredServers]
+        if (activeSort === "popularity") {
+            list.sort((a, b) => {
+                const countA = a.last_status === "online" ? (a.last_connected ?? 0) : -1
+                const countB = b.last_status === "online" ? (b.last_connected ?? 0) : -1
+                
+                if (countB !== countA) {
+                    return countB - countA
+                }
+                return b.id - a.id
+            })
+        } else if (activeSort === "name") {
+            list.sort((a, b) => a.name.localeCompare(b.name))
+        } else if (activeSort === "recent") {
+            list.sort((a, b) => b.id - a.id)
+        }
+        return list
+    }, [filteredServers, activeSort])
+
+    const totalPages = Math.ceil(sortedServers.length / ITEMS_PER_PAGE) || 1
+    const safeCurrentPage = Math.min(currentPage, totalPages)
+
+    const paginatedServers = useMemo(() => {
+        const start = (safeCurrentPage - 1) * ITEMS_PER_PAGE
+        return sortedServers.slice(start, start + ITEMS_PER_PAGE)
+    }, [sortedServers, safeCurrentPage])
+
     const visibleCount = useMemo(() => baseServersForCounts.filter(s => s.hidden !== true).length, [baseServersForCounts])
     const onlineCount = useMemo(() => baseServersForCounts.filter(s => s.last_status === "online" && s.hidden !== true).length, [baseServersForCounts])
     const offlineCount = useMemo(() => baseServersForCounts.filter(s => s.last_status === "offline" && s.hidden !== true).length, [baseServersForCounts])
@@ -164,6 +224,8 @@ export function ServerList() {
                     offlineCount={offlineCount}
                     hiddenCount={hiddenCount}
                     isAdmin={isAdmin}
+                    activeSort={activeSort}
+                    setActiveSort={setActiveSort}
                 />
 
                 {loading && servers.length === 0 && (
@@ -178,16 +240,45 @@ export function ServerList() {
                 )}
                 {!loading && !error && (
                     <>
-                        {filteredServers.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
-                                {filteredServers.map((s) => (
-                                    <Link key={s.id} to={`/server/${s.id}`} className="block focus:outline-none">
-                                        <ServerCard
-                                            server={s}
-                                        />
-                                    </Link>
-                                ))}
-                            </div>
+                        {paginatedServers.length > 0 ? (
+                            <>
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                                    {paginatedServers.map((s) => (
+                                        <Link key={s.id} to={`/server/${s.id}`} className="block focus:outline-none">
+                                            <ServerCard
+                                                server={s}
+                                            />
+                                        </Link>
+                                    ))}
+                                </div>
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-center gap-4 mt-12 mb-8">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage(safeCurrentPage - 1)}
+                                            disabled={safeCurrentPage <= 1}
+                                            className="rounded-xl h-10 px-4 flex items-center gap-2"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                            <span className="hidden sm:inline">{t("pagination.previous", "Précédent")}</span>
+                                        </Button>
+                                        <div className="text-sm font-medium text-muted-foreground">
+                                            {t("pagination.page", { current: safeCurrentPage, total: totalPages })}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setCurrentPage(safeCurrentPage + 1)}
+                                            disabled={safeCurrentPage >= totalPages}
+                                            className="rounded-xl h-10 px-4 flex items-center gap-2"
+                                        >
+                                            <span className="hidden sm:inline">{t("pagination.next", "Suivant")}</span>
+                                            <ChevronRight className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
                                 <p className="text-muted-foreground italic">
