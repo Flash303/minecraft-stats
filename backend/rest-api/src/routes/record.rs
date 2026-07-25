@@ -46,24 +46,16 @@ async fn fetch_records(State(state): State<AppState>,
     let query = query?;
 
     let instant = Instant::now();
-    let server = state.repository.get_server(id).await;
-    if let Err(err) = server {
-        return Err(AppError::ServerNotFoundError(err));
-    }
-    let server = server.unwrap();
+    let server = state.repository.get_server(id).await?
+        .ok_or(AppError::ServerNotFoundError)?;
+
     let is_admin = account.is_some_and(|u| u.is_admin());
     if server.hidden && !is_admin {
-        return Err(AppError::ServerNotFoundError("Hidden server".to_string()));
+        return Err(AppError::ServerNotFoundError);
     }
 
-    let result = state.repository.get_pings(id, query.from, query.to).await;
-    if let Err(error) = result {
-        return Err(AppError::FetchingDataError(error));
-    }
-    
+    let data = state.repository.get_pings(id, query.from, query.to).await?;
     info!("Time to request all database data {}ms", instant.elapsed().as_millis());
-
-    let data = result.unwrap();
 
     if !query.json.unwrap_or(false) {
         Ok((

@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 log = { workspace = true }
+thiserror = { workspace = true }
 
 futures = { workspace = true }
 time = { workspace = true }

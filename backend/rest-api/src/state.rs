@@ -8,7 +8,7 @@ use crate::services::clerk::model::ClerkUser;
 #[derive(Clone)]
 pub struct AppState {
     pub repository: Arc<dyn Repository>,
-    pub pigner: Arc<MinecraftPinger>,
+    pub pinger: Arc<MinecraftPinger>,
 
     pub jwks: Arc<serde_json::Value>,
     pub clerk_instance_url: Arc<String>,

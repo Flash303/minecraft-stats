@@ -15,14 +15,10 @@ pub(super) async fn list_all_servers(State(state): State<AppState>,
                                      Extension(user): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     let do_include_stats = query.include_stats.unwrap_or(false);
 
-    let server_list = state.repository.list_servers().await;
-    if let Err(error) = server_list {
-        info!("Error listing servers: {:?}", error);
-        return Err(AppError::FetchingDataError(error));
-    }
+    let server_list = state.repository.list_servers().await?;
 
     let is_admin = user.is_some_and(|u| u.is_admin());
-    let mut servers: Vec<BiggerServerResponse> = stream::iter(server_list.unwrap()
+    let mut servers: Vec<BiggerServerResponse> = stream::iter(server_list
             .into_iter()
             .filter(|s| is_admin || !s.hidden))
         .map(async |server| {

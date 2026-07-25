@@ -64,13 +64,7 @@ pub(super) async fn include_stats(include_stats: bool,
     if include_stats {
         let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
 
-        let records_result = state.repository.get_last_pings_for_servers(&server_ids).await;
-        if let Err(error) = records_result {
-            info!("Error fetching last pings for servers: {:?}", error);
-            return Err(AppError::FetchingDataError(error));
-        }
-
-        let mut records_map = records_result.unwrap();
+        let mut records_map = state.repository.get_last_pings_for_servers(&server_ids).await?;
         for s in servers {
             s.data = records_map.remove(&s.server.id);
         }

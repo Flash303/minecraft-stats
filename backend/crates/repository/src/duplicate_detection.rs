@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use hickory_proto::rr::RData;
 use regex::Regex;
 use serde_json::Value;
+use crate::error::RepositoryError;
 use crate::models::server::Server;
 use crate::repository::Repository;
 
@@ -141,7 +142,7 @@ impl DuplicateDetectionService {
         repository: &dyn Repository,
         fingerprint: &ServerFingerprint,
         exclude_id: Option<u32>,
-    ) -> Result<Option<DuplicateMatch>, String> {
+    ) -> Result<Option<DuplicateMatch>, RepositoryError> {
         let ServerFingerprint {
             favicon_hash,
             resolved_endpoint,

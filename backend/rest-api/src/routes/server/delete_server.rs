@@ -13,8 +13,7 @@ pub(super) async fn delete_alert(
 ) -> Result<ResponseFormat<()>, AppError> {
     let account = account.ok_or_else(|| AppError::AuthenticationError("Unauthorized".to_string()))?;
 
-    state.repository.delete_alert(alert_id, account.sub.clone()).await
-        .map_err(|e| AppError::FetchingDataError(e))?;
+    state.repository.delete_alert(alert_id, account.sub.clone()).await?;
 
     Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
 }

@@ -3,7 +3,9 @@ use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use crate::response::ResponseFormat;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
+use reqwest::Error;
 use thiserror::Error;
+use repository::error::RepositoryError;
 
 #[derive(Error, Debug)]
 pub enum ServerCreationError {
@@ -34,7 +36,7 @@ impl ServerCreationError {
 #[derive(Error, Debug)]
 pub enum AppError {
     #[error("Fetching data failed")]
-    FetchingDataError(String),
+    FetchingDataError(#[from] RepositoryError),
 
     #[error("Server creation failed: {0}")]
     ServerCreationError(ServerCreationError),
@@ -46,7 +48,10 @@ pub enum AppError {
     AuthenticationError(String),
 
     #[error("Server not found")]
-    ServerNotFoundError(String),
+    ServerNotFoundError,
+
+    #[error("Fetch failed")]
+    RequestError(#[from] Error),
 
     #[error("{0}")]
     InvalidParamError(#[from] PathRejection),
@@ -63,9 +68,10 @@ impl AppError {
         match &self {
             AppError::FetchingDataError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::ServerCreationError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::RequestError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::FeatureDisabledError => StatusCode::NOT_FOUND,
             AppError::AuthenticationError(_) => StatusCode::UNAUTHORIZED,
-            AppError::ServerNotFoundError(_) => StatusCode::NOT_FOUND,
+            AppError::ServerNotFoundError => StatusCode::NOT_FOUND,
             AppError::InvalidParamError(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidQueryError(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidJsonError(_) => StatusCode::BAD_REQUEST,
@@ -76,9 +82,10 @@ impl AppError {
         match &self {
             AppError::FetchingDataError(_) => "error.fetching_data".into(),
             AppError::ServerCreationError(e) => e.translation_key(),
+            AppError::RequestError(_) => "error.fetch_failed".into(),
             AppError::FeatureDisabledError => "error.disabled_feature".into(),
             AppError::AuthenticationError(_) => "error.authentification".into(),
-            AppError::ServerNotFoundError(_) => "error.server_not_found".into(),
+            AppError::ServerNotFoundError => "error.server_not_found".into(),
             AppError::InvalidParamError(_) => "error.validation.invalid_param".into(),
             AppError::InvalidQueryError(_) => "error.validation.invalid_query".into(),
             AppError::InvalidJsonError(_) => "error.validation.invalid_json".into(),

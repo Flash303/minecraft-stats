@@ -10,7 +10,8 @@ pub(super) async fn get_server_icon(
     State(state): State<AppState>,
     Path(id): Path<u32>,
 ) -> Result<impl IntoResponse, AppError> {
-    let server = state.repository.get_server(id).await.map_err(|e| AppError::ServerNotFoundError(e))?;
+    let server = state.repository.get_server(id).await?
+        .ok_or(AppError::ServerNotFoundError)?;
 
     if let Some(favicon) = server.last_favicon && let Some(base64_data) = favicon.strip_prefix("data:image/png;base64,") {
         if let Ok(image_bytes) = BASE64_STANDARD.decode(base64_data) {

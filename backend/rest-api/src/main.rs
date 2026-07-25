@@ -1,4 +1,3 @@
-use std::io::Write;
 pub mod error;
 pub mod state;
 pub mod routes;
@@ -20,7 +19,6 @@ use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use chrono::Local;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
 use tokio::net::TcpListener;
@@ -102,7 +100,7 @@ async fn main() {
 
     let state = AppState {
         repository: Arc::new(repository),
-        pigner: Arc::new(pinger),
+        pinger: Arc::new(pinger),
 
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),

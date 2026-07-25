@@ -22,9 +22,46 @@ pub(super) async fn create_server(State(state): State<AppState>,
         return Err(AppError::AuthenticationError("Unauthorized".to_string()));
     }
     
-    let mut query = query?.0;
+    let mut draft = query?.0;
 
-    // max 3 try
+    let (is_reachable, version_name) = ping_server(&state, &mut draft).await;
+    if !is_reachable {
+        return Err(AppError::ServerCreationError(ServerCreationError::NotReachable));
+    }
+
+    draft.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(draft.ip.as_str(), draft.port).await;
+
+    let fingerprint = ServerFingerprint {
+        favicon_hash: draft.favicon_hash.clone(),
+        resolved_endpoint: draft.resolved_endpoint.clone(),
+        motd_hash: draft.motd_hash.clone(),
+        version: version_name,
+    };
+
+    if let Some(duplicate) = DuplicateDetectionService::find_duplicate(
+        state.repository.as_ref(),
+        &fingerprint,
+        None,
+    ).await.map_err(|e| AppError::ServerCreationError(ServerCreationError::DuplicationDetection(e.to_string())))? {
+        info!(
+            "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
+            draft.name,
+            duplicate.server.name,
+            duplicate.server.id,
+            duplicate.score,
+            duplicate.signals
+        );
+
+        return Err(AppError::ServerCreationError(ServerCreationError::AlreadyExist));
+    }
+
+    draft.user_id = Some(account.unwrap().sub);
+
+    let rs = state.repository.create_server(draft).await?;
+    Ok(ResponseFormat::success(rs, StatusCode::OK))
+}
+
+async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option<String>) {
     let mut is_reachable = false;
     let mut version_name = None;
 
@@ -33,32 +70,32 @@ pub(super) async fn create_server(State(state): State<AppState>,
         .build();
 
     for _ in 0..PING_TRY_COUNT {
-        let ping_res = match query.server_type {
+        let ping_res = match draft.server_type {
             ServerType::Java => {
-                let res = state.pigner.ping_java_server(query.ip.as_str(), query.port, &cfg).await;
+                let res = state.pinger.ping_java_server(draft.ip.as_str(), draft.port, &cfg).await;
                 if let Ok(ping) = &res {
-                    query.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                    draft.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
                     let motd_value = serde_json::to_value(&ping.description).ok();
-                    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                    draft.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
                     version_name = Some(ping.version.name.clone());
                 }
 
                 if let Err(err) = &res {
-                    error!("Could not add java the server {} error {}", query.ip, err)
+                    error!("Could not add java the server {} error {}", draft.ip, err)
                 }
                 res.is_ok()
             },
             ServerType::Bedrock => {
-                let res = state.pigner.ping_bedrock_server(query.ip.as_str(), query.port, &cfg).await;
+                let res = state.pinger.ping_bedrock_server(draft.ip.as_str(), draft.port, &cfg).await;
                 if let Ok(ping) = &res {
-                    query.favicon_hash = None;
+                    draft.favicon_hash = None;
                     let motd_value = serde_json::to_value(&ping.motd).ok();
-                    query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                    draft.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
                     version_name = Some(ping.version.clone());
                 }
 
                 if let Err(err) = &res {
-                    error!("Could not add bedrock the server {} error {}", query.ip, err)
+                    error!("Could not add bedrock the server {} error {}", draft.ip, err)
                 }
                 res.is_ok()
             }
@@ -70,44 +107,5 @@ pub(super) async fn create_server(State(state): State<AppState>,
         }
     }
 
-    if !is_reachable {
-        return Err(AppError::ServerCreationError(ServerCreationError::NotReachable));
-    }
-
-    query.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(query.ip.as_str(), query.port).await;
-
-    let fingerprint = ServerFingerprint {
-        favicon_hash: query.favicon_hash.clone(),
-        resolved_endpoint: query.resolved_endpoint.clone(),
-        motd_hash: query.motd_hash.clone(),
-        version: version_name,
-    };
-
-    if let Some(duplicate) = DuplicateDetectionService::find_duplicate(
-        state.repository.as_ref(),
-        &fingerprint,
-        None,
-    ).await.map_err(|e| AppError::ServerCreationError(ServerCreationError::DuplicationDetection(e)))? {
-        info!(
-            "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
-            query.name,
-            duplicate.server.name,
-            duplicate.server.id,
-            duplicate.score,
-            duplicate.signals
-        );
-
-        drop(fingerprint);
-        return Err(AppError::ServerCreationError(ServerCreationError::AlreadyExist));
-    }
-    drop(fingerprint);
-
-    query.user_id = Some(account.unwrap().sub);
-
-    let rs = state.repository.create_server(query).await;
-    if let Err(_error) = rs {
-        return Err(AppError::ServerCreationError(ServerCreationError::Database));
-    }
-
-    Ok(ResponseFormat::success(rs.unwrap(), StatusCode::OK))
+    (is_reachable, version_name)
 }

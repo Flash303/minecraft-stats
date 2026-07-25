@@ -43,5 +43,3 @@ axum = { version = "0.8.*", features = ["tokio"] }
 base64 = "0.23.*"
 rsa = "0.10.0-rc.18"
 tower_governor = "0.8.*"
-
-chrono = "0.4.*"

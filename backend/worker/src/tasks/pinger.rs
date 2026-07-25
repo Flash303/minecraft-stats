@@ -111,7 +111,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                             is_ok = true;
                                         },
                                         Err(e) => {
-                                            err_msg = Some(format!("{:?}", e));
+                                            err_msg = Some(format!("{}", e));
                                         }
                                     }
                                 },
@@ -126,7 +126,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                             is_ok = true;
                                         },
                                         Err(e) => {
-                                            err_msg = Some(format!("{:?}", e));
+                                            err_msg = Some(format!("{}", e));
                                         }
                                     }
                                 }

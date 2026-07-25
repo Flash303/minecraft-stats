@@ -25,13 +25,11 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
     let user = client.request(Method::GET, format!("https://api.clerk.com/v1/users/{user_id}"))
         .bearer_auth(token)
         .send()
-        .await
-        .map_err(|e| AppError::FetchingDataError(format!("Failed to fetch user data: {e}")))?
+        .await?
         .json::<ClerkUser>()
-        .await
-        .map_err(|e| AppError::FetchingDataError(format!("Failed to parse user data: {e}")));
+        .await?;
 
-    let cached_user = Arc::new(user?);
+    let cached_user = Arc::new(user);
     state.user_cache.insert(user_id.clone(), cached_user.clone(), USER_CACHE_TTL).await;
 
     Ok(cached_user)
@@ -47,11 +45,9 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
     let users = client.request(Method::GET,"https://api.clerk.com/v1/users")
         .bearer_auth(token)
         .send()
-        .await
-        .map_err(|e| AppError::FetchingDataError(format!("Failed to fetch user data: {e}")))?
+        .await?
         .json::<Vec<ClerkUser>>()
-        .await
-        .map_err(|e| AppError::FetchingDataError(format!("Failed to parse user data: {e}")));
+        .await?;
 
-    Ok(users?)
+    Ok(users)
 }
