@@ -13,6 +13,7 @@ use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
 
 const ADD_TIMEOUT: Duration = Duration::from_secs(2);
+const PING_TRY_COUNT: usize = 2;
 
 pub(super) async fn create_server(State(state): State<AppState>,
                        Extension(account): Extension<Option<ClerkClaims>>,
@@ -31,7 +32,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         .set_timeout(ADD_TIMEOUT)
         .build();
 
-    for _ in 0..3 {
+    for _ in 0..PING_TRY_COUNT {
         let ping_res = match query.server_type {
             ServerType::Java => {
                 let res = state.pigner.ping_java_server(query.ip.as_str(), query.port, &cfg).await;

@@ -1,5 +1,5 @@
 use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
-use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME};
+use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME, PING_TRY_COUNT};
 use futures::{stream, StreamExt};
 use minecraft_pinger::config::PingConfig;
 use minecraft_pinger::models::bedrock_model::BedrockPing;
@@ -93,7 +93,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                     async move {
                         let mut state = ServerStateChange::from(&server);
 
-                        for i in 0..3 {
+                        for i in 0..PING_TRY_COUNT {
                             let mut is_ok = false;
                             let mut players_online = 0;
                             let mut err_msg = None;
@@ -143,7 +143,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                 };
 
                                 return (server, Some(record));
-                            } else if i == 2 {
+                            } else if i == PING_TRY_COUNT-1 {
                                 info!("Error in ping the server {} : {:?}", server.name, err_msg);
                                 server.last_status = Some(ServerStatus::Offline);
                                 server.last_connected = None;

@@ -11,6 +11,7 @@ use crate::tasks::sender::sender_worker;
 mod tasks;
 
 const MAX_CONCURRENT_PING: usize = 100;
+const PING_TRY_COUNT: usize = 2;
 const MAX_PING_RESPONSE_TIME: Duration = Duration::from_secs(2);
 pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
