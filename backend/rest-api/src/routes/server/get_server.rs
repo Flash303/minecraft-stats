@@ -22,7 +22,7 @@ pub(super) struct ServerWithUser {
 pub(super) async fn get_mine_server(State(state): State<AppState>,
                                     Query(query): Query<ServerListQueryParams>,
                                     Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
-    let account = account.ok_or(AppError::AuthenticationError)?;
+    let account = account.ok_or(AppError::Authentication)?;
     let do_include_stats = query.include_stats.unwrap_or(false);
 
     let result = state.repository.get_servers_of_user(account.id().clone()).await?;
@@ -41,7 +41,7 @@ pub(super) async fn get_server(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
     let result = state.repository.get_server(*id?).await?
-        .ok_or(AppError::ServerNotFoundError)?;
+        .ok_or(AppError::ServerNotFound)?;
 
     let mut server = ServerWithUser {
         server: result,
@@ -50,7 +50,7 @@ pub(super) async fn get_server(State(state): State<AppState>,
 
     let is_admin = account.is_some_and(|u| u.is_admin());
     if server.server.hidden && !is_admin {
-        return Err(AppError::ServerNotFoundError);
+        return Err(AppError::ServerNotFound);
     }
 
     let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)

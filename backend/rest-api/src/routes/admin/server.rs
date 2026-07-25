@@ -4,7 +4,7 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 
 use crate::{error::AppError, response::ResponseFormat, state::AppState};
-use crate::error::AppError::ServerNotFoundError;
+use crate::error::AppError::ServerNotFound;
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -23,7 +23,7 @@ async fn update_server_status(State(state): State<AppState>,
     let query = query?;
     let id = id?;
 
-    let mut server = state.repository.get_server(*id).await?.ok_or(ServerNotFoundError)?;
+    let mut server = state.repository.get_server(*id).await?.ok_or(ServerNotFound)?;
     server.hidden = query.hidden;
 
     state.repository.update_server(&server).await?;

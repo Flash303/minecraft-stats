@@ -19,13 +19,13 @@ pub(super) async fn update_server_name(
     Path(id): Path<u32>,
     Json(payload): Json<UpdateServerPayload>,
 ) -> Result<ResponseFormat<Server>, AppError> {
-    let account = account.ok_or(AppError::AuthenticationError)?;
+    let account = account.ok_or(AppError::Authentication)?;
 
-    let mut server = state.repository.get_server(id).await?.ok_or(AppError::ServerNotFoundError)?;
+    let mut server = state.repository.get_server(id).await?.ok_or(AppError::ServerNotFound)?;
 
     let is_owner = server.user_id == account.sub;
     if !is_owner && !account.is_admin() {
-        return Err(AppError::AuthenticationError);
+        return Err(AppError::Authentication);
     }
 
     server.name = payload.name;

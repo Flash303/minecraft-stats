@@ -18,13 +18,13 @@ const PING_TRY_COUNT: usize = 2;
 pub(super) async fn create_server(State(state): State<AppState>,
                        Extension(account): Extension<Option<ClerkClaims>>,
                        query: Result<Json<DraftServer>, JsonRejection>) -> Result<ResponseFormat<Server>, AppError> {
-    let account = account.ok_or(AppError::AuthenticationError)?;
+    let account = account.ok_or(AppError::Authentication)?;
     
     let mut draft = query?.0;
 
     let (is_reachable, version_name) = ping_server(&state, &mut draft).await;
     if !is_reachable {
-        return Err(AppError::ServerCreationError(ServerCreationError::NotReachable));
+        return Err(AppError::ServerCreation(ServerCreationError::NotReachable));
     }
 
     draft.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(draft.ip.as_str(), draft.port).await;
@@ -40,7 +40,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
         state.repository.as_ref(),
         &fingerprint,
         None,
-    ).await.map_err(|e| AppError::ServerCreationError(ServerCreationError::DuplicationDetection(e.to_string())))? {
+    ).await.map_err(|e| AppError::ServerCreation(ServerCreationError::DuplicationDetection(e.to_string())))? {
         info!(
             "Server name {} is similar to existing server {} (ID: {}) with score {} (signals: {:?})",
             draft.name,
@@ -50,7 +50,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
             duplicate.signals
         );
 
-        return Err(AppError::ServerCreationError(ServerCreationError::AlreadyExist));
+        return Err(AppError::ServerCreation(ServerCreationError::AlreadyExist));
     }
 
     draft.user_id = Some(account.sub);

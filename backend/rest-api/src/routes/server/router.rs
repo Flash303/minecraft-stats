@@ -1,13 +1,3 @@
-use std::time::Duration;
-use axum::Router;
-use axum::routing::{delete, get, patch, post};
-use log::info;
-use serde::{Deserialize, Serialize};
-use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::GovernorLayer;
-use tower_governor::key_extractor::SmartIpKeyExtractor;
-use repository::models::record::RecordData;
-use repository::models::server::Server;
 use crate::error::AppError;
 use crate::routes::server::create_alert::create_alert;
 use crate::routes::server::create_server::create_server;
@@ -19,6 +9,15 @@ use crate::routes::server::list_server::list_all_servers;
 use crate::routes::server::update_server::update_server_name;
 use crate::services::clerk::model::ClerkUser;
 use crate::state::AppState;
+use axum::routing::{delete, get, patch, post};
+use axum::Router;
+use repository::models::record::RecordData;
+use repository::models::server::Server;
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::key_extractor::SmartIpKeyExtractor;
+use tower_governor::GovernorLayer;
 
 pub fn router() -> Router<AppState> {
     let get_server_limit = GovernorConfigBuilder::default()

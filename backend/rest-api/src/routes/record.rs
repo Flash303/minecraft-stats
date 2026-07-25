@@ -47,11 +47,11 @@ async fn fetch_records(State(state): State<AppState>,
 
     let instant = Instant::now();
     let server = state.repository.get_server(id).await?
-        .ok_or(AppError::ServerNotFoundError)?;
+        .ok_or(AppError::ServerNotFound)?;
 
     let is_admin = account.is_some_and(|u| u.is_admin());
     if server.hidden && !is_admin {
-        return Err(AppError::ServerNotFoundError);
+        return Err(AppError::ServerNotFound);
     }
 
     let data = state.repository.get_pings(id, query.from, query.to).await?;

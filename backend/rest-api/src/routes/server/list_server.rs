@@ -1,14 +1,13 @@
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
+use crate::services::clerk::clerk_service::get_clerk_user_with_cache;
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::state::AppState;
 use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use axum::Extension;
 use futures::{stream, StreamExt};
-use log::info;
-use crate::services::clerk::clerk_service::{get_clerk_user_with_cache};
 
 pub(super) async fn list_all_servers(State(state): State<AppState>,
                                      Query(query): Query<ServerListQueryParams>,

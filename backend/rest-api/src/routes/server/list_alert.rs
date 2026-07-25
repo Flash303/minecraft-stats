@@ -12,10 +12,10 @@ pub(super) async fn list_alerts(
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(server_id): Path<u32>,
 ) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
-    let account = account.ok_or(AppError::AuthenticationError)?;
+    let account = account.ok_or(AppError::Authentication)?;
 
     // Verify server exists
-    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFoundError)?;
+    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFound)?;
 
     let alerts = state.repository.list_alerts_for_server(server_id).await?;
 
