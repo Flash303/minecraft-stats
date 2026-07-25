@@ -23,7 +23,7 @@ sha2 = "0.11.*"
 openssl = { version = "0.10.*", features = ["vendored"] }
 
 # Only crates/repository
-sqlx = { version = "0.9.0", features = ["time", "postgres"] }
+sqlx = { version = "0.9.0", features = ["runtime-tokio", "tls-rustls", "time", "postgres"] }
 
 hickory-resolver = { version = "0.26.*", features = ["tokio"] }
 hickory-proto = "0.26.*"
