@@ -2,7 +2,7 @@ use axum::{Extension, Json};
 use axum::extract::rejection::JsonRejection;
 use axum::extract::State;
 use axum::http::StatusCode;
-use log::info;
+use log::{error, info};
 use minecraft_pinger::config::PingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
@@ -33,6 +33,10 @@ pub(super) async fn create_server(State(state): State<AppState>,
                     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
                     version_name = Some(ping.version.name.clone());
                 }
+                
+                if let Err(err) = &res {
+                    error!("Could not add java the server {} error {}", query.ip, err)
+                }
                 res.is_ok()
             },
             ServerType::Bedrock => {
@@ -42,6 +46,10 @@ pub(super) async fn create_server(State(state): State<AppState>,
                     let motd_value = serde_json::to_value(&ping.motd).ok();
                     query.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
                     version_name = Some(ping.version.clone());
+                }
+
+                if let Err(err) = &res {
+                    error!("Could not add bedrock the server {} error {}", query.ip, err)
                 }
                 res.is_ok()
             }

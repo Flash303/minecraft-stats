@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-#minecraft-pinger = { path = "../../../minecraft-pinger" }
 minecraft-pinger = { git = "https://github.com/Flash303/minecraft-pinger" }
 repository = { path = "../crates/repository" }
 tokio = { version = "1.52.3", features = ["full"] }
