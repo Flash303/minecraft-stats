@@ -31,17 +31,7 @@ const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
-    env_logger::builder()
-        .format(|buf, record| {
-            writeln!(
-                buf,
-                "[{}] {} {}",
-                Local::now().format("%Y-%m-%dT%H:%M:%S"),
-                record.level(),
-                record.args()
-            )
-        })
-        .init();
+    env_logger::init();
 
     info!("Starting server");
 
