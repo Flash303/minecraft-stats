@@ -6,7 +6,6 @@ import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { parseLegacyText, CursorTooltip } from "@/components/MinecraftMotd"
 
 interface ServerCardProps {
