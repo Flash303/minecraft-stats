@@ -48,12 +48,20 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
         .ok_or(AppError::ClerkApiProblem("total_count not found".into()))?.as_u64()
         .ok_or(AppError::ClerkApiProblem("total_count not u64".into()))?;
 
+    println!("User count {}", user_count);
+
     let mut users: Vec<ClerkUser> = Vec::with_capacity(user_count as usize);
 
     let nb_req = user_count / MAX_USERS_PER_PAGE;
+    println!("Nb req {}", nb_req);
 
     for i in 0..nb_req {
-        let fetched_users = client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", MAX_USERS_PER_PAGE, i * MAX_USERS_PER_PAGE))
+        let limit = &MAX_USERS_PER_PAGE;
+        let offset = i * MAX_USERS_PER_PAGE;
+
+        println!("Limit {}, Offset {}", limit, offset);
+
+        let fetched_users = client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", limit, offset))
             .bearer_auth(token)
             .send()
             .await?
