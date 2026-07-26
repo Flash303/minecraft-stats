@@ -27,6 +27,7 @@ pub struct Server {
     pub last_max_players: Option<i32>,
     pub last_motd: Option<Value>,
     pub last_ping_time: Option<u32>,
+    pub last_sample: Option<String>,
 
     #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,
@@ -60,6 +61,7 @@ pub struct ServerRow {
     last_max_players: Option<i32>,
     last_motd: Option<String>,
     last_ping_time: Option<i32>,
+    last_sample: Option<String>,
 
     favicon_hash: Option<String>,
     motd_hash: Option<String>,
@@ -86,6 +88,7 @@ impl From<ServerRow> for Server {
                 .and_then(|s| serde_json::from_str(s).ok()),
             last_max_players: row.last_max_players,
             last_ping_time: row.last_ping_time.map(|v| v as u32),
+            last_sample: row.last_sample,
 
             favicon_hash: row.favicon_hash,
             motd_hash: row.motd_hash,
