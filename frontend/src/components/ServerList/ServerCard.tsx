@@ -6,6 +6,8 @@ import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { parseLegacyText, CursorTooltip } from "@/components/MinecraftMotd"
 
 interface ServerCardProps {
     server: Server
@@ -96,9 +98,28 @@ export function ServerCard({ server }: ServerCardProps) {
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                 </span>
-                                <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200">
-                                    {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
-                                </span>
+                                {server.last_sample ? (
+                                    <CursorTooltip 
+                                        fontHeight={18}
+                                        content={
+                                            <div className="flex flex-col text-left whitespace-pre-wrap">
+                                                {server.last_sample.split('\n').map((line, i) => (
+                                                    <div key={i} className="min-h-[18px]">
+                                                        {parseLegacyText(line)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        }
+                                    >
+                                        <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200 cursor-default select-none border-b border-dashed border-slate-400 dark:border-zinc-500">
+                                            {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                        </span>
+                                    </CursorTooltip>
+                                ) : (
+                                    <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200">
+                                        {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                    </span>
+                                )}
                             </>
                         ) : (
                             <>

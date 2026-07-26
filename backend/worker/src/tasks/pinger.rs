@@ -37,6 +37,19 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_ping_time = Some(ping.latency);
             server.last_motd = serde_json::to_value(&ping.description).ok();
 
+            if let Some(players) = ping.players.sample {
+                let mut sample = String::new();
+                for player in players {
+                    sample.push_str(format!("{}\n", player.name).as_str())
+                }
+
+                if !sample.is_empty() {
+                    server.last_sample = Some(sample);
+                } else {
+                    server.last_sample = None;
+                }
+            }
+
             // Update fingerprints
             server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
             let motd_value = serde_json::to_value(&ping.description).ok();
