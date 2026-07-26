@@ -53,6 +53,9 @@ pub enum AppError {
     #[error("Fetch failed")]
     Request(#[from] Error),
 
+    #[error("Clerk fetch failed {0}")]
+    ClerkApiProblem(String),
+
     #[error("{0}")]
     InvalidParam(#[from] PathRejection),
     
@@ -69,6 +72,7 @@ impl AppError {
             AppError::FetchingData(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::ServerCreation(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::Request(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::ClerkApiProblem(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::FeatureDisabled => StatusCode::NOT_FOUND,
             AppError::Authentication => StatusCode::UNAUTHORIZED,
             AppError::ServerNotFound => StatusCode::NOT_FOUND,
@@ -83,6 +87,7 @@ impl AppError {
             AppError::FetchingData(_) => "error.fetching_data".into(),
             AppError::ServerCreation(e) => e.translation_key(),
             AppError::Request(_) => "error.fetch_failed".into(),
+            AppError::ClerkApiProblem(_) => "error.fetch_failed".into(),
             AppError::FeatureDisabled => "error.disabled_feature".into(),
             AppError::Authentication => "error.authentification".into(),
             AppError::ServerNotFound => "error.server_not_found".into(),

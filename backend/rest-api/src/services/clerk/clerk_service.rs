@@ -1,14 +1,15 @@
 use std::{sync::Arc, time::Duration};
 use reqwest::Method;
-
+use serde_json::Value;
 use crate::{error::AppError, state::AppState};
 use crate::services::clerk::model::ClerkUser;
 
 const USER_CACHE_TTL: Duration = Duration::from_hours(2);
+const MAX_USERS_PER_PAGE: u64 = 500;
 
 pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
-    let cahed_user = state.user_cache.get(&user_id).await;
-    if let Some(user) = cahed_user {
+    let cached_user = state.user_cache.get(&user_id).await;
+    if let Some(user) = cached_user {
         return Ok(user.clone());
     }
 
@@ -36,12 +37,31 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
     let token = state.clerk_secret_key.as_deref().ok_or(AppError::FeatureDisabled)?;
     let client = reqwest::Client::new();
 
-    let users = client.request(Method::GET,"https://api.clerk.com/v1/users")
+    let user_count = client.request(Method::GET, "https://api.clerk.com/v1/users/count")
         .bearer_auth(token)
         .send()
         .await?
-        .json::<Vec<ClerkUser>>()
+        .json::<Value>()
         .await?;
+
+    let user_count = user_count.get("total_count")
+        .ok_or(AppError::ClerkApiProblem("total_count not found".into()))?.as_u64()
+        .ok_or(AppError::ClerkApiProblem("total_count not u64".into()))?;
+
+    let mut users: Vec<ClerkUser> = Vec::with_capacity(user_count as usize);
+
+    let nb_req = user_count / MAX_USERS_PER_PAGE;
+
+    for i in 0..nb_req {
+        let fetched_users = client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", MAX_USERS_PER_PAGE, i * MAX_USERS_PER_PAGE))
+            .bearer_auth(token)
+            .send()
+            .await?
+            .json::<Vec<ClerkUser>>()
+            .await?;
+
+        users.extend(fetched_users);
+    }
 
     Ok(users)
 }

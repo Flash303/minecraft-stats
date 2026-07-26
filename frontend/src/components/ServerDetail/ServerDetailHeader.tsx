@@ -17,10 +17,10 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
     const [copied, setCopied] = useState(false)
 
     const isOnline = server.last_status === "online"
-    const { displayIp } = getServerIp(server.ip, server.port)
+    const { displayIp } = getServerIp(server.ip, server.port, server.type)
 
     const handleCopy = () => {
-        copyServerIp(server.ip, server.port)
+        copyServerIp(server.ip, server.port, server.type)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
