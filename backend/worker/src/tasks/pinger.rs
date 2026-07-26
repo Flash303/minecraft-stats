@@ -43,7 +43,11 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
                     sample.push_str(format!("{}\n", player.name).as_str())
                 }
 
-                server.last_sample = Some(sample);
+                if !sample.is_empty() {
+                    server.last_sample = Some(sample);
+                } else {
+                    server.last_sample = None;
+                }
             }
 
             // Update fingerprints
