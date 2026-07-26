@@ -35,12 +35,12 @@ export function ServerCard({ server }: ServerCardProps) {
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
 
-    const { displayIp } = getServerIp(server.ip, server.port)
+    const { displayIp } = getServerIp(server.ip, server.port, server.type)
 
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        copyServerIp(server.ip, server.port).then()
+        copyServerIp(server.ip, server.port, server.type).then()
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
