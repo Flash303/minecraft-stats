@@ -52,7 +52,7 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
 
     let mut users: Vec<ClerkUser> = Vec::with_capacity(user_count as usize);
 
-    let nb_req = user_count / MAX_USERS_PER_PAGE;
+    let nb_req = user_count.div_ceil(MAX_USERS_PER_PAGE);
     println!("Nb req {}", nb_req);
 
     for i in 0..nb_req {
