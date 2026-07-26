@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useState } from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import pingIcon from "@/assets/ping.png"
 import default_icon from "@/assets/default_favicon.svg"
@@ -7,6 +8,49 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+export function CursorTooltip({
+    children,
+    content,
+    fontHeight = 18,
+}: {
+    children: React.ReactNode;
+    content: React.ReactNode;
+    fontHeight?: number;
+}) {
+    const [isHovered, setIsHovered] = useState(false);
+    const [pos, setPos] = useState({ x: 0, y: 0 });
+
+    return (
+        <>
+            <span
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
+                className="cursor-default select-none inline-flex items-center"
+            >
+                {children}
+            </span>
+            {isHovered &&
+                createPortal(
+                    <div
+                        style={{
+                            position: "fixed",
+                            left: pos.x + 16,
+                            top: pos.y - 20,
+                            zIndex: 9999,
+                            fontSize: `${fontHeight}px`,
+                            lineHeight: `${fontHeight}px`,
+                        }}
+                        className="bg-[#000000] border-[2px] border-[#1a1a5a] text-white p-2 font-minecraft max-w-sm shadow-xl pointer-events-none"
+                    >
+                        {content}
+                    </div>,
+                    document.body
+                )}
+        </>
+    );
+}
 
 export type MotdComponent =
     | string
@@ -30,6 +74,7 @@ interface MinecraftMotdProps {
     maxPlayers?: number
     favicon?: string | null
     pingTime?: number | null
+    lastSample?: string | null
 }
 
 const MINECRAFT_COLORS: Record<string, string> = {
@@ -344,7 +389,7 @@ function generateHiddenString(targetWidth: number): string {
     return res;
 }
 
-function parseLegacyText(text: string): React.ReactNode[] {
+export function parseLegacyText(text: string): React.ReactNode[] {
     const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};)/i);
     const elements: React.ReactNode[] = [];
     
@@ -439,7 +484,8 @@ export function MinecraftMotd({
     currentPlayers = 0,
     maxPlayers = 20,
     favicon,
-    pingTime
+    pingTime,
+    lastSample
 }: MinecraftMotdProps) {
     const actualMotd = motd || { text: "A Minecraft Server", color: "dark_gray" };
     
@@ -495,9 +541,30 @@ export function MinecraftMotd({
                 >
                     <span className="text-white truncate">{serverName}</span>
                     <span className="text-[#aaaaaa] ml-auto flex items-center shrink-0">
-                        {currentPlayers}
-                        <span className="mx-[2px] text-[#555555]">/</span>
-                        {maxPlayers}
+                        {lastSample ? (
+                            <CursorTooltip 
+                                fontHeight={fontHeight}
+                                content={
+                                    <div className="flex flex-col text-left whitespace-pre-wrap">
+                                        {lastSample.split('\n').map((line, i) => (
+                                            <div key={i} className="min-h-[18px]">
+                                                {parseLegacyText(line)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                            >
+                                {currentPlayers}
+                                <span className="mx-[2px] text-[#555555]">/</span>
+                                {maxPlayers}
+                            </CursorTooltip>
+                        ) : (
+                            <>
+                                {currentPlayers}
+                                <span className="mx-[2px] text-[#555555]">/</span>
+                                {maxPlayers}
+                            </>
+                        )}
                         <div className="flex items-center ml-[4px]">
                             <Tooltip delayDuration={0}>
                                 <TooltipTrigger asChild>

@@ -20,6 +20,7 @@ export interface Server {
     last_version: string | null
     last_motd?: { [key: string]: any } | null
     last_ping_time?: number | null
+    last_sample?: string | null
     user_id: string
     user?: User | null
     type?: "java" | "bedrock"

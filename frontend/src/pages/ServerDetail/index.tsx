@@ -283,6 +283,7 @@ export function ServerDetail() {
                             maxPlayers={server.max_players ?? server.last_max_players ?? 20}
                             favicon={server.last_favicon}
                             pingTime={server.last_ping_time}
+                            lastSample={server.last_sample}
                         />
                     </div>
                 </div>
