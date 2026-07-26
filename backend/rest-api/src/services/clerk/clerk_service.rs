@@ -5,7 +5,7 @@ use crate::{error::AppError, state::AppState};
 use crate::services::clerk::model::ClerkUser;
 
 const USER_CACHE_TTL: Duration = Duration::from_hours(2);
-const MAX_USERS_PER_PAGE: u64 = 2;
+const MAX_USERS_PER_PAGE: u64 = 500;
 
 pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
     let cached_user = state.user_cache.get(&user_id).await;
