@@ -40,10 +40,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-    const { data, matches, error } = args;
-    console.log(`[SSR Debug] meta args keys=${Object.keys(args).join(",")}, data=${JSON.stringify(data)}`);
+    const { loaderData: data, matches, error } = args as any;
+    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, matches=${matches.length}, error=${error ? String(error) : "none"}`);
     if (matches && matches.length > 0) {
-        matches.forEach((m, i) => console.log(`[SSR Debug] Match ${i}: id=${m.id}, hasData=${!!m.data}`));
+        matches.forEach((m, i) => console.log(`[SSR Debug] Match ${i}: id=${m.id}, hasData=${!!(m as any).data || !!(m as any).loaderData}`));
     }
     if (!data || !data.initialServer) {
         return [
