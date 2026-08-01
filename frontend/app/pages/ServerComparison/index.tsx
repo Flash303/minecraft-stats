@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
 import { fetchRecords } from "@/lib/api"
 import type { Server } from "@/lib/api"
 
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { BarChart3 } from "lucide-react"
-import { MultiServerChart } from "./MultiServerChart"
+const MultiServerChart = lazy(() => import("./MultiServerChart").then(m => ({ default: m.MultiServerChart })))
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { SearchBar } from "@/components/layout/SearchBar"
@@ -158,13 +158,15 @@ export default function ServerComparison() {
                     )}
                     
                     {selectedServers.length > 0 && (
-                        <MultiServerChart 
-                            data={chartData} 
-                            serverNames={selectedServers.map(s => s.name)} 
-                            timeRange={timeRangeProps} 
-                            zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
-                            onZoomChange={(z) => isChartZoomed.current = z}
-                        />
+                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">Loading chart...</div>}>
+                            <MultiServerChart 
+                                data={chartData} 
+                                serverNames={selectedServers.map(s => s.name)} 
+                                timeRange={timeRangeProps} 
+                                zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                                onZoomChange={(z) => isChartZoomed.current = z}
+                            />
+                        </Suspense>
                     )}
  
                     {!loadingRecords && selectedServers.length === 0 && (

@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
 import { useParams, Link, useLoaderData } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
-import { PlayerChart } from "@/components/ServerDetail/PlayerChart"
+const PlayerChart = lazy(() => import("@/components/ServerDetail/PlayerChart").then(m => ({ default: m.PlayerChart })))
 import { ServerDetailHeader } from "@/components/ServerDetail/ServerDetailHeader"
 import { TimeIntervalSelector } from "@/components/ServerDetail/TimeIntervalSelector"
 import { StatsSection } from "@/components/ServerDetail/StatsSection"
@@ -364,32 +364,34 @@ export default function ServerDetail() {
                             </div>
                         )}
                         <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
-                            <PlayerChart
-                                data={records}
-                                serverName={server.name}
-                                interval={appliedInterval}
-                                timeRange={timeLimits}
-                                zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
-                                onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
-                                onZoomChange={(z) => isChartZoomed.current = z}
-                                header={
-                                    <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">
-                                        <div className="flex items-center gap-2 truncate">
-                                            <BarChart className="text-primary h-5 w-5 shrink-0" />
-                                            <span className="truncate">{t("serverDetail.playerHistory")}</span>
-                                        </div>
-                                        {isOnline && (
-                                            <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
-                                                (
-                                                {new Intl.NumberFormat(locale).format(
-                                                    server.last_connected ?? 0
-                                                )}{" "}
-                                                {t("common.currentPlayers")})
-                                            </span>
-                                        )}
-                                    </h2>
-                                }
-                            />
+                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full flex items-center justify-center">Loading chart...</div>}>
+                                <PlayerChart
+                                    data={records}
+                                    serverName={server.name}
+                                    interval={appliedInterval}
+                                    timeRange={timeLimits}
+                                    zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                                    onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
+                                    onZoomChange={(z) => isChartZoomed.current = z}
+                                    header={
+                                        <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">
+                                            <div className="flex items-center gap-2 truncate">
+                                                <BarChart className="text-primary h-5 w-5 shrink-0" />
+                                                <span className="truncate">{t("serverDetail.playerHistory")}</span>
+                                            </div>
+                                            {isOnline && (
+                                                <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
+                                                    (
+                                                    {new Intl.NumberFormat(locale).format(
+                                                        server.last_connected ?? 0
+                                                    )}{" "}
+                                                    {t("common.currentPlayers")})
+                                                </span>
+                                            )}
+                                        </h2>
+                                    }
+                                />
+                            </Suspense>
                         </div>
                     </div>
 

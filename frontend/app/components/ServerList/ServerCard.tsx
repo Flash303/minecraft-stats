@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, lazy, Suspense } from "react"
 import type { Server } from "@/lib/api"
 import { fetchRecords } from "@/lib/api"
-import { MiniChart } from "./MiniChart"
+const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
@@ -142,7 +142,9 @@ export function ServerCard({ server }: ServerCardProps) {
 
             {/* Middle part: Sparkline mini chart (spanning full width of content) */}
             <div className="w-full h-12 opacity-80 group-hover:opacity-100 transition-opacity my-2 overflow-hidden flex items-center">
-                <MiniChart data={records} />
+                <Suspense fallback={<div className="h-full w-full" />}>
+                    <MiniChart data={records} />
+                </Suspense>
             </div>
 
             {/* Bottom row: Version badge and stats info */}
