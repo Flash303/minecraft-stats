@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Edit2, Server as ServerIcon, Bell, BellOff, Trash2, ShieldAlert, CheckCircle2, User, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
+import type { MetaFunction } from "react-router"
 
 interface ExtendedAlert extends Alert {
     serverId: number
@@ -39,6 +40,13 @@ function urlBase64ToUint8Array(base64String: string) {
     }
     return outputArray;
 }
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "My Account | Minecraft-Stats" },
+        { name: "robots", content: "noindex, nofollow" }
+    ];
+};
 
 export default function Account() {
     const { t } = useLanguage()

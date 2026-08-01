@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useParams, Link, useLoaderData } from "react-router"
-import type { LoaderFunctionArgs } from "react-router"
+import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { PlayerChart } from "@/components/ServerDetail/PlayerChart"
@@ -38,6 +38,25 @@ export async function loader({ params }: LoaderFunctionArgs) {
         return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+    if (!data || !data.initialServer) {
+        return [
+            { title: "Server Not Found | Minecraft-Stats" },
+            { name: "description", content: "Minecraft server not found." }
+        ];
+    }
+    const server = data.initialServer;
+    const title = `${server.name} - Minecraft Server Stats | Minecraft-Stats`;
+    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).`;
+    return [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:image", content: `https://mc-stats.fr/api/favicon/${server.id}` }
+    ];
+};
 
 export default function ServerDetail() {
     const { t, language } = useLanguage()

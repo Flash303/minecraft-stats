@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
 import { Link, useNavigate, useParams } from "react-router"
+import type { MetaFunction } from "react-router"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useAdmin } from "@/contexts/AdminContext"
@@ -36,6 +37,13 @@ import { SettingsTab } from "@/components/AdminDashboard/SettingsTab"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 type ActiveTab = "overview" | "users" | "servers" | "logs" | "settings"
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "Admin Dashboard | Minecraft-Stats" },
+        { name: "robots", content: "noindex, nofollow" }
+    ];
+};
 
 export default function AdminDashboard() {
     const { t, language, setLanguage } = useLanguage()

@@ -13,4 +13,5 @@ export default [
   route("dashboard", "pages/AdminDashboard/index.tsx", { id: "dashboard" }),
   route("dashboard/:subview", "pages/AdminDashboard/index.tsx", { id: "dashboard-subview" }),
   route("sitemap.xml", "routes/sitemap.ts"),
+  route("api/favicon/:id", "routes/favicon.ts"),
 ] satisfies RouteConfig;
