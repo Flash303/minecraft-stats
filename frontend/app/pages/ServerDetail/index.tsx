@@ -28,18 +28,22 @@ export async function loader({ params }: LoaderFunctionArgs) {
     try {
         const id = Number(params.id)
         const server = await fetchServer(id)
+        console.log(`[SSR Debug] loader fetchServer returned: ${server ? "Object" : "null"}`)
         
         const now = Math.floor(Date.now() / 1000)
         const from = now - 86400 // 1 day
         const records = await fetchRecords(id, from)
+        console.log(`[SSR Debug] loader fetchRecords returned: ${records.length} records`)
         
         return { initialServer: server, initialRecords: records, initialFrom: from }
-    } catch {
+    } catch (e) {
+        console.error(`[SSR Debug] loader threw an error:`, e)
         return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
+    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, data.initialServer=${data?.initialServer ? "Object" : "undefined/null"}`)
     if (!data || !data.initialServer) {
         return [
             { title: "Server Not Found | Minecraft-Stats" },
