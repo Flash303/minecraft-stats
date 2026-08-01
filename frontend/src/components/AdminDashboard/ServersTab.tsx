@@ -337,7 +337,7 @@ export function ServersTab({
                                             {server.last_favicon ? (
                                                 <img
                                                     src={server.last_favicon}
-                                                    alt=""
+                                                    alt={t("alt.serverLogo", { name: server.name })}
                                                     className="h-7 w-7 rounded shadow-xs flex-shrink-0 border"
                                                 />
                                             ) : (
@@ -362,7 +362,7 @@ export function ServersTab({
                                                 {creator?.image_url ? (
                                                     <img
                                                         src={creator.image_url}
-                                                        alt=""
+                                                        alt={t("alt.userAvatar", { name: creator.username || t("profile.defaultUser") })}
                                                         className="h-5 w-5 rounded-full object-cover border"
                                                     />
                                                 ) : (

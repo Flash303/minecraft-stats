@@ -81,7 +81,7 @@
   "hero": {
     "title1": "Analytics",
     "title2": "Dashboard",
-    "description": "Track, compare, and analyze your Minecraft servers activity. Enjoy a clean interface, smooth analytics, and high-performance charts to monitor your servers.",
+    "description": "The ultimate analytics platform for Minecraft servers. Track player evolution over time, get alerts for downtime or player spikes, and explore massive amounts of data. Whether you're an admin or a player, discover the best performing Java and Bedrock servers in real-time.",
     "cta": "View the list"
   },
   "serverDetail": {
@@ -349,6 +349,11 @@
       "s7Title": "7. Changes to this Policy",
       "s7Content": "We may update this Privacy Policy from time to time. If we make material changes, we will notify you by updating the date at the top of this policy and, in some cases, providing additional notice."
     }
+  },
+  "alt": {
+    "serverLogo": "{{name}} server logo",
+    "defaultLogo": "Default server logo",
+    "userAvatar": "{{name}} avatar"
   },
   "error": {
     "server_creation": {

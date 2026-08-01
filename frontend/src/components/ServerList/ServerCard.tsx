@@ -57,13 +57,13 @@ export function ServerCard({ server }: ServerCardProps) {
                     {server.last_favicon ? (
                         <img
                             src={server.last_favicon}
-                            alt=""
+                            alt={t("alt.serverLogo", { name: server.name })}
                             className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
                         />
                     ) : (
                         <img
                             src={default_icon}
-                            alt=""
+                            alt={t("alt.defaultLogo")}
                             className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
                         />
                     )}
@@ -71,9 +71,9 @@ export function ServerCard({ server }: ServerCardProps) {
 
                 {/* Name & IP Copy button */}
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
-                    <h3 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
+                    <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
                         {server.name}
-                    </h3>
+                    </h2>
                     
                     <button 
                         onClick={handleCopy}

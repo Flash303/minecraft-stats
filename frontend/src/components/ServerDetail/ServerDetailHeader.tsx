@@ -36,13 +36,13 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
                 {server.last_favicon ? (
                     <img
                         src={server.last_favicon}
-                        alt=""
+                        alt={t("alt.serverLogo", { name: server.name })}
                         className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
                     />
                 ) : (
                     <img
                         src={default_icon}
-                        alt=""
+                        alt={t("alt.defaultLogo")}
                         className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
                     />
                 )}

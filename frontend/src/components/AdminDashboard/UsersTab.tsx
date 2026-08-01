@@ -95,7 +95,7 @@ export function UsersTab({
                                 {user.image_url ? (
                                     <img
                                         src={user.image_url}
-                                        alt={user.username || "User avatar"}
+                                        alt={t("alt.userAvatar", { name: user.username || t("profile.defaultUser") })}
                                         className="h-16 w-16 mx-auto rounded-full object-cover border-2 border-primary/10 shadow-sm"
                                     />
                                 ) : (
@@ -157,7 +157,7 @@ export function UsersTab({
                                 <img 
                                     src={selectedUser.image_url} 
                                     className="h-10 w-10 rounded-full object-cover border" 
-                                    alt="" 
+                                    alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })} 
                                 />
                             ) : (
                                 <UserIcon className="h-10 w-10 text-muted-foreground bg-muted p-2 rounded-full border" />
@@ -196,7 +196,7 @@ export function UsersTab({
                                                     <img 
                                                         src={server.last_favicon} 
                                                         className="h-8 w-8 rounded shadow-xs flex-shrink-0 border" 
-                                                        alt="" 
+                                                        alt={t("alt.serverLogo", { name: server.name })} 
                                                     />
                                                 ) : (
                                                     <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-muted-foreground border flex-shrink-0">

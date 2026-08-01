@@ -81,7 +81,7 @@
   "hero": {
     "title1": "Dashboard",
     "title2": "Analytique",
-    "description": "Suivez, comparez et analysez l'activité de vos serveurs Minecraft. Profitez d'une interface sobre, d'analyses fluides et de graphiques haute performance pour surveiller vos serveurs.",
+    "description": "La plateforme d'analyse ultime pour serveurs Minecraft. Suivez l'évolution de vos joueurs, recevez des alertes (downtime, pics d'affluence) et explorez une quantité massive de données. Que vous soyez administrateur ou joueur, découvrez les serveurs Java et Bedrock les plus performants en temps réel.",
     "cta": "Consulter la liste"
   },
   "serverDetail": {
@@ -349,6 +349,11 @@
       "s7Title": "7. Modifications de cette politique",
       "s7Content": "Nous pouvons mettre à jour cette politique périodiquement. En cas de changement majeur, nous mettrons à jour la date en haut du document et pourrons vous fournir une notification supplémentaire."
     }
+  },
+  "alt": {
+    "serverLogo": "Logo du serveur {{name}}",
+    "defaultLogo": "Logo de serveur par défaut",
+    "userAvatar": "Avatar de {{name}}"
   },
   "error": {
     "server_creation": {
