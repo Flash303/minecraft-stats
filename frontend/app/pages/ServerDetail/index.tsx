@@ -39,8 +39,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
     }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data, matches, error }) => {
-    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, matches=${matches.length}, error=${error ? String(error) : "none"}`);
+export const meta: MetaFunction<typeof loader> = (args) => {
+    const { data, matches, error } = args;
+    console.log(`[SSR Debug] meta args keys=${Object.keys(args).join(",")}, data=${JSON.stringify(data)}`);
     if (matches && matches.length > 0) {
         matches.forEach((m, i) => console.log(`[SSR Debug] Match ${i}: id=${m.id}, hasData=${!!m.data}`));
     }
