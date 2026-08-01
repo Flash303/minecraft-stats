@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { Link, useSearchParams } from "react-router"
+import { Link, useSearchParams, useLoaderData } from "react-router"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
@@ -13,13 +13,23 @@ import { Hero3D } from "@/components/ServerList/Hero3D"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+export async function loader() {
+    try {
+        const servers = await fetchServers(undefined, true)
+        return { initialServers: servers }
+    } catch (e) {
+        return { initialServers: [] }
+    }
+}
+
 export default function ServerList() {
     const { t } = useLanguage()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
-    const [servers, setServers] = useState<Server[]>([])
-    const [loading, setLoading] = useState(true)
+    const { initialServers } = useLoaderData<typeof loader>()
+    const [servers, setServers] = useState<Server[]>(initialServers || [])
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
     const { setOnRefresh, setIsLoading } = useLayoutConfig()
@@ -100,8 +110,8 @@ export default function ServerList() {
         setSearchParams(newParams)
     }, [searchParams, setSearchParams])
 
-    const load = useCallback(async () => {
-        setLoading(true)
+    const load = useCallback(async (background = false) => {
+        if (!background) setLoading(true)
         setError(null)
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
@@ -117,7 +127,7 @@ export default function ServerList() {
     useEffect(() => {
         if (!isLoaded) return
         Promise.resolve().then(() => {
-            load()
+            load(true) // Run as background fetch to avoid UI flashing
         })
     }, [load, isLoaded])
 

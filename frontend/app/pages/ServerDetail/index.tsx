@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react"
-import { useParams, Link } from "react-router"
+import { useParams, Link, useLoaderData } from "react-router"
+import type { LoaderFunctionArgs } from "react-router"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { PlayerChart } from "@/components/ServerDetail/PlayerChart"
@@ -22,13 +23,30 @@ export type DateRange = {
     to?: Date | undefined;
 };
 
+export async function loader({ params }: LoaderFunctionArgs) {
+    if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+    try {
+        const id = Number(params.id)
+        const server = await fetchServer(id)
+        
+        const now = Math.floor(Date.now() / 1000)
+        const from = now - 86400 // 1 day
+        const records = await fetchRecords(id, from)
+        
+        return { initialServer: server, initialRecords: records, initialFrom: from }
+    } catch {
+        return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+    }
+}
+
 export default function ServerDetail() {
     const { t, language } = useLanguage()
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
-    const [server, setServer] = useState<Server | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [loadingRecords, setLoadingRecords] = useState(false)
+    const { initialServer, initialRecords, initialFrom } = useLoaderData<typeof loader>()
+    const [server, setServer] = useState<Server | null>(initialServer || null)
+    const [loading, setLoading] = useState(initialServer ? false : true)
+    const [loadingRecords, setLoadingRecords] = useState(initialRecords && initialRecords.length > 0 ? false : true)
 
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -41,17 +59,17 @@ export default function ServerDetail() {
     const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
     const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
     const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
-    const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>([])
-    const [loadedFrom, setLoadedFrom] = useState<number>(Infinity)
+    const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>(initialRecords || [])
+    const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
 
     useEffect(() => {
-        setLoading(true)
-        setServer(null)
-        setRawRecords([])
+        setServer(initialServer)
+        setRawRecords(initialRecords || [])
+        setLoadedFrom(initialFrom || Infinity)
         setRecords([])
-        setLoadedFrom(Infinity)
-    }, [id])
+        setLoading(initialServer ? false : true)
+    }, [id, initialServer, initialRecords, initialFrom])
  
     const loadServer = useCallback(async (isBackground = false) => {
         if (!id) return
@@ -168,18 +186,18 @@ export default function ServerDetail() {
     }, [rawRecords, selectedRange, selectedInterval, customRange])
  
     useEffect(() => {
-        if (!isLoaded) return
+        if (!isLoaded || !id) return
         Promise.resolve().then(() => {
-            loadServer()
+            loadServer(true)
         })
-    }, [loadServer, isLoaded])
- 
+    }, [loadServer, isLoaded, id])
+
     useEffect(() => {
-        if (!isLoaded) return
+        if (!isLoaded || !id) return
         Promise.resolve().then(() => {
-            loadRecords()
+            loadRecords(true)
         })
-    }, [loadRecords, isLoaded])
+    }, [loadRecords, isLoaded, id])
 
     const isChartZoomed = useRef(false)
 
