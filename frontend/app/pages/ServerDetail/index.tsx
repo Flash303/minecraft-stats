@@ -410,3 +410,17 @@ export default function ServerDetail() {
         </>
     )
 }
+
+import { useRouteError } from "react-router"
+export function ErrorBoundary() {
+    const error = useRouteError();
+    console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error);
+    return (
+        <div className="p-8 text-center text-red-500">
+            <h1>Something went wrong in ServerDetail</h1>
+            <pre className="text-left mt-4 p-4 bg-muted rounded overflow-auto">
+                {error instanceof Error ? error.stack : String(error)}
+            </pre>
+        </div>
+    );
+}
