@@ -18,20 +18,20 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 export function meta() {
   return [
-    { title: "Minecraft-Stats | Advanced Server Analytics & Player Tracking" },
-    { name: "description", content: "Track Minecraft server analytics and player counts over time. Get real-time downtime alerts and explore massive data for Java & Bedrock servers." },
+    { title: "Minecraft-Stats | Minecraft Server Analytics" },
+    { name: "description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
     { property: "og:type", content: "website" },
     { property: "og:site_name", content: "Minecraft-Stats" },
-    { property: "og:title", content: "Minecraft-Stats | Advanced Server Analytics & Player Tracking" },
-    { property: "og:description", content: "Track Minecraft server analytics and player counts over time. Get real-time downtime alerts and explore massive data for Java & Bedrock servers." },
+    { property: "og:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
+    { property: "og:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
     { property: "og:image", content: "https://mc-stats.fr/opengraph.webp" },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:url", content: "https://mc-stats.fr" },
     { property: "og:logo", content: "https://mc-stats.fr/logo.webp" },
     { property: "twitter:card", content: "summary_large_image" },
-    { property: "twitter:title", content: "Minecraft-Stats | Advanced Server Analytics & Player Tracking" },
-    { property: "twitter:description", content: "Track Minecraft server analytics and player counts over time. Get real-time downtime alerts and explore massive data for Java & Bedrock servers." },
+    { property: "twitter:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
+    { property: "twitter:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
     { property: "twitter:image", content: "https://mc-stats.fr/opengraph.webp" },
   ];
 }
