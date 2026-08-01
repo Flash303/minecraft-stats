@@ -35,7 +35,9 @@ export interface Record {
     value: number
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000"
+const API_BASE = (typeof window === "undefined" && process.env.SSR_API_URL) 
+    ? process.env.SSR_API_URL 
+    : (import.meta.env.VITE_API_URL || "http://localhost:3000")
 
 /**
  * Helper to build headers with optional auth token

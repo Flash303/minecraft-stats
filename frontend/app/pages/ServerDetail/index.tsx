@@ -54,7 +54,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
-        { property: "og:image", content: `https://mc-stats.fr/api/favicon/${server.id}` }
+        { property: "og:image", content: `https://mc-stats.fr/api/favicon/${server.id}` },
+        { property: "twitter:card", content: "summary_large_image" },
+        { property: "twitter:title", content: title },
+        { property: "twitter:description", content: description },
+        { property: "twitter:image", content: `https://mc-stats.fr/api/favicon/${server.id}` }
     ];
 };
 
