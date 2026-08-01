@@ -22,6 +22,10 @@ export async function loader() {
     }
 }
 
+export async function clientLoader() {
+    return { initialServers: null }
+}
+
 export default function ServerList() {
     const { t } = useLanguage()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
@@ -29,7 +33,7 @@ export default function ServerList() {
     const { searchQuery } = useSearch()
     const { initialServers } = useLoaderData<typeof loader>()
     const [servers, setServers] = useState<Server[]>(initialServers || [])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(!initialServers)
     const [error, setError] = useState<string | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
     const { setOnRefresh, setIsLoading } = useLayoutConfig()

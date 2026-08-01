@@ -39,6 +39,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
     }
 }
 
+export async function clientLoader() {
+    return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+}
+
 export const meta: MetaFunction<typeof loader> = (args) => {
     const { loaderData: data, matches, error } = args as any;
     console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, matches=${matches.length}, error=${error ? String(error) : "none"}`);
@@ -114,7 +118,7 @@ export default function ServerDetail() {
         } catch {
             setServer(null)
         } finally {
-            if (!isBackground) setLoading(false)
+            setLoading(false)
         }
     }, [id, getToken, isSignedIn, isLoaded])
  
