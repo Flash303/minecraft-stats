@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
-import pingIcon from "@/assets/ping.png"
+import pingIcon from "@/assets/ping.webp"
 import default_icon from "@/assets/default_favicon.svg"
 import {
   Tooltip,

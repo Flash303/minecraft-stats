@@ -24,15 +24,15 @@ export function meta() {
     { property: "og:site_name", content: "Minecraft-Stats" },
     { property: "og:title", content: "Minecraft-Stats | Advanced Server Analytics & Player Tracking" },
     { property: "og:description", content: "Track Minecraft server analytics and player counts over time. Get real-time downtime alerts and explore massive data for Java & Bedrock servers." },
-    { property: "og:image", content: "https://mc-stats.fr/opengraph.png" },
+    { property: "og:image", content: "https://mc-stats.fr/opengraph.webp" },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:url", content: "https://mc-stats.fr" },
-    { property: "og:logo", content: "https://mc-stats.fr/logo.png" },
+    { property: "og:logo", content: "https://mc-stats.fr/logo.webp" },
     { property: "twitter:card", content: "summary_large_image" },
     { property: "twitter:title", content: "Minecraft-Stats | Advanced Server Analytics & Player Tracking" },
     { property: "twitter:description", content: "Track Minecraft server analytics and player counts over time. Get real-time downtime alerts and explore massive data for Java & Bedrock servers." },
-    { property: "twitter:image", content: "https://mc-stats.fr/opengraph.png" },
+    { property: "twitter:image", content: "https://mc-stats.fr/opengraph.webp" },
   ];
 }
 
@@ -65,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/logo.png" />
+        <link rel="icon" type="image/webp" href="/logo.webp" />
         <Meta />
         <Links />
         <script

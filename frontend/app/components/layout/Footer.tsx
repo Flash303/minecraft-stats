@@ -1,7 +1,7 @@
 import { Link } from "react-router"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Heart } from "lucide-react"
-import logo from "@/assets/logo.png"
+import logo from "@/assets/logo.webp"
 import { useAuth } from "@clerk/react"
 
 export function Footer() {

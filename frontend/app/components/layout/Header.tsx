@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Languages, Search as SearchIcon, ArrowLeft, Menu, X } from "lucide-react"
-import logo from "@/assets/logo.png"
+import logo from "@/assets/logo.webp"
 import { ThemeToggle } from "./ThemeToggle"
 import { Button } from "@/components/ui/button"
 import { Link, useLocation } from "react-router"

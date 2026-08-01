@@ -248,7 +248,7 @@ export default function ServerDetail() {
             "applicationCategory": "GameApplication",
             "operatingSystem": server.type === "java" ? "Java" : "Bedrock",
             "url": window.location.href,
-            "image": server.last_favicon || "https://mc-stats.fr/logo.png"
+            "image": server.last_favicon || "https://mc-stats.fr/logo.webp"
         };
         
         script.innerHTML = JSON.stringify(schema);

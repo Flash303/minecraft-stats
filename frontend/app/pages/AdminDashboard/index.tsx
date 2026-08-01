@@ -7,7 +7,7 @@ import { useAdmin } from "@/contexts/AdminContext"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/lib/api"
 import type { User, Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import logo from "@/assets/logo.png"
+import logo from "@/assets/logo.webp"
 import {
     Select,
     SelectContent,
