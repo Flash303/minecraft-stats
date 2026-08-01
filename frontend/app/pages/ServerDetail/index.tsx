@@ -53,7 +53,10 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     }
     const server = data.initialServer;
     const title = `${server.name} - Minecraft Server Stats | Minecraft-Stats`;
-    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).`;
+    const isOnline = server.last_status === "online";
+    const players = isOnline ? new Intl.NumberFormat('en-US').format(server.last_connected ?? 0) : 0;
+    const playersText = isOnline ? ` 🟢 Online: ${players} players.` : (server.last_status === "offline" ? ` 🔴 Offline.` : "");
+    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).${playersText}`;
     return [
         { title },
         { name: "description", content: description },
