@@ -30,20 +30,20 @@ export async function loader({ params }: LoaderFunctionArgs) {
         const server = await fetchServer(id)
         console.log(`[SSR Debug] loader fetchServer returned: ${server ? "Object" : "null"}`)
         
-        const now = Math.floor(Date.now() / 1000)
-        const from = now - 86400 // 1 day
-        const records = await fetchRecords(id, from)
-        console.log(`[SSR Debug] loader fetchRecords returned: ${records.length} records`)
+        // Removed fetchRecords from SSR to avoid massive JSON serialization
         
-        return { initialServer: server, initialRecords: records, initialFrom: from }
+        return { initialServer: server, initialRecords: [], initialFrom: Infinity }
     } catch (e) {
         console.error(`[SSR Debug] loader threw an error:`, e)
         return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, data.initialServer=${data?.initialServer ? "Object" : "undefined/null"}`)
+export const meta: MetaFunction<typeof loader> = ({ data, matches, error }) => {
+    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, matches=${matches.length}, error=${error ? String(error) : "none"}`);
+    if (matches && matches.length > 0) {
+        matches.forEach((m, i) => console.log(`[SSR Debug] Match ${i}: id=${m.id}, hasData=${!!m.data}`));
+    }
     if (!data || !data.initialServer) {
         return [
             { title: "Server Not Found | Minecraft-Stats" },
