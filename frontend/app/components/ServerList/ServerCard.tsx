@@ -1,0 +1,184 @@
+import { useState, useEffect, useMemo, lazy, Suspense } from "react"
+import type { Server } from "@/lib/api"
+import { fetchRecords } from "@/lib/api"
+const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
+import default_icon from "@/assets/default_favicon.svg"
+import { cn, getServerIp, copyServerIp } from "@/lib/utils"
+import { Check, Copy, Wifi, WifiOff } from "lucide-react"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { parseLegacyText, CursorTooltip } from "@/components/MinecraftMotd"
+
+interface ServerCardProps {
+    server: Server
+}
+
+export function ServerCard({ server }: ServerCardProps) {
+    const { t, language } = useLanguage()
+    const [fetchedRecords, setFetchedRecords] = useState<{ date: number; value: number }[]>([])
+    const [copied, setCopied] = useState(false)
+
+    useEffect(() => {
+        if (server.data) return
+        const loadRecords = async () => {
+            try {
+                const from = Math.floor((Date.now() - 86400000) / 1000)
+                const data = await fetchRecords(server.id, from, 300000)
+                setFetchedRecords(data)
+            } catch {
+                setFetchedRecords([])
+            }
+        }
+        loadRecords().then()
+    }, [server.id, server.data])
+
+    const records = server.data || fetchedRecords
+
+    const isOnline = server.last_status === "online"
+    const isOffline = server.last_status === "offline"
+
+    const { displayIp } = getServerIp(server.ip, server.port, server.type)
+
+    const handleCopy = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        e.preventDefault()
+        copyServerIp(server.ip, server.port, server.type).then()
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+    }
+
+    return (
+        <div
+            className="relative flex flex-col justify-between shadow-sm border border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/50 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group hover:border-indigo-500/30 dark:hover:border-indigo-500/20 hover:shadow-md hover:-translate-y-0.5"
+        >
+            {/* Top row: Favicon, Name, IP address, and Player/Status */}
+            <div className="flex flex-row gap-4 w-full min-w-0 items-start">
+                {/* Favicon */}
+                <div className="relative flex-shrink-0">
+                    {server.last_favicon ? (
+                        <img
+                            src={server.last_favicon}
+                            alt={t("alt.serverLogo", { name: server.name })}
+                            className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
+                        />
+                    ) : (
+                        <img
+                            src={default_icon}
+                            alt={t("alt.defaultLogo")}
+                            className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
+                        />
+                    )}
+                </div>
+
+                {/* Name & IP Copy button */}
+                <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
+                    <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
+                        {server.name}
+                    </h2>
+                    
+                    <button 
+                        onClick={handleCopy}
+                        className="group/copy inline-flex items-center gap-1.5 self-start text-[11px] font-mono text-slate-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-slate-100/50 dark:bg-zinc-800/30 hover:bg-slate-100 dark:hover:bg-zinc-800/60 border border-slate-200/50 dark:border-zinc-800/55 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
+                    >
+                        <span className="truncate">{displayIp}</span>
+                        {copied ? (
+                            <Check className="h-3 w-3 text-emerald-500 flex-shrink-0" />
+                        ) : (
+                            <Copy className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
+                        )}
+                    </button>
+                </div>
+
+                {/* Player count / status indicator */}
+                <div className="flex-shrink-0 flex flex-col items-end gap-0.5 pt-0.5">
+                    <div className="flex flex-row items-center gap-1.5">
+                        {isOnline ? (
+                            <>
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                {server.last_sample ? (
+                                    <CursorTooltip 
+                                        fontHeight={18}
+                                        content={
+                                            <div className="flex flex-col text-left whitespace-pre-wrap">
+                                                {server.last_sample.split('\n').map((line, i) => (
+                                                    <div key={i} className="min-h-[18px]">
+                                                        {parseLegacyText(line)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        }
+                                    >
+                                        <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200 cursor-default select-none border-b border-dashed border-slate-400 dark:border-zinc-500">
+                                            {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                        </span>
+                                    </CursorTooltip>
+                                ) : (
+                                    <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200">
+                                        {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                    </span>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <span className={cn(
+                                    "h-2 w-2 rounded-full",
+                                    isOffline ? "bg-rose-500" : "bg-slate-450"
+                                )} />
+                                <span className="text-xs font-bold text-slate-400 dark:text-zinc-550 uppercase tracking-wider">
+                                    {t("common.offline")}
+                                </span>
+                            </>
+                        )}
+                    </div>
+                    {isOnline && (
+                        <span className="text-[9.5px] text-slate-400 dark:text-zinc-500 font-medium lowercase leading-none">
+                            {t("common.players")}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {/* Middle part: Sparkline mini chart (spanning full width of content) */}
+            <div className="w-full h-12 opacity-80 group-hover:opacity-100 transition-opacity my-2 overflow-hidden flex items-center">
+                <Suspense fallback={<div className="h-full w-full" />}>
+                    <MiniChart data={records} />
+                </Suspense>
+            </div>
+
+            {/* Bottom row: Version badge and stats info */}
+            <div className="flex flex-row items-center justify-between gap-2 w-full pt-2 border-t border-slate-100/50 dark:border-zinc-800/30">
+                <div className="flex flex-row items-center gap-1.5 truncate">
+                    {server.type && (
+                        <span className={cn(
+                            "inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-semibold shadow-xs whitespace-nowrap",
+                            server.type === "java" 
+                                ? "border-amber-200/50 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 dark:border-amber-800/30"
+                                : "border-indigo-200/50 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 dark:border-indigo-800/30"
+                        )}>
+                            {server.type === "java" ? "Java" : "Bedrock"}
+                        </span>
+                    )}
+                    {server.last_version ? (
+                        <span className="inline-flex items-center rounded-lg border border-slate-200/55 dark:border-zinc-800 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 shadow-xs whitespace-nowrap">
+                            Version {server.last_version}
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center rounded-lg border border-slate-100 dark:border-zinc-800/40 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-900/30 text-slate-400 dark:text-zinc-600 shadow-xs whitespace-nowrap">
+                            Version inconnue
+                        </span>
+                    )}
+                </div>
+
+                <div className={cn(
+                    "flex items-center gap-1 text-[10px] font-medium",
+                    isOnline ? "text-emerald-500/90 dark:text-emerald-400/90" : "text-rose-500/90 dark:text-rose-400/90"
+                )}>
+                    {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+                    {isOnline ? t("common.online") : t("common.offline")}
+                </div>
+            </div>
+        </div>
+    )
+}
