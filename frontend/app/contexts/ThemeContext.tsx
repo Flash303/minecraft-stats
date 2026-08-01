@@ -16,26 +16,37 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setTheme] = useState<Theme>(() => {
-        if (typeof window === "undefined") return "dark"
-        const stored = localStorage.getItem("theme")
-        if (stored === "light" || stored === "dark") return stored
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light"
-    })
+    const [theme, setTheme] = useState<Theme>("dark")
+    const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
+        const stored = localStorage.getItem("theme")
+        if (stored === "light" || stored === "dark") {
+            setTheme(stored)
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            setTheme("dark")
+        } else {
+            setTheme("light")
+        }
+        setMounted(true)
+    }, [])
+
+    useEffect(() => {
+        if (!mounted) return
         localStorage.setItem("theme", theme)
         document.documentElement.classList.toggle("dark", theme === "dark")
-    }, [theme])
+    }, [theme, mounted])
 
     const toggleTheme = () =>
         setTheme((prev) => (prev === "light" ? "dark" : "light"))
 
+    // To prevent hydration errors for components relying on theme (like icons),
+    // they can check if the theme is mounted, but returning theme is usually fine
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
-            {children}
+            <div style={{ display: "contents" }} suppressHydrationWarning>
+                {children}
+            </div>
         </ThemeContext.Provider>
     )
 }

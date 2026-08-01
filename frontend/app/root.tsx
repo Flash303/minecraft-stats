@@ -65,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/webp" href="/logo.webp" />
+        <link rel="icon" type="image/png" href="/logo.png" />
         <Meta />
         <Links />
         <script

@@ -96,7 +96,7 @@ export function ServerListFilters({
                     value={activeSort}
                     onValueChange={(val) => setActiveSort(val as "popularity" | "name" | "recent")}
                 >
-                    <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
+                    <SelectTrigger aria-label={t("serverList.filters.sort")} className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
                         <SelectValue placeholder={t("serverList.filters.sort")} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-slate-200 dark:border-zinc-800 shadow-lg">
@@ -110,7 +110,7 @@ export function ServerListFilters({
                     value={activePlatform}
                     onValueChange={(val) => setActivePlatform(val as "all" | "java" | "bedrock")}
                 >
-                    <SelectTrigger className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
+                    <SelectTrigger aria-label={t("serverList.filters.platform")} className="w-full sm:w-[180px] h-10 rounded-xl bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 shadow-sm text-sm font-medium">
                         <SelectValue placeholder={t("serverList.filters.platform")} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-slate-200 dark:border-zinc-800 shadow-lg">

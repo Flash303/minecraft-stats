@@ -198,8 +198,8 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                     {/* Hamburger Button */}
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                         className="h-8 w-8 flex md:hidden items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
-                        aria-label="Toggle menu"
                     >
                         {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                     </button>

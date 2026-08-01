@@ -268,6 +268,7 @@ export default function ServerList() {
                                             size="sm"
                                             onClick={() => setCurrentPage(safeCurrentPage - 1)}
                                             disabled={safeCurrentPage <= 1}
+                                            aria-label={t("serverList.pagination.previous")}
                                             className="rounded-xl h-10 px-4 flex items-center gap-2"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
@@ -281,6 +282,7 @@ export default function ServerList() {
                                             size="sm"
                                             onClick={() => setCurrentPage(safeCurrentPage + 1)}
                                             disabled={safeCurrentPage >= totalPages}
+                                            aria-label={t("serverList.pagination.next")}
                                             className="rounded-xl h-10 px-4 flex items-center gap-2"
                                         >
                                             <span className="hidden sm:inline">{t("serverList.pagination.next")}</span>
