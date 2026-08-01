@@ -17,7 +17,7 @@
 
     /* Path aliases */
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./app/*"]
     },
 
     /* Linting */
@@ -26,5 +26,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["app", "**/*.ts", "**/*.tsx", ".react-router/types/**/*"]
 }

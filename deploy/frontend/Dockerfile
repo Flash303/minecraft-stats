@@ -31,6 +31,20 @@ ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
 WORKDIR /app/frontend
 RUN pnpm build
 
-FROM nginx:alpine
-COPY --from=builder /app/frontend/dist /usr/share/nginx/html
-COPY deploy/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Final Stage (Bun SSR)
+FROM oven/bun:alpine
+
+WORKDIR /app
+
+# Copy necessary files from builder
+COPY --from=builder /app/frontend/node_modules ./node_modules
+COPY --from=builder /app/frontend/build ./build
+COPY --from=builder /app/frontend/server.ts ./
+COPY --from=builder /app/frontend/package.json ./
+
+ENV NODE_ENV=production
+ENV PORT=80
+
+EXPOSE 80
+
+CMD ["bun", "run", "server.ts"]
