@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { createRequestHandler } from "@react-router/node";
+import { createRequestHandler } from "react-router";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
