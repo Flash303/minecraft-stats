@@ -122,14 +122,27 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
     }
 }
 
-export async function fetchServer(id: number, token?: string): Promise<Server | null> {
+export async function fetchServer(id: number | string, token?: string): Promise<Server | null> {
     try {
+        console.log(`[SSR Debug] fetchServer called for id=${id}. API_BASE=${API_BASE}, isWindowDefined=${typeof window !== "undefined"}, SSR_API_URL=${process.env.SSR_API_URL}`);
+        
         const res = await fetch(`${API_BASE}/servers/${id}`, {
             headers: getHeaders(token)
         })
-        if (!res.ok) return null
+        
+        console.log(`[SSR Debug] fetchServer response status: ${res.status}`);
+        
+        if (!res.ok) {
+            console.error(`[SSR Debug] res not ok. Status: ${res.status}, StatusText: ${res.statusText}`);
+            return null;
+        }
+        
         const json = await res.json()
-        if (!json.success || !json.data) return null
+        
+        if (!json.success || !json.data) {
+            console.error(`[SSR Debug] json success false or no data. Response:`, JSON.stringify(json));
+            return null;
+        }
         
         const server = json.data
         if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
@@ -149,7 +162,7 @@ export async function fetchServer(id: number, token?: string): Promise<Server | 
         }
         return server
     } catch (error) {
-        console.error(`Failed to fetch server ${id}:`, error)
+        console.error(`[SSR Debug] Failed to fetch server ${id} from API_BASE ${API_BASE}:`, error)
         return null
     }
 }
