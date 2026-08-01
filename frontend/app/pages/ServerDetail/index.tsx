@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
-import { useParams, Link, useLoaderData } from "react-router"
+import { useParams, Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
@@ -18,24 +18,24 @@ import { cn } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/MinecraftMotd"
 
+import { data } from "react-router"
+
 export type DateRange = {
     from: Date | undefined;
     to?: Date | undefined;
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
-    if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+    if (!params.id) return data({ initialServer: null, initialRecords: [], initialFrom: Infinity })
     try {
         const id = Number(params.id)
         const server = await fetchServer(id)
         console.log(`[SSR Debug] loader fetchServer returned: ${server ? "Object" : "null"}`)
         
-        // Removed fetchRecords from SSR to avoid massive JSON serialization
-        
-        return { initialServer: server, initialRecords: [], initialFrom: Infinity }
+        return data({ initialServer: server, initialRecords: [], initialFrom: Infinity })
     } catch (e) {
         console.error(`[SSR Debug] loader threw an error:`, e)
-        return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+        return data({ initialServer: null, initialRecords: [], initialFrom: Infinity })
     }
 }
 
@@ -70,7 +70,9 @@ export default function ServerDetail() {
     const { t, language } = useLanguage()
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
-    const { initialServer, initialRecords, initialFrom } = useLoaderData<typeof loader>()
+    const loaderData = useLoaderData<typeof loader>()
+    console.log(`[SSR Debug] ServerDetail component render. loaderData=`, loaderData ? "Object" : "undefined/null", loaderData)
+    const { initialServer, initialRecords, initialFrom } = loaderData || {}
     const [server, setServer] = useState<Server | null>(initialServer || null)
     const [loading, setLoading] = useState(initialServer ? false : true)
     const [loadingRecords, setLoadingRecords] = useState(initialRecords && initialRecords.length > 0 ? false : true)
@@ -143,7 +145,7 @@ export default function ServerDetail() {
         } catch {
             if (rawRecords.length === 0) setRawRecords([])
         } finally {
-            if (!isBackground) setLoadingRecords(false)
+            setLoadingRecords(false)
         }
     }, [server, selectedRange, customRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
 
@@ -411,7 +413,6 @@ export default function ServerDetail() {
     )
 }
 
-import { useRouteError } from "react-router"
 export function ErrorBoundary() {
     const error = useRouteError();
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error);
