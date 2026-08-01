@@ -303,11 +303,17 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
         return {
             width: 800,
-            height: window.innerWidth < 640 ? 300 : 450,
+            height: (typeof window !== "undefined" && window.innerWidth < 640) ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
+            padding: [20, 15, 10, 10],
             plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin, touchInteractPlugin],
             cursor: {
-                drag: { x: window.innerWidth >= 640, y: false, setScale: window.innerWidth >= 640 }
+                y: false,
+                drag: { 
+                    x: typeof window !== "undefined" ? window.innerWidth >= 640 : true, 
+                    y: false, 
+                    setScale: typeof window !== "undefined" ? window.innerWidth >= 640 : true 
+                }
             },
             scales: {
                 x: {
