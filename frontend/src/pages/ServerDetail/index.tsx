@@ -198,6 +198,31 @@ export function ServerDetail() {
         }
     }, [loadServer, loadRecords, isLoaded])
 
+    useEffect(() => {
+        if (!server) return;
+        const script = document.createElement("script");
+        script.type = "application/ld+json";
+        script.id = "schema-server-detail";
+        
+        const schema = {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": server.name,
+            "applicationCategory": "GameApplication",
+            "operatingSystem": server.type === "java" ? "Java" : "Bedrock",
+            "url": window.location.href,
+            "image": server.last_favicon || "https://mc-stats.fr/logo.png"
+        };
+        
+        script.innerHTML = JSON.stringify(schema);
+        document.head.appendChild(script);
+        
+        return () => {
+            const existingScript = document.getElementById("schema-server-detail");
+            if (existingScript) existingScript.remove();
+        }
+    }, [server]);
+
     const stats = useMemo(() => {
         if (records.length === 0) return null
         let max = -Infinity

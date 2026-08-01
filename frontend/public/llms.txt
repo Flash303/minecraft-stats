@@ -1,0 +1,24 @@
+# Minecraft-Stats
+
+**URL**: https://mc-stats.fr
+**Description**: Minecraft-Stats is an advanced analytics and tracking platform designed for Minecraft servers (Java and Bedrock editions).
+
+## Core Features
+- **Server Analytics**: We collect massive amounts of data about servers, offering historical player count tracking, uptime monitoring, and advanced data visualizations (charts, sparklines).
+- **Alert System**: Web push notifications for server administrators when their server goes offline (downtime) or crosses specific player thresholds (spikes).
+- **Server Comparison**: Compare multiple servers simultaneously to analyze trends, popularity, and market share.
+- **Real-time Data**: Frequent data collection to provide up-to-date metrics on connected players, versions, and server status.
+
+## Target Audience
+- **Server Administrators**: To monitor their server's performance, track player retention, receive downtime alerts, and understand their community growth.
+- **Players**: To discover the most popular and active Java and Bedrock servers at any given time, and see which ones perform the best.
+
+## Data Points Collected
+- Online/Offline status (Uptime)
+- Current player count
+- Maximum player capacity
+- Server MOTD (Message of the Day)
+- Server Favicon/Logo
+- Minecraft Version (e.g., 1.21)
+- Platform Type (Java or Bedrock)
+- Player sample lists
