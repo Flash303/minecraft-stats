@@ -26,16 +26,16 @@ export type DateRange = {
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
-    if (!params.id) return data({ initialServer: null, initialRecords: [], initialFrom: Infinity })
+    if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     try {
         const id = Number(params.id)
         const server = await fetchServer(id)
         console.log(`[SSR Debug] loader fetchServer returned: ${server ? "Object" : "null"}`)
         
-        return data({ initialServer: server, initialRecords: [], initialFrom: Infinity })
+        return { initialServer: server, initialRecords: [], initialFrom: Infinity }
     } catch (e) {
         console.error(`[SSR Debug] loader threw an error:`, e)
-        return data({ initialServer: null, initialRecords: [], initialFrom: Infinity })
+        return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
 
