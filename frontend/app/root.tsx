@@ -13,6 +13,7 @@ import { ClerkProvider } from "@clerk/react";
 import { AdminProvider } from "./contexts/AdminContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect } from "react";
+import { GlobalLoading } from "./components/ui/global-loading";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -87,6 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
+        <GlobalLoading />
         {children}
         <ScrollRestoration />
         <Scripts />
