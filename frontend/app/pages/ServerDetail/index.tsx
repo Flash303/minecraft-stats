@@ -376,14 +376,13 @@ export default function ServerDetail() {
                             </div>
                         )}
                         <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
-                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full" />}>
+                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full flex items-center justify-center">Loading chart...</div>}>
                                 <PlayerChart
                                     data={records}
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
                                     zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
-                                    isLoading={loadingRecords || isPending}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
