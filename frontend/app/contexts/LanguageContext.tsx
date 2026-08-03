@@ -16,19 +16,36 @@ const translations: Record<Language, Translations> = { fr, en }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children, serverLanguage }: { children: ReactNode, serverLanguage?: Language | null }) {
     const [language, setLanguage] = useState<Language>(() => {
+        if (serverLanguage) return serverLanguage
         if (typeof window === "undefined") return "fr"
-        const stored = localStorage.getItem("language")
-        if (stored === "fr" || stored === "en") return stored as Language
-        
-        const browserLang = navigator.language.split("-")[0]
-        return (browserLang === "fr" || browserLang === "en") ? (browserLang as Language) : "fr"
+        return "fr" // Default to fr to match server initial render and prevent hydration mismatch
     })
 
+    const [mounted, setMounted] = useState(false)
+
     useEffect(() => {
+        if (!serverLanguage && !mounted) {
+            // First visit without cookie, try to recover from localStorage or browser
+            const stored = localStorage.getItem("language")
+            if (stored === "fr" || stored === "en") {
+                setLanguage(stored)
+            } else {
+                const browserLang = navigator.language.split("-")[0]
+                if (browserLang === "fr" || browserLang === "en") {
+                    setLanguage(browserLang)
+                }
+            }
+        }
+        setMounted(true)
+    }, [serverLanguage, mounted])
+
+    useEffect(() => {
+        if (!mounted) return
         localStorage.setItem("language", language)
-    }, [language])
+        document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
+    }, [language, mounted])
 
     const t = (path: string, replacements?: Record<string, string>) => {
         const keys = path.split(".")

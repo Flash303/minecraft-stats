@@ -82,21 +82,16 @@ export default function ServerDetail() {
 
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
-    const [appliedRange, setAppliedRange] = useState(86400000)
-    const [appliedInterval, setAppliedInterval] = useState(60000)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
-    const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
     const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
     const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
     const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>(initialRecords || [])
     const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
-    const [records, setRecords] = useState<{ date: number; value: number }[]>([])
 
     useEffect(() => {
         setServer(initialServer)
         setRawRecords(initialRecords || [])
         setLoadedFrom(initialFrom || Infinity)
-        setRecords([])
         setLoading(initialServer ? false : true)
     }, [id, initialServer, initialRecords, initialFrom])
  
@@ -202,70 +197,48 @@ export default function ServerDetail() {
         }
     }, [id, selectedRange, selectedInterval, customRange, isLoaded, isSignedIn, getToken, server, loadedFrom, rawRecords.length])
 
-    useEffect(() => {
-        if (rawRecords.length === 0) {
-            setRecords([])
-            setAppliedRange(selectedRange)
-            setAppliedInterval(selectedInterval)
-            setAppliedCustomRange(customRange)
-            return
+    const records = useMemo(() => {
+        if (rawRecords.length === 0) return [];
+        
+        let now = 0;
+        let from = 0;
+        
+        if (selectedRange === -1 && customRange?.from && customRange?.to) {
+            from = Math.floor(customRange.from.getTime() / 1000);
+            now = Math.floor(customRange.to.getTime() / 1000) + 86399;
+        } else {
+            now = Math.floor(Date.now() / 1000);
+            from = now - Math.floor(selectedRange / 1000);
         }
         
-        // Wait until both dates are selected
-        if (selectedRange === -1 && (!customRange?.from || !customRange?.to)) {
-            return;
-        }
+        const filtered = rawRecords.filter(r => r.date >= from && r.date <= now);
         
-        const timer = setTimeout(() => {
-            let now = 0;
-            let from = 0;
-            
-            if (selectedRange === -1 && customRange?.from && customRange?.to) {
-                from = Math.floor(customRange.from.getTime() / 1000);
-                now = Math.floor(customRange.to.getTime() / 1000) + 86399;
-            } else {
-                now = Math.floor(Date.now() / 1000);
-                from = now - Math.floor(selectedRange / 1000);
-            }
-            
-            // Filter raw records within selected range
-            const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
-            
-            if (selectedInterval && selectedInterval > 0) {
-                const intervalSec = selectedInterval / 1000
-                const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
+        if (selectedInterval && selectedInterval > 0) {
+            const intervalSec = selectedInterval / 1000;
+            const buckets: { [bucketTime: number]: { sum: number; count: number } } = {};
 
-                for (let i = 0; i < filtered.length; i++) {
-                    const r = filtered[i]
-                    const bucketTime = Math.floor(r.date / intervalSec) * intervalSec
-                    if (!buckets[bucketTime]) {
-                        buckets[bucketTime] = { sum: 0, count: 0 }
-                    }
-                    buckets[bucketTime].sum += r.value
-                    buckets[bucketTime].count += 1
+            for (let i = 0; i < filtered.length; i++) {
+                const r = filtered[i];
+                const bucketTime = Math.floor(r.date / intervalSec) * intervalSec;
+                if (!buckets[bucketTime]) {
+                    buckets[bucketTime] = { sum: 0, count: 0 };
                 }
-
-                const newRecords = Object.keys(buckets).map(k => {
-                    const bucketTime = Number(k)
-                    const b = buckets[bucketTime]
-                    return {
-                        date: bucketTime,
-                        value: Math.round(b.sum / b.count)
-                    }
-                }).sort((a, b) => a.date - b.date)
-                
-                setRecords(newRecords)
-            } else {
-                setRecords(filtered)
+                buckets[bucketTime].sum += r.value;
+                buckets[bucketTime].count += 1;
             }
-            
-            setAppliedRange(selectedRange)
-            setAppliedInterval(selectedInterval)
-            setAppliedCustomRange(customRange)
-        }, 10) // small delay to ensure UI paints
+
+            return Object.keys(buckets).map(k => {
+                const bucketTime = Number(k);
+                const b = buckets[bucketTime];
+                return {
+                    date: bucketTime,
+                    value: Math.round(b.sum / b.count)
+                };
+            }).sort((a, b) => a.date - b.date);
+        }
         
-        return () => clearTimeout(timer)
-    }, [rawRecords, selectedRange, selectedInterval, customRange])
+        return filtered;
+    }, [rawRecords, selectedRange, selectedInterval, customRange]);
 
     useEffect(() => {
         if (!server) return;
@@ -343,7 +316,6 @@ export default function ServerDetail() {
     const locale = language === "fr" ? "fr-FR" : "en-US"
 
     const isCustomRangeIncomplete = selectedRange === -1 && (!customRange?.from || !customRange?.to);
-    const isPending = selectedRange !== appliedRange || selectedInterval !== appliedInterval || (selectedRange === -1 && (customRange?.from?.getTime() !== appliedCustomRange?.from?.getTime() || customRange?.to?.getTime() !== appliedCustomRange?.to?.getTime()));
 
     return (
         <>
@@ -383,7 +355,7 @@ export default function ServerDetail() {
                 </div>
 
                     <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
-                        {(loadingRecords || isPending) && (
+                        {(loadingRecords || isCustomRangeIncomplete) && (
                             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/60 backdrop-blur-[2px] transition-all duration-200 rounded-xl">
                                 {isCustomRangeIncomplete ? (
                                     <p className="text-muted-foreground font-medium text-sm">{t("serverDetail.selectCustomRange")}</p>
@@ -395,15 +367,15 @@ export default function ServerDetail() {
                                 )}
                             </div>
                         )}
-                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
+                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isCustomRangeIncomplete) ? "opacity-30 pointer-events-none" : "opacity-100")}>
                             <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full" />}>
                                 <PlayerChart
                                     data={records}
                                     serverName={server.name}
-                                    interval={appliedInterval}
+                                    interval={selectedInterval}
                                     timeRange={timeLimits}
                                     zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
-                                    isLoading={loadingRecords || isPending}
+                                    isLoading={loadingRecords || isCustomRangeIncomplete}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
