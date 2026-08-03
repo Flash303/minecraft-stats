@@ -42,81 +42,50 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     const [searchParams, setSearchParams] = useSearchParams()
     const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
-    const activeTab = useMemo(() => {
+    const [activeTabState, setActiveTabState] = useState<"all" | "online" | "offline" | "hidden">(() => {
         const tabParam = searchParams.get("tab")
-        if (tabParam === "hidden" && !isAdmin) return "all"
-        if (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") {
-            return tabParam as "all" | "online" | "offline" | "hidden"
-        }
+        if (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") return tabParam as any
         return "all"
-    }, [searchParams, isAdmin])
+    })
+    
+    const activeTab = (activeTabState === "hidden" && !isAdmin) ? "all" : activeTabState
 
-    const activePlatform = useMemo(() => {
+    const [activePlatform, setActivePlatformState] = useState<"all" | "java" | "bedrock">(() => {
         const platformParam = searchParams.get("platform")
-        if (platformParam === "java" || platformParam === "bedrock") {
-            return platformParam
-        }
+        if (platformParam === "java" || platformParam === "bedrock") return platformParam as any
         return "all"
-    }, [searchParams])
+    })
 
-    const activeSort = useMemo(() => {
+    const [activeSort, setActiveSortState] = useState<"popularity" | "name" | "recent">(() => {
         const sortParam = searchParams.get("sort")
-        if (sortParam === "name" || sortParam === "recent") {
-            return sortParam
-        }
+        if (sortParam === "name" || sortParam === "recent") return sortParam as any
         return "popularity"
-    }, [searchParams])
+    })
 
-    const currentPage = useMemo(() => {
+    const [currentPage, setCurrentPage] = useState<number>(() => {
         const pageParam = searchParams.get("page")
-        if (pageParam && !isNaN(Number(pageParam))) {
-            return Math.max(1, Number(pageParam))
-        }
+        if (pageParam && !isNaN(Number(pageParam))) return Math.max(1, Number(pageParam))
         return 1
-    }, [searchParams])
+    })
 
     const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => {
-        const newParams = new URLSearchParams(searchParams)
-        if (tab === "all") {
-            newParams.delete("tab")
-        } else {
-            newParams.set("tab", tab)
-        }
-        newParams.delete("page")
-        setSearchParams(newParams)
-    }, [searchParams, setSearchParams])
+        setActiveTabState(tab)
+        setCurrentPage(1)
+    }, [])
 
     const setActivePlatform = useCallback((platform: "all" | "java" | "bedrock") => {
-        const newParams = new URLSearchParams(searchParams)
-        if (platform === "all") {
-            newParams.delete("platform")
-        } else {
-            newParams.set("platform", platform)
-        }
-        newParams.delete("page")
-        setSearchParams(newParams)
-    }, [searchParams, setSearchParams])
+        setActivePlatformState(platform)
+        setCurrentPage(1)
+    }, [])
 
     const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => {
-        const newParams = new URLSearchParams(searchParams)
-        if (sort === "popularity") {
-            newParams.delete("sort")
-        } else {
-            newParams.set("sort", sort)
-        }
-        newParams.delete("page")
-        setSearchParams(newParams)
-    }, [searchParams, setSearchParams])
+        setActiveSortState(sort)
+        setCurrentPage(1)
+    }, [])
 
-    const setCurrentPage = useCallback((page: number) => {
-        const newParams = new URLSearchParams(searchParams)
-        if (page <= 1) {
-            newParams.delete("page")
-        } else {
-            newParams.set("page", page.toString())
-        }
-        setSearchParams(newParams)
-    }, [searchParams, setSearchParams])
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchQuery])
 
     const load = useCallback(async (background = false) => {
         if (!background) setLoading(true)
