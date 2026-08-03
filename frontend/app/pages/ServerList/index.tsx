@@ -3,6 +3,7 @@ import { Link, useSearchParams, useLoaderData, Await } from "react-router"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
+import { ServerCardSkeleton } from "@/components/ServerList/ServerCardSkeleton"
 import { ServerListFilters } from "@/components/ServerList/ServerListFilters"
 import { useLayoutConfig } from "@/components/layout"
 import { useAuth } from "@clerk/react"
@@ -248,8 +249,10 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                 />
 
                 {loading && servers.length === 0 && (
-                    <div className="flex justify-center py-20">
-                        <p className="text-muted-foreground animate-pulse">{t("serverList.loading")}</p>
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <ServerCardSkeleton key={i} />
+                        ))}
                     </div>
                 )}
                 {error && (
