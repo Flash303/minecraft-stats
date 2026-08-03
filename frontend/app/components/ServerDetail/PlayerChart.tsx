@@ -77,7 +77,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             hooks: {
                 init: (u: uPlot) => {
                     const overlay = document.createElement("div")
-                    overlay.className = "pointer-events-none absolute z-50 rounded bg-black/90 px-3 py-2 text-xs text-white shadow-lg font-sans leading-relaxed"
+                    overlay.className = "pointer-events-none absolute z-50 rounded-xl border border-slate-800 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[160px] transition-opacity duration-150"
                     overlay.style.display = "none"
                     overlay.style.position = "fixed"
                     u.over.appendChild(overlay)
@@ -106,10 +106,20 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     const locale = language === "fr" ? "fr-FR" : "en-US"
                     const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
 
+                    const isDark = document.documentElement.classList.contains("dark")
+                    const strokeColor = isDark ? "#6366f1" : "#4f46e5"
+
                     overlay.innerHTML = `
-                        <div class="font-semibold text-blue-400">${serverName}</div>
-                        <div class="text-slate-300">📅 ${dateTimeStr}</div>
-                        <div class="font-medium">👥 ${new Intl.NumberFormat(locale).format(Math.round(yVal))} ${t("common.players")}</div>
+                        <div class="border-b border-white/10 pb-1.5 mb-1.5 text-slate-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 py-0.5">
+                                <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                                    <span class="text-slate-400 text-[10px] uppercase">${t("common.players")}</span>
+                                </div>
+                            </div>
+                        </div>
                     `
 
                     const left = u.cursor.left ?? 0

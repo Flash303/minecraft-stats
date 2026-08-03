@@ -4,6 +4,7 @@ import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, 
 import type { Server, Alert } from "@/lib/api"
 import { useLayoutConfig } from "@/components/layout"
 import { ServerCard } from "@/components/ServerList/ServerCard"
+import { ServerCardSkeleton } from "@/components/ServerList/ServerCardSkeleton"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { Button } from "@/components/ui/button"
 import {
@@ -338,7 +339,13 @@ export default function Account() {
                                 </div>
                             </div>
                             
-                            {servers.length === 0 ? (
+                            {loading ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <ServerCardSkeleton key={i} />
+                                    ))}
+                                </div>
+                            ) : servers.length === 0 ? (
                                 <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center">
                                     <ServerIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
                                     <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t("profile.servers.noServersTitle")}</h3>

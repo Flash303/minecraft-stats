@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { Link, useSearchParams, useLoaderData } from "react-router"
+import { useState, useEffect, useCallback, useMemo, Suspense } from "react"
+import { Link, useSearchParams, useLoaderData, Await } from "react-router"
 import { fetchServers } from "@/lib/api"
 import type { Server } from "@/lib/api"
 import { ServerCard } from "@/components/ServerList/ServerCard"
+import { ServerCardSkeleton } from "@/components/ServerList/ServerCardSkeleton"
 import { ServerListFilters } from "@/components/ServerList/ServerListFilters"
 import { useLayoutConfig } from "@/components/layout"
 import { useAuth } from "@clerk/react"
@@ -14,26 +15,29 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export async function loader() {
-    try {
-        const servers = await fetchServers(undefined, true)
-        return { initialServers: servers }
-    } catch (e) {
-        return { initialServers: [] }
-    }
-}
-
-export async function clientLoader() {
-    return { initialServers: null }
+    const serversPromise = fetchServers(undefined, true).catch(() => [])
+    return { initialServersPromise: serversPromise }
 }
 
 export default function ServerList() {
+    const loaderData = useLoaderData<typeof loader>()
+    
+    return (
+        <Suspense fallback={<ServerListContent initialServers={[]} isDeferredLoading={true} />}>
+            <Await resolve={loaderData.initialServersPromise}>
+                {(servers) => <ServerListContent initialServers={servers} isDeferredLoading={false} />}
+            </Await>
+        </Suspense>
+    )
+}
+
+function ServerListContent({ initialServers, isDeferredLoading = false }: { initialServers: Server[], isDeferredLoading?: boolean }) {
     const { t } = useLanguage()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
-    const { initialServers } = useLoaderData<typeof loader>()
     const [servers, setServers] = useState<Server[]>(initialServers || [])
-    const [loading, setLoading] = useState(!initialServers)
+    const [loading, setLoading] = useState(isDeferredLoading)
     const [error, setError] = useState<string | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
     const { setOnRefresh, setIsLoading } = useLayoutConfig()
@@ -120,20 +124,22 @@ export default function ServerList() {
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchServers(token ?? undefined, true)
-            setServers(data)
+            if (data && data.length > 0) {
+                setServers(data)
+            }
         } catch {
-            setError(t("serverList.error"))
+            // Keep existing servers on client fetch failure
         } finally {
             setLoading(false)
         }
     }, [getToken, isSignedIn, isLoaded, t])
 
     useEffect(() => {
-        if (!isLoaded) return
+        if (!isLoaded || isDeferredLoading) return
         Promise.resolve().then(() => {
             load(true) // Run as background fetch to avoid UI flashing
         })
-    }, [load, isLoaded])
+    }, [load, isLoaded, isDeferredLoading])
 
     useEffect(() => {
         setOnRefresh(() => load)
@@ -243,8 +249,10 @@ export default function ServerList() {
                 />
 
                 {loading && servers.length === 0 && (
-                    <div className="flex justify-center py-20">
-                        <p className="text-muted-foreground animate-pulse">{t("serverList.loading")}</p>
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <ServerCardSkeleton key={i} />
+                        ))}
                     </div>
                 )}
                 {error && (
@@ -258,7 +266,7 @@ export default function ServerList() {
                             <>
                                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                                     {paginatedServers.map((s) => (
-                                        <Link key={s.id} to={`/server/${s.id}`} className="block focus:outline-none">
+                                        <Link key={s.id} to={`/server/${s.id}`} prefetch="intent" className="block focus:outline-none">
                                             <ServerCard
                                                 server={s}
                                             />
