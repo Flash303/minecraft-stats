@@ -30,22 +30,17 @@ export async function loader({ params }: LoaderFunctionArgs) {
     try {
         const id = Number(params.id)
         const server = await fetchServer(id)
-        console.log(`[SSR Debug] loader fetchServer returned: ${server ? "Object" : "null"}`)
         
         return { initialServer: server, initialRecords: [], initialFrom: Infinity }
     } catch (e) {
-        console.error(`[SSR Debug] loader threw an error:`, e)
         return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
 
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-    const { loaderData: data, matches, error } = args as any;
-    console.log(`[SSR Debug] meta called. data=${data ? "Object" : "undefined/null"}, matches=${matches.length}, error=${error ? String(error) : "none"}`);
-    if (matches && matches.length > 0) {
-        matches.forEach((m, i) => console.log(`[SSR Debug] Match ${i}: id=${m.id}, hasData=${!!(m as any).data || !!(m as any).loaderData}`));
-    }
+    const { loaderData: data } = args as any;
+    
     if (!data || !data.initialServer) {
         return [
             { title: "Server Not Found | Minecraft-Stats" },
@@ -77,7 +72,6 @@ export default function ServerDetail() {
     const { getToken, isSignedIn, isLoaded } = useAuth()
     
     const loaderData = useLoaderData<typeof loader>()
-    console.log(`[SSR Debug] ServerDetail component render. loaderData=`, loaderData ? "Object" : "undefined/null", loaderData)
     const { initialServer, initialRecords, initialFrom } = loaderData || {}
     const [server, setServer] = useState<Server | null>(initialServer || null)
     const [loading, setLoading] = useState(initialServer ? false : true)

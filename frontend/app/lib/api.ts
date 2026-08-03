@@ -124,23 +124,17 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
 
 export async function fetchServer(id: number | string, token?: string): Promise<Server | null> {
     try {
-        console.log(`[SSR Debug] fetchServer called for id=${id}. API_BASE=${API_BASE}, isWindowDefined=${typeof window !== "undefined"}, SSR_API_URL=${process.env.SSR_API_URL}`);
-        
         const res = await fetch(`${API_BASE}/servers/${id}`, {
             headers: getHeaders(token)
         })
         
-        console.log(`[SSR Debug] fetchServer response status: ${res.status}`);
-        
         if (!res.ok) {
-            console.error(`[SSR Debug] res not ok. Status: ${res.status}, StatusText: ${res.statusText}`);
             return null;
         }
         
         const json = await res.json()
         
         if (!json.success || !json.data) {
-            console.error(`[SSR Debug] json success false or no data. Response:`, JSON.stringify(json));
             return null;
         }
         
