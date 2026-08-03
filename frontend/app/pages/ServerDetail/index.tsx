@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
-import { useParams, Link, useLoaderData, useRouteError } from "react-router"
+import { useParams, Link, useLoaderData, useRouteError, Await } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer } from "@/lib/api"
 import type { Server } from "@/lib/api"
@@ -39,9 +39,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
     }
 }
 
-export async function clientLoader() {
-    return { initialServer: null, initialRecords: [], initialFrom: Infinity }
-}
 
 export const meta: MetaFunction<typeof loader> = (args) => {
     const { loaderData: data, matches, error } = args as any;
@@ -78,6 +75,7 @@ export default function ServerDetail() {
     const { t, language } = useLanguage()
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
+    
     const loaderData = useLoaderData<typeof loader>()
     console.log(`[SSR Debug] ServerDetail component render. loaderData=`, loaderData ? "Object" : "undefined/null", loaderData)
     const { initialServer, initialRecords, initialFrom } = loaderData || {}
@@ -114,9 +112,11 @@ export default function ServerDetail() {
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchServer(Number(id), token ?? undefined)
-            setServer(data)
+            if (data) {
+                setServer(data)
+            }
         } catch {
-            setServer(null)
+            // Keep existing server data on client fetch failure
         } finally {
             setLoading(false)
         }
