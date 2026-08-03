@@ -15,25 +15,31 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setTheme] = useState<Theme>("dark")
+export function ThemeProvider({ children, serverTheme }: { children: ReactNode, serverTheme?: Theme | null }) {
+    const [theme, setTheme] = useState<Theme>(() => {
+        if (serverTheme) return serverTheme
+        return "dark" // Default to dark to match server initial render
+    })
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        const stored = localStorage.getItem("theme")
-        if (stored === "light" || stored === "dark") {
-            setTheme(stored)
-        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            setTheme("dark")
-        } else {
-            setTheme("light")
+        if (!serverTheme && !mounted) {
+            const stored = localStorage.getItem("theme")
+            if (stored === "light" || stored === "dark") {
+                setTheme(stored)
+            } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                setTheme("dark")
+            } else {
+                setTheme("light")
+            }
         }
         setMounted(true)
-    }, [])
+    }, [serverTheme, mounted])
 
     useEffect(() => {
         if (!mounted) return
         localStorage.setItem("theme", theme)
+        document.cookie = `theme=${theme}; path=/; max-age=31536000; SameSite=Lax`
         document.documentElement.classList.toggle("dark", theme === "dark")
     }, [theme, mounted])
 

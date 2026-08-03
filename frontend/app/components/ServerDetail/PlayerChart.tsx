@@ -13,13 +13,10 @@ interface PlayerDataPoint {
 }
 
 interface PlayerChartProps {
-    data: PlayerDataPoint[]
+    data: { date: number; value: number }[]
     serverName: string
-    interval: number
-    timeRange: {
-        from: number
-        to: number
-    }
+    interval?: number
+    timeRange?: { from: number, to: number }
     onVisibleRangeChange?: (min: number, max: number) => void
     onZoomChange?: (isZoomed: boolean) => void
     header?: React.ReactNode
@@ -392,7 +389,14 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     }, [serverName, theme, tooltipPlugin, touchInteractPlugin, timeRange, language, t])
 
     if (data.length === 0) {
-        return <p className="text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
+        return (
+            <div className="flex flex-col gap-4">
+                {header}
+                <div className="w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
+                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
+                </div>
+            </div>
+        )
     }
 
     return (

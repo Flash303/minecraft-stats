@@ -4,7 +4,9 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SearchProvider } from "./contexts/SearchContext";
@@ -16,6 +18,17 @@ import { useEffect } from "react";
 import { GlobalLoading } from "./components/ui/global-loading";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+export function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get("Cookie") || "";
+  const matchTheme = cookieHeader.match(/theme=(light|dark)/);
+  const matchLang = cookieHeader.match(/language=(fr|en)/);
+
+  return {
+    serverTheme: matchTheme ? (matchTheme[1] as "light" | "dark") : null,
+    serverLanguage: matchLang ? (matchLang[1] as "fr" | "en") : null,
+  };
+}
 
 export function meta() {
   return [
@@ -54,7 +67,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: `
               try {
-                let theme = localStorage.getItem("theme");
+                let theme = document.cookie.match(/theme=(light|dark)/)?.[1];
+                if (!theme) {
+                  theme = localStorage.getItem("theme");
+                }
                 if (!theme) {
                   theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
                 }
@@ -98,6 +114,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { serverTheme, serverLanguage } = useLoaderData<typeof loader>();
+
   if (!PUBLISHABLE_KEY) {
     console.error("Missing Publishable Key");
     return <Outlet />;
@@ -106,8 +124,8 @@ export default function App() {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
       <AdminProvider>
-        <ThemeProvider>
-          <LanguageProvider>
+        <ThemeProvider serverTheme={serverTheme}>
+          <LanguageProvider serverLanguage={serverLanguage}>
             <SearchProvider>
               <TooltipProvider>
                 <Outlet />
