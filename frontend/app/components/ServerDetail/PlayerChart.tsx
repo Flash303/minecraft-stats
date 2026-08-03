@@ -13,13 +13,10 @@ interface PlayerDataPoint {
 }
 
 interface PlayerChartProps {
-    data: PlayerDataPoint[]
+    data: { date: number; value: number }[]
     serverName: string
-    interval: number
-    timeRange: {
-        from: number
-        to: number
-    }
+    interval?: number
+    timeRange?: { from: number, to: number }
     onVisibleRangeChange?: (min: number, max: number) => void
     onZoomChange?: (isZoomed: boolean) => void
     header?: React.ReactNode
