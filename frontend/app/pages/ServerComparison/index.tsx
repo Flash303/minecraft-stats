@@ -19,6 +19,7 @@ export default function ServerComparison() {
     const [searchQuery, setSearchQuery] = useState("")
     const [recordsMap, setRecordsMap] = useState<{ [serverId: number]: { date: number; value: number }[] }>({})
     const [loadingRecords, setLoadingRecords] = useState(false)
+    const fetchedServersRef = useRef<Set<number>>(new Set())
 
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -33,12 +34,20 @@ export default function ServerComparison() {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
             setRecordsMap(prev => ({ ...prev, [server.id]: data }))
+            fetchedServersRef.current.add(server.id)
         } catch (err) {
             console.error(`Failed to load records for server ${server.id}`, err)
         }
     }, [selectedInterval, isLoaded, isSignedIn, getToken])
  
     const isChartZoomed = useRef(false)
+
+    const lastFetchParams = useRef<{ range: number, interval: number, customFrom?: number, customTo?: number }>({
+        range: selectedRange,
+        interval: selectedInterval,
+        customFrom: customRange?.from?.getTime(),
+        customTo: customRange?.to?.getTime(),
+    })
 
     useEffect(() => {
         const refreshAll = async (isBackground = false) => {
@@ -58,8 +67,28 @@ export default function ServerComparison() {
                 from = now - Math.floor(selectedRange / 1000);
             }
             
+            const currentParams = {
+                range: selectedRange,
+                interval: selectedInterval,
+                customFrom: customRange?.from?.getTime(),
+                customTo: customRange?.to?.getTime(),
+            }
+            const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
+            if (paramsChanged) {
+                fetchedServersRef.current.clear()
+            }
+
             setTimeRangeProps({ from, to: now })
-            await Promise.all(selectedServers.map(s => fetchServerRecords(s, from)))
+            
+            const serversToFetch = isBackground 
+                ? selectedServers 
+                : selectedServers.filter(s => !fetchedServersRef.current.has(s.id))
+
+            if (serversToFetch.length > 0) {
+                await Promise.all(serversToFetch.map(s => fetchServerRecords(s, from)))
+            }
+            
+            lastFetchParams.current = currentParams
             if (!isBackground) setLoadingRecords(false)
         }
         if (selectedServers.length > 0) {
@@ -96,6 +125,7 @@ export default function ServerComparison() {
  
     const removeServer = (serverId: number) => {
         setSelectedServers(prev => prev.filter(s => s.id !== serverId))
+        fetchedServersRef.current.delete(serverId)
         setRecordsMap(prev => {
             const next = { ...prev }
             delete next[serverId]
@@ -104,6 +134,7 @@ export default function ServerComparison() {
     }
  
     const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
+    const serverNames = useMemo(() => selectedServers.map(s => s.name), [selectedServers])
 
     return (
         <>
@@ -161,7 +192,7 @@ export default function ServerComparison() {
                         <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">Loading chart...</div>}>
                             <MultiServerChart 
                                 data={chartData} 
-                                serverNames={selectedServers.map(s => s.name)} 
+                                serverNames={serverNames} 
                                 timeRange={timeRangeProps} 
                                 zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                 onZoomChange={(z) => isChartZoomed.current = z}
