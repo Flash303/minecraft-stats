@@ -24,9 +24,10 @@ interface PlayerChartProps {
     onZoomChange?: (isZoomed: boolean) => void
     header?: React.ReactNode
     zoomResetId?: string
+    isLoading?: boolean
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, zoomResetId }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, zoomResetId, isLoading }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -392,7 +393,14 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     }, [serverName, theme, tooltipPlugin, touchInteractPlugin, timeRange, language, t])
 
     if (data.length === 0) {
-        return <p className="text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
+        return (
+            <div className="flex flex-col gap-4">
+                {header}
+                <div className="min-h-[340px] sm:min-h-[500px] w-full flex items-center justify-center">
+                    {!isLoading && <p className="text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>}
+                </div>
+            </div>
+        )
     }
 
     return (

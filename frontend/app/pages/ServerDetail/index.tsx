@@ -100,56 +100,107 @@ export default function ServerDetail() {
         setLoading(initialServer ? false : true)
     }, [id, initialServer, initialRecords, initialFrom])
  
-    const loadServer = useCallback(async (isBackground = false) => {
-        if (!id) return
-        if (!isBackground) setLoading(true)
-        try {
-            const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const data = await fetchServer(Number(id), token ?? undefined)
-            if (data) {
-                setServer(data)
+    const isChartZoomed = useRef(false)
+    const lastFetchParams = useRef<{ range?: number, interval?: number, customFrom?: number, customTo?: number }>({})
+
+    useEffect(() => {
+        if (!isLoaded || !id) return
+        
+        const refreshAll = async (isBackground = false) => {
+            let now = 0;
+            let from = 0;
+            
+            if (selectedRange === -1) {
+                if (!customRange?.from || !customRange?.to) {
+                    if (!isBackground) setLoadingRecords(false);
+                    return;
+                }
+                from = Math.floor(customRange.from.getTime() / 1000);
+                now = Math.floor(customRange.to.getTime() / 1000) + 86399; // Include the entire end day
+            } else {
+                now = Math.floor(Date.now() / 1000);
+                from = now - Math.floor(selectedRange / 1000);
             }
-        } catch {
-            // Keep existing server data on client fetch failure
-        } finally {
-            setLoading(false)
-        }
-    }, [id, getToken, isSignedIn, isLoaded])
- 
-    const loadRecords = useCallback(async (isBackground = false) => {
-        if (!server) return
-        
-        let now = 0;
-        let from = 0;
-        
-        if (selectedRange === -1) {
-            if (!customRange?.from || !customRange?.to) return;
-            from = Math.floor(customRange.from.getTime() / 1000);
-            now = Math.floor(customRange.to.getTime() / 1000) + 86399; // Include the entire end day
-        } else {
-            now = Math.floor(Date.now() / 1000);
-            from = now - Math.floor(selectedRange / 1000);
-        }
-        
-        if (!isBackground && from >= loadedFrom && rawRecords.length > 0) {
-            setTimeLimits({ from, to: now })
-            return
+            
+            const currentParams = {
+                range: selectedRange,
+                interval: selectedInterval,
+                customFrom: customRange?.from?.getTime(),
+                customTo: customRange?.to?.getTime(),
+            }
+            const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
+            
+            if (!paramsChanged && !isBackground) {
+                return;
+            }
+
+            const fetchPromises: Promise<void>[] = []
+            
+            // 1. Fetch server if needed (background refresh or missing)
+            if (isBackground || !server) {
+                if (!isBackground) setLoading(true)
+                const fetchServerData = async () => {
+                    try {
+                        const token = isSignedIn ? await getToken() : undefined
+                        const data = await fetchServer(Number(id), token ?? undefined)
+                        if (data) setServer(data)
+                    } catch {
+                    } finally {
+                        if (!isBackground) setLoading(false)
+                    }
+                }
+                fetchPromises.push(fetchServerData())
+            }
+
+            // 2. Fetch records if we don't have them for this range
+            let needsRecordsFetch = true
+            if (from >= loadedFrom && rawRecords.length > 0 && !isBackground) {
+                needsRecordsFetch = false
+                setTimeLimits({ from, to: now })
+            }
+
+            if (needsRecordsFetch) {
+                if (!isBackground) setLoadingRecords(true)
+                const fetchRecordsData = async () => {
+                    try {
+                        const token = isSignedIn ? await getToken() : undefined
+                        const data = await fetchRecords(Number(id), from, undefined, token ?? undefined)
+                        setRawRecords(data)
+                        setLoadedFrom(from)
+                        setTimeLimits({ from, to: now })
+                    } catch {
+                        if (rawRecords.length === 0) setRawRecords([])
+                    } finally {
+                        if (!isBackground) setLoadingRecords(false)
+                    }
+                }
+                fetchPromises.push(fetchRecordsData())
+            }
+
+            if (fetchPromises.length > 0) {
+                await Promise.all(fetchPromises)
+            }
+            
+            lastFetchParams.current = currentParams
         }
 
-        if (!isBackground) setLoadingRecords(true)
-        try {
-            const token = isLoaded && isSignedIn ? await getToken() : undefined
-            // Fetch raw records without bucketing from API
-            const data = await fetchRecords(server.id, from, undefined, token ?? undefined)
-            setRawRecords(data)
-            setLoadedFrom(from)
-            setTimeLimits({ from, to: now })
-        } catch {
-            if (rawRecords.length === 0) setRawRecords([])
-        } finally {
-            setLoadingRecords(false)
+        Promise.resolve().then(() => {
+            refreshAll()
+        })
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && !isChartZoomed.current) {
+                refreshAll(true)
+            }
         }
-    }, [server, selectedRange, customRange, getToken, isSignedIn, isLoaded, loadedFrom, rawRecords.length])
+        
+        window.addEventListener('visibilitychange', handleVisibilityChange)
+        window.addEventListener('focus', handleVisibilityChange)
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange)
+            window.removeEventListener('focus', handleVisibilityChange)
+        }
+    }, [id, selectedRange, selectedInterval, customRange, isLoaded, isSignedIn, getToken, server, loadedFrom, rawRecords.length])
 
     useEffect(() => {
         if (rawRecords.length === 0) {
@@ -215,37 +266,6 @@ export default function ServerDetail() {
         
         return () => clearTimeout(timer)
     }, [rawRecords, selectedRange, selectedInterval, customRange])
- 
-    useEffect(() => {
-        if (!isLoaded || !id) return
-        Promise.resolve().then(() => {
-            loadServer(true)
-        })
-    }, [loadServer, isLoaded, id])
-
-    useEffect(() => {
-        if (!isLoaded || !id) return
-        Promise.resolve().then(() => {
-            loadRecords(true)
-        })
-    }, [loadRecords, isLoaded, id])
-
-    const isChartZoomed = useRef(false)
-
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && isLoaded && !isChartZoomed.current) {
-                loadServer(true)
-                loadRecords(true)
-            }
-        }
-        window.addEventListener('visibilitychange', handleVisibilityChange)
-        window.addEventListener('focus', handleVisibilityChange)
-        return () => {
-            window.removeEventListener('visibilitychange', handleVisibilityChange)
-            window.removeEventListener('focus', handleVisibilityChange)
-        }
-    }, [loadServer, loadRecords, isLoaded])
 
     useEffect(() => {
         if (!server) return;
@@ -376,13 +396,14 @@ export default function ServerDetail() {
                             </div>
                         )}
                         <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none" : "opacity-100")}>
-                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full flex items-center justify-center">Loading chart...</div>}>
+                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full" />}>
                                 <PlayerChart
                                     data={records}
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
                                     zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                                    isLoading={loadingRecords || isPending}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
