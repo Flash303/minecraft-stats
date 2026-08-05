@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/src/assets/logo.png" alt="Minecraft Stats Logo" width="200" />
+  <img src="frontend/public/logo.webp" alt="Minecraft Stats Logo" width="200" />
 </p>
 
 <h1 align="center">Minecraft Stats</h1>
