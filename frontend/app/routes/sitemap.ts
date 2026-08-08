@@ -2,7 +2,8 @@ import type { Route } from "./+types/sitemap";
 import { fetchServers } from "@/lib/api";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const servers = await fetchServers();
+  const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
+  const servers = await fetchServers(undefined, false, forwardedFor);
   
   const urls = servers.map(server => `
   <url>

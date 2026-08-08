@@ -14,8 +14,11 @@ import { Hero3D } from "@/components/ServerList/Hero3D"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-export async function loader() {
-    const serversPromise = fetchServers(undefined, true).catch(() => [])
+import type { LoaderFunctionArgs } from "react-router"
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
+    const serversPromise = fetchServers(undefined, true, forwardedFor).catch(() => [])
     return { initialServersPromise: serversPromise }
 }
 

@@ -25,11 +25,12 @@ export type DateRange = {
     to?: Date | undefined;
 };
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
     if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     try {
         const id = Number(params.id)
-        const server = await fetchServer(id)
+        const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
+        const server = await fetchServer(id, undefined, forwardedFor)
         
         return { initialServer: server, initialRecords: [], initialFrom: Infinity }
     } catch (e) {
