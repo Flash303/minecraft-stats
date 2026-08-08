@@ -42,21 +42,24 @@ const API_BASE = (typeof window === "undefined" && process.env.SSR_API_URL)
 /**
  * Helper to build headers with optional auth token
  */
-function getHeaders(token?: string): HeadersInit {
+function getHeaders(token?: string, forwardedFor?: string | null): HeadersInit {
     const headers: HeadersInit = {
         "Content-Type": "application/json",
     }
     if (token) {
         headers["Authorization"] = `Bearer ${token}`
     }
+    if (forwardedFor) {
+        headers["X-Forwarded-For"] = forwardedFor
+    }
     return headers
 }
 
-export async function fetchServers(token?: string, includeStats?: boolean): Promise<Server[]> {
+export async function fetchServers(token?: string, includeStats?: boolean, forwardedFor?: string | null): Promise<Server[]> {
     try {
         const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
         const res = await fetch(url, {
-            headers: getHeaders(token)
+            headers: getHeaders(token, forwardedFor)
         })
         if (!res.ok) return []
         const json = await res.json()
@@ -122,10 +125,10 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
     }
 }
 
-export async function fetchServer(id: number | string, token?: string): Promise<Server | null> {
+export async function fetchServer(id: number | string, token?: string, forwardedFor?: string | null): Promise<Server | null> {
     try {
         const res = await fetch(`${API_BASE}/servers/${id}`, {
-            headers: getHeaders(token)
+            headers: getHeaders(token, forwardedFor)
         })
         
         if (!res.ok) {
