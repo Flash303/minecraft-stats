@@ -113,7 +113,10 @@ export default function ServerDetail() {
             customFrom: customRange?.from?.getTime(),
             customTo: customRange?.to?.getTime(),
             isLoaded,
-            refreshCount
+            refreshCount,
+            serverId: server?.id,
+            hasNoRecords: rawRecords.length === 0,
+            loadedFrom
         };
 
         const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams);
@@ -160,7 +163,7 @@ export default function ServerDetail() {
                     const data = await fetchRecords(Number(id), from, undefined, token ?? undefined);
                     setRawRecords(data);
                     setLoadedFrom(from);
-                    setTimeLimits({ from, to: now });
+                    setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
                 } catch {
                     if (rawRecords.length === 0) setRawRecords([]);
                 } finally {
@@ -169,7 +172,7 @@ export default function ServerDetail() {
             };
             fetchRec();
         } else {
-            setTimeLimits({ from, to: now });
+            setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
         }
     }, [id, selectedRange, selectedInterval, customRange, isLoaded, isSignedIn, getToken, server, loadedFrom, rawRecords.length, refreshCount]);
 
