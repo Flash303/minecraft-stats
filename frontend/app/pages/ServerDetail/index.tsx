@@ -397,7 +397,7 @@ export default function ServerDetail() {
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
-                                    zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                                    zoomResetId={`${selectedRange}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
