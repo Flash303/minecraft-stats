@@ -299,6 +299,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     }, [zoomResetId])
 
+    const hasData = data.length > 0
     // Configuration globale du graphique
     const options = useMemo(() => {
         const isDark = theme === "dark"
@@ -390,7 +391,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 }
             ]
         } as uPlot.Options
-    }, [serverName, theme, tooltipPlugin, touchInteractPlugin, language, t])
+    }, [serverName, theme, tooltipPlugin, touchInteractPlugin, language, t, hasData])
 
     if (data.length === 0) {
         return (
