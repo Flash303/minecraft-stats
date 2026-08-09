@@ -161,11 +161,16 @@ export default function ServerDetail() {
                 try {
                     const token = isLoaded && isSignedIn ? await getToken() : undefined;
                     const data = await fetchRecords(Number(id), from, undefined, token ?? undefined);
+                    
+                    if (isBackground && isChartZoomed.current) {
+                        return;
+                    }
+                    
                     setRawRecords(data);
                     setLoadedFrom(from);
                     setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
                 } catch {
-                    if (rawRecords.length === 0) setRawRecords([]);
+                    if (rawRecords.length === 0 && !(isBackground && isChartZoomed.current)) setRawRecords([]);
                 } finally {
                     if (!isBackground) setLoadingRecords(false);
                 }
