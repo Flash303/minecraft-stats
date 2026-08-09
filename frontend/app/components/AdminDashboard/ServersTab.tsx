@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@clerk/react"
 import { renameServer, deleteServer, toggleServerVisibility } from "@/lib/api"
+import { ServerIcon as CustomServerIcon } from "@/components/ServerIcon"
 import {
     Dialog,
     DialogContent,
@@ -334,17 +335,11 @@ export function ServersTab({
                                             />
                                         </td>
                                         <td className="p-4 font-bold flex items-center gap-3">
-                                            {server.last_favicon ? (
-                                                <img
-                                                    src={server.last_favicon}
-                                                    alt={t("alt.serverLogo", { name: server.name })}
-                                                    className="h-7 w-7 rounded shadow-xs flex-shrink-0 border"
-                                                />
-                                            ) : (
-                                                <div className="h-7 w-7 rounded bg-muted flex items-center justify-center text-muted-foreground border flex-shrink-0">
-                                                    <ServerIcon className="h-3.5 w-3.5" />
-                                                </div>
-                                            )}
+                                            <CustomServerIcon
+                                                serverId={server.id}
+                                                alt={t("alt.serverLogo", { name: server.name })}
+                                                className="h-7 w-7 rounded shadow-xs flex-shrink-0 border"
+                                            />
                                             <div className="flex flex-col">
                                                 <span className="font-semibold text-foreground flex items-center gap-1.5">
                                                     {server.name}

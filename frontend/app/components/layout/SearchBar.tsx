@@ -3,6 +3,7 @@ import { Search as SearchIcon, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { fetchServers } from "@/lib/api"
+import { ServerIcon } from "@/components/ServerIcon"
 import type { Server } from "@/lib/api"
 import { useAuth } from "@clerk/react"
 import { cn } from "@/lib/utils"
@@ -167,11 +168,11 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 idx === selectedIndex ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-slate-700 dark:text-zinc-300"
                             )}
                         >
-                            {s.last_favicon ? (
-                                <img src={s.last_favicon} className="h-6 w-6 rounded-md object-cover shadow-xs" alt="" />
-                            ) : (
-                                <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center font-bold text-[10px] text-muted-foreground">MC</div>
-                            )}
+                            <ServerIcon 
+                                serverId={s.id}
+                                className="h-6 w-6 rounded-md object-cover shadow-xs flex-shrink-0" 
+                                alt="" 
+                            />
                             <div className="flex flex-col min-w-0 flex-1">
                                 <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none mt-0.5">{s.ip}</span>

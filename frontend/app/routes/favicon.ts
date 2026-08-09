@@ -1,23 +1,20 @@
 import type { Route } from "./+types/favicon";
-import { fetchServer } from "@/lib/api";
+import { fetchServer, API_BASE } from "@/lib/api";
 
 export async function loader({ params }: Route.LoaderArgs) {
     try {
-        const server = await fetchServer(Number(params.id));
-        if (server && server.last_favicon) {
-            const base64Data = server.last_favicon.replace(/^data:image\/\w+;base64,/, "");
-            const buffer = Buffer.from(base64Data, "base64");
-            return new Response(buffer, {
-                headers: {
-                    "Content-Type": "image/png",
-                    "Cache-Control": "public, max-age=86400",
-                },
+        const res = await fetch(`${API_BASE}/servers/${params.id}/icon`);
+        if (res.ok) {
+            const buffer = await res.arrayBuffer();
+            const headers = new Headers();
+            res.headers.forEach((value, key) => {
+                headers.set(key, value);
             });
+            return new Response(buffer, { headers });
         }
     } catch (e) {
-        console.error("Failed to load favicon for OG image", e);
+        console.error("Failed to load favicon", e);
     }
     
-    // Fallback to default opengraph image or empty response
     return new Response(null, { status: 404 });
 }

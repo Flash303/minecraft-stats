@@ -20,6 +20,7 @@ pub struct Server {
     #[serde(with = "time::serde::timestamp")]
     pub registered_date: OffsetDateTime,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
     pub last_connected: Option<u32>,

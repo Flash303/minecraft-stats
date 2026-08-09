@@ -2,6 +2,7 @@ import { useState, useMemo } from "react"
 import { Link } from "react-router"
 import type { User, Server } from "@/lib/api"
 import { Card } from "@/components/ui/card"
+import { ServerIcon as CustomServerIcon } from "@/components/ServerIcon"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -192,17 +193,11 @@ export function UsersTab({
                                             }`}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
-                                                {server.last_favicon ? (
-                                                    <img 
-                                                        src={server.last_favicon} 
-                                                        className="h-8 w-8 rounded shadow-xs flex-shrink-0 border" 
-                                                        alt={t("alt.serverLogo", { name: server.name })} 
-                                                    />
-                                                ) : (
-                                                    <div className="h-8 w-8 rounded bg-muted flex items-center justify-center text-muted-foreground border flex-shrink-0">
-                                                        <ServerIcon className="h-4 w-4" />
-                                                    </div>
-                                                )}
+                                                <CustomServerIcon 
+                                                    serverId={server.id}
+                                                    className="h-8 w-8 rounded shadow-xs flex-shrink-0 border" 
+                                                    alt={t("alt.serverLogo", { name: server.name })} 
+                                                />
                                                 <div className="flex flex-col min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="text-xs font-bold text-foreground leading-none">{server.name}</span>

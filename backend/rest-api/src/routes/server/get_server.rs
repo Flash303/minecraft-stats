@@ -1,6 +1,6 @@
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
+use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams, ServerQueryParams};
 use crate::services::clerk::clerk_service;
 use crate::services::clerk::model::{ClerkClaims, ClerkUser};
 use crate::state::AppState;
@@ -29,7 +29,12 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
     let mut servers: Vec<BiggerServerResponse> = result
         .into_iter()
         .filter(|s| account.is_admin() || !s.hidden)
-        .map(BiggerServerResponse::from)
+        .map(|mut s| {
+            if !query.include_favicon.unwrap_or(false) {
+                s.last_favicon = None;
+            }
+            BiggerServerResponse::from(s)
+        })
         .collect();
 
     include_stats(do_include_stats, &state, &mut servers).await?;
@@ -38,10 +43,15 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
 }
 
 pub(super) async fn get_server(State(state): State<AppState>,
+                    Query(query): Query<ServerQueryParams>,
                     Extension(account): Extension<Option<ClerkClaims>>,
                     id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
-    let result = state.repository.get_server(*id?).await?
+    let mut result = state.repository.get_server(*id?).await?
         .ok_or(AppError::ServerNotFound)?;
+
+    if !query.include_favicon.unwrap_or(false) {
+        result.last_favicon = None;
+    }
 
     let mut server = ServerWithUser {
         server: result,

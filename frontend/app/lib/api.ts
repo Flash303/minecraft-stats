@@ -35,9 +35,13 @@ export interface Record {
     value: number
 }
 
-const API_BASE = (typeof window === "undefined" && process.env.SSR_API_URL) 
+export const API_BASE = (typeof window === "undefined" && process.env.SSR_API_URL) 
     ? process.env.SSR_API_URL 
     : (import.meta.env.VITE_API_URL || "http://localhost:3000")
+
+export function getServerIconUrl(serverId: number | string): string {
+    return `/api/favicon/${serverId}`
+}
 
 /**
  * Helper to build headers with optional auth token

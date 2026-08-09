@@ -1,4 +1,5 @@
 import { X } from "lucide-react"
+import { ServerIcon } from "@/components/ServerIcon"
 import type { Server } from "@/lib/api"
 
 interface SelectedServersTagsProps {
@@ -16,13 +17,11 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                     key={s.id} 
                     className="flex items-center gap-2 bg-indigo-500/5 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-3.5 py-1.5 rounded-xl text-xs border border-indigo-500/10 dark:border-indigo-500/20 shadow-xs hover:border-indigo-500/35 transition-colors"
                 >
-                    {s.last_favicon && (
-                        <img 
-                            src={s.last_favicon} 
-                            className="h-4.5 w-4.5 rounded-md object-cover shadow-xs" 
-                            alt="" 
-                        />
-                    )}
+                    <ServerIcon 
+                        serverId={s.id}
+                        className="h-4.5 w-4.5 rounded-md object-cover shadow-xs" 
+                        alt="" 
+                    />
                     <span className="font-bold">{s.name}</span>
                     <button 
                         onClick={() => removeServer(s.id)}
