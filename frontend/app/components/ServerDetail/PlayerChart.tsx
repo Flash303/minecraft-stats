@@ -326,8 +326,8 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 x: {
                     time: true,
                     auto: false,
-                    min: timeRange.from,
-                    max: timeRange.to,
+                    min: timeRangeRef.current?.from ?? 0,
+                    max: timeRangeRef.current?.to ?? 0,
                     range: (u: uPlot, min: number, max: number) => {
                         const xData = u.data[0]
                         const yData = u.data[1]
@@ -345,7 +345,11 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                         }
 
                         if (pointsCount < 2 && u.scales.x && u.scales.x.min != null) {
-                            return [u.scales.x.min, u.scales.x.max]
+                            if (Math.abs(min - u.scales.x.min) > 1 || Math.abs(max - u.scales.x.max) > 1) {
+                                return [u.scales.x.min, u.scales.x.max]
+                            }
+                            const tr = timeRangeRef.current;
+                            return [tr?.from ?? min, tr?.to ?? max]
                         }
 
                         return [min, max]
@@ -386,7 +390,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 }
             ]
         } as uPlot.Options
-    }, [serverName, theme, tooltipPlugin, touchInteractPlugin, timeRange, language, t])
+    }, [serverName, theme, tooltipPlugin, touchInteractPlugin, language, t])
 
     if (data.length === 0) {
         return (

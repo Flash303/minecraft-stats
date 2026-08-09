@@ -113,7 +113,10 @@ export default function ServerDetail() {
             customFrom: customRange?.from?.getTime(),
             customTo: customRange?.to?.getTime(),
             isLoaded,
-            refreshCount
+            refreshCount,
+            serverId: server?.id,
+            hasNoRecords: rawRecords.length === 0,
+            loadedFrom
         };
 
         const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams);
@@ -158,18 +161,23 @@ export default function ServerDetail() {
                 try {
                     const token = isLoaded && isSignedIn ? await getToken() : undefined;
                     const data = await fetchRecords(Number(id), from, undefined, token ?? undefined);
+                    
+                    if (isBackground && isChartZoomed.current) {
+                        return;
+                    }
+                    
                     setRawRecords(data);
                     setLoadedFrom(from);
-                    setTimeLimits({ from, to: now });
+                    setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
                 } catch {
-                    if (rawRecords.length === 0) setRawRecords([]);
+                    if (rawRecords.length === 0 && !(isBackground && isChartZoomed.current)) setRawRecords([]);
                 } finally {
                     if (!isBackground) setLoadingRecords(false);
                 }
             };
             fetchRec();
         } else {
-            setTimeLimits({ from, to: now });
+            setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
         }
     }, [id, selectedRange, selectedInterval, customRange, isLoaded, isSignedIn, getToken, server, loadedFrom, rawRecords.length, refreshCount]);
 
@@ -389,7 +397,7 @@ export default function ServerDetail() {
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
-                                    zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
+                                    zoomResetId={`${selectedRange}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
