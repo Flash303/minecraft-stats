@@ -27,7 +27,9 @@ enum PingResultType {
 async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
     match ping {
         PingResultType::Java(ping) => {
-            server.last_favicon = ping.favicon.clone();
+            if !server.forced_favicon {
+                server.last_favicon = ping.favicon.clone();
+            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.players.online);
             server.last_version = parse_minecraft_version_range(&ping.version.name)
@@ -51,13 +53,17 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
 
             // Update fingerprints
-            server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+            if !server.forced_favicon {
+                server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+            }
             let motd_value = serde_json::to_value(&ping.description).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
             server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
         }
         PingResultType::Bedrock(ping) => {
-            server.last_favicon = None;
+            if !server.forced_favicon {
+                server.last_favicon = None;
+            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.current_players);
             server.last_version = Some(ping.version.clone());
@@ -66,7 +72,9 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_motd = serde_json::to_value(ping.motd.clone()).ok();
 
             // Update fingerprints
-            server.favicon_hash = None;
+            if !server.forced_favicon {
+                server.favicon_hash = None;
+            }
             let motd_value = serde_json::to_value(&ping.motd).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
             server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
