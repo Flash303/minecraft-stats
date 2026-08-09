@@ -95,7 +95,7 @@ export function ServerCard({ server }: ServerCardProps) {
                                         fontHeight={18}
                                         content={
                                             <div className="flex flex-col text-left whitespace-pre-wrap">
-                                                {server.last_sample.split('\n').map((line, i) => (
+                                                {server.last_sample.trimEnd().split('\n').map((line, i) => (
                                                     <div key={i} className="min-h-[18px]">
                                                         {parseLegacyText(line)}
                                                     </div>

@@ -546,7 +546,7 @@ export function MinecraftMotd({
                                 fontHeight={fontHeight}
                                 content={
                                     <div className="flex flex-col text-left whitespace-pre-wrap">
-                                        {lastSample.split('\n').map((line, i) => (
+                                        {lastSample.trimEnd().split('\n').map((line, i) => (
                                             <div key={i} className="min-h-[18px]">
                                                 {parseLegacyText(line)}
                                             </div>
