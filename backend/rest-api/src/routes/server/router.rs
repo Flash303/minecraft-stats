@@ -76,6 +76,12 @@ pub(super) async fn include_stats(include_stats: bool,
 pub(super) struct ServerListQueryParams {
     pub include_stats: Option<bool>,
     pub include_owners: Option<bool>,
+    pub include_favicon: Option<bool>,
+}
+
+#[derive(Deserialize)]
+pub(super) struct ServerQueryParams {
+    pub include_favicon: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]

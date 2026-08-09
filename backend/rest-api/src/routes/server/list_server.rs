@@ -20,12 +20,16 @@ pub(super) async fn list_all_servers(State(state): State<AppState>,
     let mut servers: Vec<BiggerServerResponse> = stream::iter(server_list
             .into_iter()
             .filter(|s| is_admin || !s.hidden))
-        .map(async |server| {
+        .map(async |mut server| {
             let mut server_creator: Option<ClerkUser> = None;
             if query.include_owners.is_some_and(|t| t) {
                 server_creator = get_clerk_user_with_cache(&state, &server.user_id).await
                     .ok()
                     .map(|u| (*u).clone());
+            }
+
+            if !query.include_favicon.unwrap_or(false) {
+                server.last_favicon = None;
             }
 
             BiggerServerResponse::from_with_user(server.into(), server_creator)
