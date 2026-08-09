@@ -298,6 +298,25 @@ export async function deleteServer(
     }
 }
 
+export async function updateFavicon(
+    serverId: number,
+    favicon: string | null,
+    token: string
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}/favicon`, {
+            method: "PATCH",
+            headers: getHeaders(token),
+            body: JSON.stringify({ favicon })
+        })
+        const json = await res.json()
+        return { success: json.success, message: json.message, message_key: json.message_key }
+    } catch (error) {
+        console.error(`Failed to update favicon for server ${serverId}:`, error)
+        return { success: false }
+    }
+}
+
 export async function checkAdminStatus(token: string): Promise<boolean> {
     try {
         const res = await fetch(`${API_BASE}/admin`, {

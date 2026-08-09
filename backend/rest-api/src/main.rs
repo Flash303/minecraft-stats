@@ -96,7 +96,7 @@ async fn main() {
         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
         .allow_headers(Any);
 
-    let body_limit = DefaultBodyLimit::max(1024 * 10);
+    let body_limit = DefaultBodyLimit::max(1024 * 256);
 
     let state = AppState {
         repository: Arc::new(repository),

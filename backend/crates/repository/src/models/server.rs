@@ -20,6 +20,8 @@ pub struct Server {
     #[serde(with = "time::serde::timestamp")]
     pub registered_date: OffsetDateTime,
 
+    pub forced_favicon: bool,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
@@ -55,6 +57,8 @@ pub struct ServerRow {
 
     registered_date: OffsetDateTime,
 
+    forced_favicon: bool,
+
     last_favicon: Option<String>,
     last_status: Option<ServerStatus>,
     last_connected: Option<i32>,
@@ -80,6 +84,8 @@ impl From<ServerRow> for Server {
             server_type: row.server_type,
             hidden: row.hidden,
             registered_date: row.registered_date,
+
+            forced_favicon: row.forced_favicon,
 
             last_favicon: row.last_favicon,
             last_status: row.last_status,
