@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
 import { useParams, Link, useLoaderData, useRouteError, Await } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
-import { fetchRecords, fetchServer } from "@/lib/api"
+import { fetchRecords, fetchServer, getServerIconUrl } from "@/lib/api"
 import type { Server } from "@/lib/api"
 const PlayerChart = lazy(() => import("@/components/ServerDetail/PlayerChart").then(m => ({ default: m.PlayerChart })))
 import { ServerDetailHeader } from "@/components/ServerDetail/ServerDetailHeader"
@@ -275,7 +275,7 @@ export default function ServerDetail() {
             "applicationCategory": "GameApplication",
             "operatingSystem": server.type === "java" ? "Java" : "Bedrock",
             "url": window.location.href,
-            "image": server.last_favicon || "https://mc-stats.fr/logo.webp"
+            "image": `https://mc-stats.fr/api/favicon/${server.id}`
         };
         
         script.innerHTML = JSON.stringify(schema);
@@ -370,7 +370,7 @@ export default function ServerDetail() {
                             serverName={server.name}
                             currentPlayers={server.last_connected ?? 0}
                             maxPlayers={server.max_players ?? server.last_max_players ?? 20}
-                            favicon={server.last_favicon}
+                            favicon={getServerIconUrl(server.id)}
                             pingTime={server.last_ping_time}
                             lastSample={server.last_sample}
                         />

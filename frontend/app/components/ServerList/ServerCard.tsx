@@ -4,6 +4,7 @@ import { fetchRecords } from "@/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp } from "@/lib/utils"
+import { ServerIcon } from "@/components/ServerIcon"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { parseLegacyText, CursorTooltip } from "@/components/MinecraftMotd"
@@ -54,19 +55,11 @@ export function ServerCard({ server }: ServerCardProps) {
             <div className="flex flex-row gap-4 w-full min-w-0 items-start">
                 {/* Favicon */}
                 <div className="relative flex-shrink-0">
-                    {server.last_favicon ? (
-                        <img
-                            src={server.last_favicon}
-                            alt={t("alt.serverLogo", { name: server.name })}
-                            className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
-                        />
-                    ) : (
-                        <img
-                            src={default_icon}
-                            alt={t("alt.defaultLogo")}
-                            className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
-                        />
-                    )}
+                    <ServerIcon
+                        serverId={server.id}
+                        alt={t("alt.serverLogo", { name: server.name })}
+                        className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
+                    />
                 </div>
 
                 {/* Name & IP Copy button */}
