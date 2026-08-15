@@ -215,6 +215,10 @@ function ObfuscatedText({ text, isBold }: { text: string, isBold: boolean }) {
             let newText = "";
             for (let i = 0; i < text.length; i++) {
                 const c = text[i];
+                if (c === '\n' || c === ' ') {
+                    newText += c;
+                    continue;
+                }
                 const w = getCharWidth(c, isBold);
                 const options = map[w];
                 if (options && options.length > 0) {
@@ -232,6 +236,9 @@ function ObfuscatedText({ text, isBold }: { text: string, isBold: boolean }) {
     return (
         <>
             {scrambled.split('').map((char, i) => {
+                if (char === '\n' || char === ' ') {
+                    return <span key={i}>{char}</span>;
+                }
                 const advance = getCharWidth(char, isBold);
                 return (
                     <span 
