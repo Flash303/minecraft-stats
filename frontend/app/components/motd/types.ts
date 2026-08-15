@@ -19,8 +19,8 @@ export interface MinecraftMotdProps {
     motd: MotdComponent | MotdComponent[] | any
     className?: string
     serverName?: string
-    currentPlayers?: number
-    maxPlayers?: number
+    currentPlayers?: number | string
+    maxPlayers?: number | string
     favicon?: string | null
     pingTime?: number | null
     lastSample?: string | null

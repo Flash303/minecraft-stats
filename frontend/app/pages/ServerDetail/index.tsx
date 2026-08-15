@@ -14,7 +14,7 @@ import { BarChart } from "lucide-react"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
-import { cn } from "@/lib/utils"
+import { cn, formatMinecraftVersion } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/motd"
 
@@ -368,7 +368,11 @@ export default function ServerDetail() {
                         <MinecraftMotd 
                             motd={server.last_motd} 
                             serverName={server.name}
-                            currentPlayers={server.last_connected ?? 0}
+                            currentPlayers={
+                                server.last_protocol_version != null && server.last_protocol_version <= 0 
+                                    ? formatMinecraftVersion(server.last_version, false) || "Version" 
+                                    : (server.last_connected ?? 0)
+                            }
                             maxPlayers={server.max_players ?? server.last_max_players ?? 20}
                             favicon={getServerIconUrl(server.id)}
                             pingTime={server.last_ping_time}

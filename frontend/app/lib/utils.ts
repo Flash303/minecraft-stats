@@ -40,11 +40,16 @@ export function parseMinecraftVersionRange(versionName: string): [string, string
     return [first, last];
 }
 
-export function formatMinecraftVersion(versionName: string | null | undefined): string | null {
+export function formatMinecraftVersion(versionName: string | null | undefined, stripColors = true): string | null {
     if (!versionName) return null;
     const range = parseMinecraftVersionRange(versionName);
-    if (!range) return versionName; // fallback to original if parsing fails
-
+    if (!range) {
+        // Fallback to original if parsing fails
+        if (stripColors) {
+            return versionName.replace(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-orA-FK-OR]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};)/g, '');
+        }
+        return versionName;
+    }
     if (range[0] === range[1]) {
         return range[0];
     }
