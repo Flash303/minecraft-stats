@@ -42,7 +42,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     const [servers, setServers] = useState<Server[]>(initialServers || [])
     const [loading, setLoading] = useState(isDeferredLoading)
     const [error, setError] = useState<string | null>(null)
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     const [activeTabState, setActiveTabState] = useState<"all" | "online" | "offline" | "hidden">(() => {

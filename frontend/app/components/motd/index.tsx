@@ -1,6 +1,6 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 import pingIcon from "@/assets/ping.webp";
+import pingUnknownIcon from "@/assets/ping_unknown.webp";
 import default_icon from "@/assets/default_favicon.svg";
 import {
   Tooltip,
@@ -114,7 +114,7 @@ export function MinecraftMotd({
                                         <img
                                             className="flex-shrink-0"
                                             style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
-                                            src={pingIcon}
+                                            src={typeof currentPlayers === 'string' ? pingUnknownIcon : pingIcon}
                                             alt="ping"
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                                         />
