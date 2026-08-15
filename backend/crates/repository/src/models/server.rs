@@ -31,6 +31,7 @@ pub struct Server {
     pub last_motd: Option<Value>,
     pub last_ping_time: Option<u32>,
     pub last_sample: Option<String>,
+    pub last_protocol_version: Option<i64>,
 
     #[serde(skip_serializing)]
     pub favicon_hash: Option<String>,
@@ -67,6 +68,7 @@ pub struct ServerRow {
     last_motd: Option<String>,
     last_ping_time: Option<i32>,
     last_sample: Option<String>,
+    last_protocol_version: Option<i64>,
 
     favicon_hash: Option<String>,
     motd_hash: Option<String>,
@@ -96,6 +98,7 @@ impl From<ServerRow> for Server {
             last_max_players: row.last_max_players,
             last_ping_time: row.last_ping_time.map(|v| v as u32),
             last_sample: row.last_sample,
+            last_protocol_version: row.last_protocol_version,
 
             favicon_hash: row.favicon_hash,
             motd_hash: row.motd_hash,
