@@ -38,7 +38,6 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle"
 
 type ActiveTab = "overview" | "users" | "servers" | "logs" | "settings"
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const meta: MetaFunction = () => {
     return [
         { title: "Admin Dashboard | Minecraft-Stats" },

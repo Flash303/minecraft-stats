@@ -20,7 +20,6 @@ export function ErrorBoundary() {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function loader() {
     throw new Response("Not Found", { status: 404 });
 }

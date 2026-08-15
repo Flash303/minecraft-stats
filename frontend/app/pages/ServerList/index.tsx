@@ -16,7 +16,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import type { LoaderFunctionArgs } from "react-router"
 
-// eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     const serversPromise = fetchServers(undefined, true, forwardedFor).catch(() => [])

@@ -24,7 +24,6 @@ export type DateRange = {
     to?: Date | undefined;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ request, params }: LoaderFunctionArgs) {
     if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     try {
@@ -39,7 +38,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const meta: MetaFunction<typeof loader> = (args) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { loaderData: data } = args as any;
