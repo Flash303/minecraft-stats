@@ -3,7 +3,7 @@ import type { Server } from "@/lib/api"
 import { fetchRecords } from "@/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import default_icon from "@/assets/default_favicon.svg"
-import { cn, getServerIp, copyServerIp } from "@/lib/utils"
+import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -156,7 +156,7 @@ export function ServerCard({ server }: ServerCardProps) {
                     )}
                     {server.last_version ? (
                         <span className="inline-flex items-center rounded-lg border border-slate-200/55 dark:border-zinc-800 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 shadow-xs whitespace-nowrap">
-                            Version {server.last_version}
+                            Version {formatMinecraftVersion(server.last_version)}
                         </span>
                     ) : (
                         <span className="inline-flex items-center rounded-lg border border-slate-100 dark:border-zinc-800/40 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-900/30 text-slate-400 dark:text-zinc-600 shadow-xs whitespace-nowrap">

@@ -4,6 +4,7 @@ import type { User, Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { formatMinecraftVersion } from "@/lib/utils"
 import {
     Search,
     ArrowUp,
@@ -355,7 +356,7 @@ export function ServersTab({
                                                         </Badge>
                                                     )}
                                                 </span>
-                                                <span className="text-[10px] text-muted-foreground mt-0.5 font-normal">v{server.last_version || "unknown"}</span>
+                                                <span className="text-[10px] text-muted-foreground mt-0.5 font-normal">v{formatMinecraftVersion(server.last_version) || "unknown"}</span>
                                             </div>
                                         </td>
                                         <td className="p-4">
