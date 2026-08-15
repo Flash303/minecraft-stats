@@ -32,11 +32,10 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.players.online);
-            server.last_version = parse_minecraft_version_range(&ping.version.name)
-                .map(|(first, last)| format!("{} - {}", first, last))
-                .or(None);
+            server.last_version = Some(ping.version.name);
             server.last_max_players = Some(ping.players.max);
             server.last_ping_time = Some(ping.latency);
+            server.last_protocol_version = Some(ping.version.protocol as i64);
             server.last_motd = serde_json::to_value(&ping.description).ok();
 
             if let Some(players) = ping.players.sample {
@@ -66,10 +65,11 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.current_players);
-            server.last_version = Some(ping.version.clone());
+            server.last_version = Some(ping.version);
             server.last_max_players = Some(ping.max_players as i32);
             server.last_ping_time = Some(ping.latency);
-            server.last_motd = serde_json::to_value(ping.motd.clone()).ok();
+            server.last_protocol_version = Some(ping.protocol_version as i64);
+            server.last_motd = serde_json::to_value(&ping.motd).ok();
 
             // Update fingerprints
             if !server.forced_favicon {

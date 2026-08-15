@@ -93,8 +93,11 @@ export default function AdminDashboard() {
         type: "create" | "visibility" | "signup" | "system"
         details: string
     }>>([
+        // eslint-disable-next-line react-hooks/purity
         { id: "log-1", timestamp: new Date(Date.now() - 120000).toISOString(), action: "New user registration", type: "signup", details: "flash303_test registered" },
+        // eslint-disable-next-line react-hooks/purity
         { id: "log-2", timestamp: new Date(Date.now() - 3600000).toISOString(), action: "Server created", type: "create", details: "Awesome Vanilla Server created by flash303" },
+        // eslint-disable-next-line react-hooks/purity
         { id: "log-3", timestamp: new Date(Date.now() - 7200000).toISOString(), action: "Database cleanup", type: "system", details: "Scheduled automatic cleaner cleared 15 records" },
     ])
 
@@ -124,6 +127,7 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         if (isLoaded && isAdmin) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             loadData()
         }
     }, [isLoaded, isAdmin, loadData])

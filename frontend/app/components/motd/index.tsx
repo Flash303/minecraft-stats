@@ -1,6 +1,6 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 import pingIcon from "@/assets/ping.webp";
+import pingUnknownIcon from "@/assets/ping_unknown.webp";
 import default_icon from "@/assets/default_favicon.svg";
 import {
   Tooltip,
@@ -76,31 +76,37 @@ export function MinecraftMotd({
                     style={{ fontSize: `${fontHeight}px`, height: `${fontHeight}px`, marginBottom: '4px' }}
                 >
                     <span className="text-white truncate">{serverName}</span>
-                    <span className="text-[#aaaaaa] ml-auto flex items-center shrink-0">
-                        {lastSample ? (
-                            <CursorTooltip 
-                                fontHeight={fontHeight}
-                                content={
-                                    <div className="flex flex-col text-left whitespace-pre-wrap">
-                                        {lastSample.trimEnd().split('\n').map((line, i) => (
-                                            <div key={i} className="min-h-[18px]">
-                                                {parseLegacyText(line)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                }
-                            >
-                                {currentPlayers}
-                                <span className="mx-[2px] text-[#555555]">/</span>
-                                {maxPlayers}
-                            </CursorTooltip>
-                        ) : (
-                            <>
-                                {currentPlayers}
-                                <span className="mx-[2px] text-[#555555]">/</span>
-                                {maxPlayers}
-                            </>
-                        )}
+                    <span className="text-[#aaaaaa] ml-auto flex items-center shrink-0 whitespace-pre">
+                        {(() => {
+                            const playerContent = typeof currentPlayers === 'string' ? (
+                                <>{parseLegacyText("§4" + currentPlayers)}</>
+                            ) : (
+                                <>
+                                    {currentPlayers}
+                                    <span className="mx-[2px] text-[#555555]">/</span>
+                                    {maxPlayers}
+                                </>
+                            );
+
+                            return lastSample ? (
+                                <CursorTooltip 
+                                    fontHeight={fontHeight}
+                                    content={
+                                        <div className="flex flex-col text-left whitespace-pre-wrap">
+                                            {lastSample.trimEnd().split('\n').map((line, i) => (
+                                                <div key={i} className="min-h-[18px]">
+                                                    {parseLegacyText(line)}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    }
+                                >
+                                    {playerContent}
+                                </CursorTooltip>
+                            ) : (
+                                <>{playerContent}</>
+                            );
+                        })()}
                         <div className="flex items-center ml-[4px]">
                             <Tooltip delayDuration={0}>
                                 <TooltipTrigger asChild>
@@ -108,7 +114,7 @@ export function MinecraftMotd({
                                         <img
                                             className="flex-shrink-0"
                                             style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
-                                            src={pingIcon}
+                                            src={typeof currentPlayers === 'string' ? pingUnknownIcon : pingIcon}
                                             alt="ping"
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                                         />
@@ -143,4 +149,4 @@ export function MinecraftMotd({
             </div>
         </div>
     )
-}
+}

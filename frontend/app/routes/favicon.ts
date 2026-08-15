@@ -1,5 +1,5 @@
 import type { Route } from "./+types/favicon";
-import { fetchServer, API_BASE } from "@/lib/api";
+import { API_BASE } from "@/lib/api";
 
 export async function loader({ params }: Route.LoaderArgs) {
     try {

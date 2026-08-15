@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
-import { useParams, Link, useLoaderData, useRouteError, Await } from "react-router"
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react"
+import { useParams, Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer, getServerIconUrl } from "@/lib/api"
 import type { Server } from "@/lib/api"
@@ -14,11 +14,10 @@ import { BarChart } from "lucide-react"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
-import { cn } from "@/lib/utils"
+import { cn, formatMinecraftVersion } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/motd"
 
-import { data } from "react-router"
 
 export type DateRange = {
     from: Date | undefined;
@@ -33,13 +32,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         const server = await fetchServer(id, undefined, forwardedFor)
         
         return { initialServer: server, initialRecords: [], initialFrom: Infinity }
-    } catch (e) {
+    } catch {
         return { initialServer: null, initialRecords: [], initialFrom: Infinity }
     }
 }
 
 
 export const meta: MetaFunction<typeof loader> = (args) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { loaderData: data } = args as any;
     
     if (!data || !data.initialServer) {
@@ -96,6 +96,7 @@ export default function ServerDetail() {
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setServer(initialServer)
         setRawRecords(initialRecords || [])
         setLoadedFrom(initialFrom || Infinity)
@@ -148,6 +149,7 @@ export default function ServerDetail() {
                     const token = isLoaded && isSignedIn ? await getToken() : undefined;
                     const data = await fetchServer(Number(id), token ?? undefined);
                     if (data) setServer(data);
+                // eslint-disable-next-line no-empty
                 } catch {} finally {
                     if (!isBackground && !server) setLoading(false);
                 }
@@ -183,6 +185,7 @@ export default function ServerDetail() {
 
     useEffect(() => {
         if (rawRecords.length === 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRecords([])
             setAppliedRange(selectedRange)
             setAppliedInterval(selectedInterval)
@@ -368,7 +371,11 @@ export default function ServerDetail() {
                         <MinecraftMotd 
                             motd={server.last_motd} 
                             serverName={server.name}
-                            currentPlayers={server.last_connected ?? 0}
+                            currentPlayers={
+                                server.last_protocol_version != null && server.last_protocol_version <= 0 
+                                    ? formatMinecraftVersion(server.last_version, false) || "Version" 
+                                    : (server.last_connected ?? 0)
+                            }
                             maxPlayers={server.max_players ?? server.last_max_players ?? 20}
                             favicon={getServerIconUrl(server.id)}
                             pingTime={server.last_ping_time}
@@ -399,6 +406,7 @@ export default function ServerDetail() {
                                     timeRange={timeLimits}
                                     zoomResetId={`${selectedRange}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                     onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
+                                    // eslint-disable-next-line react-hooks/immutability
                                     onZoomChange={(z) => isChartZoomed.current = z}
                                     header={
                                         <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">

@@ -26,6 +26,7 @@ export function ThemeProvider({ children, serverTheme }: { children: ReactNode, 
         if (!serverTheme && !mounted) {
             const stored = localStorage.getItem("theme")
             if (stored === "light" || stored === "dark") {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setTheme(stored)
             } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
                 setTheme("dark")

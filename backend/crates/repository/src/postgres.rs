@@ -171,8 +171,9 @@ impl Repository for PostgresRepository {
                    name = $11,
                    last_ping_time = $12,
                    last_sample = $13,
-                   forced_favicon = $14
-               WHERE id = $15")
+                   forced_favicon = $14,
+                   last_protocol_version = $15
+               WHERE id = $16")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
@@ -187,6 +188,7 @@ impl Repository for PostgresRepository {
             .bind(server.last_ping_time.map(|v| v as i32))
             .bind(server.last_sample.clone())
             .bind(server.forced_favicon)
+            .bind(server.last_protocol_version)
             .bind(server.id as i32)
             .execute(&self.pool)
             .await?;
@@ -213,6 +215,7 @@ impl Repository for PostgresRepository {
         let mut last_ping_times = Vec::with_capacity(servers.len());
         let mut last_samples = Vec::with_capacity(servers.len());
         let mut forced_favicons = Vec::with_capacity(servers.len());
+        let mut last_protocol_versions = Vec::with_capacity(servers.len());
 
         for s in servers {
             ids.push(s.id as i32);
@@ -229,6 +232,7 @@ impl Repository for PostgresRepository {
             last_ping_times.push(s.last_ping_time.map(|v| v as i32));
             last_samples.push(s.last_sample.clone());
             forced_favicons.push(s.forced_favicon);
+            last_protocol_versions.push(s.last_protocol_version);
         }
 
         sqlx::query(
@@ -247,9 +251,10 @@ impl Repository for PostgresRepository {
                 last_motd = u.last_motd,
                 last_ping_time = u.last_ping_time,
                 last_sample = u.last_sample,
-                forced_favicon = u.forced_favicon
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[], $12::int4[], $13::text[], $14::bool[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd, last_ping_time, last_sample, forced_favicon)
+                forced_favicon = u.forced_favicon,
+                last_protocol_version = u.last_protocol_version
+            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[], $12::int4[], $13::text[], $14::bool[], $15::int8[])
+            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd, last_ping_time, last_sample, forced_favicon, last_protocol_version)
             WHERE s.id = u.id
             "#
         )
@@ -267,6 +272,7 @@ impl Repository for PostgresRepository {
         .bind(&last_ping_times)
         .bind(&last_samples)
         .bind(&forced_favicons)
+        .bind(&last_protocol_versions)
         .execute(&self.pool)
         .await?;
 

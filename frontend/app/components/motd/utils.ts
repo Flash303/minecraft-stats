@@ -1,5 +1,7 @@
-import { MINECRAFT_COLORS, CODE_TO_COLOR, OBFUSCATION_CHARS } from "./constants";
+import { MINECRAFT_COLORS, OBFUSCATION_CHARS } from "./constants";
 
+ 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function flattenMotd(node: any, inherited: any = {}): string {
     if (typeof node === "string") return node;
     if (Array.isArray(node)) return node.map(n => flattenMotd(n, inherited)).join("");

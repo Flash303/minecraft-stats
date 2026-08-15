@@ -12,7 +12,6 @@ const serverBuildPath = path.join(BUILD_DIR, "server", "index.js");
 
 let build;
 try {
-  // @ts-ignore
   build = await import(serverBuildPath);
 } catch (e) {
   console.error("Could not load React Router server build. Make sure to run `pnpm run build` first.", e);

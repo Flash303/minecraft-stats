@@ -123,6 +123,7 @@ export default function Account() {
 
     useEffect(() => {
         if (isLoaded) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             loadData()
             checkSubscription()
         }

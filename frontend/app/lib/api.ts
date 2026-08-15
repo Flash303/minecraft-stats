@@ -18,9 +18,11 @@ export interface Server {
     max_players?: number | null
     last_max_players?: number | null
     last_version: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     last_motd?: { [key: string]: any } | null
     last_ping_time?: number | null
     last_sample?: string | null
+    last_protocol_version?: number | null
     user_id: string
     user?: User | null
     type?: "java" | "bedrock"
@@ -69,6 +71,7 @@ export async function fetchServers(token?: string, includeStats?: boolean, forwa
         const json = await res.json()
         if (!json.success || !json.data) return []
         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
         return servers.map(server => {
             if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
@@ -104,6 +107,7 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
         const json = await res.json()
         if (!json.success || !json.data) return []
         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
         return servers.map(server => {
             if (server.data && Array.isArray(server.data) && server.data.length >= 2) {

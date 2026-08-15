@@ -4,7 +4,7 @@ import type { Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
-import { cn, getServerIp, copyServerIp } from "@/lib/utils"
+import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
 
 interface ServerDetailHeaderProps {
@@ -63,7 +63,7 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
                         </button>
                         {server.last_version && (
                             <Badge variant="secondary" className="font-mono text-[10px] whitespace-nowrap">
-                                v{server.last_version}
+                                v{formatMinecraftVersion(server.last_version)}
                             </Badge>
                         )}
                         {server.user && (

@@ -38,6 +38,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const tooltipRef = useRef<HTMLDivElement | null>(null)
     const [isZoomed, setIsZoomed] = useState(false)
     const timeRangeRef = useRef(timeRange)
+    // eslint-disable-next-line react-hooks/refs
     timeRangeRef.current = timeRange
 
 
@@ -141,7 +142,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                     overlay.style.top = `${rect.top + top - 15}px`
                     overlay.style.display = "block"
                 },
-                destroy: (_u: uPlot) => {
+                destroy: () => {
                     tooltipRef.current?.remove()
                     tooltipRef.current = null
                     mouseEnterRef.current = null
@@ -282,6 +283,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
         if (chartRef.current) {
             chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [zoomResetId])
 
     const options = useMemo(() => {
@@ -368,6 +370,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
             ],
             series: series
         } as uPlot.Options
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [serverNames, theme, tooltipPlugin, touchInteractPlugin, timeRange, language, t])
 
     return (

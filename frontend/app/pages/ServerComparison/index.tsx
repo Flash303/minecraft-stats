@@ -52,6 +52,7 @@ export default function ServerComparison() {
     useEffect(() => {
         const refreshAll = async (isBackground = false) => {
             if (!isBackground) setLoadingRecords(true)
+            // eslint-disable-next-line no-useless-assignment
             let now = 0;
             let from = 0;
             

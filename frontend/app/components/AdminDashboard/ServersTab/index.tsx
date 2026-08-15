@@ -1,35 +1,24 @@
-import { useState, useMemo } from "react"
-import { Link } from "react-router"
-import type { User, Server } from "@/lib/api"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState, useMemo } from 'react';
 import {
     Search,
     ArrowUp,
     ArrowDown,
-    Server as ServerIcon,
     User as UserIcon,
     Eye,
-    EyeOff,
-    Edit2,
-    Trash2,
-    Image as ImageIcon
+    EyeOff
 } from "lucide-react"
 import { useAuth } from "@clerk/react"
-import { renameServer, deleteServer, toggleServerVisibility, updateFavicon } from "@/lib/api"
+import { toggleServerVisibility } from "@/lib/api"
 import { ServerIcon as CustomServerIcon } from "@/components/ServerIcon"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+
+
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Link } from "react-router"
+import { formatMinecraftVersion } from "@/lib/utils"
+import type { Server, User } from "@/lib/api"
 
 interface ServersTabProps {
     servers: Server[]
@@ -118,11 +107,12 @@ export function ServersTab({
         return list
     }, [servers, serverSearchQuery, serverStatusFilter])
 
+// eslint-disable-next-line react-hooks/preserve-manual-memoization
     const sortedServers = useMemo(() => {
         const list = [...filteredServers]
         return list.sort((a, b) => {
-            let valA: any = ""
-            let valB: any = ""
+            let valA: string | number = ""
+            let valB: string | number = ""
 
             if (sortField === "name") {
                 valA = a.name.toLowerCase()
@@ -355,7 +345,7 @@ export function ServersTab({
                                                         </Badge>
                                                     )}
                                                 </span>
-                                                <span className="text-[10px] text-muted-foreground mt-0.5 font-normal">v{server.last_version || "unknown"}</span>
+                                                <span className="text-[10px] text-muted-foreground mt-0.5 font-normal">v{formatMinecraftVersion(server.last_version) || "unknown"}</span>
                                             </div>
                                         </td>
                                         <td className="p-4">
