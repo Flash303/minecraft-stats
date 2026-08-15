@@ -494,7 +494,7 @@ function SpriteImage({ src, alt, shadow, colorHex }: { src: string, alt: string,
         <span style={{ 
             display: 'inline-block',
             position: 'relative',
-            verticalAlign: 'text-bottom',
+            verticalAlign: 'text-top',
             lineHeight: 0,
             filter: shadow ? `drop-shadow(2px 2px 0px ${shadow})` : 'none' 
         }}>
@@ -519,8 +519,8 @@ function SpriteImage({ src, alt, shadow, colorHex }: { src: string, alt: string,
                 alt={alt}
                 style={{ 
                     display: 'block', 
-                    height: '1em',
-                    width: '1em',
+                    height: '0.8888em',
+                    width: '0.8888em',
                     imageRendering: 'pixelated',
                     objectFit: 'cover',
                     objectPosition: 'top',
