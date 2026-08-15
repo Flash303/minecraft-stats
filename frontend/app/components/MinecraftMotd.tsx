@@ -63,6 +63,8 @@ export type MotdComponent =
           underlined?: boolean
           strikethrough?: boolean
           obfuscated?: boolean
+          atlas?: string
+          sprite?: string
           extra?: MotdComponent[]
       }
 
@@ -132,6 +134,14 @@ function flattenMotd(node: any, inherited: any = {}): string {
         if (node.underlined && !inherited.underlined) res += "§n";
         if (node.strikethrough && !inherited.strikethrough) res += "§m";
         if (node.obfuscated && !inherited.obfuscated) res += "§k";
+    }
+
+    if (node.sprite) {
+        if (node.atlas) {
+            res += `&s{${node.atlas}|${node.sprite}};`;
+        } else {
+            res += `&s{${node.sprite}};`;
+        }
     }
 
     if (node.text) {
@@ -284,6 +294,11 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
                     font = s.substring(i, end+2);
                     i = end + 1;
                 }
+            } else if (s[i] === '&' && s[i+1] === 's' && s[i+2] === '{') {
+                const end = s.indexOf('};', i+3);
+                if (end !== -1) {
+                    i = end + 1;
+                }
             }
         }
         return color + font + formats;
@@ -319,6 +334,34 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
             const end = text.indexOf('};', i+3);
             if (end !== -1) {
                 i = end + 1;
+                continue;
+            }
+        }
+        
+        if (text[i] === '&' && text[i+1] === 's' && text[i+2] === '{') {
+            const end = text.indexOf('};', i+3);
+            if (end !== -1) {
+                if (currentWidth + 9 > maxWidth) {
+                    if (lastSpaceGlobalIndex !== -1) {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, lastSpaceGlobalIndex));
+                        i = lastSpaceGlobalIndex; 
+                        lineStartIndex = i + 1;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        lastSpaceGlobalIndex = -1;
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                    } else {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, i));
+                        lineStartIndex = i;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                        i--; // Re-process this on the new line
+                    }
+                } else {
+                    currentWidth += 9;
+                    i = end + 1;
+                }
                 continue;
             }
         }
@@ -389,8 +432,59 @@ function generateHiddenString(targetWidth: number): string {
     return res;
 }
 
+function SpriteImage({ src, alt }: { src: string, alt: string }) {
+    const imgRef = React.useRef<HTMLImageElement>(null);
+
+    React.useEffect(() => {
+        const img = imgRef.current;
+        if (!img) return;
+
+        const checkAnimate = () => {
+            const nw = img.naturalWidth;
+            const nh = img.naturalHeight;
+            if (nh > nw && nw > 0 && nh % nw === 0) {
+                const frames = nh / nw;
+                if (frames > 1 && img.getAnimations().length === 0) {
+                    img.animate([
+                        { objectPosition: '0 0%' },
+                        { objectPosition: `0 ${(frames / (frames - 1)) * 100}%` }
+                    ], {
+                        duration: frames * 100,
+                        easing: `steps(${frames}, end)`,
+                        iterations: Infinity
+                    });
+                }
+            }
+        };
+
+        if (img.complete) {
+            checkAnimate();
+        } else {
+            img.onload = checkAnimate;
+        }
+    }, [src]);
+
+    return (
+        <img 
+            ref={imgRef}
+            src={src}
+            alt={alt}
+            style={{ 
+                display: 'inline-block', 
+                height: '1em',
+                width: '1em',
+                verticalAlign: 'text-bottom',
+                imageRendering: 'pixelated',
+                objectFit: 'cover',
+                objectPosition: 'top'
+            }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+        />
+    );
+}
+
 export function parseLegacyText(text: string): React.ReactNode[] {
-    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};)/i);
+    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};)/i);
     const elements: React.ReactNode[] = [];
     
     let currentColor: string | undefined = undefined;
@@ -403,9 +497,31 @@ export function parseLegacyText(text: string): React.ReactNode[] {
 
     parts.forEach((part, i) => {
         if (!part) return;
-        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{")) {
+        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{") || part.startsWith("&s{")) {
             const code = part.toLowerCase();
-            if (code.startsWith('&f{')) {
+            if (code.startsWith('&s{')) {
+                const inner = part.substring(3, part.length - 2);
+                let atlas = 'minecraft:gui';
+                let realSpriteId = inner;
+                if (inner.includes('|')) {
+                    const split = inner.split('|');
+                    atlas = split[0];
+                    realSpriteId = split[1];
+                }
+                
+                const [namespace, path] = realSpriteId.includes(':') ? realSpriteId.split(':') : ['minecraft', realSpriteId];
+                
+                let texturePrefix = 'textures/gui/sprites';
+                if (atlas === 'minecraft:blocks' || path.startsWith('item/') || path.startsWith('block/')) {
+                    texturePrefix = 'textures';
+                }
+
+                const spriteUrl = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/26.2/assets/${namespace}/${texturePrefix}/${path}.png`;
+
+                elements.push(
+                    <SpriteImage key={`sprite-${i}`} src={spriteUrl} alt={realSpriteId} />
+                );
+            } else if (code.startsWith('&f{')) {
                 currentFont = part.substring(3, part.length - 2);
             } else if (code.startsWith('&#')) {
                 currentColor = part.substring(1, 8); // e.g. #FF0000
