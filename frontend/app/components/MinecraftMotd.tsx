@@ -549,7 +549,7 @@ function parseArgb(argb: number): string {
 }
 
 export function parseLegacyText(text: string): React.ReactNode[] {
-    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};)/i);
+    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};|\n)/i);
     const elements: React.ReactNode[] = [];
     
     let currentColor: string | undefined = undefined;
@@ -649,6 +649,11 @@ export function parseLegacyText(text: string): React.ReactNode[] {
                 }
             }
         } else {
+            if (part === '\n') {
+                elements.push('\n');
+                return;
+            }
+
             const style: React.CSSProperties = {};
             if (currentColor) style.color = currentColor;
             
