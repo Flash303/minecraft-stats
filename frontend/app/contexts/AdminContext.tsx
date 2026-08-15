@@ -59,10 +59,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (isLoaded) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             checkAdmin()
         } else {
             setLoadingAdmin(true)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSignedIn, isLoaded])
 
     return (

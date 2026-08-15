@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/refs */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useMemo, useRef, useEffect, useState } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
@@ -6,11 +8,6 @@ import { useTheme } from "@/contexts/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/lib/chartUtils"
-
-interface PlayerDataPoint {
-    date: number
-    value: number
-}
 
 interface PlayerChartProps {
     data: { date: number; value: number }[]

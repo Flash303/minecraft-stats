@@ -1,11 +1,9 @@
 import { useState } from "react"
 import type { Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Edit2, Trash2, ImageIcon } from "lucide-react"
+import { ImageIcon } from "lucide-react"
 import { useAuth } from "@clerk/react"
-import { renameServer, deleteServer, updateFavicon } from "@/lib/api"
+import { updateFavicon } from "@/lib/api"
 import {
     Dialog,
     DialogContent,
@@ -16,7 +14,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: any }) {
+export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: (key: string, options?: Record<string, string>) => string }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [favicon, setFavicon] = useState(server.last_favicon || "")

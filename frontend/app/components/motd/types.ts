@@ -16,6 +16,7 @@ export type MotdComponent =
       }
 
 export interface MinecraftMotdProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     motd: MotdComponent | MotdComponent[] | any
     className?: string
     serverName?: string

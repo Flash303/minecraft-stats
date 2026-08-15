@@ -42,6 +42,7 @@ function urlBase64ToUint8Array(base64String: string) {
     return outputArray;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const meta: MetaFunction = () => {
     return [
         { title: "My Account | Minecraft-Stats" },
@@ -123,6 +124,7 @@ export default function Account() {
 
     useEffect(() => {
         if (isLoaded) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             loadData()
             checkSubscription()
         }

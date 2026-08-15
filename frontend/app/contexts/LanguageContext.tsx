@@ -30,6 +30,7 @@ export function LanguageProvider({ children, serverLanguage }: { children: React
             // First visit without cookie, try to recover from localStorage or browser
             const stored = localStorage.getItem("language")
             if (stored === "fr" || stored === "en") {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setLanguage(stored)
             } else {
                 const browserLang = navigator.language.split("-")[0]

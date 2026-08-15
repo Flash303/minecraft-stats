@@ -3,9 +3,9 @@ import type { Server } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Edit2, Trash2, ImageIcon } from "lucide-react"
+import { Edit2 } from "lucide-react"
 import { useAuth } from "@clerk/react"
-import { renameServer, deleteServer, updateFavicon } from "@/lib/api"
+import { renameServer } from "@/lib/api"
 import {
     Dialog,
     DialogContent,
@@ -16,7 +16,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 
-export function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: any }) {
+export function RenameServerModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: (key: string, options?: Record<string, string>) => string }) {
     const { getToken } = useAuth()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(server.name)

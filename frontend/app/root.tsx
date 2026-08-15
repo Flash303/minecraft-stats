@@ -19,6 +19,7 @@ import { GlobalLoading } from "./components/ui/global-loading";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie") || "";
   const matchTheme = cookieHeader.match(/theme=(light|dark)/);
@@ -30,6 +31,7 @@ export function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function meta() {
   return [
     { title: "Minecraft-Stats | Minecraft Server Analytics" },

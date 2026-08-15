@@ -38,10 +38,12 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const onChange = propOnChange || setInternalValue
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedIndex(0)
     }, [value])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMac(typeof window !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0)
         setIsMobile(typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
     }, [])

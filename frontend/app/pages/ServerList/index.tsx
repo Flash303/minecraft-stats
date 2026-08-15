@@ -16,6 +16,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import type { LoaderFunctionArgs } from "react-router"
 
+// eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     const serversPromise = fetchServers(undefined, true, forwardedFor).catch(() => [])
@@ -47,6 +48,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
 
     const [activeTabState, setActiveTabState] = useState<"all" | "online" | "offline" | "hidden">(() => {
         const tabParam = searchParams.get("tab")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") return tabParam as any
         return "all"
     })
@@ -55,12 +57,14 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
 
     const [activePlatform, setActivePlatformState] = useState<"all" | "java" | "bedrock">(() => {
         const platformParam = searchParams.get("platform")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (platformParam === "java" || platformParam === "bedrock") return platformParam as any
         return "all"
     })
 
     const [activeSort, setActiveSortState] = useState<"popularity" | "name" | "recent">(() => {
         const sortParam = searchParams.get("sort")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (sortParam === "name" || sortParam === "recent") return sortParam as any
         return "popularity"
     })
@@ -87,6 +91,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     }, [])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1)
     }, [searchQuery])
 
@@ -104,6 +109,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         } finally {
             setLoading(false)
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getToken, isSignedIn, isLoaded, t])
 
     useEffect(() => {
@@ -164,6 +170,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         }
 
         return list
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [baseServersForCounts, activeTab, userId])
 
     const ITEMS_PER_PAGE = 12

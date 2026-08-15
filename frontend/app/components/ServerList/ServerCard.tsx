@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/lib/api"
 import { fetchRecords } from "@/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
-import default_icon from "@/assets/default_favicon.svg"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
