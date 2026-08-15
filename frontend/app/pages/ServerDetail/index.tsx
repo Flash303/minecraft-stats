@@ -16,7 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn } from "@/lib/utils"
 
-import { MinecraftMotd } from "@/components/MinecraftMotd"
+import { MinecraftMotd } from "@/components/motd"
 
 import { data } from "react-router"
 

@@ -7,7 +7,8 @@ import { cn, getServerIp, copyServerIp } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
-import { parseLegacyText, CursorTooltip } from "@/components/MinecraftMotd"
+import { parseLegacyText } from "@/components/motd/parser"
+import { CursorTooltip } from "@/components/motd/components/CursorTooltip"
 
 interface ServerCardProps {
     server: Server
