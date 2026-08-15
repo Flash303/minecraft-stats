@@ -13,6 +13,12 @@ import { ServerIcon as CustomServerIcon } from "@/components/ServerIcon"
 
 
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Link } from "react-router"
+import { formatMinecraftVersion } from "@/lib/utils"
+import type { Server, User } from "@/lib/api"
 
 interface ServersTabProps {
     servers: Server[]
