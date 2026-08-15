@@ -452,8 +452,9 @@ function generateHiddenString(targetWidth: number): string {
     return res;
 }
 
-function SpriteImage({ src, alt, shadow }: { src: string, alt: string, shadow?: string | null }) {
+function SpriteImage({ src, alt, shadow, colorHex }: { src: string, alt: string, shadow?: string | null, colorHex?: string }) {
     const imgRef = React.useRef<HTMLImageElement>(null);
+    const filterId = "tint-" + React.useId().replace(/:/g, "");
 
     React.useEffect(() => {
         const img = imgRef.current;
@@ -484,23 +485,50 @@ function SpriteImage({ src, alt, shadow }: { src: string, alt: string, shadow?: 
         }
     }, [src]);
 
+    const r = colorHex ? parseInt(colorHex.substring(1, 3), 16) / 255 : 1;
+    const g = colorHex ? parseInt(colorHex.substring(3, 5), 16) / 255 : 1;
+    const b = colorHex ? parseInt(colorHex.substring(5, 7), 16) / 255 : 1;
+    const needsTint = colorHex && colorHex.toLowerCase() !== '#ffffff';
+
     return (
-        <img 
-            ref={imgRef}
-            src={src}
-            alt={alt}
-            style={{ 
-                display: 'inline-block', 
-                height: '1em',
-                width: '1em',
-                verticalAlign: 'text-bottom',
-                imageRendering: 'pixelated',
-                objectFit: 'cover',
-                objectPosition: 'top',
-                filter: shadow ? `drop-shadow(2px 2px 0px ${shadow})` : 'none'
-            }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-        />
+        <span style={{ 
+            display: 'inline-block',
+            position: 'relative',
+            verticalAlign: 'text-bottom',
+            lineHeight: 0,
+            filter: shadow ? `drop-shadow(2px 2px 0px ${shadow})` : 'none' 
+        }}>
+            {needsTint && (
+                <svg width="0" height="0" style={{ position: 'absolute' }}>
+                    <filter id={filterId}>
+                        <feColorMatrix 
+                            type="matrix" 
+                            values={`
+                                ${r} 0 0 0 0
+                                0 ${g} 0 0 0
+                                0 0 ${b} 0 0
+                                0 0 0 1 0
+                            `} 
+                        />
+                    </filter>
+                </svg>
+            )}
+            <img 
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                style={{ 
+                    display: 'block', 
+                    height: '1em',
+                    width: '1em',
+                    imageRendering: 'pixelated',
+                    objectFit: 'cover',
+                    objectPosition: 'top',
+                    filter: needsTint ? `url(#${filterId})` : 'none'
+                }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+        </span>
     );
 }
 
@@ -560,9 +588,11 @@ export function parseLegacyText(text: string): React.ReactNode[] {
                 const shadowStr = hasShadow 
                     ? (currentShadowColor !== undefined ? parseArgb(currentShadowColor) : getShadowColor(currentColor))
                     : null;
+                    
+                const colorToPass = currentColor || CODE_TO_COLOR["7"];
 
                 elements.push(
-                    <SpriteImage key={`sprite-${i}`} src={spriteUrl} alt={realSpriteId} shadow={shadowStr} />
+                    <SpriteImage key={`sprite-${i}`} src={spriteUrl} alt={realSpriteId} shadow={shadowStr} colorHex={colorToPass} />
                 );
             } else if (code.startsWith('&f{')) {
                 currentFont = part.substring(3, part.length - 2);
