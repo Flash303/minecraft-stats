@@ -43,7 +43,7 @@ The monorepo is divided into three main sections:
 
 To run this project locally, you will need:
 
-*   [Node.js](https://nodejs.org/) (and [pnpm](https://pnpm.io/) is recommended)
+*   [Bun](https://bun.sh/) (recommended) or [Node.js](https://nodejs.org/)
 *   [Rust & Cargo](https://rustup.rs/) (version 2024 or higher)
 *   [Docker](https://www.docker.com/) and Docker Compose (for the database and full stack environment)
 *   A PostgreSQL database
