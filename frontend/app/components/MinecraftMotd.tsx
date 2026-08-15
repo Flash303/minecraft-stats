@@ -63,6 +63,9 @@ export type MotdComponent =
           underlined?: boolean
           strikethrough?: boolean
           obfuscated?: boolean
+          shadow_color?: number
+          atlas?: string
+          sprite?: string
           extra?: MotdComponent[]
       }
 
@@ -98,6 +101,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
     let needsReset = false;
     if (node.color && node.color !== inherited.color) needsReset = true;
     if (node.font && node.font !== inherited.font) needsReset = true;
+    if (node.shadow_color !== undefined && node.shadow_color !== inherited.shadow_color) needsReset = true;
     if (node.bold === false && inherited.bold) needsReset = true;
     if (node.italic === false && inherited.italic) needsReset = true;
     if (node.underlined === false && inherited.underlined) needsReset = true;
@@ -106,6 +110,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
 
     if (node.color) current.color = node.color;
     if (node.font) current.font = node.font;
+    if (node.shadow_color !== undefined) current.shadow_color = node.shadow_color;
     if (node.bold !== undefined) current.bold = node.bold;
     if (node.italic !== undefined) current.italic = node.italic;
     if (node.underlined !== undefined) current.underlined = node.underlined;
@@ -120,6 +125,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
             res += "§r";
         }
         if (current.font) res += `&f{${current.font}};`;
+        if (current.shadow_color !== undefined) res += `&h{${current.shadow_color}};`;
         if (current.bold) res += "§l";
         if (current.italic) res += "§o";
         if (current.underlined) res += "§n";
@@ -127,11 +133,20 @@ function flattenMotd(node: any, inherited: any = {}): string {
         if (current.obfuscated) res += "§k";
     } else {
         if (node.font && !inherited.font) res += `&f{${node.font}};`;
+        if (node.shadow_color !== undefined && inherited.shadow_color === undefined) res += `&h{${node.shadow_color}};`;
         if (node.bold && !inherited.bold) res += "§l";
         if (node.italic && !inherited.italic) res += "§o";
         if (node.underlined && !inherited.underlined) res += "§n";
         if (node.strikethrough && !inherited.strikethrough) res += "§m";
         if (node.obfuscated && !inherited.obfuscated) res += "§k";
+    }
+
+    if (node.sprite) {
+        if (node.atlas) {
+            res += `&s{${node.atlas}|${node.sprite}};`;
+        } else {
+            res += `&s{${node.sprite}};`;
+        }
     }
 
     if (node.text) {
@@ -149,6 +164,7 @@ function flattenMotd(node: any, inherited: any = {}): string {
         else if (typeof inherited.color === 'string' && inherited.color.startsWith("#")) res += `&${inherited.color}`;
     }
     if (inherited.font) res += `&f{${inherited.font}};`;
+    if (inherited.shadow_color !== undefined) res += `&h{${inherited.shadow_color}};`;
     if (inherited.bold) res += "§l";
     if (inherited.italic) res += "§o";
     if (inherited.underlined) res += "§n";
@@ -199,6 +215,10 @@ function ObfuscatedText({ text, isBold }: { text: string, isBold: boolean }) {
             let newText = "";
             for (let i = 0; i < text.length; i++) {
                 const c = text[i];
+                if (c === '\n' || c === ' ') {
+                    newText += c;
+                    continue;
+                }
                 const w = getCharWidth(c, isBold);
                 const options = map[w];
                 if (options && options.length > 0) {
@@ -216,6 +236,9 @@ function ObfuscatedText({ text, isBold }: { text: string, isBold: boolean }) {
     return (
         <>
             {scrambled.split('').map((char, i) => {
+                if (char === '\n' || char === ' ') {
+                    return <span key={i}>{char}</span>;
+                }
                 const advance = getCharWidth(char, isBold);
                 return (
                     <span 
@@ -284,6 +307,17 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
                     font = s.substring(i, end+2);
                     i = end + 1;
                 }
+            } else if (s[i] === '&' && s[i+1] === 's' && s[i+2] === '{') {
+                const end = s.indexOf('};', i+3);
+                if (end !== -1) {
+                    i = end + 1;
+                }
+            } else if (s[i] === '&' && s[i+1] === 'h' && s[i+2] === '{') {
+                const end = s.indexOf('};', i+3);
+                if (end !== -1) {
+                    formats += s.substring(i, end+2);
+                    i = end + 1;
+                }
             }
         }
         return color + font + formats;
@@ -319,6 +353,42 @@ function wrapMinecraftText(text: string, maxWidth: number): string {
             const end = text.indexOf('};', i+3);
             if (end !== -1) {
                 i = end + 1;
+                continue;
+            }
+        }
+        
+        if (text[i] === '&' && text[i+1] === 'h' && text[i+2] === '{') {
+            const end = text.indexOf('};', i+3);
+            if (end !== -1) {
+                i = end + 1;
+                continue;
+            }
+        }
+        
+        if (text[i] === '&' && text[i+1] === 's' && text[i+2] === '{') {
+            const end = text.indexOf('};', i+3);
+            if (end !== -1) {
+                if (currentWidth + 9 > maxWidth) {
+                    if (lastSpaceGlobalIndex !== -1) {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, lastSpaceGlobalIndex));
+                        i = lastSpaceGlobalIndex; 
+                        lineStartIndex = i + 1;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        lastSpaceGlobalIndex = -1;
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                    } else {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, i));
+                        lineStartIndex = i;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                        i--; // Re-process this on the new line
+                    }
+                } else {
+                    currentWidth += 9;
+                    i = end + 1;
+                }
                 continue;
             }
         }
@@ -389,12 +459,109 @@ function generateHiddenString(targetWidth: number): string {
     return res;
 }
 
+function SpriteImage({ src, alt, shadow, colorHex }: { src: string, alt: string, shadow?: string | null, colorHex?: string }) {
+    const imgRef = React.useRef<HTMLImageElement>(null);
+    const filterId = "tint-" + React.useId().replace(/:/g, "");
+
+    React.useEffect(() => {
+        const img = imgRef.current;
+        if (!img) return;
+
+        const checkAnimate = () => {
+            const nw = img.naturalWidth;
+            const nh = img.naturalHeight;
+            if (nh > nw && nw > 0 && nh % nw === 0) {
+                const frames = nh / nw;
+                if (frames > 1 && img.getAnimations().length === 0) {
+                    img.animate([
+                        { objectPosition: '0 0%' },
+                        { objectPosition: `0 ${(frames / (frames - 1)) * 100}%` }
+                    ], {
+                        duration: frames * 100,
+                        easing: `steps(${frames}, end)`,
+                        iterations: Infinity
+                    });
+                }
+            }
+        };
+
+        if (img.complete) {
+            checkAnimate();
+        } else {
+            img.onload = checkAnimate;
+        }
+    }, [src]);
+
+    const r = colorHex ? parseInt(colorHex.substring(1, 3), 16) / 255 : 1;
+    const g = colorHex ? parseInt(colorHex.substring(3, 5), 16) / 255 : 1;
+    const b = colorHex ? parseInt(colorHex.substring(5, 7), 16) / 255 : 1;
+    const needsTint = colorHex && colorHex.toLowerCase() !== '#ffffff';
+
+    return (
+        <span style={{ 
+            display: 'inline-block',
+            position: 'relative',
+            verticalAlign: 'text-top',
+            lineHeight: 0,
+            filter: shadow ? `drop-shadow(2px 2px 0px ${shadow})` : 'none' 
+        }}>
+            {needsTint && (
+                <svg width="0" height="0" style={{ position: 'absolute' }}>
+                    <filter id={filterId}>
+                        <feColorMatrix 
+                            type="matrix" 
+                            values={`
+                                ${r} 0 0 0 0
+                                0 ${g} 0 0 0
+                                0 0 ${b} 0 0
+                                0 0 0 1 0
+                            `} 
+                        />
+                    </filter>
+                </svg>
+            )}
+            <img 
+                ref={imgRef}
+                src={src}
+                alt={alt}
+                style={{ 
+                    display: 'block', 
+                    height: '0.8888em',
+                    width: '0.8888em',
+                    imageRendering: 'pixelated',
+                    objectFit: 'cover',
+                    objectPosition: 'top',
+                    filter: needsTint ? `url(#${filterId})` : 'none'
+                }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+        </span>
+    );
+}
+
+function getShadowColor(colorHex: string | undefined): string {
+    if (!colorHex) return "rgba(0,0,0,1)";
+    const r = Math.floor(parseInt(colorHex.substring(1, 3), 16) * 0.25);
+    const g = Math.floor(parseInt(colorHex.substring(3, 5), 16) * 0.25);
+    const b = Math.floor(parseInt(colorHex.substring(5, 7), 16) * 0.25);
+    return `rgba(${r}, ${g}, ${b}, 1)`;
+}
+
+function parseArgb(argb: number): string {
+    const a = ((argb >> 24) & 0xFF) / 255;
+    const r = (argb >> 16) & 0xFF;
+    const g = (argb >> 8) & 0xFF;
+    const b = argb & 0xFF;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 export function parseLegacyText(text: string): React.ReactNode[] {
-    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};)/i);
+    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};|\n)/i);
     const elements: React.ReactNode[] = [];
     
     let currentColor: string | undefined = undefined;
     let currentFont: string | undefined = undefined;
+    let currentShadowColor: number | undefined = undefined;
     let currentBold = false;
     let currentItalic = false;
     let currentUnderlined = false;
@@ -403,10 +570,46 @@ export function parseLegacyText(text: string): React.ReactNode[] {
 
     parts.forEach((part, i) => {
         if (!part) return;
-        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{")) {
+        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{") || part.startsWith("&s{") || part.startsWith("&h{")) {
             const code = part.toLowerCase();
-            if (code.startsWith('&f{')) {
+            if (code.startsWith('&s{')) {
+                const inner = part.substring(3, part.length - 2);
+                let atlas = 'minecraft:gui';
+                let realSpriteId = inner;
+                if (inner.includes('|')) {
+                    const split = inner.split('|');
+                    atlas = split[0];
+                    realSpriteId = split[1];
+                }
+                
+                const [namespace, path] = realSpriteId.includes(':') ? realSpriteId.split(':') : ['minecraft', realSpriteId];
+                
+                let texturePrefix = 'textures/gui/sprites';
+                if (atlas === 'minecraft:blocks' || path.startsWith('item/') || path.startsWith('block/')) {
+                    texturePrefix = 'textures';
+                }
+
+                const spriteUrl = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/26.2/assets/${namespace}/${texturePrefix}/${path}.png`;
+
+                const hasShadow = currentShadowColor !== 0;
+                const shadowStr = hasShadow 
+                    ? (currentShadowColor !== undefined ? parseArgb(currentShadowColor) : getShadowColor(currentColor))
+                    : null;
+                    
+                const colorToPass = currentColor || CODE_TO_COLOR["7"];
+
+                elements.push(
+                    <SpriteImage key={`sprite-${i}`} src={spriteUrl} alt={realSpriteId} shadow={shadowStr} colorHex={colorToPass} />
+                );
+            } else if (code.startsWith('&f{')) {
                 currentFont = part.substring(3, part.length - 2);
+            } else if (code.startsWith('&h{')) {
+                const val = part.substring(3, part.length - 2);
+                if (val === '') {
+                    currentShadowColor = undefined;
+                } else {
+                    currentShadowColor = parseInt(val, 10);
+                }
             } else if (code.startsWith('&#')) {
                 currentColor = part.substring(1, 8); // e.g. #FF0000
                 currentBold = false;
@@ -448,12 +651,23 @@ export function parseLegacyText(text: string): React.ReactNode[] {
                         currentUnderlined = false;
                         currentStrikethrough = false;
                         currentObfuscated = false;
+                        currentShadowColor = undefined;
                         break;
                 }
             }
         } else {
+            if (part === '\n') {
+                elements.push('\n');
+                return;
+            }
+
             const style: React.CSSProperties = {};
             if (currentColor) style.color = currentColor;
+            
+            const hasShadow = currentShadowColor !== 0;
+            if (hasShadow) {
+                style.textShadow = `2px 2px 0px ${currentShadowColor !== undefined ? parseArgb(currentShadowColor) : getShadowColor(currentColor)}`;
+            }
             
             elements.push(
                 <span 
