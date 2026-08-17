@@ -26,6 +26,7 @@ export function Hero3D() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const hoveredPointRef = useRef<number | null>(null)
+    const isVisibleRef = useRef<boolean>(true)
 
     // Track mouse hover to highlight nodes
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -53,6 +54,20 @@ export function Hero3D() {
     const handleMouseLeave = () => {
         hoveredPointRef.current = null
     }
+
+    // Pause animation when off-screen
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                isVisibleRef.current = entry.isIntersecting
+            },
+            { threshold: 0 }
+        )
+        if (containerRef.current) {
+            observer.observe(containerRef.current)
+        }
+        return () => observer.disconnect()
+    }, [])
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -107,6 +122,11 @@ export function Hero3D() {
         }
 
         const render = () => {
+            if (!isVisibleRef.current) {
+                animationFrameId = requestAnimationFrame(render)
+                return
+            }
+
             ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
             const isDark = document.documentElement.classList.contains("dark")
