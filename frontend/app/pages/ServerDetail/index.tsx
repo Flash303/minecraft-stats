@@ -21,8 +21,14 @@ import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn, formatMinecraftVersion } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/motd"
-import { getLabyModServerInfo } from "@/lib/labymod"
-import type { LabyModServer } from "@/lib/labymod"
+import {
+    getLabyModServerInfo,
+    type LabyModServer
+} from "@/lib/labymod"
+import {
+    getLunarServerInfo,
+    type LunarServer
+} from "@/lib/lunar"
 import { ServerSidebar } from "@/components/ServerDetail/ServerSidebar"
 
 export type DateRange = {
@@ -157,11 +163,20 @@ export default function ServerDetail() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [labyManifest, setLabyManifest] = useState<any | undefined>()
 
+    const [lunarServerInfo, setLunarServerInfo] = useState<
+        LunarServer | undefined
+    >()
+
     const labyBackground = labyServerInfo?.attachments?.find(
         (a) =>
             a.file_name === "background.webp" ||
             a.file_name === "background.png"
     )?.url
+
+    const lunarBackground = lunarServerInfo?.images?.background;
+    
+    // Prioritize Lunar Client background if LabyMod is missing
+    const backgroundUrl = labyBackground || lunarBackground;
 
     useEffect(() => {
         if (server?.ip) {
@@ -176,6 +191,11 @@ export default function ServerDetail() {
                             .then(data => setLabyManifest(data))
                             .catch(console.error)
                     }
+                }
+            })
+            getLunarServerInfo(server.ip).then((info) => {
+                if (info) {
+                    setLunarServerInfo(info);
                 }
             })
         }
@@ -550,7 +570,7 @@ export default function ServerDetail() {
                                 favicon={getServerIconUrl(server.id)}
                                 pingTime={server.last_ping_time}
                                 lastSample={server.last_sample}
-                                backgroundUrl={labyBackground}
+                                backgroundUrl={backgroundUrl}
                             />
                         </div>
                     </div>
@@ -658,6 +678,7 @@ export default function ServerDetail() {
                         <ServerSidebar
                             labyServerInfo={labyServerInfo}
                             labyManifest={labyManifest}
+                            lunarServerInfo={lunarServerInfo}
                             serverName={server.name}
                         />
                     </div>
