@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuth, useUser, UserProfile } from "@clerk/react"
-import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/lib/api"
-import type { Server, Alert } from "@/lib/api"
-import { useLayoutConfig } from "@/components/layout"
-import { ServerCard } from "@/components/ServerList/ServerCard"
-import { ServerCardSkeleton } from "@/components/ServerList/ServerCardSkeleton"
-import { useLanguage } from "@/contexts/LanguageContext"
-import { Button } from "@/components/ui/button"
+import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/core/lib/api"
+import type { Server, Alert } from "@/core/lib/api"
+import { useLayoutConfig } from "@/ui/layout"
+import { ServerCard } from "@/pages/home/components/ServerCard"
+import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
+import { useLanguage } from "@/core/contexts/LanguageContext"
+import { Button } from "@/ui/components/button"
 import {
     Dialog,
     DialogContent,
@@ -15,9 +15,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/ui/components/dialog"
+import { Input } from "@/ui/components/input"
+import { Label } from "@/ui/components/label"
 import { Edit2, Server as ServerIcon, Bell, BellOff, Trash2, ShieldAlert, CheckCircle2, User, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
 import type { MetaFunction } from "react-router"

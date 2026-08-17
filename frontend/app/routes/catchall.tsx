@@ -1,5 +1,5 @@
 import { isRouteErrorResponse, useRouteError } from "react-router";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/core/contexts/LanguageContext";
 
 export function ErrorBoundary() {
   const error = useRouteError();
