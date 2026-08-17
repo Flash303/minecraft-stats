@@ -10,8 +10,7 @@ import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
-import { JavaLogo } from "@/ui/components/JavaLogo"
-import { BedrockLogo } from "@/ui/components/BedrockLogo"
+import { PlatformBadge } from "@/ui/components/PlatformBadge"
 import { Link } from "react-router"
 
 interface ServerCardProps {
@@ -151,26 +150,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
             {/* Bottom row: Version badge and stats info */}
             <div className="flex flex-row items-center justify-between gap-2 w-full pt-2 border-t border-slate-100/50 dark:border-zinc-800/30">
                 <div className="flex flex-row items-center gap-1.5 truncate">
-                    {server.type && (
-                        <span className={cn(
-                            "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[10px] font-semibold shadow-xs whitespace-nowrap",
-                            server.type === "java" 
-                                ? "border-amber-200/50 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 dark:border-amber-800/30"
-                                : "border-indigo-200/50 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 dark:border-indigo-800/30"
-                        )}>
-                            {server.type === "java" ? (
-                                <>
-                                    <JavaLogo className="w-2.5 h-2.5" />
-                                    Java
-                                </>
-                            ) : (
-                                <>
-                                    <BedrockLogo className="w-2.5 h-2.5" />
-                                    Bedrock
-                                </>
-                            )}
-                        </span>
-                    )}
+                    {server.type && <PlatformBadge type={server.type} />}
                     {server.last_version ? (
                         <span className="inline-flex items-center rounded-lg border border-slate-200/55 dark:border-zinc-800 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 shadow-xs whitespace-nowrap">
                             {t("common.version", { version: formatMinecraftVersion(server.last_version) })}

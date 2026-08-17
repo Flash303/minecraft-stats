@@ -8,6 +8,7 @@ import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/li
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
+import { PlatformBadge } from "@/ui/components/PlatformBadge"
 
 interface ServerDetailHeaderProps {
     server: Server
@@ -66,6 +67,7 @@ export function ServerDetailHeader({ server, t, locale, hasLunar, hasLabyMod }: 
                             {isOnline ? <Wifi className="h-2.5 w-2.5" /> : <WifiOff className="h-2.5 w-2.5" />}
                             {isOnline ? t("common.online") : t("common.offline")}
                         </div>
+                        {server.type && <PlatformBadge type={server.type} />}
                         <button 
                             onClick={handleCopy}
                             className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none"
