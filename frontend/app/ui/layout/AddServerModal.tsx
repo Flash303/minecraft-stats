@@ -129,7 +129,7 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                                 </SelectItem>
                                 <SelectItem value="bedrock">
                                     <span className="flex items-center gap-2">
-                                        <BedrockLogo className="w-3.5 h-3.5 text-indigo-500" />
+                                        <BedrockLogo className="w-3.5 h-3.5" />
                                         Bedrock
                                     </span>
                                 </SelectItem>

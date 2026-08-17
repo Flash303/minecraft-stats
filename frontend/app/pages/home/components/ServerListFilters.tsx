@@ -424,7 +424,7 @@ export function ServerListFilters({
                                         {
                                             value: "bedrock",
                                             label: t("serverList.filters.bedrock") || "Bedrock",
-                                            icon: <BedrockLogo className="w-3.5 h-3.5 text-indigo-500" />,
+                                            icon: <BedrockLogo className="w-3.5 h-3.5" />,
                                         },
                                     ]}
                                 />
