@@ -8,6 +8,21 @@ export interface LabyModServer {
     file_name: string;
     url: string;
   }[];
+  social?: {
+    web?: string;
+    web_shop?: string;
+    twitter?: string;
+    tiktok?: string;
+    instagram?: string;
+    discord?: string;
+    youtube?: string;
+  };
+  gamemodes?: Record<string, {
+    name: string;
+    color?: string;
+    command?: string;
+  }>;
+  user_stats?: string;
 }
 
 let cachedLabyServers: LabyModServer[] | null = null;
@@ -70,11 +85,15 @@ export function matchesLabyMod(ip: string, labyServer: LabyModServer): boolean {
   return false;
 }
 
-export async function getLabyModBackground(ip: string): Promise<string | undefined> {
+export async function getLabyModServerInfo(ip: string): Promise<LabyModServer | undefined> {
   if (!ip) return undefined;
   
   const servers = await fetchLabyModServers();
-  const matchedServer = servers.find((s) => matchesLabyMod(ip, s));
+  return servers.find((s) => matchesLabyMod(ip, s));
+}
+
+export async function getLabyModBackground(ip: string): Promise<string | undefined> {
+  const matchedServer = await getLabyModServerInfo(ip);
   
   if (matchedServer && matchedServer.attachments) {
     return matchedServer.attachments.find(

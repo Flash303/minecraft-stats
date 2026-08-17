@@ -102,7 +102,14 @@
     "interval1m": "1 min",
     "interval5m": "5 min",
     "interval30m": "30 min",
-    "interval1h": "1 hour"
+    "interval1h": "1 hour",
+    "sidebar": {
+      "socials": "Socials",
+      "playerStats": "Player Stats",
+      "searchPlayer": "Search player...",
+      "gamemodes": "Gamemodes",
+      "labymodInfo": "LabyMod Info"
+    }
   },
   "comparison": {
     "title": "Server Comparison",

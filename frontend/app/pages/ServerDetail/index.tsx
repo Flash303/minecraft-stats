@@ -3,7 +3,11 @@ import { useParams, Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchRecords, fetchServer, getServerIconUrl } from "@/lib/api"
 import type { Server } from "@/lib/api"
-const PlayerChart = lazy(() => import("@/components/ServerDetail/PlayerChart").then(m => ({ default: m.PlayerChart })))
+const PlayerChart = lazy(() =>
+    import("@/components/ServerDetail/PlayerChart").then((m) => ({
+        default: m.PlayerChart
+    }))
+)
 import { ServerDetailHeader } from "@/components/ServerDetail/ServerDetailHeader"
 import { TimeIntervalSelector } from "@/components/ServerDetail/TimeIntervalSelector"
 import { StatsSection } from "@/components/ServerDetail/StatsSection"
@@ -17,69 +21,107 @@ import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn, formatMinecraftVersion } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/motd"
-import { getLabyModBackground } from "@/lib/labymod"
-
+import { getLabyModServerInfo } from "@/lib/labymod"
+import type { LabyModServer } from "@/lib/labymod"
+import { ServerSidebar } from "@/components/ServerDetail/ServerSidebar"
 
 export type DateRange = {
-    from: Date | undefined;
-    to?: Date | undefined;
-};
+    from: Date | undefined
+    to?: Date | undefined
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-    if (!params.id) return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+    if (!params.id)
+        return {
+            initialServer: null,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
     try {
         const id = Number(params.id)
-        const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
+        const forwardedFor =
+            request.headers.get("x-forwarded-for") ||
+            request.headers.get("cf-connecting-ip") ||
+            request.headers.get("x-real-ip")
         const server = await fetchServer(id, undefined, forwardedFor)
-        
-        return { initialServer: server, initialRecords: [], initialFrom: Infinity }
+
+        return {
+            initialServer: server,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
     } catch {
-        return { initialServer: null, initialRecords: [], initialFrom: Infinity }
+        return {
+            initialServer: null,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
     }
 }
 
-
 export const meta: MetaFunction<typeof loader> = (args) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { loaderData: data } = args as any;
-    
+    const { loaderData: data } = args as any
+
     if (!data || !data.initialServer) {
         return [
             { title: "Server Not Found | Minecraft-Stats" },
             { name: "description", content: "Minecraft server not found." }
-        ];
+        ]
     }
-    const server = data.initialServer;
-    const title = `${server.name} - Minecraft Server Stats | Minecraft-Stats`;
-    const isOnline = server.last_status === "online";
-    const players = isOnline ? new Intl.NumberFormat('en-US').format(server.last_connected ?? 0) : 0;
-    const playersText = isOnline ? ` 🟢 Online: ${players} players.` : (server.last_status === "offline" ? ` 🔴 Offline.` : "");
-    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).${playersText}`;
+    const server = data.initialServer
+    const title = `${server.name} - Minecraft Server Stats | Minecraft-Stats`
+    const isOnline = server.last_status === "online"
+    const players = isOnline
+        ? new Intl.NumberFormat("en-US").format(server.last_connected ?? 0)
+        : 0
+    const playersText = isOnline
+        ? ` 🟢 Online: ${players} players.`
+        : server.last_status === "offline"
+          ? ` 🔴 Offline.`
+          : ""
+    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).${playersText}`
     return [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
-        { property: "og:image", content: `https://mc-stats.fr/api/favicon/${server.id}` },
+        {
+            property: "og:image",
+            content: `https://mc-stats.fr/api/favicon/${server.id}`
+        },
         { property: "twitter:card", content: "summary_large_image" },
         { property: "twitter:title", content: title },
         { property: "twitter:description", content: description },
-        { property: "twitter:image", content: `https://mc-stats.fr/api/favicon/${server.id}` }
-    ];
-};
+        {
+            property: "twitter:image",
+            content: `https://mc-stats.fr/api/favicon/${server.id}`
+        }
+    ]
+}
 
 export default function ServerDetail() {
     const { t, language } = useLanguage()
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
-    
+
     const loaderData = useLoaderData<typeof loader>()
     const { initialServer, initialRecords, initialFrom } = loaderData || {}
     const [server, setServer] = useState<Server | null>(initialServer || null)
     const [loading, setLoading] = useState(initialServer ? false : true)
-    const [loadingRecords, setLoadingRecords] = useState(initialRecords && initialRecords.length > 0 ? false : true)
+    const [loadingRecords, setLoadingRecords] = useState(
+        initialRecords && initialRecords.length > 0 ? false : true
+    )
     const [refreshCount, setRefreshCount] = useState(0)
-    const lastFetchParams = useRef<{ id?: string, range?: number, interval?: number, customFrom?: number, customTo?: number, isLoaded?: boolean, refreshCount?: number }>({ refreshCount: 0 })
+    const lastFetchParams = useRef<{
+        id?: string
+        range?: number
+        interval?: number
+        customFrom?: number
+        customTo?: number
+        isLoaded?: boolean
+        refreshCount?: number
+    }>({ refreshCount: 0 })
 
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -89,18 +131,40 @@ export default function ServerDetail() {
     const [appliedRange, setAppliedRange] = useState(86400000)
     const [appliedInterval, setAppliedInterval] = useState(60000)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
-    const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
-    const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
-    const [visibleRange, setVisibleRange] = useState<{ min: number; max: number } | null>(null)
-    const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>(initialRecords || [])
-    const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
-    const [records, setRecords] = useState<{ date: number; value: number }[]>([])
-    const [labyBackground, setLabyBackground] = useState<string | undefined>()
+    const [appliedCustomRange, setAppliedCustomRange] = useState<
+        DateRange | undefined
+    >()
+    const [timeLimits, setTimeLimits] = useState<{ from: number; to: number }>({
+        from: 0,
+        to: 0
+    })
+    const [visibleRange, setVisibleRange] = useState<{
+        min: number
+        max: number
+    } | null>(null)
+    const [rawRecords, setRawRecords] = useState<
+        { date: number; value: number }[]
+    >(initialRecords || [])
+    const [loadedFrom, setLoadedFrom] = useState<number>(
+        initialFrom || Infinity
+    )
+    const [records, setRecords] = useState<{ date: number; value: number }[]>(
+        []
+    )
+    const [labyServerInfo, setLabyServerInfo] = useState<
+        LabyModServer | undefined
+    >()
+
+    const labyBackground = labyServerInfo?.attachments?.find(
+        (a) =>
+            a.file_name === "background.webp" ||
+            a.file_name === "background.png"
+    )?.url
 
     useEffect(() => {
         if (server?.ip) {
-            getLabyModBackground(server.ip).then(url => {
-                if (url) setLabyBackground(url)
+            getLabyModServerInfo(server.ip).then((info) => {
+                if (info) setLabyServerInfo(info)
             })
         }
     }, [server?.ip])
@@ -113,10 +177,10 @@ export default function ServerDetail() {
         setRecords([])
         setLoading(initialServer ? false : true)
     }, [id, initialServer, initialRecords, initialFrom])
- 
+
     useEffect(() => {
-        if (!id) return;
-        
+        if (!id) return
+
         const currentParams = {
             id,
             range: selectedRange,
@@ -128,70 +192,116 @@ export default function ServerDetail() {
             serverId: server?.id,
             hasNoRecords: rawRecords.length === 0,
             loadedFrom
-        };
+        }
 
-        const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams);
-        if (!paramsChanged) return;
-        
-        const prevParams = lastFetchParams.current;
-        lastFetchParams.current = currentParams;
+        const paramsChanged =
+            JSON.stringify(lastFetchParams.current) !==
+            JSON.stringify(currentParams)
+        if (!paramsChanged) return
 
-        let now = 0;
-        let from = 0;
-        
+        const prevParams = lastFetchParams.current
+        lastFetchParams.current = currentParams
+
+        let now = 0
+        let from = 0
+
         if (selectedRange === -1) {
-            if (!customRange?.from || !customRange?.to) return;
-            from = Math.floor(customRange.from.getTime() / 1000);
-            now = Math.floor(customRange.to.getTime() / 1000) + 86399;
+            if (!customRange?.from || !customRange?.to) return
+            from = Math.floor(customRange.from.getTime() / 1000)
+            now = Math.floor(customRange.to.getTime() / 1000) + 86399
         } else {
-            now = Math.floor(Date.now() / 1000);
-            from = now - Math.floor(selectedRange / 1000);
+            now = Math.floor(Date.now() / 1000)
+            from = now - Math.floor(selectedRange / 1000)
         }
 
-        const isRefresh = prevParams.refreshCount !== currentParams.refreshCount;
-        const clerkJustLoaded = prevParams.isLoaded === false && currentParams.isLoaded === true;
-        const isBackground = isRefresh || clerkJustLoaded;
+        const isRefresh = prevParams.refreshCount !== currentParams.refreshCount
+        const clerkJustLoaded =
+            prevParams.isLoaded === false && currentParams.isLoaded === true
+        const isBackground = isRefresh || clerkJustLoaded
 
-        if (!server || server.id !== Number(id) || isRefresh || clerkJustLoaded) {
+        if (
+            !server ||
+            server.id !== Number(id) ||
+            isRefresh ||
+            clerkJustLoaded
+        ) {
             const fetchSrv = async () => {
-                if (!isBackground && !server) setLoading(true);
+                if (!isBackground && !server) setLoading(true)
                 try {
-                    const token = isLoaded && isSignedIn ? await getToken() : undefined;
-                    const data = await fetchServer(Number(id), token ?? undefined);
-                    if (data) setServer(data);
-                // eslint-disable-next-line no-empty
-                } catch {} finally {
-                    if (!isBackground && !server) setLoading(false);
+                    const token =
+                        isLoaded && isSignedIn ? await getToken() : undefined
+                    const data = await fetchServer(
+                        Number(id),
+                        token ?? undefined
+                    )
+                    if (data) setServer(data)
+                    // eslint-disable-next-line no-empty
+                } catch {
+                } finally {
+                    if (!isBackground && !server) setLoading(false)
                 }
-            };
-            fetchSrv();
+            }
+            fetchSrv()
         }
 
-        if (from < loadedFrom || rawRecords.length === 0 || isRefresh || clerkJustLoaded) {
+        if (
+            from < loadedFrom ||
+            rawRecords.length === 0 ||
+            isRefresh ||
+            clerkJustLoaded
+        ) {
             const fetchRec = async () => {
-                if (!isBackground) setLoadingRecords(true);
+                if (!isBackground) setLoadingRecords(true)
                 try {
-                    const token = isLoaded && isSignedIn ? await getToken() : undefined;
-                    const data = await fetchRecords(Number(id), from, undefined, token ?? undefined);
-                    
+                    const token =
+                        isLoaded && isSignedIn ? await getToken() : undefined
+                    const data = await fetchRecords(
+                        Number(id),
+                        from,
+                        undefined,
+                        token ?? undefined
+                    )
+
                     if (isBackground && isChartZoomed.current) {
-                        return;
+                        return
                     }
-                    
-                    setRawRecords(data);
-                    setLoadedFrom(from);
-                    setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
+
+                    setRawRecords(data)
+                    setLoadedFrom(from)
+                    setTimeLimits((prev) =>
+                        prev.from === from && prev.to === now
+                            ? prev
+                            : { from, to: now }
+                    )
                 } catch {
-                    if (rawRecords.length === 0 && !(isBackground && isChartZoomed.current)) setRawRecords([]);
+                    if (
+                        rawRecords.length === 0 &&
+                        !(isBackground && isChartZoomed.current)
+                    )
+                        setRawRecords([])
                 } finally {
-                    if (!isBackground) setLoadingRecords(false);
+                    if (!isBackground) setLoadingRecords(false)
                 }
-            };
-            fetchRec();
+            }
+            fetchRec()
         } else {
-            setTimeLimits(prev => (prev.from === from && prev.to === now) ? prev : { from, to: now });
+            setTimeLimits((prev) =>
+                prev.from === from && prev.to === now ? prev : { from, to: now }
+            )
         }
-    }, [id, selectedRange, selectedInterval, customRange, isLoaded, isSignedIn, getToken, server, loadedFrom, rawRecords.length, refreshCount]);
+    }, [
+        id,
+        selectedRange,
+        selectedInterval,
+        customRange,
+        isLoaded,
+        isSignedIn,
+        getToken,
+        server,
+        loadedFrom,
+        rawRecords.length,
+        refreshCount
+    ])
 
     useEffect(() => {
         if (rawRecords.length === 0) {
@@ -202,34 +312,39 @@ export default function ServerDetail() {
             setAppliedCustomRange(customRange)
             return
         }
-        
+
         // Wait until both dates are selected
         if (selectedRange === -1 && (!customRange?.from || !customRange?.to)) {
-            return;
+            return
         }
-        
+
         const timer = setTimeout(() => {
-            let now = 0;
-            let from = 0;
-            
+            let now = 0
+            let from = 0
+
             if (selectedRange === -1 && customRange?.from && customRange?.to) {
-                from = Math.floor(customRange.from.getTime() / 1000);
-                now = Math.floor(customRange.to.getTime() / 1000) + 86399;
+                from = Math.floor(customRange.from.getTime() / 1000)
+                now = Math.floor(customRange.to.getTime() / 1000) + 86399
             } else {
-                now = Math.floor(Date.now() / 1000);
-                from = now - Math.floor(selectedRange / 1000);
+                now = Math.floor(Date.now() / 1000)
+                from = now - Math.floor(selectedRange / 1000)
             }
-            
+
             // Filter raw records within selected range
-            const filtered = rawRecords.filter(r => r.date >= from && r.date <= now)
-            
+            const filtered = rawRecords.filter(
+                (r) => r.date >= from && r.date <= now
+            )
+
             if (selectedInterval && selectedInterval > 0) {
                 const intervalSec = selectedInterval / 1000
-                const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
+                const buckets: {
+                    [bucketTime: number]: { sum: number; count: number }
+                } = {}
 
                 for (let i = 0; i < filtered.length; i++) {
                     const r = filtered[i]
-                    const bucketTime = Math.floor(r.date / intervalSec) * intervalSec
+                    const bucketTime =
+                        Math.floor(r.date / intervalSec) * intervalSec
                     if (!buckets[bucketTime]) {
                         buckets[bucketTime] = { sum: 0, count: 0 }
                     }
@@ -237,68 +352,78 @@ export default function ServerDetail() {
                     buckets[bucketTime].count += 1
                 }
 
-                const newRecords = Object.keys(buckets).map(k => {
-                    const bucketTime = Number(k)
-                    const b = buckets[bucketTime]
-                    return {
-                        date: bucketTime,
-                        value: Math.round(b.sum / b.count)
-                    }
-                }).sort((a, b) => a.date - b.date)
-                
+                const newRecords = Object.keys(buckets)
+                    .map((k) => {
+                        const bucketTime = Number(k)
+                        const b = buckets[bucketTime]
+                        return {
+                            date: bucketTime,
+                            value: Math.round(b.sum / b.count)
+                        }
+                    })
+                    .sort((a, b) => a.date - b.date)
+
                 setRecords(newRecords)
             } else {
                 setRecords(filtered)
             }
-            
+
             setAppliedRange(selectedRange)
             setAppliedInterval(selectedInterval)
             setAppliedCustomRange(customRange)
         }, 10) // small delay to ensure UI paints
-        
+
         return () => clearTimeout(timer)
     }, [rawRecords, selectedRange, selectedInterval, customRange])
- 
+
     const isChartZoomed = useRef(false)
 
     useEffect(() => {
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && !isChartZoomed.current) {
-                setRefreshCount(c => c + 1)
+            if (
+                document.visibilityState === "visible" &&
+                !isChartZoomed.current
+            ) {
+                setRefreshCount((c) => c + 1)
             }
         }
-        window.addEventListener('visibilitychange', handleVisibilityChange)
-        window.addEventListener('focus', handleVisibilityChange)
+        window.addEventListener("visibilitychange", handleVisibilityChange)
+        window.addEventListener("focus", handleVisibilityChange)
         return () => {
-            window.removeEventListener('visibilitychange', handleVisibilityChange)
-            window.removeEventListener('focus', handleVisibilityChange)
+            window.removeEventListener(
+                "visibilitychange",
+                handleVisibilityChange
+            )
+            window.removeEventListener("focus", handleVisibilityChange)
         }
     }, [])
 
     useEffect(() => {
-        if (!server) return;
-        const script = document.createElement("script");
-        script.type = "application/ld+json";
-        script.id = "schema-server-detail";
-        
+        if (!server) return
+        const script = document.createElement("script")
+        script.type = "application/ld+json"
+        script.id = "schema-server-detail"
+
         const schema = {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": server.name,
-            "applicationCategory": "GameApplication",
-            "operatingSystem": server.type === "java" ? "Java" : "Bedrock",
-            "url": window.location.href,
-            "image": `https://mc-stats.fr/api/favicon/${server.id}`
-        };
-        
-        script.innerHTML = JSON.stringify(schema);
-        document.head.appendChild(script);
-        
-        return () => {
-            const existingScript = document.getElementById("schema-server-detail");
-            if (existingScript) existingScript.remove();
+            name: server.name,
+            applicationCategory: "GameApplication",
+            operatingSystem: server.type === "java" ? "Java" : "Bedrock",
+            url: window.location.href,
+            image: `https://mc-stats.fr/api/favicon/${server.id}`
         }
-    }, [server]);
+
+        script.innerHTML = JSON.stringify(schema)
+        document.head.appendChild(script)
+
+        return () => {
+            const existingScript = document.getElementById(
+                "schema-server-detail"
+            )
+            if (existingScript) existingScript.remove()
+        }
+    }, [server])
 
     const stats = useMemo(() => {
         if (records.length === 0) return null
@@ -306,14 +431,14 @@ export default function ServerDetail() {
         let min = Infinity
         let sum = 0
         let count = 0
-        
+
         const minTime = visibleRange ? visibleRange.min : 0
         const maxTime = visibleRange ? visibleRange.max : Infinity
-        
+
         for (let i = 0; i < records.length; i++) {
             const r = records[i]
             const t = r.date > 1000000000000 ? r.date / 1000 : r.date
-            
+
             if (t >= minTime && t <= maxTime) {
                 const val = r.value
                 if (val > max) max = val
@@ -322,7 +447,7 @@ export default function ServerDetail() {
                 count++
             }
         }
-        
+
         if (count === 0) return null
         const avg = Math.round(sum / count)
         return { max, min, avg }
@@ -331,7 +456,9 @@ export default function ServerDetail() {
     if (loading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
-                <p className="text-muted-foreground animate-pulse">{t("serverDetail.loading")}</p>
+                <p className="text-muted-foreground animate-pulse">
+                    {t("serverDetail.loading")}
+                </p>
             </div>
         )
     }
@@ -339,8 +466,10 @@ export default function ServerDetail() {
     if (!server) {
         return (
             <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-                <p className="text-destructive font-semibold">{t("serverDetail.notFound")}</p>
-                <Link to={'/'}>
+                <p className="text-destructive font-semibold">
+                    {t("serverDetail.notFound")}
+                </p>
+                <Link to={"/"}>
                     <Button>{t("common.backToHome")}</Button>
                 </Link>
             </div>
@@ -350,15 +479,39 @@ export default function ServerDetail() {
     const isOnline = server.last_status === "online"
     const locale = language === "fr" ? "fr-FR" : "en-US"
 
-    const isCustomRangeIncomplete = selectedRange === -1 && (!customRange?.from || !customRange?.to);
-    const isPending = selectedRange !== appliedRange || selectedInterval !== appliedInterval || (selectedRange === -1 && (customRange?.from?.getTime() !== appliedCustomRange?.from?.getTime() || customRange?.to?.getTime() !== appliedCustomRange?.to?.getTime()));
+    const isCustomRangeIncomplete =
+        selectedRange === -1 && (!customRange?.from || !customRange?.to)
+    const isPending =
+        selectedRange !== appliedRange ||
+        selectedInterval !== appliedInterval ||
+        (selectedRange === -1 &&
+            (customRange?.from?.getTime() !==
+                appliedCustomRange?.from?.getTime() ||
+                customRange?.to?.getTime() !==
+                    appliedCustomRange?.to?.getTime()))
 
     return (
         <>
-            <div className="flex flex-col gap-8 pb-12">
+            {labyBackground && (
+                <div 
+                    className="absolute inset-x-0 top-0 h-[50vh] pointer-events-none opacity-30 dark:opacity-20 z-0"
+                    style={{
+                        backgroundImage: `url(${labyBackground})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+                        WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+                    }}
+                />
+            )}
+            <div className="flex flex-col gap-8 pb-12 relative z-10">
                 <div className="flex flex-col gap-6 border-b pb-6">
                     <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                        <ServerDetailHeader server={server} t={t} locale={locale} />
+                        <ServerDetailHeader
+                            server={server}
+                            t={t}
+                            locale={locale}
+                        />
 
                         <TimeIntervalSelector
                             selectedRange={selectedRange}
@@ -373,65 +526,100 @@ export default function ServerDetail() {
                             t={t}
                         />
                     </div>
-                    
                 </div>
 
-                <div className="hidden md:flex w-full justify-center mt-[-1rem]">
-                    <div className="shadow-xl rounded-md overflow-hidden w-fit">
-                        <MinecraftMotd 
-                            motd={server.last_motd} 
-                            serverName={server.name}
-                            currentPlayers={
-                                server.last_protocol_version != null && server.last_protocol_version <= 0 
-                                    ? formatMinecraftVersion(server.last_version, false) || "Version" 
-                                    : (server.last_connected ?? 0)
-                            }
-                            maxPlayers={server.max_players ?? server.last_max_players ?? 20}
-                            favicon={getServerIconUrl(server.id)}
-                            pingTime={server.last_ping_time}
-                            lastSample={server.last_sample}
-                            backgroundUrl={labyBackground}
-                        />
+                <div className="flex w-full flex-col gap-8">
+                    <div className="mt-[-1rem] hidden w-full justify-center md:flex">
+                        <div className="w-fit overflow-hidden rounded-md shadow-xl">
+                            <MinecraftMotd
+                                motd={server.last_motd}
+                                serverName={server.name}
+                                currentPlayers={
+                                    server.last_protocol_version != null &&
+                                    server.last_protocol_version <= 0
+                                        ? formatMinecraftVersion(
+                                              server.last_version,
+                                              false
+                                          ) || "Version"
+                                        : (server.last_connected ?? 0)
+                                }
+                                maxPlayers={
+                                    server.max_players ??
+                                    server.last_max_players ??
+                                    20
+                                }
+                                favicon={getServerIconUrl(server.id)}
+                                pingTime={server.last_ping_time}
+                                lastSample={server.last_sample}
+                                backgroundUrl={labyBackground}
+                            />
+                        </div>
                     </div>
-                </div>
 
                     <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
                         {(loadingRecords || isPending) && (
-                            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/60 backdrop-blur-[2px] transition-all duration-200 rounded-xl">
+                            <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
                                 {isCustomRangeIncomplete ? (
-                                    <p className="text-muted-foreground font-medium text-sm">{t("serverDetail.selectCustomRange")}</p>
+                                    <p className="text-muted-foreground text-sm font-medium">
+                                        {t("serverDetail.selectCustomRange")}
+                                    </p>
                                 ) : (
                                     <>
-                                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                                        <p className="text-muted-foreground text-sm animate-pulse font-medium">{t("serverDetail.chartLoading")}</p>
+                                        <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
+                                        <p className="text-muted-foreground animate-pulse text-sm font-medium">
+                                            {t("serverDetail.chartLoading")}
+                                        </p>
                                     </>
                                 )}
                             </div>
                         )}
-                        <div className={cn("w-full transition-opacity duration-200", (loadingRecords || isPending) ? "opacity-30 pointer-events-none [&_.hide-on-load]:opacity-0" : "opacity-100")}>
-                            <Suspense fallback={<div className="min-h-[340px] sm:min-h-[500px] w-full flex items-center justify-center"></div>}>
+                        <div
+                            className={cn(
+                                "w-full transition-opacity duration-200",
+                                loadingRecords || isPending
+                                    ? "pointer-events-none opacity-30 [&_.hide-on-load]:opacity-0"
+                                    : "opacity-100"
+                            )}
+                        >
+                            <Suspense
+                                fallback={
+                                    <div className="flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]"></div>
+                                }
+                            >
                                 <PlayerChart
                                     data={records}
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
                                     zoomResetId={`${selectedRange}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
-                                    onVisibleRangeChange={(min, max) => setVisibleRange({ min, max })}
+                                    onVisibleRangeChange={(min, max) =>
+                                        setVisibleRange({ min, max })
+                                    }
                                     // eslint-disable-next-line react-hooks/immutability
-                                    onZoomChange={(z) => isChartZoomed.current = z}
+                                    onZoomChange={(z) =>
+                                        (isChartZoomed.current = z)
+                                    }
                                     header={
-                                        <h2 className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-lg font-semibold w-full">
+                                        <h2 className="flex w-full flex-col gap-1 text-lg font-semibold sm:flex-row sm:items-center sm:gap-2">
                                             <div className="flex items-center gap-2 truncate">
                                                 <BarChart className="text-primary h-5 w-5 shrink-0" />
-                                                <span className="truncate">{t("serverDetail.playerHistory")}</span>
+                                                <span className="truncate">
+                                                    {t(
+                                                        "serverDetail.playerHistory"
+                                                    )}
+                                                </span>
                                             </div>
                                             {isOnline && (
                                                 <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
                                                     (
-                                                    {new Intl.NumberFormat(locale).format(
-                                                        server.last_connected ?? 0
+                                                    {new Intl.NumberFormat(
+                                                        locale
+                                                    ).format(
+                                                        server.last_connected ??
+                                                            0
                                                     )}{" "}
-                                                    {t("common.currentPlayers")})
+                                                    {t("common.currentPlayers")}
+                                                    )
                                                 </span>
                                             )}
                                         </h2>
@@ -441,23 +629,39 @@ export default function ServerDetail() {
                         </div>
                     </div>
 
-                {stats && <StatsSection stats={stats} locale={locale} t={t} />}
+                    <div className="flex flex-col gap-8 lg:flex-row">
+                        <div className="flex w-full min-w-0 flex-col gap-8">
+                            {stats && (
+                                <StatsSection
+                                    stats={stats}
+                                    locale={locale}
+                                    t={t}
+                                />
+                            )}
+                            <AlertsSection serverId={server.id} t={t} />
+                        </div>
 
-                <AlertsSection serverId={server.id} t={t} />
+                        {/* Sidebar */}
+                        <ServerSidebar
+                            labyServerInfo={labyServerInfo}
+                            serverName={server.name}
+                        />
+                    </div>
+                </div>
             </div>
         </>
     )
 }
 
 export function ErrorBoundary() {
-    const error = useRouteError();
-    console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error);
+    const error = useRouteError()
+    console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
     return (
         <div className="p-8 text-center text-red-500">
             <h1>Something went wrong in ServerDetail</h1>
-            <pre className="text-left mt-4 p-4 bg-muted rounded overflow-auto">
+            <pre className="bg-muted mt-4 overflow-auto rounded p-4 text-left">
                 {error instanceof Error ? error.stack : String(error)}
             </pre>
         </div>
-    );
+    )
 }
