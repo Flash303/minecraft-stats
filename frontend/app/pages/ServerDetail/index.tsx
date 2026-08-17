@@ -616,10 +616,10 @@ export default function ServerDetail() {
                                     onVisibleRangeChange={(min, max) =>
                                         setVisibleRange({ min, max })
                                     }
-                                    // eslint-disable-next-line react-hooks/immutability
-                                    onZoomChange={(z) =>
-                                        (isChartZoomed.current = z)
-                                    }
+                                    onZoomChange={(z) => {
+                                        // eslint-disable-next-line react-hooks/immutability
+                                        isChartZoomed.current = z;
+                                    }}
                                     timeSelector={
                                         <TimeIntervalSelector
                                             selectedRange={selectedRange}

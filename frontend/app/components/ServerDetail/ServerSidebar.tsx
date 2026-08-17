@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import type { LabyModServer } from "@/lib/labymod"
 import type { LunarServer } from "@/lib/lunar"
-import { ExternalLink, Gamepad2, Users, Search, Globe, ShoppingCart, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+import { ExternalLink, Search, Globe, ShoppingCart, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaYoutube, FaFacebook, FaTeamspeak, FaReddit } from "react-icons/fa6"
 import { BiSupport } from "react-icons/bi"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -30,24 +30,19 @@ interface ServerSidebarProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     labyManifest?: any;
     lunarServerInfo?: LunarServer;
-    serverName: string;
 }
 
-export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, serverName }: ServerSidebarProps) {
+export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }: ServerSidebarProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [showAllGamemodes, setShowAllGamemodes] = useState(false);
     const [showAllLunarGamemodes, setShowAllLunarGamemodes] = useState(false);
     const { t } = useLanguage();
-
-
 
     const social = labyServerInfo?.social || {};
     const gamemodes = labyServerInfo?.gamemodes || {};
     const user_stats = labyServerInfo?.user_stats;
     const hasSocials = social && Object.keys(social).length > 0;
     const hasGamemodes = gamemodes && Object.keys(gamemodes).length > 0;
-
-    const labyIcon = labyServerInfo?.attachments?.find(a => a.file_name === 'icon.webp')?.url;
 
     let labyScore = 0;
     if (labyServerInfo) {
@@ -112,7 +107,10 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
 
     useEffect(() => {
         if (progress >= 100 && !isTransitioning) {
-            handleSwitch();
+            const timer = setTimeout(() => {
+                handleSwitch();
+            }, 0);
+            return () => clearTimeout(timer);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [progress, isTransitioning]);

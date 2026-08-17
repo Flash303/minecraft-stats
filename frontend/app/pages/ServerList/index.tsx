@@ -180,7 +180,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         }
 
         return list
-    }, [servers, searchQuery, activePlatform, activeLauncher])
+    }, [servers, searchQuery, activePlatform, activeLauncher, getLunarInfo, getLabyInfo])
 
     const filteredServers = useMemo(() => {
         let list = baseServersForCounts

@@ -76,7 +76,7 @@ export function matchesLabyMod(ip: string, labyServer: LabyModServer): boolean {
         if (regex.test(ip)) {
           return true;
         }
-      } catch (e) {
+      } catch {
         // Ignore silently
       }
     }

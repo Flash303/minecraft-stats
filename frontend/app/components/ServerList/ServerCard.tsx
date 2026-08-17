@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react"
+import { useState, lazy, Suspense } from "react"
 import type { Server } from "@/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
