@@ -5,7 +5,6 @@ use futures::{stream, StreamExt};
 use minecraft_pinger::config::PingConfig;
 use minecraft_pinger::models::bedrock_model::BedrockPing;
 use minecraft_pinger::models::java_model::JavaPing;
-use minecraft_pinger::utils::version_parser::parse_minecraft_version_range;
 use minecraft_pinger::MinecraftPinger;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::models::record::Record;
