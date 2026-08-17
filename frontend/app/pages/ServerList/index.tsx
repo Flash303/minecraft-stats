@@ -10,6 +10,7 @@ import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/contexts/AdminContext"
 import { useSearch } from "@/contexts/SearchContext"
 import { useLanguage } from "@/contexts/LanguageContext"
+import { useClientInfo } from "@/contexts/ClientInfoContext"
 import { Hero3D } from "@/components/ServerList/Hero3D"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -36,6 +37,7 @@ export default function ServerList() {
 
 function ServerListContent({ initialServers, isDeferredLoading = false }: { initialServers: Server[], isDeferredLoading?: boolean }) {
     const { t } = useLanguage()
+    const { getLunarInfo, getLabyInfo } = useClientInfo()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
@@ -68,6 +70,18 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         return "popularity"
     })
 
+    const [sortDirection, setSortDirectionState] = useState<"desc" | "asc">(() => {
+        const dirParam = searchParams.get("dir")
+        if (dirParam === "asc") return "asc"
+        return "desc"
+    })
+
+    const [activeLauncher, setActiveLauncherState] = useState<"all" | "lunar" | "labymod">(() => {
+        const launcherParam = searchParams.get("launcher")
+        if (launcherParam === "lunar" || launcherParam === "labymod") return launcherParam as "lunar" | "labymod"
+        return "all"
+    })
+
     const [currentPage, setCurrentPage] = useState<number>(() => {
         const pageParam = searchParams.get("page")
         if (pageParam && !isNaN(Number(pageParam))) return Math.max(1, Number(pageParam))
@@ -86,6 +100,16 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
 
     const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => {
         setActiveSortState(sort)
+        setCurrentPage(1)
+    }, [])
+
+    const setSortDirection = useCallback((dir: "desc" | "asc") => {
+        setSortDirectionState(dir)
+        setCurrentPage(1)
+    }, [])
+
+    const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "labymod") => {
+        setActiveLauncherState(launcher)
         setCurrentPage(1)
     }, [])
 
@@ -138,6 +162,13 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
             list = list.filter(s => s.type === "bedrock")
         }
 
+        // Filtrage par launcher
+        if (activeLauncher === "lunar") {
+            list = list.filter(s => getLunarInfo(s.ip))
+        } else if (activeLauncher === "labymod") {
+            list = list.filter(s => getLabyInfo(s.ip))
+        }
+
         // Filtrage par barre de recherche
         const query = searchQuery.toLowerCase().trim()
         if (query) {
@@ -149,7 +180,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         }
 
         return list
-    }, [servers, searchQuery, activePlatform])
+    }, [servers, searchQuery, activePlatform, activeLauncher])
 
     const filteredServers = useMemo(() => {
         let list = baseServersForCounts
@@ -176,23 +207,25 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
 
     const sortedServers = useMemo(() => {
         const list = [...filteredServers]
-        if (activeSort === "popularity") {
-            list.sort((a, b) => {
+        list.sort((a, b) => {
+            let res = 0
+            if (activeSort === "popularity") {
                 const countA = a.last_status === "online" ? (a.last_connected ?? 0) : -1
                 const countB = b.last_status === "online" ? (b.last_connected ?? 0) : -1
-                
                 if (countB !== countA) {
-                    return countB - countA
+                    res = countB - countA
+                } else {
+                    res = b.id - a.id
                 }
-                return b.id - a.id
-            })
-        } else if (activeSort === "name") {
-            list.sort((a, b) => a.name.localeCompare(b.name))
-        } else if (activeSort === "recent") {
-            list.sort((a, b) => b.id - a.id)
-        }
+            } else if (activeSort === "name") {
+                res = a.name.localeCompare(b.name)
+            } else if (activeSort === "recent") {
+                res = b.id - a.id
+            }
+            return sortDirection === "desc" ? res : -res
+        })
         return list
-    }, [filteredServers, activeSort])
+    }, [filteredServers, activeSort, sortDirection])
 
     const totalPages = Math.ceil(sortedServers.length / ITEMS_PER_PAGE) || 1
     const safeCurrentPage = Math.min(currentPage, totalPages)
@@ -217,6 +250,8 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     setActiveTab={setActiveTab}
                     activePlatform={activePlatform}
                     setActivePlatform={setActivePlatform}
+                    activeLauncher={activeLauncher}
+                    setActiveLauncher={setActiveLauncher}
                     totalCount={visibleCount}
                     onlineCount={onlineCount}
                     offlineCount={offlineCount}
@@ -224,6 +259,8 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     isAdmin={isAdmin}
                     activeSort={activeSort}
                     setActiveSort={setActiveSort}
+                    sortDirection={sortDirection}
+                    setSortDirection={setSortDirection}
                 />
 
                 {loading && servers.length === 0 && (
