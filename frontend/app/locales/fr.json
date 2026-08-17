@@ -70,7 +70,14 @@
       "sort": "Trier par",
       "sortPopularity": "Popularité",
       "sortName": "Nom",
-      "sortRecent": "Ajouté récemment"
+      "sortRecent": "Ajouté récemment",
+      "sortAsc": "Croissant",
+      "sortDesc": "Décroissant",
+      "launcher": "Launcher",
+      "allLaunchers": "Tous les launchers",
+      "lunar": "Lunar Client",
+      "labymod": "LabyMod",
+      "filterSort": "Filtres & Tri"
     },
     "pagination": {
       "previous": "Précédent",
