@@ -9,12 +9,14 @@ import { parseLegacyText } from "@/components/motd/parser"
 import { CursorTooltip } from "@/components/motd/components/CursorTooltip"
 import { useClientInfo } from "@/contexts/ClientInfoContext"
 import { LunarLogo } from "@/components/LunarLogo"
+import { Link } from "react-router"
 
 interface ServerCardProps {
     server: Server
+    to?: string
 }
 
-export function ServerCard({ server }: ServerCardProps) {
+export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
     const { getLabyInfo, getLunarInfo } = useClientInfo()
     const [copied, setCopied] = useState(false)
@@ -39,7 +41,10 @@ export function ServerCard({ server }: ServerCardProps) {
 
     return (
         <div
-            className="relative flex flex-col justify-between shadow-sm border border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/50 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group hover:border-indigo-500/30 dark:hover:border-indigo-500/20 hover:shadow-md hover:-translate-y-0.5"
+            className={cn(
+                "relative flex flex-col justify-between shadow-sm border border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/50 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group",
+                to ? "hover:border-indigo-500/30 dark:hover:border-indigo-500/20 hover:shadow-md hover:-translate-y-0.5" : ""
+            )}
         >
             {/* Top row: Favicon, Name, IP address, and Player/Status */}
             <div className="flex flex-row gap-4 w-full min-w-0 items-start">
@@ -47,7 +52,7 @@ export function ServerCard({ server }: ServerCardProps) {
                 <div className="relative flex-shrink-0">
                     <ServerIcon
                         serverId={server.id}
-                        alt={t("alt.serverLogo", { name: server.name })}
+                        alt={t("alt.serverLogo" as any, { name: server.name })}
                         className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
                     />
                 </div>
@@ -55,16 +60,22 @@ export function ServerCard({ server }: ServerCardProps) {
                 {/* Name & IP Copy button */}
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
                     <div className="flex items-center gap-1.5 min-w-0">
-                        <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
-                            {server.name}
-                        </h2>
+                        {to ? (
+                            <Link to={to} prefetch="intent" className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
+                                {server.name}
+                            </Link>
+                        ) : (
+                            <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 transition-colors tracking-tight truncate leading-tight">
+                                {server.name}
+                            </h2>
+                        )}
                         {lunarInfo && <LunarLogo className="w-3.5 h-3.5 text-sky-500 shrink-0" />}
                         {labyInfo && <img src="https://laby.net/logo.svg" className="w-3.5 h-3.5 object-contain drop-shadow-md dark:brightness-100 brightness-0 shrink-0" alt="LabyMod" />}
                     </div>
                     
                     <button 
                         onClick={handleCopy}
-                        className="group/copy inline-flex items-center gap-1.5 self-start text-[11px] font-mono text-slate-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-slate-100/50 dark:bg-zinc-800/30 hover:bg-slate-100 dark:hover:bg-zinc-800/60 border border-slate-200/50 dark:border-zinc-800/55 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
+                        className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-[11px] font-mono text-slate-500 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-slate-100/50 dark:bg-zinc-800/30 hover:bg-slate-100 dark:hover:bg-zinc-800/60 border border-slate-200/50 dark:border-zinc-800/55 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
                     >
                         <span className="truncate">{displayIp}</span>
                         {copied ? (

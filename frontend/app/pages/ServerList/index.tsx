@@ -281,11 +281,11 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                             <>
                                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                                     {paginatedServers.map((s) => (
-                                        <Link key={s.id} to={`/server/${s.id}`} prefetch="intent" className="block focus:outline-none">
-                                            <ServerCard
-                                                server={s}
-                                            />
-                                        </Link>
+                                        <ServerCard
+                                            key={s.id}
+                                            server={s}
+                                            to={`/server/${s.id}`}
+                                        />
                                     ))}
                                 </div>
                                 {totalPages > 1 && (
