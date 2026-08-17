@@ -7,7 +7,7 @@ import { Button } from "@/ui/components/button"
 import { BarChart3 } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
-
+import { useChartResize, useTouchInteractPlugin, useTooltipPlugin } from "@/core/hooks/useChartPlugins"
 interface MultiServerChartProps {
     data: uPlot.AlignedData
     serverNames: string[]
@@ -46,202 +46,36 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const mouseEnterRef = useRef<(() => void) | null>(null)
     const mouseLeaveRef = useRef<(() => void) | null>(null)
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (chartRef.current && containerRef.current) {
-                const height = window.innerWidth < 640 ? 300 : 450
-                chartRef.current.setSize({
-                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                    height: height
-                })
-            }
-        }
+    useChartResize(chartRef, containerRef, [data])
 
-        const resizeObserver = new ResizeObserver(handleResize)
-        if (containerRef.current) {
-            resizeObserver.observe(containerRef.current)
-        }
-
-        // Trigger immediate resize check
-        handleResize()
-
-        return () => {
-            resizeObserver.disconnect()
-        }
-    }, [data])
-
-    const tooltipPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                init: (u: uPlot) => {
-                    const overlay = document.createElement("div")
-                    overlay.className = "pointer-events-none absolute z-50 rounded-xl border border-slate-800 bg-slate-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[220px] transition-opacity duration-150"
-                    overlay.style.display = "none"
-                    overlay.style.position = "fixed"
-                    u.over.appendChild(overlay)
-
-                    tooltipRef.current = overlay
-                },
-                setCursor: (u: uPlot) => {
-                    const overlay = tooltipRef.current
-                    if (!overlay) return
-
-                    const idx = u.cursor.idx
-
-                    if (idx == null || idx < 0) {
-                        overlay.style.display = "none"
-                        return
-                    }
-
-                    const xVal = u.data[0][idx]
-                    if (xVal == null) {
-                        overlay.style.display = "none"
-                        return
-                    }
-
-                    const locale = language === "fr" ? "fr-FR" : "en-US"
-                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"))
-
-                    let rowsHtml = ""
-
-                    for (let i = 1; i < u.data.length; i++) {
-                        const yVal = u.data[i][idx]
-                        if (yVal !== null && yVal !== undefined) {
-                            const name = serverNames[i - 1]
-                            const color = COLORS[(i - 1) % COLORS.length]
-                            rowsHtml += `
-                                <div class="flex items-center justify-between gap-4 py-0.5">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
-                                        <span class="text-slate-300 font-medium">${name}</span>
-                                    </div>
-                                    <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
-                                </div>
-                            `
-                        }
-                    }
-
-                    overlay.innerHTML = `
-                        <div class="border-b border-white/10 pb-1.5 mb-1.5 text-slate-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
-                        <div class="space-y-1">${rowsHtml}</div>
+    const tooltipPlugin = useTooltipPlugin({
+        language,
+        t,
+        tooltipWidth: 220,
+        deps: [serverNames],
+        renderRowsHtml: (u, idx, locale) => {
+            let rowsHtml = ""
+            for (let i = 1; i < u.data.length; i++) {
+                const yVal = u.data[i][idx]
+                if (yVal !== null && yVal !== undefined) {
+                    const name = serverNames[i - 1]
+                    const color = COLORS[(i - 1) % COLORS.length]
+                    rowsHtml += `
+                        <div class="flex items-center justify-between gap-4 py-0.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
+                                <span class="text-slate-300 font-medium">${name}</span>
+                            </div>
+                            <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                        </div>
                     `
-
-                    const left = u.cursor.left ?? 0
-                    const top = u.cursor.top ?? 0
-                    const rect = u.over.getBoundingClientRect()
-
-                    let tooltipLeft = rect.left + left + 15
-                    const tooltipWidth = overlay.offsetWidth || 220
-                    if (tooltipLeft + tooltipWidth > window.innerWidth - 10) {
-                        tooltipLeft = rect.left + left - tooltipWidth - 15
-                    }
-                    if (tooltipLeft < 10) {
-                        tooltipLeft = 10
-                    }
-
-                    overlay.style.left = `${tooltipLeft}px`
-                    overlay.style.top = `${rect.top + top - 15}px`
-                    overlay.style.display = "block"
-                },
-                destroy: () => {
-                    tooltipRef.current?.remove()
-                    tooltipRef.current = null
-                    mouseEnterRef.current = null
-                    mouseLeaveRef.current = null
                 }
             }
+            return rowsHtml
         }
-    }, [serverNames, language, t])
+    })
 
-    const touchInteractPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                ready: (u: uPlot) => {
-                    const over = u.over
-                    // Allow vertical scrolling for 1 finger, but capture horizontal touch for scrubbing and 2 for zooming
-                    over.style.touchAction = "pan-y"
-                    
-                    let rect: DOMRect | null = null;
-                    let initialDist = 0;
-                    let initialXCenter = 0;
-                    let initialXMin = 0;
-                    let initialXMax = 0;
-
-                    const handleTouchStart = (e: TouchEvent) => {
-                        if (e.touches.length === 2) {
-                            if (e.cancelable) e.preventDefault();
-                            rect = over.getBoundingClientRect();
-                            const t0 = e.touches[0];
-                            const t1 = e.touches[1];
-                            const t0x = t0.clientX - rect.left;
-                            const t1x = t1.clientX - rect.left;
-                            
-                            initialDist = Math.abs(t1x - t0x);
-                            initialXCenter = (t0x + t1x) / 2;
-                            
-                            if (u.scales.x.min != null && u.scales.x.max != null) {
-                                initialXMin = u.scales.x.min;
-                                initialXMax = u.scales.x.max;
-                            }
-                        }
-                    }
-
-                    const handleTouchMove = (e: TouchEvent) => {
-                        if (e.touches.length === 1) {
-                            // Scrubbing
-                            rect = over.getBoundingClientRect()
-                            u.setCursor({
-                                left: e.touches[0].clientX - rect.left,
-                                top: e.touches[0].clientY - rect.top
-                            })
-                        } else if (e.touches.length === 2) {
-                            // Pinching / Panning
-                            if (e.cancelable) e.preventDefault();
-                            if (!rect) rect = over.getBoundingClientRect();
-                            
-                            const t0 = e.touches[0];
-                            const t1 = e.touches[1];
-                            const t0x = t0.clientX - rect.left;
-                            const t1x = t1.clientX - rect.left;
-                            
-                            const currentDist = Math.abs(t1x - t0x);
-                            const currentXCenter = (t0x + t1x) / 2;
-                            
-                            if (initialDist > 0 && currentDist > 0 && u.data[0] && u.data[0].length > 0) {
-                                const scale = initialDist / currentDist;
-                                const xValRange = initialXMax - initialXMin;
-                                const pxRange = rect.width;
-                                
-                                const centerVal = initialXMin + (initialXCenter / pxRange) * xValRange;
-                                const newRange = xValRange * scale;
-                                
-                                let newXMin = centerVal - (currentXCenter / pxRange) * newRange;
-                                let newXMax = newXMin + newRange;
-
-                                const dataMin = u.data[0][0];
-                                const dataMax = u.data[0][u.data[0].length - 1];
-                                
-                                if (dataMin != null && dataMax != null) {
-                                    if (newXMin < dataMin) {
-                                        newXMin = dataMin;
-                                        newXMax = Math.min(dataMax, newXMin + newRange);
-                                    } else if (newXMax > dataMax) {
-                                        newXMax = dataMax;
-                                        newXMin = Math.max(dataMin, newXMax - newRange);
-                                    }
-                                }
-                                
-                                u.setScale("x", { min: newXMin, max: newXMax });
-                            }
-                        }
-                    }
-
-                    over.addEventListener("touchstart", handleTouchStart, { passive: false });
-                    over.addEventListener("touchmove", handleTouchMove, { passive: false });
-                }
-            }
-        }
-    }, [])
+    const touchInteractPlugin = useTouchInteractPlugin()
 
     const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
         return {
