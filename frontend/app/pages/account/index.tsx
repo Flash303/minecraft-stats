@@ -1,45 +1,21 @@
 import { useState, useEffect, useCallback } from "react"
-import { useAuth, useUser, UserProfile } from "@clerk/react"
-import { fetchMyServers, renameServer, fetchAlerts, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/core/lib/api"
+import { useAuth, useUser } from "@clerk/react"
+import { fetchMyServers, fetchAlerts, deleteAlert } from "@/core/lib/api"
 import type { Server, Alert } from "@/core/lib/api"
 import { useLayoutConfig } from "@/ui/layout"
-import { ServerCard } from "@/pages/home/components/ServerCard"
-import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { Button } from "@/ui/components/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/ui/components/dialog"
-import { Input } from "@/ui/components/input"
-import { Label } from "@/ui/components/label"
-import { Edit2, Server as ServerIcon, Bell, BellOff, Trash2, ShieldAlert, CheckCircle2, User, Settings } from "lucide-react"
+import { User, Server as ServerIcon, Bell, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
 import type { MetaFunction } from "react-router"
 
-interface ExtendedAlert extends Alert {
+import { useWebPush } from "@/core/hooks/useWebPush"
+import { AccountServersTab } from "./components/AccountServersTab"
+import { AccountAlertsTab } from "./components/AccountAlertsTab"
+import { AccountProfileTab } from "./components/AccountProfileTab"
+
+export interface ExtendedAlert extends Alert {
     serverId: number
     serverName: string
-}
-
-function urlBase64ToUint8Array(base64String: string) {
-    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
 }
 
 export const meta: MetaFunction = () => {
@@ -71,27 +47,16 @@ export default function Account() {
     const [loading, setLoading] = useState(true)
     const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
-    // Web Push State
-    const isPushSupported = "serviceWorker" in navigator && "PushManager" in window
-    const [isSubscribed, setIsSubscribed] = useState(false)
-    const [checkingSubscription, setCheckingSubscription] = useState(true)
-    const [actionLoading, setActionLoading] = useState(false)
-
-    const checkSubscription = useCallback(async () => {
-        if (!isPushSupported) {
-            setCheckingSubscription(false)
-            return
-        }
-        try {
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
-            setIsSubscribed(!!subscription)
-        } catch (e) {
-            console.error("Error checking push subscription:", e)
-        } finally {
-            setCheckingSubscription(false)
-        }
-    }, [isPushSupported])
+    // Web Push State from Custom Hook
+    const { 
+        isPushSupported, 
+        isSubscribed, 
+        checkingSubscription, 
+        actionLoading, 
+        checkSubscription, 
+        handleSubscribe, 
+        handleUnsubscribe 
+    } = useWebPush(getToken)
 
     const loadData = useCallback(async () => {
         if (!isLoaded || !isSignedIn) return
@@ -139,82 +104,6 @@ export default function Account() {
         return () => setIsLoading(undefined)
     }, [loading, servers.length, setIsLoading])
 
-    const handleSubscribe = async () => {
-        if (!isPushSupported) return
-        setActionLoading(true)
-        try {
-            const token = await getToken()
-            if (!token) {
-                setActionLoading(false)
-                return
-            }
-
-            const vapidKey = await fetchVapidKey()
-            if (!vapidKey) {
-                alert("Failed to load VAPID public key from backend.")
-                setActionLoading(false)
-                return
-            }
-
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(vapidKey)
-            })
-
-            const p256dh = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('p256dh')!))))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
-            const auth = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('auth')!))))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
-
-            const success = await subscribeDevice({
-                endpoint: subscription.endpoint,
-                p256dh,
-                auth
-            }, token)
-
-            if (success) {
-                setIsSubscribed(true)
-            } else {
-                alert("Failed to sync subscription details with backend.")
-            }
-        } catch (e) {
-            console.error("Push registration failed:", e)
-            alert(`Subscription failed: ${e}`)
-        } finally {
-            setActionLoading(false)
-        }
-    }
-
-    const handleUnsubscribe = async () => {
-        if (!isPushSupported) return
-        setActionLoading(true)
-        try {
-            const token = await getToken()
-            if (!token) {
-                setActionLoading(false)
-                return
-            }
-
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
-            if (subscription) {
-                await subscription.unsubscribe()
-                await unsubscribeDevice(subscription.endpoint, token)
-                setIsSubscribed(false)
-            }
-        } catch (e) {
-            console.error("Unsubscription failed:", e)
-            alert(`Unsubscription failed: ${e}`)
-        } finally {
-            setActionLoading(false)
-        }
-    }
-
     const handleDeleteAlert = async (alertId: number) => {
         const token = await getToken()
         if (!token) return
@@ -229,14 +118,12 @@ export default function Account() {
 
     if (!isSignedIn && isLoaded) {
         return (
-            <>
-                <div className="flex justify-center items-center min-h-[60vh]">
-                    <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
-                        <User className="h-16 w-16 text-muted-foreground/30" />
-                        <p className="text-muted-foreground text-lg font-medium">{t("profile.unauthenticated")}</p>
-                    </div>
+            <div className="flex justify-center items-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-500">
+                    <User className="h-16 w-16 text-muted-foreground/30" />
+                    <p className="text-muted-foreground text-lg font-medium">{t("profile.unauthenticated")}</p>
                 </div>
-            </>
+            </div>
         )
     }
 
@@ -332,217 +219,31 @@ export default function Account() {
                 {/* Tab Content */}
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {activeTab === 'servers' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("profile.servers.title")}</h2>
-                                    <p className="text-muted-foreground mt-1 text-sm">{t("profile.servers.description")}</p>
-                                </div>
-                            </div>
-                            
-                            {loading ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {Array.from({ length: 3 }).map((_, i) => (
-                                        <ServerCardSkeleton key={i} />
-                                    ))}
-                                </div>
-                            ) : servers.length === 0 ? (
-                                <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center">
-                                    <ServerIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t("profile.servers.noServersTitle")}</h3>
-                                    <p className="text-muted-foreground mt-1 max-w-sm">{t("profile.servers.noServersDescription")}</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {servers.map((s) => (
-                                        <div key={s.id} className="relative group">
-                                            <ServerCard server={s} />
-                                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-background/95 backdrop-blur-md rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-0.5">
-                                                <RenameServerModal server={s} onSuccess={loadData} />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        <AccountServersTab 
+                            t={t} 
+                            loading={loading} 
+                            servers={servers} 
+                            loadData={loadData} 
+                        />
                     )}
 
                     {activeTab === 'alerts' && (
-                        <div className="space-y-8 max-w-4xl">
-                            {/* Push Settings */}
-                            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
-                                <div>
-                                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t("profile.alerts.pushTitle")}</h2>
-                                    <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-                                        {t("profile.alerts.pushDescription")}
-                                    </p>
-                                </div>
-
-                                <div className="shrink-0 flex items-center justify-start sm:justify-end">
-                                    {!isPushSupported ? (
-                                        <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
-                                            <ShieldAlert className="h-3.5 w-3.5" />
-                                            {t("alerts.pushNotSupported")}
-                                        </span>
-                                    ) : checkingSubscription ? (
-                                        <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
-                                    ) : isSubscribed ? (
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
-                                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                                {t("profile.alerts.pushEnabled")}
-                                            </span>
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm"
-                                                className="text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 h-8"
-                                                onClick={handleUnsubscribe} 
-                                                disabled={actionLoading}
-                                            >
-                                                <BellOff className="h-4 w-4 mr-1.5" />
-                                                {t("profile.alerts.pushDisable")}
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <Button 
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-8"
-                                            onClick={handleSubscribe} 
-                                            disabled={actionLoading}
-                                        >
-                                            <Bell className="h-4 w-4 mr-1.5" />
-                                            {t("profile.alerts.pushEnable")}
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Configured Alerts List */}
-                            <div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("profile.alerts.configuredAlerts")}</h3>
-                                </div>
-                                
-                                {allAlerts.length === 0 ? (
-                                    <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800/60 rounded-xl flex flex-col items-center justify-center text-center text-muted-foreground">
-                                        <p className="text-sm">{t("profile.noAlertsGlobal")}</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-2.5">
-                                        {allAlerts.map((alert) => (
-                                            <div 
-                                                key={alert.id} 
-                                                className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-slate-200/60 dark:border-slate-800/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs font-semibold tracking-wider text-muted-foreground mb-1">
-                                                        {t("profile.alertForServer")} : <strong className="text-slate-900 dark:text-slate-100 ml-1">{alert.serverName}</strong>
-                                                    </span>
-                                                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                                        {t(`alerts.types.${alert.alert_type}`)}
-                                                    </span>
-                                                    {(alert.alert_type === "player_above" || alert.alert_type === "player_below") && (
-                                                        <span className="text-xs text-muted-foreground mt-1">
-                                                            {t("alerts.thresholdLabel")} : <strong className="text-slate-900 dark:text-slate-100 font-medium px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded ml-1">{alert.player_threshold}</strong>
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="h-8 w-8 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                                                    title={t("profile.deleteAlert")}
-                                                    onClick={() => handleDeleteAlert(alert.id)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <AccountAlertsTab 
+                            t={t}
+                            isPushSupported={isPushSupported}
+                            checkingSubscription={checkingSubscription}
+                            isSubscribed={isSubscribed}
+                            actionLoading={actionLoading}
+                            handleSubscribe={handleSubscribe}
+                            handleUnsubscribe={handleUnsubscribe}
+                            allAlerts={allAlerts}
+                            handleDeleteAlert={handleDeleteAlert}
+                        />
                     )}
 
-                    {activeTab === 'profile' && (
-                        <div className="flex justify-center w-full min-h-[600px]">
-                            {/* We just render UserProfile. Clerk handles the width, we give it full width container. */}
-                            <UserProfile 
-                                routing="hash" 
-                                appearance={{ 
-                                    elements: { 
-                                        rootBox: "w-full max-w-4xl mx-auto",
-                                        cardBox: "w-full shadow-sm border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950"
-                                    } 
-                                }} 
-                            />
-                        </div>
-                    )}
+                    {activeTab === 'profile' && <AccountProfileTab />}
                 </div>
             </div>
         </>
     )
 }
-
-function RenameServerModal({ server, onSuccess }: { server: Server, onSuccess: () => void }) {
-    const { t } = useLanguage()
-    const { getToken } = useAuth()
-    const [open, setOpen] = useState(false)
-    const [name, setName] = useState(server.name)
-    const [loading, setLoading] = useState(false)
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setLoading(true)
-        try {
-            const token = await getToken()
-            if (token) {
-                const res = await renameServer(server.id, name, token)
-                if (res.success) {
-                    setOpen(false)
-                    onSuccess()
-                }
-            }
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer text-slate-500">
-                    <Edit2 className="h-4 w-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{t("profile.servers.renameTitle")}</DialogTitle>
-                    <DialogDescription>
-                        {t("profile.servers.renameDesc")}
-                    </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">{t("profile.servers.renameLabel")}</Label>
-                        <Input
-                            id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? t("profile.servers.renameSaving") : t("profile.servers.renameSave")}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
