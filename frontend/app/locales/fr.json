@@ -32,7 +32,12 @@
     "enter": "Entrée",
     "noData": "Aucune donnée",
     "noDataForRange": "Aucune donnée pour cette période",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {{current}} sur {{total}}"
+    }
   },
   "header": {
     "title": "Minecraft Stats",
@@ -310,6 +315,9 @@
       "description": "Gérez les serveurs Minecraft que vous avez ajoutés.",
       "noServersTitle": "Aucun serveur",
       "noServersDescription": "Vous n'avez pas encore ajouté de serveur.",
+      "searchPlaceholder": "Rechercher parmi vos serveurs...",
+      "noSearchResults": "Aucun serveur ne correspond à votre recherche \"{{query}}\".",
+      "clearSearch": "Effacer la recherche",
       "renameTitle": "Renommer le serveur",
       "renameDesc": "Entrez le nouveau nom de votre serveur.",
       "renameLabel": "Nom",

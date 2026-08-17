@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react"
-import { Link, useSearchParams, useLoaderData, Await } from "react-router"
+import { useSearchParams, useLoaderData, Await } from "react-router"
 import { fetchServers } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { ServerCard } from "@/pages/home/components/ServerCard"
@@ -12,8 +12,7 @@ import { useSearch } from "@/core/contexts/SearchContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import { Hero3D } from "@/pages/home/components/Hero3D"
-import { Button } from "@/ui/components/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs } from "react-router"
 
@@ -289,33 +288,12 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                                     ))}
                                 </div>
                                 {totalPages > 1 && (
-                                    <div className="flex items-center justify-center gap-4 mt-12 mb-8">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setCurrentPage(safeCurrentPage - 1)}
-                                            disabled={safeCurrentPage <= 1}
-                                            aria-label={t("serverList.pagination.previous")}
-                                            className="rounded-xl h-10 px-4 flex items-center gap-2"
-                                        >
-                                            <ChevronLeft className="w-4 h-4" />
-                                            <span className="hidden sm:inline">{t("serverList.pagination.previous")}</span>
-                                        </Button>
-                                        <div className="text-sm font-medium text-muted-foreground">
-                                            {t("serverList.pagination.page", { current: safeCurrentPage.toString(), total: totalPages.toString() })}
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setCurrentPage(safeCurrentPage + 1)}
-                                            disabled={safeCurrentPage >= totalPages}
-                                            aria-label={t("serverList.pagination.next")}
-                                            className="rounded-xl h-10 px-4 flex items-center gap-2"
-                                        >
-                                            <span className="hidden sm:inline">{t("serverList.pagination.next")}</span>
-                                            <ChevronRight className="w-4 h-4" />
-                                        </Button>
-                                    </div>
+                                    <Pagination
+                                        currentPage={safeCurrentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={setCurrentPage}
+                                        className="mt-12 mb-8"
+                                    />
                                 )}
                             </>
                         ) : (
