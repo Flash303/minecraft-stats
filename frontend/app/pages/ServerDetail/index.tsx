@@ -17,6 +17,7 @@ import { getTimeRanges, getIntervals } from "@/lib/chartUtils"
 import { cn, formatMinecraftVersion } from "@/lib/utils"
 
 import { MinecraftMotd } from "@/components/motd"
+import { getLabyModBackground } from "@/lib/labymod"
 
 
 export type DateRange = {
@@ -94,6 +95,15 @@ export default function ServerDetail() {
     const [rawRecords, setRawRecords] = useState<{ date: number; value: number }[]>(initialRecords || [])
     const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
+    const [labyBackground, setLabyBackground] = useState<string | undefined>()
+
+    useEffect(() => {
+        if (server?.ip) {
+            getLabyModBackground(server.ip).then(url => {
+                if (url) setLabyBackground(url)
+            })
+        }
+    }, [server?.ip])
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -380,6 +390,7 @@ export default function ServerDetail() {
                             favicon={getServerIconUrl(server.id)}
                             pingTime={server.last_ping_time}
                             lastSample={server.last_sample}
+                            backgroundUrl={labyBackground}
                         />
                     </div>
                 </div>

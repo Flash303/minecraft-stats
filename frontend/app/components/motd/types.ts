@@ -25,4 +25,5 @@ export interface MinecraftMotdProps {
     favicon?: string | null
     pingTime?: number | null
     lastSample?: string | null
+    backgroundUrl?: string | null
 }
