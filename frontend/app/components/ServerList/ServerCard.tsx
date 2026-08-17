@@ -1,6 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/lib/api"
-import { fetchRecords } from "@/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
@@ -18,24 +17,9 @@ interface ServerCardProps {
 export function ServerCard({ server }: ServerCardProps) {
     const { t, language } = useLanguage()
     const { getLabyInfo, getLunarInfo } = useClientInfo()
-    const [fetchedRecords, setFetchedRecords] = useState<{ date: number; value: number }[]>([])
     const [copied, setCopied] = useState(false)
 
-    useEffect(() => {
-        if (server.data) return
-        const loadRecords = async () => {
-            try {
-                const from = Math.floor((Date.now() - 86400000) / 1000)
-                const data = await fetchRecords(server.id, from, 300000)
-                setFetchedRecords(data)
-            } catch {
-                setFetchedRecords([])
-            }
-        }
-        loadRecords().then()
-    }, [server.id, server.data])
-
-    const records = server.data || fetchedRecords
+    const records = server.data || []
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
