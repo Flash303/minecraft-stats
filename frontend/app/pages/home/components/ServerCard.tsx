@@ -9,6 +9,9 @@ import { parseLegacyText } from "@/ui/motd/parser"
 import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import { LunarLogo } from "@/ui/components/LunarLogo"
+import { LabyLogo } from "@/ui/components/LabyLogo"
+import { JavaLogo } from "@/ui/components/JavaLogo"
+import { BedrockLogo } from "@/ui/components/BedrockLogo"
 import { Link } from "react-router"
 
 interface ServerCardProps {
@@ -70,7 +73,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                             </h2>
                         )}
                         {lunarInfo && <LunarLogo className="w-3.5 h-3.5 text-sky-500 shrink-0" />}
-                        {labyInfo && <img src="https://laby.net/logo.svg" className="w-3.5 h-3.5 object-contain drop-shadow-md dark:brightness-100 brightness-0 shrink-0" alt="LabyMod" />}
+                        {labyInfo && <LabyLogo className="w-3.5 h-3.5 text-slate-900 dark:text-white shrink-0" />}
                     </div>
                     
                     <button 
@@ -150,12 +153,22 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-row items-center gap-1.5 truncate">
                     {server.type && (
                         <span className={cn(
-                            "inline-flex items-center rounded-lg border px-2 py-0.5 text-[10px] font-semibold shadow-xs whitespace-nowrap",
+                            "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[10px] font-semibold shadow-xs whitespace-nowrap",
                             server.type === "java" 
                                 ? "border-amber-200/50 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 dark:border-amber-800/30"
                                 : "border-indigo-200/50 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 dark:border-indigo-800/30"
                         )}>
-                            {server.type === "java" ? "Java" : "Bedrock"}
+                            {server.type === "java" ? (
+                                <>
+                                    <JavaLogo className="w-2.5 h-2.5" />
+                                    Java
+                                </>
+                            ) : (
+                                <>
+                                    <BedrockLogo className="w-2.5 h-2.5" />
+                                    Bedrock
+                                </>
+                            )}
                         </span>
                     )}
                     {server.last_version ? (

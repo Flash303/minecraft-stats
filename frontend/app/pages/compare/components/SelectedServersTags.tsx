@@ -2,6 +2,7 @@ import { X } from "lucide-react"
 import { Link } from "react-router"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { LunarLogo } from "@/ui/components/LunarLogo"
+import { LabyLogo } from "@/ui/components/LabyLogo"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import type { Server } from "@/core/lib/api"
 
@@ -40,10 +41,8 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                             <LunarLogo className="w-3.5 h-3.5 text-sky-500 shrink-0" title="Lunar Client" />
                         )}
                         {getLabyInfo(s.ip) && (
-                            <img
-                                src="https://laby.net/logo.svg"
-                                className="w-3.5 h-3.5 object-contain dark:brightness-100 brightness-0 shrink-0"
-                                alt="LabyMod"
+                            <LabyLogo
+                                className="w-3.5 h-3.5 text-slate-900 dark:text-white shrink-0"
                                 title="LabyMod"
                             />
                         )}

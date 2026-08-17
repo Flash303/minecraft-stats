@@ -9,6 +9,7 @@ import { BiSupport } from "react-icons/bi"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { cn } from "@/core/lib/utils"
 import { LunarLogo } from "@/ui/components/LunarLogo"
+import { LabyLogo } from "@/ui/components/LabyLogo"
 
 // Import icons mapping for social links
 const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string }> = {
@@ -122,7 +123,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             <div className="flex items-center justify-between">
                 <h3 className="font-semibold leading-none tracking-tight text-lg flex items-center gap-2">
                     {isLaby ? (
-                        <img src="https://laby.net/logo.svg" alt="LabyMod" className="w-5 h-5 object-contain drop-shadow-md dark:brightness-100 brightness-0" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                        <LabyLogo className="w-5 h-5 text-slate-900 dark:text-white" />
                     ) : (
                         <LunarLogo className="w-5 h-5 text-sky-500" />
                     )}

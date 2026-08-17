@@ -12,6 +12,7 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useSearch } from "@/core/contexts/SearchContext"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import { LunarLogo } from "@/ui/components/LunarLogo"
+import { LabyLogo } from "@/ui/components/LabyLogo"
 
 interface SearchBarProps {
     value?: string
@@ -182,7 +183,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
                                     {getLunarInfo(s.ip) && <LunarLogo className="w-2.5 h-2.5 text-sky-500 shrink-0" />}
-                                    {getLabyInfo(s.ip) && <img src="https://laby.net/logo.svg" className="w-2.5 h-2.5 object-contain drop-shadow-md dark:brightness-100 brightness-0 shrink-0" alt="LabyMod" />}
+                                    {getLabyInfo(s.ip) && <LabyLogo className="w-2.5 h-2.5 text-slate-900 dark:text-white shrink-0" />}
                                 </div>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
                             </div>

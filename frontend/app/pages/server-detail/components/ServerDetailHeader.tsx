@@ -7,6 +7,7 @@ import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } fro
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { LunarLogo } from "@/ui/components/LunarLogo"
+import { LabyLogo } from "@/ui/components/LabyLogo"
 
 interface ServerDetailHeaderProps {
     server: Server
@@ -51,10 +52,8 @@ export function ServerDetailHeader({ server, t, locale, hasLunar, hasLabyMod }: 
                             <LunarLogo className="w-4 h-4 text-sky-500 shrink-0" title="Lunar Client" />
                         )}
                         {hasLabyMod && (
-                            <img
-                                src="https://laby.net/logo.svg"
-                                className="w-4 h-4 object-contain drop-shadow-sm dark:brightness-100 brightness-0 shrink-0"
-                                alt="LabyMod"
+                            <LabyLogo
+                                className="w-4 h-4 text-slate-900 dark:text-white shrink-0"
                                 title="LabyMod"
                             />
                         )}

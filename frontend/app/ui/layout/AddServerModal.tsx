@@ -16,6 +16,8 @@ import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
 import { createServer } from "@/core/lib/api"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { JavaLogo } from "@/ui/components/JavaLogo"
+import { BedrockLogo } from "@/ui/components/BedrockLogo"
 
 interface AddServerModalProps {
     onSuccess?: () => void
@@ -119,8 +121,18 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                                 <SelectValue placeholder="Sélectionner le type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="java">Java</SelectItem>
-                                <SelectItem value="bedrock">Bedrock</SelectItem>
+                                <SelectItem value="java">
+                                    <span className="flex items-center gap-2">
+                                        <JavaLogo className="w-3.5 h-3.5 text-amber-500" />
+                                        Java
+                                    </span>
+                                </SelectItem>
+                                <SelectItem value="bedrock">
+                                    <span className="flex items-center gap-2">
+                                        <BedrockLogo className="w-3.5 h-3.5 text-indigo-500" />
+                                        Bedrock
+                                    </span>
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
