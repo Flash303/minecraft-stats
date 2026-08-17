@@ -42,7 +42,17 @@ serve({
     // 2. ISR Cache logic
     // Only cache GET HTML requests (ignore data requests and assets)
     if (req.method === "GET" && !url.searchParams.has("_data") && !url.pathname.startsWith("/assets")) {
+      // Bypass cache for private logged-in routes
+      if (
+        url.pathname.startsWith("/account") ||
+        url.pathname.startsWith("/admin") ||
+        url.pathname.startsWith("/dashboard")
+      ) {
+        return requestHandler(req);
+      }
+
       const cookieHeader = req.headers.get("Cookie") || "";
+
       const theme = cookieHeader.match(/theme=(light|dark)/)?.[1] || "default";
       const lang = cookieHeader.match(/language=(fr|en)/)?.[1] || "default";
       const cacheKey = `${url.pathname}${url.search}|theme:${theme}|lang:${lang}`;
