@@ -6,10 +6,18 @@ import en from "../locales/en.json"
 type Language = "fr" | "en"
 type Translations = typeof fr
 
+type NestedKeyOf<ObjectType extends object> = {
+  [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
+    ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+    : `${Key}`
+}[keyof ObjectType & (string | number)]
+
+export type TranslationKey = NestedKeyOf<typeof fr>
+
 interface LanguageContextType {
     language: Language
     setLanguage: (lang: Language) => void
-    t: (key: string, replacements?: Record<string, string>) => string
+    t: (key: TranslationKey, replacements?: Record<string, string>) => string
 }
 
 const translations: Record<Language, Translations> = { fr, en }
@@ -48,8 +56,8 @@ export function LanguageProvider({ children, serverLanguage }: { children: React
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
     }, [language, mounted])
 
-    const t = (path: string, replacements?: Record<string, string>) => {
-        const keys = path.split(".")
+    const t = (path: TranslationKey, replacements?: Record<string, string>) => {
+        const keys = (path as string).split(".")
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let current: any = translations[language]
 
