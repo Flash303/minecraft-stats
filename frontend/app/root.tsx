@@ -14,6 +14,7 @@ import { SearchProvider } from "./contexts/SearchContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ClerkProvider } from "@clerk/react";
 import { AdminProvider } from "./contexts/AdminContext";
+import { ClientInfoProvider } from "./contexts/ClientInfoContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./components/ui/global-loading";
@@ -112,11 +113,13 @@ export default function App() {
       <AdminProvider>
         <ThemeProvider serverTheme={serverTheme}>
           <LanguageProvider serverLanguage={serverLanguage}>
-            <SearchProvider>
-              <TooltipProvider>
-                <Outlet />
-              </TooltipProvider>
-            </SearchProvider>
+            <ClientInfoProvider>
+              <SearchProvider>
+                <TooltipProvider>
+                  <Outlet />
+                </TooltipProvider>
+              </SearchProvider>
+            </ClientInfoProvider>
           </LanguageProvider>
         </ThemeProvider>
       </AdminProvider>
