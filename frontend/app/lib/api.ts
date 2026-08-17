@@ -61,6 +61,26 @@ function getHeaders(token?: string, forwardedFor?: string | null): HeadersInit {
     return headers
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function normalizeServerData(server: any): Server {
+    if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
+        const dates = server.data[0] || []
+        const values = server.data[1] || []
+        const records: Record[] = []
+        for (let i = 0; i < dates.length; i++) {
+            records.push({
+                date: dates[i],
+                value: values[i]
+            })
+        }
+        return {
+            ...server,
+            data: records
+        }
+    }
+    return server
+}
+
 export async function fetchServers(token?: string, includeStats?: boolean, forwardedFor?: string | null): Promise<Server[]> {
     try {
         const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
@@ -73,24 +93,7 @@ export async function fetchServers(token?: string, includeStats?: boolean, forwa
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
-        return servers.map(server => {
-            if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
-                const dates = server.data[0] || []
-                const values = server.data[1] || []
-                const records: Record[] = []
-                for (let i = 0; i < dates.length; i++) {
-                    records.push({
-                        date: dates[i],
-                        value: values[i]
-                    })
-                }
-                return {
-                    ...server,
-                    data: records
-                }
-            }
-            return server
-        })
+        return servers.map(normalizeServerData)
     } catch (error) {
         console.error("Failed to fetch servers:", error)
         return []
@@ -109,24 +112,7 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
-        return servers.map(server => {
-            if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
-                const dates = server.data[0] || []
-                const values = server.data[1] || []
-                const records: Record[] = []
-                for (let i = 0; i < dates.length; i++) {
-                    records.push({
-                        date: dates[i],
-                        value: values[i]
-                    })
-                }
-                return {
-                    ...server,
-                    data: records
-                }
-            }
-            return server
-        })
+        return servers.map(normalizeServerData)
     } catch (error) {
         console.error("Failed to fetch my servers:", error)
         return []
@@ -149,23 +135,7 @@ export async function fetchServer(id: number | string, token?: string, forwarded
             return null;
         }
         
-        const server = json.data
-        if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
-            const dates = server.data[0] || []
-            const values = server.data[1] || []
-            const records: Record[] = []
-            for (let i = 0; i < dates.length; i++) {
-                records.push({
-                    date: dates[i],
-                    value: values[i]
-                })
-            }
-            return {
-                ...server,
-                data: records
-            }
-        }
-        return server
+        return normalizeServerData(json.data)
     } catch (error) {
         console.error(`[SSR Debug] Failed to fetch server ${id} from API_BASE ${API_BASE}:`, error)
         return null
