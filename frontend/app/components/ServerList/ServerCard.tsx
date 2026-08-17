@@ -149,11 +149,11 @@ export function ServerCard({ server }: ServerCardProps) {
                     )}
                     {server.last_version ? (
                         <span className="inline-flex items-center rounded-lg border border-slate-200/55 dark:border-zinc-800 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-400 shadow-xs whitespace-nowrap">
-                            Version {formatMinecraftVersion(server.last_version)}
+                            {t("common.version", { version: formatMinecraftVersion(server.last_version) })}
                         </span>
                     ) : (
                         <span className="inline-flex items-center rounded-lg border border-slate-100 dark:border-zinc-800/40 px-2 py-0.5 text-[10px] font-semibold bg-slate-50 dark:bg-zinc-900/30 text-slate-400 dark:text-zinc-600 shadow-xs whitespace-nowrap">
-                            Version inconnue
+                            {t("common.unknownVersion")}
                         </span>
                     )}
                 </div>

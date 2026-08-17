@@ -20,6 +20,8 @@
     "date": "Date",
     "time": "at",
     "currentPlayers": "current players",
+    "version": "Version {{version}}",
+    "unknownVersion": "Unknown version",
     "pointsCount": "{{count}} data points displayed",
     "stats": {
       "title": "Period Statistics",
@@ -119,7 +121,9 @@
       "lunarInfo": "Lunar Client Info",
       "website": "Website",
       "web": "Website",
+      "store": "Store",
       "languages": "Supported Languages",
+      "minecraftVersions": "Minecraft Versions",
       "trailer": "Video Trailer",
       "showMore": "Show {count} more",
       "showLess": "Show less"
@@ -383,14 +387,20 @@
       "duplicate": "A similar server already exists.",
       "database_problem": "A database error occurred while adding the server."
     },
-    "fetching_data": "Failed to fetch data from the server.",
+    "fetching_data": "Unable to fetch server data.",
     "disabled_feature": "This feature is currently disabled.",
-    "authentification": "Authentication failed. Please login again.",
+    "authentification": "Authentication failed. Please reconnect.",
     "server_not_found": "The requested server could not be found.",
+    "somethingWentWrong": "Something went wrong",
+    "pageNotFound": "Page Not Found",
+    "errorTitle": "Error",
     "validation": {
-      "invalid_param": "Invalid parameter provided in the request.",
-      "invalid_query": "Invalid query parameters provided.",
-      "invalid_json": "Invalid JSON format in the request body."
+      "invalid_param": "Invalid parameter provided in request.",
+      "invalid_query": "Invalid query parameters.",
+      "invalid_json": "Invalid JSON format in request body."
     }
+  },
+  "adminFavicon": {
+    "title": "Update Favicon"
   }
 }

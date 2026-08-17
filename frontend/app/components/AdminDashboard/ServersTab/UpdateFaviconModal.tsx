@@ -80,7 +80,7 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Update Favicon</DialogTitle>
+                        <DialogTitle>{t("adminFavicon.title")}</DialogTitle>
                         <DialogDescription>
                             Uploadez une image pour forcer le favicon du serveur. L'image sera automatiquement redimensionnée en 64x64 et convertie.
                         </DialogDescription>

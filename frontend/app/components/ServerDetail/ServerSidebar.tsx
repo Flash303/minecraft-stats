@@ -334,7 +334,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                     className="group flex items-center gap-2 text-sm hover:text-sky-500 transition-colors p-2 rounded-md hover:bg-muted"
                                 >
                                     <SOCIAL_ICONS.web_shop.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", SOCIAL_ICONS.web_shop.colorClass)} />
-                                    <span className="truncate capitalize">Store</span>
+                                    <span className="truncate capitalize">{t("serverDetail.sidebar.store")}</span>
                                 </a>
                             )}
                         </div>
@@ -395,7 +395,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
                 {lunarServerInfo.minecraftVersions && lunarServerInfo.minecraftVersions.length > 0 && (
                     <div className="flex flex-col gap-3">
-                        <h3 className="text-sm font-semibold text-muted-foreground">Minecraft Versions</h3>
+                        <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.minecraftVersions")}</h3>
                         <div className="flex flex-wrap gap-2">
                             {lunarServerInfo.minecraftVersions.map((v) => (
                                 <span 

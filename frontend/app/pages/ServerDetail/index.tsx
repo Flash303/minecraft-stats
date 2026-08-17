@@ -692,10 +692,11 @@ export default function ServerDetail() {
 
 export function ErrorBoundary() {
     const error = useRouteError()
+    const { t } = useLanguage()
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
     return (
         <div className="p-8 text-center text-red-500">
-            <h1>Something went wrong in ServerDetail</h1>
+            <h1>{t("error.somethingWentWrong")} in ServerDetail</h1>
             <pre className="bg-muted mt-4 overflow-auto rounded p-4 text-left">
                 {error instanceof Error ? error.stack : String(error)}
             </pre>

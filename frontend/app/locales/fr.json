@@ -20,6 +20,8 @@
     "date": "Date",
     "time": "à",
     "currentPlayers": "joueurs actuels",
+    "version": "Version {{version}}",
+    "unknownVersion": "Version inconnue",
     "pointsCount": "{{count}} points de données affichés",
     "stats": {
       "title": "Statistiques sur la période",
@@ -119,7 +121,9 @@
       "lunarInfo": "Infos Lunar Client",
       "website": "Site Web",
       "web": "Site Web",
+      "store": "Boutique",
       "languages": "Langues supportées",
+      "minecraftVersions": "Versions Minecraft",
       "trailer": "Trailer Vidéo",
       "showMore": "Voir {count} autres",
       "showLess": "Voir moins"
@@ -387,10 +391,16 @@
     "disabled_feature": "Cette fonctionnalité est actuellement désactivée.",
     "authentification": "Échec de l'authentification. Veuillez vous reconnecter.",
     "server_not_found": "Le serveur demandé est introuvable.",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "pageNotFound": "Page non trouvée",
+    "errorTitle": "Erreur",
     "validation": {
       "invalid_param": "Paramètre invalide fourni dans la requête.",
       "invalid_query": "Paramètres de requête invalides.",
       "invalid_json": "Format JSON invalide dans le corps de la requête."
     }
+  },
+  "adminFavicon": {
+    "title": "Mettre à jour le Favicon"
   }
 }
