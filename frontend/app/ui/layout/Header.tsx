@@ -18,12 +18,10 @@ import {
 } from "@/ui/components/select"
 
 interface HeaderProps {
-    onRefresh?: () => void
-    isLoading?: boolean
     leftContent?: React.ReactNode
 }
 
-export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
+export function Header({ leftContent }: HeaderProps) {
     const { isSignedIn, isLoaded } = useAuth()
     const { searchQuery, setSearchQuery, triggerRefresh } = useSearch()
     const { language, setLanguage, t } = useLanguage()
@@ -150,18 +148,6 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
 
                     {/* Desktop Language Switcher */}
                     <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
-                        {onRefresh && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={onRefresh}
-                                disabled={isLoading}
-                                className="h-8"
-                            >
-                                {isLoading ? t("common.loading") : t("common.refresh")}
-                            </Button>
-                        )}
-                        
                         <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
                             <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages className="h-4 w-4" />
@@ -180,10 +166,7 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
                         ) : isSignedIn ? (
                             <>
-                                <AddServerModal onSuccess={() => {
-                                    if (onRefresh) onRefresh()
-                                    triggerRefresh()
-                                }} />
+                                <AddServerModal onSuccess={triggerRefresh} />
                                 <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
                                     <UserButton userProfileMode="navigation" userProfileUrl="/account" />
                                 </div>
@@ -245,21 +228,6 @@ export function Header({ onRefresh, isLoading, leftContent }: HeaderProps) {
                     </nav>
 
                     <div className="border-t pt-3 flex flex-col gap-3">
-                        {onRefresh && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    onRefresh()
-                                    setIsMobileMenuOpen(false)
-                                }}
-                                disabled={isLoading}
-                                className="w-full justify-center h-9 font-semibold text-xs"
-                            >
-                                {isLoading ? t("common.loading") : t("common.refresh")}
-                            </Button>
-                        )}
-
                         <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-muted/40">
                             <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-2">
                                 <Languages className="h-4 w-4" />

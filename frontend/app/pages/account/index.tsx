@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react"
 import { useAuth, useUser } from "@clerk/react"
 import { fetchMyServers, fetchAlerts, deleteAlert } from "@/core/lib/api"
 import type { Server, Alert } from "@/core/lib/api"
-import { useLayoutConfig } from "@/ui/layout"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { User, Server as ServerIcon, Bell, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
@@ -45,7 +44,6 @@ export default function Account() {
     const [servers, setServers] = useState<Server[]>([])
     const [allAlerts, setAllAlerts] = useState<ExtendedAlert[]>([])
     const [loading, setLoading] = useState(true)
-    const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     // Web Push State from Custom Hook
     const { 
@@ -93,16 +91,6 @@ export default function Account() {
             checkSubscription()
         }
     }, [isLoaded, loadData, checkSubscription])
-
-    useEffect(() => {
-        setOnRefresh(() => loadData)
-        return () => setOnRefresh(undefined)
-    }, [loadData, setOnRefresh])
-
-    useEffect(() => {
-        setIsLoading(loading && servers.length === 0)
-        return () => setIsLoading(undefined)
-    }, [loading, servers.length, setIsLoading])
 
     const handleDeleteAlert = async (alertId: number) => {
         const token = await getToken()

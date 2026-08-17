@@ -10,6 +10,7 @@ import {
     ArrowDownAZ,
     Clock,
     Globe,
+    RotateCw,
 } from "lucide-react"
 import {
     Popover,
@@ -37,6 +38,8 @@ interface ServerListFiltersProps {
     setSortDirection: (dir: "asc" | "desc") => void
     activeLauncher: "all" | "lunar" | "labymod"
     setActiveLauncher: (launcher: "all" | "lunar" | "labymod") => void
+    onRefresh?: () => void
+    isRefreshing?: boolean
 }
 
 /** Bouton de filtre rapide (onglets de statut) */
@@ -226,6 +229,8 @@ export function ServerListFilters({
     setSortDirection,
     activeLauncher,
     setActiveLauncher,
+    onRefresh,
+    isRefreshing,
 }: ServerListFiltersProps) {
     const { t } = useLanguage()
 
@@ -283,8 +288,26 @@ export function ServerListFilters({
                 )}
             </div>
 
-            {/* Bouton Filtres & Tri */}
-            <div className="w-full sm:w-auto flex justify-end">
+            {/* Actions: Actualiser & Filtres/Tri */}
+            <div className="w-full sm:w-auto flex items-center justify-end gap-2">
+                {onRefresh && (
+                    <button
+                        onClick={onRefresh}
+                        disabled={isRefreshing}
+                        title={t("common.refresh")}
+                        aria-label={t("common.refresh")}
+                        className={cn(
+                            "flex items-center gap-2 px-3.5 py-2 h-10 rounded-xl text-sm font-medium border shadow-xs transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
+                            "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 active:scale-95"
+                        )}
+                    >
+                        <RotateCw className={cn("w-4 h-4 text-muted-foreground", isRefreshing && "animate-spin text-primary")} />
+                        <span className="hidden xs:inline text-xs font-semibold">
+                            {isRefreshing ? t("common.loading") : t("common.refresh")}
+                        </span>
+                    </button>
+                )}
+
                 <Popover>
                     <PopoverTrigger asChild>
                         <button

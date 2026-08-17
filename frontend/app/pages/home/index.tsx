@@ -5,7 +5,6 @@ import type { Server } from "@/core/lib/api"
 import { ServerCard } from "@/pages/home/components/ServerCard"
 import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
 import { ServerListFilters } from "@/pages/home/components/ServerListFilters"
-import { useLayoutConfig } from "@/ui/layout"
 import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useSearch } from "@/core/contexts/SearchContext"
@@ -44,7 +43,6 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     const [loading, setLoading] = useState(isDeferredLoading)
     const [error, setError] = useState<string | null>(null)
     const [searchParams] = useSearchParams()
-    const { setOnRefresh, setIsLoading } = useLayoutConfig()
 
     const [activeTabState, setActiveTabState] = useState<"all" | "online" | "offline" | "hidden">(() => {
         const tabParam = searchParams.get("tab")
@@ -117,6 +115,8 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         setCurrentPage(1)
     }, [searchQuery])
 
+    const [refreshing, setRefreshing] = useState(false)
+
     const load = useCallback(async (background = false) => {
         if (!background) setLoading(true)
         setError(null)
@@ -134,22 +134,28 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getToken, isSignedIn, isLoaded, t])
 
+    const handleRefresh = useCallback(async () => {
+        setRefreshing(true)
+        setError(null)
+        try {
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
+            const data = await fetchServers(token ?? undefined, true)
+            if (data) {
+                setServers(data)
+            }
+        } catch (err) {
+            console.error("Failed to refresh servers:", err)
+        } finally {
+            setRefreshing(false)
+        }
+    }, [getToken, isSignedIn, isLoaded])
+
     useEffect(() => {
         if (!isLoaded || isDeferredLoading) return
         Promise.resolve().then(() => {
             load(true) // Run as background fetch to avoid UI flashing
         })
     }, [load, isLoaded, isDeferredLoading])
-
-    useEffect(() => {
-        setOnRefresh(() => load)
-        return () => setOnRefresh(undefined)
-    }, [load, setOnRefresh])
-
-    useEffect(() => {
-        setIsLoading(loading)
-        return () => setIsLoading(undefined)
-    }, [loading, setIsLoading])
 
     const baseServersForCounts = useMemo(() => {
         let list = servers
@@ -260,6 +266,8 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     setActiveSort={setActiveSort}
                     sortDirection={sortDirection}
                     setSortDirection={setSortDirection}
+                    onRefresh={handleRefresh}
+                    isRefreshing={refreshing}
                 />
 
                 {loading && servers.length === 0 && (
