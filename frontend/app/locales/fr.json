@@ -108,7 +108,11 @@
       "playerStats": "Statistiques Joueurs",
       "searchPlayer": "Rechercher un joueur...",
       "gamemodes": "Modes de jeu",
-      "labymodInfo": "Infos LabyMod"
+      "labymodInfo": "Infos LabyMod",
+      "languages": "Langues supportées",
+      "trailer": "Trailer Vidéo",
+      "showMore": "Voir {count} autres",
+      "showLess": "Voir moins"
     }
   },
   "comparison": {

@@ -24,11 +24,14 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
 
 interface ServerSidebarProps {
     labyServerInfo?: LabyModServer;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    labyManifest?: any;
     serverName: string;
 }
 
-export function ServerSidebar({ labyServerInfo, serverName }: ServerSidebarProps) {
+export function ServerSidebar({ labyServerInfo, labyManifest, serverName }: ServerSidebarProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [showAllGamemodes, setShowAllGamemodes] = useState(false);
     const { t } = useLanguage();
 
     if (!labyServerInfo) {
@@ -108,7 +111,7 @@ export function ServerSidebar({ labyServerInfo, serverName }: ServerSidebarProps
                         <div className="flex flex-col gap-3">
                             <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.gamemodes")}</h3>
                             <div className="flex flex-wrap gap-2">
-                                {Object.entries(gamemodes).map(([key, mode]) => (
+                                {(showAllGamemodes ? Object.entries(gamemodes) : Object.entries(gamemodes).slice(0, 15)).map(([key, mode]) => (
                                     <span 
                                         key={key}
                                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -122,6 +125,56 @@ export function ServerSidebar({ labyServerInfo, serverName }: ServerSidebarProps
                                         {mode.name}
                                     </span>
                                 ))}
+                                {Object.keys(gamemodes).length > 15 && (
+                                    <button 
+                                        onClick={() => setShowAllGamemodes(!showAllGamemodes)}
+                                        className="inline-flex items-center rounded-full border border-dashed px-2.5 py-0.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground hover:border-foreground"
+                                    >
+                                        {showAllGamemodes ? t("serverDetail.sidebar.showLess") : t("serverDetail.sidebar.showMore").replace("{count}", (Object.keys(gamemodes).length - 15).toString())}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {labyManifest?.supported_languages && labyManifest.supported_languages.length > 0 && (
+                        <div className="flex flex-col gap-3">
+                            <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.languages")}</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {labyManifest.supported_languages.map((lang: string) => {
+                                    const code = lang.toLowerCase();
+                                    const flagCode = {
+                                        en: 'gb', ja: 'jp', zh: 'cn', ko: 'kr',
+                                        da: 'dk', cs: 'cz', el: 'gr', sv: 'se',
+                                        he: 'il', ar: 'sa'
+                                    }[code] || code;
+                                    
+                                    return (
+                                        <div key={lang} className="flex items-center gap-1.5 uppercase text-xs font-semibold px-2 py-1 bg-muted/50 rounded-md border text-muted-foreground transition-colors hover:bg-muted" title={lang}>
+                                            <img 
+                                                src={`https://flagcdn.com/w20/${flagCode}.png`}
+                                                alt={lang}
+                                                className="w-4 h-auto rounded-[1px] shadow-sm"
+                                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                            />
+                                            <span>{lang}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {labyManifest?.yt_trailer && (
+                        <div className="flex flex-col gap-3">
+                            <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.trailer")}</h3>
+                            <div className="aspect-video w-full rounded-md overflow-hidden border">
+                                <iframe 
+                                    src={`https://www.youtube.com/embed/${labyManifest.yt_trailer}`}
+                                    title="YouTube Trailer"
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                />
                             </div>
                         </div>
                     )}

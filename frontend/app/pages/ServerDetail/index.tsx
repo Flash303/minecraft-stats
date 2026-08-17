@@ -154,6 +154,8 @@ export default function ServerDetail() {
     const [labyServerInfo, setLabyServerInfo] = useState<
         LabyModServer | undefined
     >()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [labyManifest, setLabyManifest] = useState<any | undefined>()
 
     const labyBackground = labyServerInfo?.attachments?.find(
         (a) =>
@@ -164,7 +166,17 @@ export default function ServerDetail() {
     useEffect(() => {
         if (server?.ip) {
             getLabyModServerInfo(server.ip).then((info) => {
-                if (info) setLabyServerInfo(info)
+                if (info) {
+                    setLabyServerInfo(info)
+                    const manifestAttachment = info.attachments?.find((a) => a.file_name === 'manifest.json')
+                    if (manifestAttachment) {
+                        const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
+                        fetch(proxyUrl)
+                            .then(res => res.json())
+                            .then(data => setLabyManifest(data))
+                            .catch(console.error)
+                    }
+                }
             })
         }
     }, [server?.ip])
@@ -644,6 +656,7 @@ export default function ServerDetail() {
                         {/* Sidebar */}
                         <ServerSidebar
                             labyServerInfo={labyServerInfo}
+                            labyManifest={labyManifest}
                             serverName={server.name}
                         />
                     </div>
