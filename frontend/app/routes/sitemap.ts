@@ -1,5 +1,5 @@
 import type { Route } from "./+types/sitemap";
-import { fetchServers } from "@/lib/api";
+import { fetchServers } from "@/core/lib/api";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");

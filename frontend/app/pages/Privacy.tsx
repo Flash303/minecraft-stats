@@ -1,5 +1,5 @@
 
-import { useLanguage } from "@/contexts/LanguageContext"
+import { useLanguage } from "@/core/contexts/LanguageContext"
 
 export default function Privacy() {
     const { t } = useLanguage()

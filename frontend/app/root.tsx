@@ -9,15 +9,15 @@ import {
 } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { SearchProvider } from "./contexts/SearchContext";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { ThemeProvider } from "./core/contexts/ThemeContext";
+import { SearchProvider } from "./core/contexts/SearchContext";
+import { LanguageProvider } from "./core/contexts/LanguageContext";
 import { ClerkProvider } from "@clerk/react";
-import { AdminProvider } from "./contexts/AdminContext";
-import { ClientInfoProvider } from "./contexts/ClientInfoContext";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { AdminProvider } from "./core/contexts/AdminContext";
+import { ClientInfoProvider } from "./core/contexts/ClientInfoContext";
+import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
-import { GlobalLoading } from "./components/ui/global-loading";
+import { GlobalLoading } from "./ui/components/global-loading";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

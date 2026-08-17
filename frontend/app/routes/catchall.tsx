@@ -1,7 +1,9 @@
 import { isRouteErrorResponse, useRouteError } from "react-router";
+import { useLanguage } from "@/core/contexts/LanguageContext";
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  const { t } = useLanguage();
   
   if (isRouteErrorResponse(error)) {
     return (
@@ -14,8 +16,8 @@ export function ErrorBoundary() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <h1 className="text-4xl font-bold">Error</h1>
-      <p className="text-xl text-muted-foreground">Something went wrong.</p>
+      <h1 className="text-4xl font-bold">{t("error.errorTitle")}</h1>
+      <p className="text-xl text-muted-foreground">{t("error.somethingWentWrong")}</p>
     </div>
   );
 }
@@ -25,10 +27,11 @@ export function loader() {
 }
 
 export default function CatchAll() {
+    const { t } = useLanguage();
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <h1 className="text-4xl font-bold">404</h1>
-            <p className="text-xl text-muted-foreground">Page Not Found</p>
+            <p className="text-xl text-muted-foreground">{t("error.pageNotFound")}</p>
         </div>
     )
 }

@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
                 "Cache-Control": "public, max-age=3600"
             }
         });
-    } catch (e) {
+    } catch {
         return new Response("Internal Server Error", { status: 500 });
     }
 }
