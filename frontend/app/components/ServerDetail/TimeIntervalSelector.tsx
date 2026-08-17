@@ -59,7 +59,7 @@ export function TimeIntervalSelector({
                 value={String(selectedRange)}
                 onValueChange={(v: string) => setSelectedRange(Number(v))}
             >
-                <SelectTrigger className={cn("h-9 w-full md:w-[160px] text-xs", triggerClassName)}>
+                <SelectTrigger className={cn("h-9 w-full md:w-[160px] text-xs bg-background/95 backdrop-blur-sm", triggerClassName)}>
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -84,7 +84,7 @@ export function TimeIntervalSelector({
                             id="date"
                             variant={"outline"}
                             className={cn(
-                                "h-9 w-full md:w-[240px] justify-start text-left font-normal text-xs bg-transparent",
+                                "h-9 w-full md:w-[240px] justify-start text-left font-normal text-xs bg-background/95 backdrop-blur-sm",
                                 !customRange && "text-muted-foreground",
                                 triggerClassName
                             )}
@@ -121,7 +121,7 @@ export function TimeIntervalSelector({
                 value={String(selectedInterval)}
                 onValueChange={(v: string) => setSelectedInterval(Number(v))}
             >
-                <SelectTrigger className={cn("h-9 w-full md:w-[100px] text-xs", triggerClassName)}>
+                <SelectTrigger className={cn("h-9 w-full md:w-[100px] text-xs bg-background/95 backdrop-blur-sm", triggerClassName)}>
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -176,7 +176,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 alt="" 
                             />
                             <div className="flex flex-col min-w-0 flex-1">
-                                <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
+                                <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none mt-0.5">{s.ip}</span>
                             </div>
                             {idx === selectedIndex && (

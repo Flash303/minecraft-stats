@@ -524,19 +524,6 @@ export default function ServerDetail() {
                             t={t}
                             locale={locale}
                         />
-
-                        <TimeIntervalSelector
-                            selectedRange={selectedRange}
-                            setSelectedRange={setSelectedRange}
-                            selectedInterval={selectedInterval}
-                            setSelectedInterval={setSelectedInterval}
-                            customRange={customRange}
-                            setCustomRange={setCustomRange}
-                            timeRanges={TIME_RANGES}
-                            intervals={INTERVALS}
-                            containerClassName="w-full md:w-auto md:ml-auto"
-                            t={t}
-                        />
                     </div>
                 </div>
 
@@ -610,6 +597,20 @@ export default function ServerDetail() {
                                     // eslint-disable-next-line react-hooks/immutability
                                     onZoomChange={(z) =>
                                         (isChartZoomed.current = z)
+                                    }
+                                    timeSelector={
+                                        <TimeIntervalSelector
+                                            selectedRange={selectedRange}
+                                            setSelectedRange={setSelectedRange}
+                                            selectedInterval={selectedInterval}
+                                            setSelectedInterval={setSelectedInterval}
+                                            customRange={customRange}
+                                            setCustomRange={setCustomRange}
+                                            timeRanges={TIME_RANGES}
+                                            intervals={INTERVALS}
+                                            containerClassName="w-full lg:w-auto"
+                                            t={t}
+                                        />
                                     }
                                     header={
                                         <h2 className="flex w-full flex-col gap-1 text-lg font-semibold sm:flex-row sm:items-center sm:gap-2">
