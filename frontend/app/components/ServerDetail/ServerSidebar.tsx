@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import type { LabyModServer } from "@/lib/labymod"
 import type { LunarServer } from "@/lib/lunar"
-import { ExternalLink, Gamepad2, Users, Search, Globe, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react"
+import { ExternalLink, Gamepad2, Users, Search, Globe, ShoppingCart, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaYoutube, FaFacebook, FaTeamspeak, FaReddit } from "react-icons/fa6"
 import { BiSupport } from "react-icons/bi"
 import { useLanguage } from "@/contexts/LanguageContext"
@@ -77,6 +77,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
     const [activeSource, setActiveSource] = useState<'laby' | 'lunar'>(initialSource);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [progress, setProgress] = useState(0);
+    const [isAutoSwitching, setIsAutoSwitching] = useState(true);
     
     const canSwitch = !!(labyServerInfo && lunarServerInfo);
 
@@ -91,7 +92,10 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
 
     const handleSwitch = (manual = false) => {
         if (!canSwitch || isTransitioning) return;
-        if (manual) setProgress(0); // reset progress if user manually switched
+        if (manual) {
+            setProgress(0); // reset progress if user manually switched
+            setIsAutoSwitching(false); // disable auto switch on manual action
+        }
         setIsTransitioning(true);
         setTimeout(() => {
             setActiveSource(prev => prev === 'laby' ? 'lunar' : 'laby');
@@ -101,14 +105,14 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
     };
 
     useEffect(() => {
-        if (!canSwitch || isTransitioning) return; // pause timer during transition
+        if (!canSwitch || isTransitioning || !isAutoSwitching) return; // pause timer during transition or when disabled
 
         const interval = setInterval(() => {
             setProgress((prev) => (prev >= 100 ? 100 : prev + 1));
         }, 100); // 100 * 100ms = 10s pour switch
 
         return () => clearInterval(interval);
-    }, [canSwitch, isTransitioning, activeSource]); // reset interval when source or state changes
+    }, [canSwitch, isTransitioning, activeSource, isAutoSwitching]); // reset interval when source or state changes
 
     useEffect(() => {
         if (progress >= 100 && !isTransitioning) {
@@ -128,10 +132,17 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
                     ) : (
                         <LunarLogo className="w-5 h-5 text-sky-500" />
                     )}
-                    {isLaby ? t("serverDetail.sidebar.labymodInfo") : "Lunar Client Info"}
+                    {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>
                 {canSwitch && (
                     <div className="flex items-center gap-1 z-10">
+                        <button 
+                            onClick={() => setIsAutoSwitching(!isAutoSwitching)} 
+                            className="p-1 hover:bg-muted/50 rounded-md transition-colors text-muted-foreground mr-1"
+                            title={isAutoSwitching ? "Pause auto-switch" : "Play auto-switch"}
+                        >
+                            {isAutoSwitching ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                        </button>
                         <button onClick={() => handleSwitch(true)} disabled={isTransitioning} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
                             <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -176,7 +187,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
                                         className="group flex items-center gap-2 text-sm hover:text-primary transition-colors p-2 rounded-md hover:bg-muted"
                                     >
                                         <Icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", iconData.colorClass)} />
-                                        <span className="truncate capitalize">{platform.replace('web_shop', 'shop').replace('web_support', 'support')}</span>
+                                        <span className="truncate capitalize">{platform === 'web' ? t("serverDetail.sidebar.web") : platform.replace('web_shop', 'shop').replace('web_support', 'support')}</span>
                                     </a>
                                 );
                             })}
@@ -318,7 +329,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo, s
                                     className="group flex items-center gap-2 text-sm hover:text-sky-500 transition-colors p-2 rounded-md hover:bg-muted"
                                 >
                                     <SOCIAL_ICONS.web.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", SOCIAL_ICONS.web.colorClass)} />
-                                    <span className="truncate capitalize">Website</span>
+                                    <span className="truncate capitalize">{t("serverDetail.sidebar.website")}</span>
                                 </a>
                             )}
                             {lunarServerInfo.store && (

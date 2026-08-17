@@ -13,7 +13,7 @@ interface StatsSectionProps {
 export function StatsSection({ stats, locale, t }: StatsSectionProps) {
     return (
         <div className="flex flex-col gap-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-2">
+            <h3 className="text-base font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-2">
                 <Users className="h-4 w-4 text-primary" />
                 {t("common.stats.title")}
             </h3>
