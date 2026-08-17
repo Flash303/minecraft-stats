@@ -6,14 +6,17 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/lib/utils"
 import { ServerIcon } from "@/components/ServerIcon"
+import { LunarLogo } from "@/components/LunarLogo"
 
 interface ServerDetailHeaderProps {
     server: Server
     t: (key: string) => string
     locale?: string
+    hasLunar?: boolean
+    hasLabyMod?: boolean
 }
 
-export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProps) {
+export function ServerDetailHeader({ server, t, locale, hasLunar, hasLabyMod }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     const isOnline = server.last_status === "online"
@@ -39,9 +42,23 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
                     className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
                 />
                 <div className="flex flex-col min-w-0">
-                    <h1 className="font-bold text-xl leading-none mb-1 line-clamp-1">
-                        {server.name}
-                    </h1>
+                    {/* Nom + icônes launcher */}
+                    <div className="flex items-center gap-2 mb-1 min-w-0">
+                        <h1 className="font-bold text-xl leading-none line-clamp-1 min-w-0">
+                            {server.name}
+                        </h1>
+                        {hasLunar && (
+                            <LunarLogo className="w-4 h-4 text-sky-500 shrink-0" title="Lunar Client" />
+                        )}
+                        {hasLabyMod && (
+                            <img
+                                src="https://laby.net/logo.svg"
+                                className="w-4 h-4 object-contain drop-shadow-sm dark:brightness-100 brightness-0 shrink-0"
+                                alt="LabyMod"
+                                title="LabyMod"
+                            />
+                        )}
+                    </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <div className={cn(
                             "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
