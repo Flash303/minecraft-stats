@@ -102,7 +102,21 @@
     "interval1m": "1 min",
     "interval5m": "5 min",
     "interval30m": "30 min",
-    "interval1h": "1 heure"
+    "interval1h": "1 heure",
+    "sidebar": {
+      "socials": "Réseaux Sociaux",
+      "playerStats": "Statistiques Joueurs",
+      "searchPlayer": "Rechercher un joueur...",
+      "gamemodes": "Modes de jeu",
+      "labymodInfo": "Infos LabyMod",
+      "lunarInfo": "Infos Lunar Client",
+      "website": "Site Web",
+      "web": "Site Web",
+      "languages": "Langues supportées",
+      "trailer": "Trailer Vidéo",
+      "showMore": "Voir {count} autres",
+      "showLess": "Voir moins"
+    }
   },
   "comparison": {
     "title": "Comparaison de serveurs",

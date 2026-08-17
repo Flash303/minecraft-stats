@@ -17,6 +17,7 @@ interface MultiServerChartProps {
     }
     zoomResetId?: string
     onZoomChange?: (isZoomed: boolean) => void
+    timeSelector?: React.ReactNode
 }
 
 const COLORS = [
@@ -30,7 +31,7 @@ const COLORS = [
     "#84cc16", // lime
 ]
 
-export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange }: MultiServerChartProps) {
+export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange, timeSelector }: MultiServerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -375,16 +376,21 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 items-start">
-                <h2 className="flex items-center gap-2 text-lg font-semibold truncate w-full sm:w-auto">
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 items-start">
+                <h2 className="flex items-center gap-2 text-lg font-semibold truncate w-full lg:w-auto">
                     <BarChart3 className="text-primary h-5 w-5 shrink-0" />
                     <span className="truncate">{t("serverDetail.playerHistory")}</span>
                 </h2>
-                <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+                <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
                     {isZoomed && (
                         <Button variant="outline" size="sm" onClick={handleResetZoom}>
                             {t("comparison.resetZoom")}
                         </Button>
+                    )}
+                    {timeSelector && (
+                        <div className="w-full sm:w-auto">
+                            {timeSelector}
+                        </div>
                     )}
                 </div>
             </div>

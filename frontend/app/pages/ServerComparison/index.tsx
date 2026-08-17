@@ -146,19 +146,6 @@ export default function ServerComparison() {
                             <BarChart3 className="h-6 w-6 shrink-0" />
                             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate">{t("comparison.title")}</h1>
                         </div>
- 
-                        <TimeIntervalSelector
-                            selectedRange={selectedRange}
-                            setSelectedRange={setSelectedRange}
-                            selectedInterval={selectedInterval}
-                            setSelectedInterval={setSelectedInterval}
-                            customRange={customRange}
-                            setCustomRange={setCustomRange}
-                            timeRanges={TIME_RANGES}
-                            intervals={INTERVALS}
-                            containerClassName="w-full md:justify-end"
-                            t={t}
-                        />
                     </div>
 
                     <div className="max-w-2xl">
@@ -197,6 +184,20 @@ export default function ServerComparison() {
                                 timeRange={timeRangeProps} 
                                 zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                 onZoomChange={(z) => isChartZoomed.current = z}
+                                timeSelector={
+                                    <TimeIntervalSelector
+                                        selectedRange={selectedRange}
+                                        setSelectedRange={setSelectedRange}
+                                        selectedInterval={selectedInterval}
+                                        setSelectedInterval={setSelectedInterval}
+                                        customRange={customRange}
+                                        setCustomRange={setCustomRange}
+                                        timeRanges={TIME_RANGES}
+                                        intervals={INTERVALS}
+                                        containerClassName="w-full lg:w-auto"
+                                        t={t}
+                                    />
+                                }
                             />
                         </Suspense>
                     )}

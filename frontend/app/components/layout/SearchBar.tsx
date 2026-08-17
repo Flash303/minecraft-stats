@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { useSearch } from "@/contexts/SearchContext"
+import { useClientInfo } from "@/contexts/ClientInfoContext"
+import { LunarLogo } from "@/components/LunarLogo"
 
 interface SearchBarProps {
     value?: string
@@ -23,6 +25,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const navigate = useNavigate()
     const { t } = useLanguage()
     const { refreshCounter } = useSearch()
+    const { getLabyInfo, getLunarInfo } = useClientInfo()
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const [allServers, setAllServers] = useState<Server[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
@@ -175,9 +178,13 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                 className="h-6 w-6 rounded-md object-cover shadow-xs flex-shrink-0" 
                                 alt="" 
                             />
-                            <div className="flex flex-col min-w-0 flex-1">
-                                <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary-foreground dark:text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
-                                <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none mt-0.5">{s.ip}</span>
+                            <div className="flex flex-col min-w-0 flex-1 gap-1">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
+                                    {getLunarInfo(s.ip) && <LunarLogo className="w-2.5 h-2.5 text-sky-500 shrink-0" />}
+                                    {getLabyInfo(s.ip) && <img src="https://laby.net/logo.svg" className="w-2.5 h-2.5 object-contain drop-shadow-md dark:brightness-100 brightness-0 shrink-0" alt="LabyMod" />}
+                                </div>
+                                <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
                             </div>
                             {idx === selectedIndex && (
                                 <div className="text-[9px] text-primary/80 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wide font-bold">{t("common.enter")}</div>

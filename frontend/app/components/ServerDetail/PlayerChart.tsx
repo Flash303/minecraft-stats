@@ -17,10 +17,11 @@ interface PlayerChartProps {
     onVisibleRangeChange?: (min: number, max: number) => void
     onZoomChange?: (isZoomed: boolean) => void
     header?: React.ReactNode
+    timeSelector?: React.ReactNode
     zoomResetId?: string
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, zoomResetId }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, timeSelector, zoomResetId }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -403,16 +404,23 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     return (
         <div className="w-full space-y-4">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 items-start">
-                <div className="w-full sm:w-auto overflow-hidden">{header}</div>
-                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                    <span className="text-xs text-muted-foreground italic">
-                        {t("common.pointsCount", { count: String(data.length) })}
-                    </span>
-                    {isZoomed && (
-                        <Button variant="outline" size="sm" onClick={handleResetZoom}>
-                            {t("comparison.resetZoom")}
-                        </Button>
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 items-start">
+                <div className="w-full lg:w-auto overflow-hidden">{header}</div>
+                <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
+                    <div className="flex items-center gap-4">
+                        <span className="text-xs text-muted-foreground italic whitespace-nowrap">
+                            {t("common.pointsCount", { count: String(data.length) })}
+                        </span>
+                        {isZoomed && (
+                            <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                                {t("comparison.resetZoom")}
+                            </Button>
+                        )}
+                    </div>
+                    {timeSelector && (
+                        <div className="w-full sm:w-auto">
+                            {timeSelector}
+                        </div>
                     )}
                 </div>
             </div>

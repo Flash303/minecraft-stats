@@ -21,7 +21,8 @@ export function MinecraftMotd({
     maxPlayers = 20,
     favicon,
     pingTime,
-    lastSample
+    lastSample,
+    backgroundUrl
 }: MinecraftMotdProps) {
     const actualMotd = motd || { text: "A Minecraft Server", color: "dark_gray" };
     
@@ -45,9 +46,15 @@ export function MinecraftMotd({
 
     return (
         <div className={cn(
-            "flex bg-[#000000] p-[4px] mx-auto w-fit",
+            "flex p-[4px] mx-auto w-fit",
+            !backgroundUrl && "bg-[#000000]",
             className
-        )} style={{ maxWidth: '100%' }}>
+        )} style={{ 
+            maxWidth: '100%',
+            backgroundImage: backgroundUrl ? `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${backgroundUrl})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+        }}>
             <div 
                 className="flex items-start shrink-0"
                 style={{ marginRight: `${margin}px` }}

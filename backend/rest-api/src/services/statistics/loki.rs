@@ -22,38 +22,36 @@ pub async fn send_to_loki(route: &str,
                           reponse_size: u64,
                           ip: &str, user_id: Option<String>) {
     let result = env::var("LOKI_URL");
-    if let Err(_) = result {
-        return;
+    if let Ok(result) = result {
+        let log_content = serde_json::json!({
+            "route": route,
+            "method": method,
+            "status": status,
+            "request_size": request_size,
+            "reponse_size": reponse_size,
+            "duration_ms": duration,
+            "ip": ip,
+            "user_id": user_id
+        }).to_string();
+
+        let nanoseconds = OffsetDateTime::now_utc().unix_timestamp_nanos().to_string();
+
+        let mut labels = HashMap::new();
+        labels.insert("app".to_string(), "rest-api".to_string());
+
+        let payload = LokiPayload {
+            streams: vec![LokiStream {
+                stream: labels,
+                values: vec![[nanoseconds, log_content]],
+            }],
+        };
+
+        tokio::spawn(async move {
+            let client = reqwest::Client::new();
+            let _ = client.post(result)
+                .json(&payload)
+                .send()
+                .await;
+        });
     }
-
-    let log_content = serde_json::json!({
-        "route": route,
-        "method": method,
-        "status": status,
-        "request_size": request_size,
-        "reponse_size": reponse_size,
-        "duration_ms": duration,
-        "ip": ip,
-        "user_id": user_id
-    }).to_string();
-
-    let nanoseconds = OffsetDateTime::now_utc().unix_timestamp_nanos().to_string();
-
-    let mut labels = HashMap::new();
-    labels.insert("app".to_string(), "rest-api".to_string());
-
-    let payload = LokiPayload {
-        streams: vec![LokiStream {
-            stream: labels,
-            values: vec![[nanoseconds, log_content]],
-        }],
-    };
-
-    tokio::spawn(async move {
-        let client = reqwest::Client::new();
-        let _ = client.post(result.unwrap())
-            .json(&payload)
-            .send()
-            .await;
-    });
 }

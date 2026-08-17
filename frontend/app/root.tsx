@@ -5,6 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteLoaderData,
 } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
@@ -13,6 +14,7 @@ import { SearchProvider } from "./contexts/SearchContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { ClerkProvider } from "@clerk/react";
 import { AdminProvider } from "./contexts/AdminContext";
+import { ClientInfoProvider } from "./contexts/ClientInfoContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./components/ui/global-loading";
@@ -51,6 +53,9 @@ export function meta() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const rootData = useRouteLoaderData<typeof loader>("root");
+  const theme = rootData?.serverTheme || "dark"; // Default to dark if no cookie
+
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js")
@@ -60,27 +65,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <html lang="en">
+    <html lang="en" className={theme}>
       <head>
         <meta charSet="utf-8" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                let theme = document.cookie.match(/theme=(light|dark)/)?.[1];
-                if (!theme) {
-                  theme = localStorage.getItem("theme");
-                }
-                if (!theme) {
-                  theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-                }
-                if (theme === "dark") {
-                  document.documentElement.classList.add("dark");
-                }
-              } catch (e) {}
-            `,
-          }}
-        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/webp" href="/logo.webp" />
         <Meta />
@@ -126,11 +113,13 @@ export default function App() {
       <AdminProvider>
         <ThemeProvider serverTheme={serverTheme}>
           <LanguageProvider serverLanguage={serverLanguage}>
-            <SearchProvider>
-              <TooltipProvider>
-                <Outlet />
-              </TooltipProvider>
-            </SearchProvider>
+            <ClientInfoProvider>
+              <SearchProvider>
+                <TooltipProvider>
+                  <Outlet />
+                </TooltipProvider>
+              </SearchProvider>
+            </ClientInfoProvider>
           </LanguageProvider>
         </ThemeProvider>
       </AdminProvider>

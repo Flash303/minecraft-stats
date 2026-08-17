@@ -8,6 +8,8 @@ import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { parseLegacyText } from "@/components/motd/parser"
 import { CursorTooltip } from "@/components/motd/components/CursorTooltip"
+import { useClientInfo } from "@/contexts/ClientInfoContext"
+import { LunarLogo } from "@/components/LunarLogo"
 
 interface ServerCardProps {
     server: Server
@@ -15,6 +17,7 @@ interface ServerCardProps {
 
 export function ServerCard({ server }: ServerCardProps) {
     const { t, language } = useLanguage()
+    const { getLabyInfo, getLunarInfo } = useClientInfo()
     const [fetchedRecords, setFetchedRecords] = useState<{ date: number; value: number }[]>([])
     const [copied, setCopied] = useState(false)
 
@@ -38,6 +41,9 @@ export function ServerCard({ server }: ServerCardProps) {
     const isOffline = server.last_status === "offline"
 
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
+    
+    const labyInfo = getLabyInfo(server.ip)
+    const lunarInfo = getLunarInfo(server.ip)
 
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -64,9 +70,13 @@ export function ServerCard({ server }: ServerCardProps) {
 
                 {/* Name & IP Copy button */}
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
-                    <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
-                        {server.name}
-                    </h2>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                        <h2 className="text-[16px] font-bold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight">
+                            {server.name}
+                        </h2>
+                        {lunarInfo && <LunarLogo className="w-3.5 h-3.5 text-sky-500 shrink-0" />}
+                        {labyInfo && <img src="https://laby.net/logo.svg" className="w-3.5 h-3.5 object-contain drop-shadow-md dark:brightness-100 brightness-0 shrink-0" alt="LabyMod" />}
+                    </div>
                     
                     <button 
                         onClick={handleCopy}
