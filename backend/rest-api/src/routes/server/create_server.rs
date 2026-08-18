@@ -55,7 +55,13 @@ pub(super) async fn create_server(State(state): State<AppState>,
 
     draft.user_id = Some(account.sub);
 
-    let rs = state.repository.create_server(draft).await?;
+    let rs = match state.repository.create_server(draft).await {
+        Ok(rs) => rs,
+        Err(err) if err.is_unique_violation() => {
+            return Err(AppError::ServerCreation(ServerCreationError::AlreadyExist));
+        }
+        Err(err) => return Err(err.into()),
+    };
     Ok(ResponseFormat::success(rs, StatusCode::OK))
 }
 
