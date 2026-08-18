@@ -172,8 +172,10 @@ impl Repository for PostgresRepository {
                    last_ping_time = $12,
                    last_sample = $13,
                    forced_favicon = $14,
-                   last_protocol_version = $15
-               WHERE id = $16")
+                   last_protocol_version = $15,
+                   ip = $16,
+                   port = $17
+               WHERE id = $18")
             .bind(server.last_favicon.clone())
             .bind(server.last_status.clone())
             .bind(server.last_connected.map(|v| v as i32))
@@ -189,6 +191,8 @@ impl Repository for PostgresRepository {
             .bind(server.last_sample.clone())
             .bind(server.forced_favicon)
             .bind(server.last_protocol_version)
+            .bind(server.ip.clone())
+            .bind(server.port as i32)
             .bind(server.id as i32)
             .execute(&self.pool)
             .await?;

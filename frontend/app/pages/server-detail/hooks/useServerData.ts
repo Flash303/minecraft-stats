@@ -55,6 +55,10 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const backgroundUrl = labyBackground || lunarBackground
 
     useEffect(() => {
+        setLabyServerInfo(undefined)
+        setLabyManifest(undefined)
+        setLunarServerInfo(undefined)
+
         if (server?.ip) {
             getLabyModServerInfo(server.ip).then((info) => {
                 if (info) {

@@ -35,6 +35,7 @@ import { BulkDeleteModal } from "./BulkDeleteModal"
 import { RenameServerModal } from "./RenameServerModal"
 import { DeleteServerModal } from "./DeleteServerModal"
 import { UpdateFaviconModal } from "./UpdateFaviconModal"
+import { ChangeIpModal } from "./ChangeIpModal"
 import { useServersFilterSort } from "@/core/hooks/useServersFilterSort"
 
 export function ServersTab({
@@ -356,6 +357,7 @@ export function ServersTab({
                                                 </Button>
                                                 
                                                 <UpdateFaviconModal server={server} onSuccess={onRefresh} t={t} />
+                                                <ChangeIpModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                                 <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
                                                 <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                             </div>

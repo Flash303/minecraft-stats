@@ -242,7 +242,20 @@
       "deleteTitle": "Delete Server",
       "deleteDesc": "Are you sure you want to delete the server {{name}}? This action is irreversible.",
       "typeConfirm": "Please type CONFIRM to validate",
-      "deleteError": "Failed to delete server."
+      "deleteError": "Failed to delete server.",
+      "changeIp": "Change IP",
+      "changeIpTitle": "Change Server IP",
+      "changeIpDesc": "You are going to change the IP address for {{name}}.",
+      "newIp": "New IP Address",
+      "port": "Port",
+      "pingBtn": "Test",
+      "pingError": "Failed to test the IP.",
+      "reachable": "Online",
+      "unreachable": "Offline",
+      "changeIpSuccess": "IP for {{name}} has been updated successfully.",
+      "changeIpError": "Failed to change the IP.",
+      "saving": "Saving...",
+      "save": "Save"
     },
     "auditLogs": {
       "title": "Recent Activities",
