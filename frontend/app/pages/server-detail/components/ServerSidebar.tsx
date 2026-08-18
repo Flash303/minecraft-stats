@@ -123,9 +123,9 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             <div className="flex items-center justify-between">
                 <h3 className="font-semibold leading-none tracking-tight text-lg flex items-center gap-2">
                     {isLaby ? (
-                        <LabyLogo className="w-5 h-5 text-slate-900 dark:text-white" />
+                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} />
                     ) : (
-                        <LunarLogo className="w-5 h-5 text-sky-500" />
+                        <LunarLogo className={cn("w-5 h-5", lunarServerInfo?.partnered ? "text-orange-500" : "text-sky-500")} />
                     )}
                     {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>
@@ -162,6 +162,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         if (!labyServerInfo) return null;
         return (
             <div className="p-4 flex flex-col gap-6">
+                {labyServerInfo.partnered && (
+                    <div className="flex items-center gap-2.5 px-3 py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border border-cyan-500/20 rounded-lg shadow-sm">
+                        <LabyLogo className="w-5 h-5 shrink-0" />
+                        <span className="font-bold text-sm tracking-tight">Official LabyMod Partner</span>
+                    </div>
+                )}
                 {hasSocials && (
                     <div className="flex flex-col gap-3">
                         <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.socials")}</h3>
@@ -286,6 +292,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         if (!lunarServerInfo) return null;
         return (
             <div className="p-4 flex flex-col gap-6">
+                {lunarServerInfo.partnered && (
+                    <div className="flex items-center gap-2.5 px-3 py-2 bg-orange-500/10 text-orange-600 dark:text-orange-500 border border-orange-500/20 rounded-lg shadow-sm">
+                        <LunarLogo className="w-5 h-5 shrink-0" />
+                        <span className="font-bold text-sm tracking-tight">Official Lunar Partner</span>
+                    </div>
+                )}
                 {lunarServerInfo.description && (
                     <p className="text-sm text-muted-foreground">
                         {lunarServerInfo.description}
@@ -409,6 +421,20 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                     {v}
                                 </span>
                             ))}
+                        </div>
+                    </div>
+                )}
+
+                {lunarServerInfo.presentationVideo && (
+                    <div className="flex flex-col gap-3">
+                        <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.trailer")}</h3>
+                        <div className="aspect-video w-full rounded-md overflow-hidden border">
+                            <iframe 
+                                src={`https://www.youtube.com/embed/${lunarServerInfo.presentationVideo}`}
+                                title="YouTube Trailer"
+                                className="w-full h-full"
+                                allowFullScreen
+                            />
                         </div>
                     </div>
                 )}

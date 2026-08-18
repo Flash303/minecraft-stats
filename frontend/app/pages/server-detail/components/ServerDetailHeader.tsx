@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router"
 import type { Server } from "@/core/lib/api"
+import type { LunarServer } from "@/core/lib/lunar"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
@@ -10,15 +11,17 @@ import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
 
+import type { LabyModServer } from "@/core/lib/labymod"
+
 interface ServerDetailHeaderProps {
     server: Server
     t: (key: string) => string
     locale?: string
-    hasLunar?: boolean
-    hasLabyMod?: boolean
+    lunarInfo?: LunarServer
+    labyInfo?: LabyModServer
 }
 
-export function ServerDetailHeader({ server, t, locale, hasLunar, hasLabyMod }: ServerDetailHeaderProps) {
+export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
 
     const isOnline = server.last_status === "online"
@@ -49,14 +52,11 @@ export function ServerDetailHeader({ server, t, locale, hasLunar, hasLabyMod }: 
                         <h1 className="font-bold text-xl leading-none line-clamp-1 min-w-0">
                             {server.name}
                         </h1>
-                        {hasLunar && (
-                            <LunarLogo className="w-4 h-4 text-sky-500 shrink-0" title="Lunar Client" />
+                        {lunarInfo && (
+                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
                         )}
-                        {hasLabyMod && (
-                            <LabyLogo
-                                className="w-4 h-4 text-slate-900 dark:text-white shrink-0"
-                                title="LabyMod"
-                            />
+                        {labyInfo && (
+                            <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} title="LabyMod" />
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

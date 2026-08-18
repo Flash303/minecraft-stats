@@ -36,15 +36,53 @@ export async function fetchLabyModServers(): Promise<LabyModServer[]> {
     return fetchPromise;
   }
 
-  fetchPromise = fetch('https://dl.labymod.net/server_groups.json')
-    .then((res) => res.json())
-    .then((data) => {
-      const servers = Object.values(data.server_groups || {}) as LabyModServer[];
-      cachedLabyServers = servers;
-      return servers;
+  fetchPromise = Promise.allSettled([
+    fetch('https://dl.labymod.net/server_groups.json').then(res => res.ok ? res.json() : Promise.reject(res.status)),
+    fetch('/api/laby/servers').then(res => res.ok ? res.json() : Promise.reject(res.status))
+  ])
+    .then(([groupsResult, publicResult]) => {
+      let groupsServers: LabyModServer[] = [];
+      if (groupsResult.status === 'fulfilled' && groupsResult.value) {
+        groupsServers = Object.values(groupsResult.value.server_groups || {}) as LabyModServer[];
+      } else {
+        console.warn('Failed to fetch from LabyMod server_groups:', groupsResult.status === 'rejected' ? groupsResult.reason : undefined);
+      }
+
+      const mergedMap = new Map<string, LabyModServer>();
+      
+      for (const server of groupsServers) {
+        if (server.direct_ip) {
+          mergedMap.set(server.direct_ip.toLowerCase(), server);
+        }
+      }
+
+      if (publicResult.status === 'fulfilled' && publicResult.value && publicResult.value.servers) {
+        const publicServers = publicResult.value.servers as Record<string, { partner: boolean }>;
+        for (const [ip, data] of Object.entries(publicServers)) {
+          const lowerIp = ip.toLowerCase();
+          const existing = mergedMap.get(lowerIp);
+          if (existing) {
+            existing.partnered = data.partner;
+          } else {
+            // Create a new entry if not found in server_groups
+            mergedMap.set(lowerIp, {
+              server_name: ip,
+              nice_name: ip,
+              direct_ip: lowerIp,
+              partnered: data.partner
+            });
+          }
+        }
+      } else {
+        console.warn('Failed to fetch from LabyMod publicServers API:', publicResult.status === 'rejected' ? publicResult.reason : undefined);
+      }
+
+      const merged = Array.from(mergedMap.values());
+      cachedLabyServers = merged;
+      return merged;
     })
     .catch((err) => {
-      console.error('Failed to fetch LabyMod servers:', err);
+      console.error('Failed to process LabyMod servers:', err);
       return [];
     })
     .finally(() => {

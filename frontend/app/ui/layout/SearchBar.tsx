@@ -182,8 +182,14 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                             <div className="flex flex-col min-w-0 flex-1 gap-1">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
-                                    {getLunarInfo(s.ip) && <LunarLogo className="w-2.5 h-2.5 text-sky-500 shrink-0" />}
-                                    {getLabyInfo(s.ip) && <LabyLogo className="w-2.5 h-2.5 text-slate-900 dark:text-white shrink-0" />}
+                                    {(() => {
+                                        const lunarInfo = getLunarInfo(s.ip);
+                                        return lunarInfo ? <LunarLogo className={cn("w-2.5 h-2.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} /> : null;
+                                    })()}
+                                    {(() => {
+                                        const labyInfo = getLabyInfo(s.ip);
+                                        return labyInfo ? <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} /> : null;
+                                    })()}
                                 </div>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
                             </div>

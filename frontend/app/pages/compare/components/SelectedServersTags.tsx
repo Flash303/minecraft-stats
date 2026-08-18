@@ -5,6 +5,7 @@ import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
 import type { Server } from "@/core/lib/api"
+import { cn } from "@/core/lib/utils"
 
 interface SelectedServersTagsProps {
     selectedServers: Server[]
@@ -37,15 +38,21 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                             alt=""
                         />
                         <span className="font-bold">{s.name}</span>
-                        {getLunarInfo(s.ip) && (
-                            <LunarLogo className="w-3.5 h-3.5 text-sky-500 shrink-0" title="Lunar Client" />
-                        )}
-                        {getLabyInfo(s.ip) && (
-                            <LabyLogo
-                                className="w-3.5 h-3.5 text-slate-900 dark:text-white shrink-0"
-                                title="LabyMod"
-                            />
-                        )}
+                        {(() => {
+                            const lunarInfo = getLunarInfo(s.ip);
+                            return lunarInfo ? (
+                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
+                            ) : null;
+                        })()}
+                        {(() => {
+                            const labyInfo = getLabyInfo(s.ip);
+                            return labyInfo ? (
+                                <LabyLogo
+                                    className={cn("w-3.5 h-3.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")}
+                                    title="LabyMod"
+                                />
+                            ) : null;
+                        })()}
                     </Link>
 
                     {/* Séparateur */}
