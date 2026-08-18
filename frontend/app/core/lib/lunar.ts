@@ -21,6 +21,8 @@ export interface LunarServer {
     [key: string]: string | undefined;
   };
   localizedDescriptions?: Record<string, string>;
+  partnered?: boolean;
+  presentationVideo?: string;
 }
 
 let cachedLunarServers: LunarServer[] | null = null;
@@ -34,15 +36,45 @@ export async function fetchLunarServers(): Promise<LunarServer[]> {
     return fetchPromise;
   }
 
-  fetchPromise = fetch('https://servermappings.lunarclientcdn.com/servers.json')
-    .then((res) => res.json())
-    .then((data) => {
-      const servers = data as LunarServer[];
-      cachedLunarServers = servers;
-      return servers;
+  fetchPromise = Promise.allSettled([
+    fetch('/api/lunar/servers').then(res => res.ok ? res.json() : Promise.reject(res.status)),
+    fetch('https://servermappings.lunarclientcdn.com/servers.json').then(res => res.ok ? res.json() : Promise.reject(res.status))
+  ])
+    .then(([proxyResult, cdnResult]) => {
+      let proxyServers: LunarServer[] = [];
+      if (proxyResult.status === 'fulfilled' && proxyResult.value) {
+        proxyServers = proxyResult.value.servers as LunarServer[];
+      } else {
+        console.warn('Failed to fetch from Lunar prod API proxy:', proxyResult.status === 'rejected' ? proxyResult.reason : undefined);
+      }
+
+      let cdnServers: LunarServer[] = [];
+      if (cdnResult.status === 'fulfilled' && cdnResult.value) {
+        cdnServers = cdnResult.value as LunarServer[];
+      } else {
+        console.warn('Failed to fetch from Lunar CDN:', cdnResult.status === 'rejected' ? cdnResult.reason : undefined);
+      }
+
+      const mergedMap = new Map<string, LunarServer>();
+      
+      for (const server of cdnServers) {
+        if (server.id) {
+          mergedMap.set(server.id, server);
+        }
+      }
+
+      for (const server of proxyServers) {
+        if (server.id) {
+          mergedMap.set(server.id, { ...mergedMap.get(server.id), ...server });
+        }
+      }
+
+      const merged = Array.from(mergedMap.values());
+      cachedLunarServers = merged;
+      return merged;
     })
     .catch((err) => {
-      console.error('Failed to fetch Lunar Client servers:', err);
+      console.error('Failed to process Lunar servers:', err);
       return [];
     })
     .finally(() => {

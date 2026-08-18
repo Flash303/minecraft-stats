@@ -16,5 +16,7 @@ export default [
   route("sitemap.xml", "routes/sitemap.ts"),
   route("api/favicon/:id", "routes/favicon.ts"),
   route("api/labymod/manifest", "routes/labymodManifest.ts"),
+  route("api/laby/servers", "routes/labyServers.ts"),
+  route("api/lunar/servers", "routes/lunarServers.ts"),
   route("robots.txt", "routes/robots.ts"),
 ] satisfies RouteConfig;

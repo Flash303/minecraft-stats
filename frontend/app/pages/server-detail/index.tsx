@@ -242,8 +242,8 @@ export default function ServerDetail() {
                             server={server}
                             t={t}
                             locale={locale}
-                            hasLunar={!!lunarServerInfo}
-                            hasLabyMod={!!labyServerInfo}
+                            lunarInfo={lunarServerInfo}
+                            labyInfo={labyServerInfo}
                         />
                     </div>
                 </div>
