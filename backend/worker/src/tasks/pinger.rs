@@ -112,6 +112,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                 .map(|mut server| {
                     let pinger = pinger.clone();
                     let pinger_config = pinger_config.clone();
+                    let java_pinger_config = java_pinger_config.clone();
                     let state_updater = state_updater.clone();
 
                     async move {
