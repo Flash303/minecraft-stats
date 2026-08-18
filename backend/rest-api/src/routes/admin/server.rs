@@ -84,6 +84,8 @@ pub struct PingIpResponse {
     pub motd: Option<serde_json::Value>,
     pub version: Option<String>,
     pub favicon: Option<String>,
+    pub current_players: Option<u32>,
+    pub max_players: Option<u32>,
 }
 
 async fn ping_server_ip(
@@ -102,6 +104,8 @@ async fn ping_server_ip(
     let mut motd = None;
     let mut version = None;
     let mut favicon = None;
+    let mut current_players = None;
+    let mut max_players = None;
 
     for _ in 0..2 {
         let ping_res = match server.server_type {
@@ -111,6 +115,8 @@ async fn ping_server_ip(
                     motd = serde_json::to_value(&ping.description).ok();
                     version = Some(ping.version.name.clone());
                     favicon = ping.favicon.clone();
+                    current_players = Some(ping.players.online);
+                    max_players = Some(ping.players.max as u32);
                 }
                 res.is_ok()
             },
@@ -119,6 +125,8 @@ async fn ping_server_ip(
                 if let Ok(ping) = &res {
                     motd = serde_json::to_value(&ping.motd).ok();
                     version = Some(ping.version.clone());
+                    current_players = Some(ping.current_players);
+                    max_players = Some(ping.max_players as u32);
                 }
                 res.is_ok()
             }
@@ -134,7 +142,9 @@ async fn ping_server_ip(
         is_reachable,
         motd,
         version,
-        favicon
+        favicon,
+        current_players,
+        max_players
     }, StatusCode::OK))
 }
 
