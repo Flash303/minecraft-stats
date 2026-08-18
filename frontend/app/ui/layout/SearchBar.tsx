@@ -110,12 +110,13 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault()
+                onChange("")
                 inputRef.current?.focus()
             }
         }
         window.addEventListener('keydown', handleGlobalKeyDown)
         return () => window.removeEventListener('keydown', handleGlobalKeyDown)
-    }, [])
+    }, [onChange])
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
