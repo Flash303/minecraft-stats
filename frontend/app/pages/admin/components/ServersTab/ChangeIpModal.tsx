@@ -25,7 +25,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
     const [port, setPort] = useState(server.port.toString())
     
     const [loadingPing, setLoadingPing] = useState(false)
-    const [pingResult, setPingResult] = useState<{ is_reachable: boolean, motd?: any, version?: string } | null>(null)
+    const [pingResult, setPingResult] = useState<{ is_reachable: boolean, motd?: any, version?: string, favicon?: string } | null>(null)
     const [loading, setLoading] = useState(false)
 
     const handlePing = async () => {
@@ -145,6 +145,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                                                     serverName={server.name}
                                                     currentPlayers={0}
                                                     maxPlayers={20}
+                                                    favicon={pingResult.favicon}
                                                 />
                                             </div>
                                         </div>

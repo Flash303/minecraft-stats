@@ -83,6 +83,7 @@ pub struct PingIpResponse {
     pub is_reachable: bool,
     pub motd: Option<serde_json::Value>,
     pub version: Option<String>,
+    pub favicon: Option<String>,
 }
 
 async fn ping_server_ip(
@@ -100,6 +101,7 @@ async fn ping_server_ip(
     let mut is_reachable = false;
     let mut motd = None;
     let mut version = None;
+    let mut favicon = None;
 
     for _ in 0..2 {
         let ping_res = match server.server_type {
@@ -108,6 +110,7 @@ async fn ping_server_ip(
                 if let Ok(ping) = &res {
                     motd = serde_json::to_value(&ping.description).ok();
                     version = Some(ping.version.name.clone());
+                    favicon = ping.favicon.clone();
                 }
                 res.is_ok()
             },
@@ -130,7 +133,8 @@ async fn ping_server_ip(
     Ok(ResponseFormat::success(PingIpResponse {
         is_reachable,
         motd,
-        version
+        version,
+        favicon
     }, StatusCode::OK))
 }
 
