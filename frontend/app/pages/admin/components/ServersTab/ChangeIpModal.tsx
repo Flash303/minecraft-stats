@@ -95,7 +95,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                     {t("admin.servers.changeIp")}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>{t("admin.servers.changeIpTitle")}</DialogTitle>
                     <DialogDescription>{t("admin.servers.changeIpDesc", { name: server.name })}</DialogDescription>
@@ -129,22 +129,24 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                     </div>
 
                     {pingResult && (
-                        <div className="rounded-md border p-4 bg-muted/50">
+                        <div className="rounded-md border p-4 bg-muted/50 overflow-hidden">
                             {pingResult.is_reachable ? (
-                                <div className="space-y-2 flex flex-col items-center">
+                                <div className="space-y-4 flex flex-col items-center">
                                     <div className="flex items-center gap-2 w-full">
-                                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
                                         <span className="text-sm font-medium">{t("admin.servers.reachable")}</span>
-                                        {pingResult.version && <span className="text-xs text-muted-foreground ml-auto">{pingResult.version}</span>}
+                                        {pingResult.version && <span className="text-xs text-muted-foreground ml-auto truncate">{pingResult.version}</span>}
                                     </div>
                                     {pingResult.motd && (
-                                        <div className="mt-2 w-fit overflow-hidden rounded-md shadow-xl scale-75 origin-left">
-                                            <MinecraftMotd 
-                                                motd={pingResult.motd} 
-                                                serverName={server.name}
-                                                currentPlayers={0}
-                                                maxPlayers={20}
-                                            />
+                                        <div className="w-full max-w-full overflow-x-auto flex justify-center pb-2">
+                                            <div className="w-fit overflow-hidden rounded-md shadow-xl transform origin-top md:scale-90 lg:scale-100">
+                                                <MinecraftMotd 
+                                                    motd={pingResult.motd} 
+                                                    serverName={server.name}
+                                                    currentPlayers={0}
+                                                    maxPlayers={20}
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>
