@@ -10,3 +10,13 @@ pub enum RepositoryError {
     #[error("SQLx migration error : {0}")]
     Migration(#[from] MigrateError)
 }
+
+impl RepositoryError {
+    pub fn is_unique_violation(&self) -> bool {
+        if let RepositoryError::SQL(sqlx::Error::Database(err)) = self {
+            err.is_unique_violation()
+        } else {
+            false
+        }
+    }
+}
