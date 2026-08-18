@@ -242,7 +242,20 @@
       "deleteTitle": "Supprimer le serveur",
       "deleteDesc": "Êtes-vous sûr de vouloir supprimer le serveur {{name}} ? Cette action est irréversible.",
       "typeConfirm": "Veuillez taper CONFIRMER pour valider",
-      "deleteError": "Erreur lors de la suppression."
+      "deleteError": "Erreur lors de la suppression.",
+      "changeIp": "Changer l'IP",
+      "changeIpTitle": "Changer l'adresse IP du serveur",
+      "changeIpDesc": "Vous allez changer l'adresse IP pour {{name}}.",
+      "newIp": "Nouvelle adresse IP",
+      "port": "Port",
+      "pingBtn": "Tester",
+      "pingError": "Erreur lors du test de l'IP.",
+      "reachable": "En ligne",
+      "unreachable": "Hors ligne",
+      "changeIpSuccess": "L'IP de {{name}} a été modifiée avec succès.",
+      "changeIpError": "Erreur lors du changement de l'IP.",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer"
     },
     "auditLogs": {
       "title": "Activités Récentes",

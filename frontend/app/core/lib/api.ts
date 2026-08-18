@@ -437,4 +437,42 @@ export async function unsubscribeDevice(endpoint: string, token: string): Promis
     }
 }
 
+export async function pingServerIp(
+    serverId: number,
+    ip: string,
+    port: number,
+    token: string
+): Promise<{ success: boolean; data?: any; message?: string; message_key?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}/ping-ip`, {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify({ ip, port })
+        })
+        const json = await res.json()
+        return { success: json.success, data: json.data, message: json.message, message_key: json.message_key }
+    } catch (error) {
+        console.error(`Failed to ping server IP ${serverId}:`, error)
+        return { success: false, message: "Network error" }
+    }
+}
 
+export async function updateServerIp(
+    serverId: number,
+    ip: string,
+    port: number,
+    token: string
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}/ip`, {
+            method: "PATCH",
+            headers: getHeaders(token),
+            body: JSON.stringify({ ip, port })
+        })
+        const json = await res.json()
+        return { success: json.success, message: json.message, message_key: json.message_key }
+    } catch (error) {
+        console.error(`Failed to update server IP ${serverId}:`, error)
+        return { success: false, message: "Network error" }
+    }
+}
