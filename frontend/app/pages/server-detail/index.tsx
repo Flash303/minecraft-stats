@@ -149,7 +149,7 @@ export default function ServerDetail() {
         timeLimits, visibleRange, setVisibleRange,
         isChartZoomed,
         labyServerInfo, labyManifest, lunarServerInfo,
-        backgroundUrl, labyBackground
+        backgroundUrl, labyBackground, isRateLimited
     } = useServerData(initialServer, initialRecords, initialFrom);
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -337,6 +337,7 @@ export default function ServerDetail() {
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
+                                    isRateLimited={isRateLimited}
                                     zoomResetId={`${selectedRange}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                     onVisibleRangeChange={(min, max) =>
                                         setVisibleRange({ min, max })

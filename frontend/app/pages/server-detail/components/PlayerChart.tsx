@@ -19,9 +19,10 @@ interface PlayerChartProps {
     header?: React.ReactNode
     timeSelector?: React.ReactNode
     zoomResetId?: string
+    isRateLimited?: boolean
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, timeSelector, zoomResetId }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, timeSelector, zoomResetId, isRateLimited }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -233,7 +234,9 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             <div className="flex flex-col gap-4">
                 {header}
                 <div className="w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
-                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-slate-400 font-medium animate-pulse">{t("common.noDataForRange")}</p>
+                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-slate-400 font-medium">
+                        {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
+                    </p>
                 </div>
             </div>
         )
