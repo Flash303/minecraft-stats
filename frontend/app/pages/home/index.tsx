@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react"
-import { useSearchParams, useLoaderData, Await } from "react-router"
+import {
+    useSearchParams,
+    useLoaderData,
+    Await,
+    type ShouldRevalidateFunctionArgs
+} from "react-router"
 import { fetchServers } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { ServerCard } from "@/pages/home/components/ServerCard"
@@ -21,12 +26,40 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return { initialServersPromise: serversPromise }
 }
 
+let serversCache: Server[] | null = null;
+let serversPromiseCache: Promise<Server[]> | null = null;
+
 export async function clientLoader() {
     // Cette fonction n'est appelée que lors des navigations côté client.
     // Le chargement initial (SSR) utilisera toujours le `loader` serveur.
     // Cela empêche React Router de faire la requête vers `_.data`.
-    const serversPromise = fetchServers(undefined, true).catch(() => [])
-    return { initialServersPromise: serversPromise }
+    if (serversCache) {
+        return { initialServersPromise: serversCache }
+    }
+    if (serversPromiseCache) {
+        return { initialServersPromise: serversPromiseCache }
+    }
+    serversPromiseCache = fetchServers(undefined, true).then(data => {
+        serversCache = data;
+        return data;
+    }).catch(() => {
+        serversPromiseCache = null;
+        return [];
+    })
+    return { initialServersPromise: serversPromiseCache }
+}
+
+export function shouldRevalidate({
+    currentUrl,
+    nextUrl,
+    defaultShouldRevalidate
+}: ShouldRevalidateFunctionArgs) {
+    // Si on navigue sur la même page (seuls les query params changent), on bloque le fetch
+    if (currentUrl.pathname === nextUrl.pathname) {
+        return false
+    }
+    // Sinon, on garde le comportement par défaut
+    return defaultShouldRevalidate
 }
 
 export default function ServerList() {
@@ -50,78 +83,82 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     const [servers, setServers] = useState<Server[]>(initialServers || [])
     const [loading, setLoading] = useState(isDeferredLoading)
     const [error, setError] = useState<string | null>(null)
-    const [searchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
 
-    const [activeTabState, setActiveTabState] = useState<"all" | "online" | "offline" | "hidden">(() => {
-        const tabParam = searchParams.get("tab")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") return tabParam as any
-        return "all"
-    })
-    
+    const tabParam = searchParams.get("tab")
+    const activeTabState = (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") ? tabParam : "all"
     const activeTab = (activeTabState === "hidden" && !isAdmin) ? "all" : activeTabState
 
-    const [activePlatform, setActivePlatformState] = useState<"all" | "java" | "bedrock">(() => {
-        const platformParam = searchParams.get("platform")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (platformParam === "java" || platformParam === "bedrock") return platformParam as any
-        return "all"
-    })
+    const platformParam = searchParams.get("platform")
+    const activePlatform = (platformParam === "java" || platformParam === "bedrock") ? platformParam : "all"
 
-    const [activeSort, setActiveSortState] = useState<"popularity" | "name" | "recent">(() => {
-        const sortParam = searchParams.get("sort")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (sortParam === "name" || sortParam === "recent") return sortParam as any
-        return "popularity"
-    })
+    const sortParam = searchParams.get("sort")
+    const activeSort = (sortParam === "name" || sortParam === "recent") ? sortParam : "popularity"
 
-    const [sortDirection, setSortDirectionState] = useState<"desc" | "asc">(() => {
-        const dirParam = searchParams.get("dir")
-        if (dirParam === "asc") return "asc"
-        return "desc"
-    })
+    const dirParam = searchParams.get("dir")
+    const sortDirection = dirParam === "asc" ? "asc" : "desc"
 
-    const [activeLauncher, setActiveLauncherState] = useState<"all" | "lunar" | "labymod">(() => {
-        const launcherParam = searchParams.get("launcher")
-        if (launcherParam === "lunar" || launcherParam === "labymod") return launcherParam as "lunar" | "labymod"
-        return "all"
-    })
+    const launcherParam = searchParams.get("launcher")
+    const activeLauncher = (launcherParam === "lunar" || launcherParam === "labymod") ? launcherParam : "all"
 
-    const [currentPage, setCurrentPage] = useState<number>(() => {
-        const pageParam = searchParams.get("page")
-        if (pageParam && !isNaN(Number(pageParam))) return Math.max(1, Number(pageParam))
-        return 1
-    })
+    const pageParam = searchParams.get("page")
+    const currentPage = pageParam && !isNaN(Number(pageParam)) ? Math.max(1, Number(pageParam)) : 1
 
-    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => {
-        setActiveTabState(tab)
-        setCurrentPage(1)
-    }, [])
+    const handlePageChange = useCallback(
+        (page: number) => {
+            setSearchParams(
+                (prev) => {
+                    const next = new URLSearchParams(prev)
+                    if (page === 1) next.delete("page")
+                    else next.set("page", page.toString())
+                    return next
+                },
+                {
+                    replace: true,
+                    preventScrollReset: true
+                }
+            )
+        },
+        [setSearchParams]
+    )
 
-    const setActivePlatform = useCallback((platform: "all" | "java" | "bedrock") => {
-        setActivePlatformState(platform)
-        setCurrentPage(1)
-    }, [])
+    const updateFilter = useCallback((key: string, value: string, defaultValue: string) => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                if (value === defaultValue) {
+                    next.delete(key)
+                } else {
+                    next.set(key, value)
+                }
+                next.delete("page")
+                return next
+            },
+            { replace: true, preventScrollReset: true }
+        )
+    }, [setSearchParams])
 
-    const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => {
-        setActiveSortState(sort)
-        setCurrentPage(1)
-    }, [])
-
-    const setSortDirection = useCallback((dir: "desc" | "asc") => {
-        setSortDirectionState(dir)
-        setCurrentPage(1)
-    }, [])
-
-    const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "labymod") => {
-        setActiveLauncherState(launcher)
-        setCurrentPage(1)
-    }, [])
+    const setActiveTab = useCallback((tab: "all" | "online" | "offline" | "hidden") => updateFilter("tab", tab, "all"), [updateFilter])
+    const setActivePlatform = useCallback((platform: "all" | "java" | "bedrock") => updateFilter("platform", platform, "all"), [updateFilter])
+    const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => updateFilter("sort", sort, "popularity"), [updateFilter])
+    const setSortDirection = useCallback((dir: "desc" | "asc") => updateFilter("dir", dir, "desc"), [updateFilter])
+    const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "labymod") => updateFilter("launcher", launcher, "all"), [updateFilter])
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setCurrentPage(1)
-    }, [searchQuery])
+        if (searchQuery) {
+            setSearchParams(
+                (prev) => {
+                    const next = new URLSearchParams(prev)
+                    if (next.has("page")) {
+                        next.delete("page")
+                        return next
+                    }
+                    return prev
+                },
+                { replace: true, preventScrollReset: true }
+            )
+        }
+    }, [searchQuery, setSearchParams])
 
     const [refreshing, setRefreshing] = useState(false)
 
@@ -133,11 +170,12 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
             const data = await fetchServers(token ?? undefined, true)
             if (data && data.length > 0) {
                 setServers(data)
+                serversCache = data // Mettre à jour le cache
             }
         } catch {
             // Keep existing servers on client fetch failure
         } finally {
-            setLoading(false)
+            if (!background) setLoading(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getToken, isSignedIn, isLoaded, t])
@@ -150,6 +188,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
             const data = await fetchServers(token ?? undefined, true)
             if (data) {
                 setServers(data)
+                serversCache = data // Mettre à jour le cache
             }
         } catch (err) {
             console.error("Failed to refresh servers:", err)
@@ -161,7 +200,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     useEffect(() => {
         if (!isLoaded || isDeferredLoading) return
         Promise.resolve().then(() => {
-            load(true) // Run as background fetch to avoid UI flashing
+            load(true).then(() => {}) // Run as background fetch to avoid UI flashing
         })
     }, [load, isLoaded, isDeferredLoading])
 
@@ -256,8 +295,11 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     return (
         <>
             {!searchQuery && <Hero3D />}
-            
-            <div id="server-list-section" className="pt-8 scroll-mt-20 max-w-6xl mx-auto px-2">
+
+            <div
+                id="server-list-section"
+                className="mx-auto max-w-6xl scroll-mt-20 px-2 pt-8"
+            >
                 <ServerListFilters
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -286,7 +328,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     </div>
                 )}
                 {error && (
-                    <div className="bg-destructive/10 text-destructive p-4 rounded-lg border border-destructive/20 text-center my-8 shadow-sm">
+                    <div className="bg-destructive/10 text-destructive border-destructive/20 my-8 rounded-lg border p-4 text-center shadow-sm">
                         {error}
                     </div>
                 )}
@@ -307,27 +349,32 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                                     <Pagination
                                         currentPage={safeCurrentPage}
                                         totalPages={totalPages}
-                                        onPageChange={setCurrentPage}
+                                        onPageChange={handlePageChange}
                                         className="mt-12 mb-8"
                                     />
                                 )}
                             </>
                         ) : (
-                            <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
+                            <div className="bg-muted/20 rounded-xl border-2 border-dashed py-20 text-center">
                                 <p className="text-muted-foreground italic">
-                                    {searchQuery 
-                                        ? t("serverList.noSearchResults", { query: searchQuery }) 
-                                        : (activeTab !== "all" || activePlatform !== "all") 
-                                            ? t("serverList.noFilterResults") 
-                                            : t("serverList.noServers")}
+                                    {searchQuery
+                                        ? t("serverList.noSearchResults", {
+                                              query: searchQuery
+                                          })
+                                        : activeTab !== "all" ||
+                                            activePlatform !== "all"
+                                          ? t("serverList.noFilterResults")
+                                          : t("serverList.noServers")}
                                 </p>
                             </div>
                         )}
                     </>
                 )}
                 {!loading && !error && servers.length === 0 && (
-                    <div className="text-center py-20 border-2 border-dashed rounded-xl bg-muted/20">
-                        <p className="text-muted-foreground italic">{t("serverList.noServers")}</p>
+                    <div className="bg-muted/20 rounded-xl border-2 border-dashed py-20 text-center">
+                        <p className="text-muted-foreground italic">
+                            {t("serverList.noServers")}
+                        </p>
                     </div>
                 )}
             </div>
