@@ -10,7 +10,8 @@ SELECT
     time_bucket('5 minutes', date) as time_bucket,
     AVG(value)::integer as agg_value
 FROM ping_records
-GROUP BY server_id, time_bucket;
+GROUP BY server_id, time_bucket
+WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('ping_records_5m_agg',
     start_offset => INTERVAL '3 days',
