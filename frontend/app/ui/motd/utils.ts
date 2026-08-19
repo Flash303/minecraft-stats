@@ -1,4 +1,4 @@
-import { MINECRAFT_COLORS, OBFUSCATION_CHARS } from "./constants";
+import { MINECRAFT_COLORS, OBFUSCATION_CHARS, ENABLE_CUSTOM_HEADS } from "./constants";
 
  
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,6 +59,14 @@ export function flattenMotd(node: any, inherited: any = {}): string {
             res += `&s{${node.atlas}|${node.sprite}};`;
         } else {
             res += `&s{${node.sprite}};`;
+        }
+    }
+
+    if (ENABLE_CUSTOM_HEADS && node.player && node.player.properties) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const textureProp = node.player.properties.find((p: any) => p.name === 'textures');
+        if (textureProp && textureProp.value) {
+            res += `&head{${textureProp.value}|${node.hat ? 'true' : 'false'}};`;
         }
     }
 
@@ -157,6 +165,11 @@ export function wrapMinecraftText(text: string, maxWidth: number): string {
                 if (end !== -1) {
                     i = end + 1;
                 }
+            } else if (s[i] === '&' && (s.substring(i, i+6) === '&head{')) {
+                const end = s.indexOf('};', i+6);
+                if (end !== -1) {
+                    i = end + 1;
+                }
             } else if (s[i] === '&' && s[i+1] === 'h' && s[i+2] === '{') {
                 const end = s.indexOf('};', i+3);
                 if (end !== -1) {
@@ -232,6 +245,34 @@ export function wrapMinecraftText(text: string, maxWidth: number): string {
                     }
                 } else {
                     currentWidth += 9;
+                    i = end + 1;
+                }
+                continue;
+            }
+        }
+
+        if (text[i] === '&' && text.substring(i, i+6) === '&head{') {
+            const end = text.indexOf('};', i+6);
+            if (end !== -1) {
+                if (currentWidth + 8 > maxWidth) {
+                    if (lastSpaceGlobalIndex !== -1) {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, lastSpaceGlobalIndex));
+                        i = lastSpaceGlobalIndex; 
+                        lineStartIndex = i + 1;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        lastSpaceGlobalIndex = -1;
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                    } else {
+                        lines.push(formatToPrepend + text.substring(lineStartIndex, i));
+                        lineStartIndex = i;
+                        formatToPrepend = getFormatFromString(text.substring(0, lineStartIndex));
+                        currentWidth = 0;
+                        isBold = formatToPrepend.includes("§l");
+                        i--;
+                    }
+                } else {
+                    currentWidth += 8;
                     i = end + 1;
                 }
                 continue;
