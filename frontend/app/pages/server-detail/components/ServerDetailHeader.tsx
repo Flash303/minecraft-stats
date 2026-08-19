@@ -34,7 +34,11 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
         setTimeout(() => setCopied(false), 2000)
     }
 
-    const handleBack = () => {
+    const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        // Ctrl/Cmd+Click et clic molette → laisser le navigateur gérer nativement (nouvel onglet en arrière-plan)
+        if (e.ctrlKey || e.metaKey || e.button === 1) return
+        // Clic normal → navigate(-1) au lieu de naviguer vers "/"
+        e.preventDefault()
         if (window.history.length > 2 || (window.history.state && window.history.state.idx > 0)) {
             navigate(-1)
         } else {
@@ -44,8 +48,10 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
 
     return (
         <div className="flex items-center gap-3 min-w-0">
-            <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={handleBack}>
-                <ArrowLeft className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="flex-shrink-0" asChild>
+                <a href="/" onClick={handleBackClick}>
+                    <ArrowLeft className="h-4 w-4" />
+                </a>
             </Button>
             <div className="flex min-w-0 items-center gap-3">
                 <ServerIcon
