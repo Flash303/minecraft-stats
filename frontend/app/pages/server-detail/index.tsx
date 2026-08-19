@@ -66,6 +66,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 }
 
+export async function clientLoader({ params }: any) {
+    if (!params.id)
+        return {
+            initialServer: null,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
+    try {
+        const id = Number(params.id)
+        // Fetch directement depuis le client, plus de requête _.data
+        const server = await fetchServer(id)
+
+        return {
+            initialServer: server,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
+    } catch {
+        return {
+            initialServer: null,
+            initialRecords: [],
+            initialFrom: Infinity
+        }
+    }
+}
+
 export const meta: MetaFunction<typeof loader> = (args) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { loaderData: data } = args as any

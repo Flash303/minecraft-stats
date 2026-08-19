@@ -21,6 +21,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return { initialServersPromise: serversPromise }
 }
 
+export async function clientLoader() {
+    // Cette fonction n'est appelée que lors des navigations côté client.
+    // Le chargement initial (SSR) utilisera toujours le `loader` serveur.
+    // Cela empêche React Router de faire la requête vers `_.data`.
+    const serversPromise = fetchServers(undefined, true).catch(() => [])
+    return { initialServersPromise: serversPromise }
+}
+
 export default function ServerList() {
     const loaderData = useLoaderData<typeof loader>()
     

@@ -32,6 +32,12 @@ export function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
+export function shouldRevalidate() {
+  // Le loader de root ne lit que les cookies (thème/langue).
+  // On n'a pas besoin de le re-fetcher à chaque navigation client.
+  return false;
+}
+
 export function meta() {
   return [
     { title: "Minecraft-Stats | Minecraft Server Analytics" },
