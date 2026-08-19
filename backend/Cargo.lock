@@ -2260,14 +2260,13 @@ checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 [[package]]
 name = "minecraft-pinger"
 version = "0.1.0"
-source = "git+https://github.com/Flash303/minecraft-pinger#b3b1ece0d6504f2f025600289a6b933df22519fb"
+source = "git+https://github.com/Flash303/minecraft-pinger#37e8b1bb4e0991e67ab8eec6a31ce1b3032ea26a"
 dependencies = [
  "bytes",
  "csv",
  "hickory-resolver",
  "log",
  "rand 0.10.2",
- "regex",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
