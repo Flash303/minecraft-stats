@@ -20,6 +20,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const [loadingRecords, setLoadingRecords] = useState(
         initialRecords && initialRecords.length > 0 ? false : true
     )
+    const [isRateLimited, setIsRateLimited] = useState(false)
     const [refreshCount, setRefreshCount] = useState(0)
     const lastFetchParams = useRef<{
         id?: string
@@ -155,10 +156,14 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                         return
                     }
 
+                    setIsRateLimited(false)
                     setRawRecords(data)
                     setLoadedFrom(from)
                     setTimeLimits((prev) => prev.from === from && prev.to === now ? prev : { from, to: now })
-                } catch {
+                } catch (error: any) {
+                    if (error.message === "RATE_LIMIT") {
+                        setIsRateLimited(true)
+                    }
                     if (rawRecords.length === 0 && !(isBackground && isChartZoomed.current)) {
                         setRawRecords([])
                     }
@@ -257,6 +262,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         timeLimits, visibleRange, setVisibleRange,
         isChartZoomed,
         labyServerInfo, labyManifest, lunarServerInfo,
-        backgroundUrl, labyBackground
+        backgroundUrl, labyBackground,
+        isRateLimited
     }
 }

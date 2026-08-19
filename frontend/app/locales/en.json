@@ -32,6 +32,7 @@
     "enter": "Enter",
     "noData": "No data",
     "noDataForRange": "No data for this range",
+    "rateLimited": "Please wait a moment...",
     "cancel": "Cancel",
     "pagination": {
       "previous": "Previous",

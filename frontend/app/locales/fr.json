@@ -32,6 +32,7 @@
     "enter": "Entrée",
     "noData": "Aucune donnée",
     "noDataForRange": "Aucune donnée pour cette période",
+    "rateLimited": "Veuillez patienter un instant...",
     "cancel": "Annuler",
     "pagination": {
       "previous": "Précédent",

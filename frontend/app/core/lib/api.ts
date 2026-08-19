@@ -87,6 +87,7 @@ export async function fetchServers(token?: string, includeStats?: boolean, forwa
         const res = await fetch(url, {
             headers: getHeaders(token, forwardedFor)
         })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
         if (!json.success || !json.data) return []
@@ -94,7 +95,8 @@ export async function fetchServers(token?: string, includeStats?: boolean, forwa
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
         return servers.map(normalizeServerData)
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch servers:", error)
         return []
     }
@@ -106,6 +108,7 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
         const res = await fetch(url, {
             headers: getHeaders(token)
         })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
         if (!json.success || !json.data) return []
@@ -113,7 +116,8 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const servers = json.data as any[]
         return servers.map(normalizeServerData)
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch my servers:", error)
         return []
     }
@@ -136,7 +140,8 @@ export async function fetchServer(id: number | string, token?: string, forwarded
         }
         
         return normalizeServerData(json.data)
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`[SSR Debug] Failed to fetch server ${id} from API_BASE ${API_BASE}:`, error)
         return null
     }
@@ -156,6 +161,7 @@ export async function fetchRecords(
         const res = await fetch(url, {
             headers: getHeaders(token)
         })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         
         const buffer = await res.arrayBuffer()
@@ -211,7 +217,8 @@ export async function fetchRecords(
             }
             return records
         }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to fetch records for server ${serverId}:`, error)
         return []
     }
@@ -229,7 +236,8 @@ export async function createServer(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to create server:", error)
         return { success: false }
     }
@@ -248,7 +256,8 @@ export async function renameServer(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to rename server ${serverId}:`, error)
         return { success: false }
     }
@@ -266,7 +275,8 @@ export async function deleteServer(
         if (res.status === 204 || res.status === 200) return { success: true }
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to delete server ${serverId}:`, error)
         return { success: false }
     }
@@ -285,7 +295,8 @@ export async function updateFavicon(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to update favicon for server ${serverId}:`, error)
         return { success: false }
     }
@@ -299,7 +310,8 @@ export async function checkAdminStatus(token: string): Promise<boolean> {
         if (!res.ok) return false
         const json = await res.json()
         return json.success === true
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to check admin status:", error)
         return false
     }
@@ -310,10 +322,12 @@ export async function fetchAdminUsers(token: string): Promise<User[]> {
         const res = await fetch(`${API_BASE}/admin/users`, {
             headers: getHeaders(token)
         })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
         return json.success ? json.data : []
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch admin users:", error)
         return []
     }
@@ -331,7 +345,8 @@ export async function toggleServerVisibility(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to toggle visibility for server ${serverId}:`, error)
         return { success: false }
     }
@@ -352,10 +367,12 @@ export async function fetchAlerts(serverId: number, token: string): Promise<Aler
         const res = await fetch(`${API_BASE}/servers/${serverId}/alerts`, {
             headers: getHeaders(token)
         })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
         return json.success ? json.data : []
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch alerts:", error)
         return []
     }
@@ -375,7 +392,8 @@ export async function createAlert(
         if (!res.ok) return null
         const json = await res.json()
         return json.success ? json.data : null
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to create alert:", error)
         return null
     }
@@ -388,7 +406,8 @@ export async function deleteAlert(alertId: number, token: string): Promise<boole
             headers: getHeaders(token)
         })
         return res.ok
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to delete alert ${alertId}:`, error)
         return false
     }
@@ -400,7 +419,8 @@ export async function fetchVapidKey(): Promise<string | null> {
         if (!res.ok) return null
         const json = await res.json()
         return json.success ? json.data.public_key : null
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch VAPID key:", error)
         return null
     }
@@ -417,7 +437,8 @@ export async function subscribeDevice(
             body: JSON.stringify(subscription)
         })
         return res.ok
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to subscribe device:", error)
         return false
     }
@@ -431,7 +452,8 @@ export async function unsubscribeDevice(endpoint: string, token: string): Promis
             body: JSON.stringify({ endpoint })
         })
         return res.ok
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to unsubscribe device:", error)
         return false
     }
@@ -451,7 +473,8 @@ export async function pingServerIp(
         })
         const json = await res.json()
         return { success: json.success, data: json.data, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to ping server IP ${serverId}:`, error)
         return { success: false, message: "Network error" }
     }
@@ -471,8 +494,10 @@ export async function updateServerIp(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to update server IP ${serverId}:`, error)
         return { success: false, message: "Network error" }
     }
 }
+
