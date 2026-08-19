@@ -59,13 +59,16 @@ serve({
       const cached = isrCache.get(cacheKey);
       
       if (cached && cached.expiresAt > Date.now()) {
+        console.log(`[Cache HIT] ${url.pathname}${url.search} (theme: ${theme}, lang: ${lang})`);
         return new Response(cached.html, {
           headers: { "Content-Type": "text/html; charset=utf-8" },
         });
       }
 
+      const startTime = performance.now();
       // Intercept the response to cache it
       const response = await requestHandler(req);
+      const renderTime = Math.round(performance.now() - startTime);
 
       if (response.status === 200 && response.headers.get("Content-Type")?.includes("text/html")) {
         const clonedResponse = response.clone();
@@ -74,6 +77,7 @@ serve({
           html,
           expiresAt: Date.now() + CACHE_TTL_MS,
         });
+        console.log(`[SSR Render] ${url.pathname}${url.search} (theme: ${theme}, lang: ${lang}) - ${renderTime}ms`);
         return response;
       }
 
