@@ -37,21 +37,22 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
     const [searchQuery, setSearchQuery] = useState("");
     const [showAllGamemodes, setShowAllGamemodes] = useState(false);
     const [showAllLunarGamemodes, setShowAllLunarGamemodes] = useState(false);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const social = labyServerInfo?.social || {};
     const gamemodes = labyServerInfo?.gamemodes || {};
     const user_stats = labyServerInfo?.user_stats;
-    const hasSocials = social && Object.keys(social).length > 0;
+    const hasSocials = social && Object.entries(social).some(([, v]) => !!v);
     const hasGamemodes = gamemodes && Object.keys(gamemodes).length > 0;
 
     let labyScore = 0;
     if (labyServerInfo) {
-        labyScore += Object.keys(social).length;
+        labyScore += Object.entries(social).filter(([, v]) => !!v).length;
         if (user_stats) labyScore += 1;
         labyScore += Object.keys(gamemodes).length;
         if (labyManifest?.supported_languages) labyScore += labyManifest.supported_languages.length;
         if (labyManifest?.yt_trailer) labyScore += 1;
+        if (labyServerInfo.partnered) labyScore += 1;
     }
 
     let lunarScore = 0;
@@ -63,14 +64,24 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         if (lunarServerInfo.gameTypes) lunarScore += lunarServerInfo.gameTypes.length;
         if (lunarServerInfo.languages) lunarScore += lunarServerInfo.languages.length;
         if (lunarServerInfo.minecraftVersions) lunarScore += lunarServerInfo.minecraftVersions.length;
+        if (lunarServerInfo.presentationVideo) lunarScore += 1;
+        if (lunarServerInfo.partnered) lunarScore += 1;
     }
 
-    const initialSource = lunarScore > labyScore && lunarServerInfo ? 'lunar' : (labyServerInfo ? 'laby' : 'lunar');
-    const [activeSource, setActiveSource] = useState<'laby' | 'lunar'>(initialSource);
+    const bestSource = lunarScore > labyScore && lunarServerInfo ? 'lunar' : (labyServerInfo ? 'laby' : 'lunar');
+    const [activeSource, setActiveSource] = useState<'laby' | 'lunar'>(bestSource);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [progress, setProgress] = useState(0);
     const [isAutoSwitching, setIsAutoSwitching] = useState(true);
-    
+
+    // Reset activeSource when the server changes (component persists between navigations)
+    useEffect(() => {
+        setActiveSource(bestSource);
+        setProgress(0);
+        setIsAutoSwitching(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [labyServerInfo, lunarServerInfo]);
+
     const canSwitch = !!(labyServerInfo && lunarServerInfo);
 
     const handleSearch = (e: React.FormEvent) => {
@@ -160,6 +171,33 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
     const renderLabyBody = () => {
         if (!labyServerInfo) return null;
+
+        const hasContent = labyServerInfo.partnered || hasSocials || user_stats || hasGamemodes
+            || (labyManifest?.supported_languages?.length > 0)
+            || labyManifest?.yt_trailer;
+
+        if (!hasContent) {
+            return (
+                <div className="px-4 py-8 flex flex-col items-center gap-3 text-center">
+                    <LabyLogo className="w-8 h-8 text-muted-foreground/40" />
+                    <p className="text-sm text-muted-foreground">
+                        {language === "fr"
+                            ? "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations."
+                            : "This server is registered on LabyMod but hasn't filled in its information yet."}
+                    </p>
+                    <a
+                        href={`https://labymod.net/serverlist`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                    >
+                        <ExternalLink className="w-3 h-3" />
+                        LabyMod Server List
+                    </a>
+                </div>
+            );
+        }
+
         return (
             <div className="p-4 flex flex-col gap-6">
                 {labyServerInfo.partnered && (
@@ -290,6 +328,37 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
     const renderLunarBody = () => {
         if (!lunarServerInfo) return null;
+
+        const hasLunarContent = lunarServerInfo.partnered || lunarServerInfo.description
+            || (lunarServerInfo.socials && Object.keys(lunarServerInfo.socials).length > 0)
+            || lunarServerInfo.website || lunarServerInfo.store
+            || (lunarServerInfo.gameTypes && lunarServerInfo.gameTypes.length > 0)
+            || (lunarServerInfo.languages && lunarServerInfo.languages.length > 0)
+            || (lunarServerInfo.minecraftVersions && lunarServerInfo.minecraftVersions.length > 0)
+            || lunarServerInfo.presentationVideo;
+
+        if (!hasLunarContent) {
+            return (
+                <div className="px-4 py-8 flex flex-col items-center gap-3 text-center">
+                    <LunarLogo className="w-8 h-8 text-muted-foreground/40" />
+                    <p className="text-sm text-muted-foreground">
+                        {language === "fr"
+                            ? "Ce serveur est référencé sur Lunar Client mais n'a pas encore renseigné ses informations."
+                            : "This server is registered on Lunar Client but hasn't filled in its information yet."}
+                    </p>
+                    <a
+                        href="https://lunarclient.com/servers"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-sky-500 transition-colors"
+                    >
+                        <ExternalLink className="w-3 h-3" />
+                        Lunar Client Servers
+                    </a>
+                </div>
+            );
+        }
+
         return (
             <div className="p-4 flex flex-col gap-6">
                 {lunarServerInfo.partnered && (

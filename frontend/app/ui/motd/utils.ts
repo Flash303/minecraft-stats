@@ -62,11 +62,15 @@ export function flattenMotd(node: any, inherited: any = {}): string {
         }
     }
 
-    if (ENABLE_CUSTOM_HEADS && node.player && node.player.properties) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const textureProp = node.player.properties.find((p: any) => p.name === 'textures');
-        if (textureProp && textureProp.value) {
-            res += `&head{${textureProp.value}|${node.hat ? 'true' : 'false'}};`;
+    if (ENABLE_CUSTOM_HEADS && node.player) {
+        if (typeof node.player === 'string') {
+            res += `&head{name:${node.player}|${node.hat ? 'true' : 'false'}};`;
+        } else if (node.player.properties) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const textureProp = node.player.properties.find((p: any) => p.name === 'textures');
+            if (textureProp && textureProp.value) {
+                res += `&head{${textureProp.value}|${node.hat ? 'true' : 'false'}};`;
+            }
         }
     }
 

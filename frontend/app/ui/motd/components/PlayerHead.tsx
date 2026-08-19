@@ -1,13 +1,17 @@
 import React from "react";
 
-export function PlayerHead({ base64, hat, shadow }: { base64: string, hat: boolean, shadow?: string | null }) {
+export function PlayerHead({ base64, playerName, hat, shadow }: { base64?: string, playerName?: string, hat: boolean, shadow?: string | null }) {
     let url = "";
-    try {
-        const decoded = atob(base64);
-        const parsed = JSON.parse(decoded);
-        url = parsed.textures.SKIN.url;
-    } catch (e) {
-        return null;
+    if (playerName) {
+        url = `https://minotar.net/skin/${playerName}`;
+    } else if (base64) {
+        try {
+            const decoded = atob(base64);
+            const parsed = JSON.parse(decoded);
+            url = parsed.textures.SKIN.url;
+        } catch (e) {
+            return null;
+        }
     }
 
     if (!url) return null;
