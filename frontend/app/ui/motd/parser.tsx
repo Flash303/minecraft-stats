@@ -55,8 +55,16 @@ export function parseLegacyText(text: string): React.ReactNode[] {
             } else if (code.startsWith('&head{')) {
                 const inner = part.substring(6, part.length - 2);
                 const split = inner.split('|');
-                const base64 = split[0];
+                const base64OrName = split[0];
                 const hat = split[1] === 'true';
+
+                let base64 = undefined;
+                let playerName = undefined;
+                if (base64OrName.startsWith('name:')) {
+                    playerName = base64OrName.substring(5);
+                } else {
+                    base64 = base64OrName;
+                }
 
                 const hasShadow = currentShadowColor !== 0;
                 const shadowStr = hasShadow 
@@ -64,7 +72,7 @@ export function parseLegacyText(text: string): React.ReactNode[] {
                     : null;
                     
                 elements.push(
-                    <PlayerHead key={`head-${i}`} base64={base64} hat={hat} shadow={shadowStr} />
+                    <PlayerHead key={`head-${i}`} base64={base64} playerName={playerName} hat={hat} shadow={shadowStr} />
                 );
             } else if (code.startsWith('&f{')) {
                 currentFont = part.substring(3, part.length - 2);
