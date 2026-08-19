@@ -12,6 +12,14 @@ export type MotdComponent =
           shadow_color?: number
           atlas?: string
           sprite?: string
+          hat?: boolean
+          player?: {
+              name?: string
+              properties?: Array<{
+                  name: string
+                  value: string
+              }>
+          }
           extra?: MotdComponent[]
       }
 

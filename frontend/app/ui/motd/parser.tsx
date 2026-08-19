@@ -4,9 +4,10 @@ import { CODE_TO_COLOR } from "./constants";
 import { getShadowColor, parseArgb } from "./utils";
 import { ObfuscatedText } from "./components/ObfuscatedText";
 import { SpriteImage } from "./components/SpriteImage";
+import { PlayerHead } from "./components/PlayerHead";
 
 export function parseLegacyText(text: string): React.ReactNode[] {
-    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};|\n)/i);
+    const parts = text.split(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-or]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&head{[^}]+};|&h{[^}]*};|\n)/i);
     const elements: React.ReactNode[] = [];
     
     let currentColor: string | undefined = undefined;
@@ -20,7 +21,7 @@ export function parseLegacyText(text: string): React.ReactNode[] {
 
     parts.forEach((part, i) => {
         if (!part) return;
-        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{") || part.startsWith("&s{") || part.startsWith("&h{")) {
+        if (part.startsWith("§") || part.startsWith("&#") || part.startsWith("&f{") || part.startsWith("&s{") || part.startsWith("&head{") || part.startsWith("&h{")) {
             const code = part.toLowerCase();
             if (code.startsWith('&s{')) {
                 const inner = part.substring(3, part.length - 2);
@@ -50,6 +51,20 @@ export function parseLegacyText(text: string): React.ReactNode[] {
 
                 elements.push(
                     <SpriteImage key={`sprite-${i}`} src={spriteUrl} alt={realSpriteId} shadow={shadowStr} colorHex={colorToPass} />
+                );
+            } else if (code.startsWith('&head{')) {
+                const inner = part.substring(6, part.length - 2);
+                const split = inner.split('|');
+                const base64 = split[0];
+                const hat = split[1] === 'true';
+
+                const hasShadow = currentShadowColor !== 0;
+                const shadowStr = hasShadow 
+                    ? (currentShadowColor !== undefined ? parseArgb(currentShadowColor) : getShadowColor(currentColor))
+                    : null;
+                    
+                elements.push(
+                    <PlayerHead key={`head-${i}`} base64={base64} hat={hat} shadow={shadowStr} />
                 );
             } else if (code.startsWith('&f{')) {
                 currentFont = part.substring(3, part.length - 2);
@@ -139,4 +154,4 @@ export function parseLegacyText(text: string): React.ReactNode[] {
     });
     
     return elements;
-}
+}

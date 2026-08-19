@@ -140,9 +140,9 @@ export function MinecraftMotd({
                     </span>
                 </div>
                 <pre
-                    className="m-0 text-[#AAAAAA] overflow-hidden font-minecraft break-words"
+                    className="m-0 text-[#AAAAAA] overflow-hidden font-minecraft"
                     style={{
-                        whiteSpace: "pre-wrap",
+                        whiteSpace: "pre",
                         width: "100%",
                         fontSize: `${fontHeight}px`,
                         lineHeight: `${fontHeight}px`,
