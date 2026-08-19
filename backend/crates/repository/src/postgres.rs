@@ -106,11 +106,10 @@ impl Repository for PostgresRepository {
         let records = sqlx::query(
             "SELECT 
                 server_id,
-                time_bucket('5 minutes', date) as time_bucket,
-                MAX(value)::integer as agg_value
-            FROM ping_records
-            WHERE server_id = ANY($1) AND date >= $2
-            GROUP BY server_id, time_bucket
+                time_bucket,
+                agg_value
+            FROM ping_records_5m_agg
+            WHERE server_id = ANY($1) AND time_bucket >= $2
             ORDER BY server_id, time_bucket ASC"
         )
         .bind(&ids)
