@@ -6,9 +6,20 @@
 
 🌍 **Live website: [mc-stats.fr](https://mc-stats.fr)**
 
-Minecraft Stats is a full-stack application designed to monitor, collect, and visualize Minecraft server statistics in real time. This repository is a monorepo containing both the web client (frontend) and the server services (backend).
+## 📖 The Project & Its Origins
 
-> 💡 **Inspiration:** This project was inspired by the original concept from [Sportek/minecraft-stats](https://github.com/Sportek/minecraft-stats).
+Minecraft Stats is a web platform that allows users to visualize the evolution of connected players on various Minecraft servers over time with high precision. It also offers users the ability to configure custom alerts (e.g., getting notified when a server stops responding or exceeds a certain player threshold).
+
+> 💡 **Inspiration:** This project was inspired by the original concept from minecraft-stats.fr and [Sportek/minecraft-stats](https://github.com/Sportek/minecraft-stats).
+
+> 🎓 **Learning Opportunity:** Being in the process of learning Rust, I decided to develop the entire backend in this language. It was the perfect opportunity to deepen my knowledge through a concrete, high-performance project.
+
+## ✨ Key Features
+
+*   **Precision Tracking:** High-performance, ultra-smooth player count charts using [uPlot](https://github.com/leeoniya/uPlot).
+*   **Custom Alerts:** Configure personalized notifications (e.g., when a server goes offline or player counts exceed/drop below a threshold).
+*   **Lunar & LabyMod Integration:** Automatically detects and displays **Lunar Client** and **LabyMod** servers, including their custom backgrounds, icons, and specific manifest information directly on the server details page.
+*   **MOTD Preview:** Full support for rendering Minecraft Server MOTDs with their original colors and formatting.
 
 ## 🚀 Tech Stack
 
@@ -28,16 +39,27 @@ Minecraft Stats is a full-stack application designed to monitor, collect, and vi
 **Deployment:**
 *   Docker & Docker Compose
 
-## 📁 Project Structure
+## ⚙️ Backend Architecture (Rust)
 
-The monorepo is divided into three main sections:
+Each registered server is pinged approximately every 10 seconds. To achieve this efficiently, I developed a custom library, `minecraft-pinger`, which implements the Minecraft protocol for both Java and Bedrock editions.
 
-*   **`/frontend/`**: The user web application built with React/Vite.
-*   **`/backend/`**: The Rust workspace containing:
-    *   `rest-api/`: The main API interacting with the frontend (Axum).
-    *   `worker/`: The background service responsible for pinging Minecraft servers and recording their status.
-    *   `repository/`: The shared data access layer (SQLx / PostgreSQL).
-*   **`/deploy/`**: Configuration files for deployment (`.env` files, `docker-compose.yml`, and Docker contexts for each service).
+To keep the codebase maintainable and clear, the project is split into multiple distinct crates:
+
+| Crate | Description |
+| :--- | :--- |
+| `minecraft-pinger` | External crate implementing the ping (status) protocol for Minecraft servers. |
+| `repository` | Contains the core data models (`Server`, `PingRecord`, etc.) and the associated queries to communicate with the database. |
+| `worker` | A standalone application that connects to the DB and handles continuously pinging the servers. It is also responsible for dispatching alerts. |
+| `rest-api` | The API built with the [Axum](https://github.com/tokio-rs/axum) framework. It allows the frontend to fetch historical data and configure alerts. |
+
+> ⚡ **Network Optimization:** To deliver extensive historical data to the frontend while minimizing bandwidth impact, the API does not use standard text formats (like JSON) for stats. Instead, all statistical data is **encoded and transmitted in binary**, ensuring ultra-fast and lightweight transfers for the client.
+
+## 🗺️ Roadmap & Future Evolutions
+
+The project is continuously evolving (such as the recent addition of MOTD previews with full support for Minecraft colors and styles). Here is a non-exhaustive list of upcoming optimizations:
+
+*   **Redis Cache on the Backend:** Adding a temporary cache will significantly reduce the database load for each API request.
+*   **Recording Optimization (Deltas):** Currently, if a server remains at 0 connected players for 24 hours, its state is continuously recorded. A planned revision aims to store only state changes (deltas). This will greatly reduce the number of database records for inactive servers, although it will introduce new technical challenges.
 
 ## 🛠️ Prerequisites
 
@@ -60,3 +82,4 @@ cd deploy
 cp .env.local .env
 # Start the services
 docker-compose up -d --build
+```

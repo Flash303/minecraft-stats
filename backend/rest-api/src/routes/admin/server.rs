@@ -2,6 +2,7 @@ use std::time::Duration;
 use axum::routing::delete;
 use axum::{extract::{rejection::{PathRejection, QueryRejection}, Path, Query, State}, routing::{post, patch}, Router, Json};
 use minecraft_pinger::config::PingConfig;
+use minecraft_pinger::java::config::JavaPingConfig;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use repository::duplicate_detection::DuplicateDetectionService;
@@ -100,6 +101,8 @@ async fn ping_server_ip(
         .set_timeout(Duration::from_secs(2))
         .build();
 
+    let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
+
     let mut is_reachable = false;
     let mut motd = None;
     let mut version = None;
@@ -110,7 +113,7 @@ async fn ping_server_ip(
     for _ in 0..2 {
         let ping_res = match server.server_type {
             ServerType::Java => {
-                let res = state.pinger.ping_java_server(payload.ip.as_str(), payload.port, &cfg).await;
+                let res = state.pinger.ping_java_server(payload.ip.as_str(), payload.port, &java_cfg).await;
                 if let Ok(ping) = &res {
                     motd = serde_json::to_value(&ping.description).ok();
                     version = Some(ping.version.name.clone());

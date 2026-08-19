@@ -5,6 +5,7 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use log::{error, info};
 use minecraft_pinger::config::PingConfig;
+use minecraft_pinger::java::config::JavaPingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
 use crate::error::{AppError, ServerCreationError};
@@ -73,10 +74,12 @@ async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option
         .set_timeout(ADD_TIMEOUT)
         .build();
 
+    let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
+
     for _ in 0..PING_TRY_COUNT {
         let ping_res = match draft.server_type {
             ServerType::Java => {
-                let res = state.pinger.ping_java_server(draft.ip.as_str(), draft.port, &cfg).await;
+                let res = state.pinger.ping_java_server(draft.ip.as_str(), draft.port, &java_cfg).await;
                 if let Ok(ping) = &res {
                     draft.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
                     let motd_value = serde_json::to_value(&ping.description).ok();

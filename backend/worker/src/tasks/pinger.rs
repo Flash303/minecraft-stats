@@ -3,8 +3,8 @@ use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
 use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME, PING_TRY_COUNT};
 use futures::{stream, StreamExt};
 use minecraft_pinger::config::PingConfig;
-use minecraft_pinger::models::bedrock_model::BedrockPing;
-use minecraft_pinger::models::java_model::JavaPing;
+use minecraft_pinger::bedrock::model::BedrockPing;
+use minecraft_pinger::java::model::JavaPing;
 use minecraft_pinger::MinecraftPinger;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::models::record::Record;
@@ -14,6 +14,7 @@ use repository::repository::Repository;
 use std::sync::Arc;
 use std::time::Instant;
 use log::info;
+use minecraft_pinger::java::config::JavaPingConfig;
 use time::OffsetDateTime;
 use tokio::sync::mpsc::Sender;
 use tokio::time::sleep;
@@ -93,6 +94,8 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
         .set_timeout(MAX_PING_RESPONSE_TIME)
         .build());
 
+    let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config.to_builder()).build());
+
     loop {
         let possible_servers = repository.list_servers().await;
         let count_time = Instant::now();
@@ -109,6 +112,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                 .map(|mut server| {
                     let pinger = pinger.clone();
                     let pinger_config = pinger_config.clone();
+                    let java_pinger_config = java_pinger_config.clone();
                     let state_updater = state_updater.clone();
 
                     async move {
@@ -121,7 +125,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
                             match server.server_type {
                                 ServerType::Java => {
-                                    let ping_rs = pinger.ping_java_server(server.ip.as_str(), server.port, pinger_config.as_ref()).await;
+                                    let ping_rs = pinger.ping_java_server(server.ip.as_str(), server.port, java_pinger_config.as_ref()).await;
                                     match ping_rs {
                                         Ok(ping) => {
                                             players_online = ping.players.online;
