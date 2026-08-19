@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import type { Server } from "@/core/lib/api"
 import type { LunarServer } from "@/core/lib/lunar"
 import { Button } from "@/ui/components/button"
@@ -23,6 +23,7 @@ interface ServerDetailHeaderProps {
 
 export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
+    const navigate = useNavigate()
 
     const isOnline = server.last_status === "online"
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
@@ -33,13 +34,19 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
         setTimeout(() => setCopied(false), 2000)
     }
 
+    const handleBack = () => {
+        if (window.history.length > 2 || (window.history.state && window.history.state.idx > 0)) {
+            navigate(-1)
+        } else {
+            navigate("/")
+        }
+    }
+
     return (
         <div className="flex items-center gap-3 min-w-0">
-            <Link to="/">
-                <Button variant="ghost" size="icon" className="flex-shrink-0">
-                    <ArrowLeft className="h-4 w-4" />
-                </Button>
-            </Link>
+            <Button variant="ghost" size="icon" className="flex-shrink-0" onClick={handleBack}>
+                <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div className="flex min-w-0 items-center gap-3">
                 <ServerIcon
                     serverId={server.id}
