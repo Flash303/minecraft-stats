@@ -178,24 +178,24 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
         if (!hasContent) {
             return (
-                <div className="px-4 py-8 flex flex-col items-center gap-3 text-center">
-                    <LabyLogo className="w-8 h-8 text-muted-foreground/40" />
-                    <p className="text-sm text-muted-foreground">
+                <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
+                    <LabyLogo className="text-muted-foreground/40 h-8 w-8" />
+                    <p className="text-muted-foreground text-sm">
                         {language === "fr"
                             ? "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations."
                             : "This server is registered on LabyMod but hasn't filled in its information yet."}
                     </p>
                     <a
-                        href={`https://labymod.net/serverlist`}
+                        href={`https://github.com/LabyMod/server-media`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                        className="text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 text-xs transition-colors"
                     >
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="h-3 w-3" />
                         LabyMod Server List
                     </a>
                 </div>
-            );
+            )
         }
 
         return (
@@ -339,24 +339,24 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
         if (!hasLunarContent) {
             return (
-                <div className="px-4 py-8 flex flex-col items-center gap-3 text-center">
-                    <LunarLogo className="w-8 h-8 text-muted-foreground/40" />
-                    <p className="text-sm text-muted-foreground">
+                <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
+                    <LunarLogo className="text-muted-foreground/40 h-8 w-8" />
+                    <p className="text-muted-foreground text-sm">
                         {language === "fr"
                             ? "Ce serveur est référencé sur Lunar Client mais n'a pas encore renseigné ses informations."
                             : "This server is registered on Lunar Client but hasn't filled in its information yet."}
                     </p>
                     <a
-                        href="https://lunarclient.com/servers"
+                        href="https://github.com/LunarClient/ServerMappings/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-sky-500 transition-colors"
+                        className="text-muted-foreground inline-flex items-center gap-1.5 text-xs transition-colors hover:text-sky-500"
                     >
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="h-3 w-3" />
                         Lunar Client Servers
                     </a>
                 </div>
-            );
+            )
         }
 
         return (
