@@ -16,9 +16,9 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const { getToken, isSignedIn, isLoaded } = useAuth()
 
     const [server, setServer] = useState<Server | null>(initialServer || null)
-    const [loading, setLoading] = useState(initialServer ? false : true)
+    const [loading, setLoading] = useState(!initialServer)
     const [loadingRecords, setLoadingRecords] = useState(
-        initialRecords && initialRecords.length > 0 ? false : true
+        !(initialRecords && initialRecords.length > 0)
     )
     const [isRateLimited, setIsRateLimited] = useState(false)
     const [refreshCount, setRefreshCount] = useState(0)
@@ -56,6 +56,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const backgroundUrl = labyBackground || lunarBackground
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLabyServerInfo(undefined)
         setLabyManifest(undefined)
         setLunarServerInfo(undefined)
@@ -83,11 +84,12 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     }, [server?.ip])
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setServer(initialServer)
         setRawRecords(initialRecords || [])
         setLoadedFrom(initialFrom || Infinity)
         setRecords([])
-        setLoading(initialServer ? false : true)
+        setLoading(!initialServer)
     }, [id, initialServer, initialRecords, initialFrom])
 
     const isChartZoomed = useRef(false)
@@ -127,7 +129,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         }
 
         const isRefresh = prevParams.refreshCount !== currentParams.refreshCount
-        const clerkJustLoaded = prevParams.isLoaded === false && currentParams.isLoaded === true
+        const clerkJustLoaded = prevParams.isLoaded === false && currentParams.isLoaded
         const isBackground = isRefresh || clerkJustLoaded
 
         if (!server || server.id !== Number(id) || isRefresh || clerkJustLoaded) {
@@ -179,6 +181,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
 
     useEffect(() => {
         if (rawRecords.length === 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRecords([])
             setAppliedRange(selectedRange)
             setAppliedInterval(selectedInterval)

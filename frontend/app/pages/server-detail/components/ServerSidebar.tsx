@@ -76,6 +76,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
     // Reset activeSource when the server changes (component persists between navigations)
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setActiveSource(bestSource);
         setProgress(0);
         setIsAutoSwitching(true);

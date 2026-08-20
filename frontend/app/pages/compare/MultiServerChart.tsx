@@ -36,15 +36,10 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const tooltipRef = useRef<HTMLDivElement | null>(null)
     const [isZoomed, setIsZoomed] = useState(false)
     const timeRangeRef = useRef(timeRange)
     // eslint-disable-next-line react-hooks/refs
     timeRangeRef.current = timeRange
-
-
-    const mouseEnterRef = useRef<(() => void) | null>(null)
-    const mouseLeaveRef = useRef<(() => void) | null>(null)
 
     useChartResize(chartRef, containerRef, [data])
 

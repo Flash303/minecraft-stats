@@ -54,7 +54,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="relative flex-shrink-0">
                     <ServerIcon
                         serverId={server.id}
-                        alt={t("alt.serverLogo" as any, { name: server.name })}
+                        alt={t("alt.serverLogo", { name: server.name })}
                         className="h-12 w-12 rounded-xl shadow-md border border-slate-100/60 dark:border-zinc-800/80 object-cover"
                     />
                 </div>
