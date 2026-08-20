@@ -97,7 +97,12 @@
     "title1": "Dashboard",
     "title2": "Analytique",
     "description": "La plateforme d'analyse ultime pour serveurs Minecraft. Suivez l'évolution de vos joueurs, recevez des alertes (downtime, pics d'affluence) et explorez une quantité massive de données. Que vous soyez administrateur ou joueur, découvrez les serveurs Java et Bedrock les plus performants en temps réel.",
-    "cta": "Consulter la liste"
+    "cta": "Consulter la liste",
+    "stats": {
+      "servers": "Serveurs suivis",
+      "online": "Serveurs en ligne",
+      "players": "Joueurs connectés"
+    }
   },
   "serverDetail": {
     "loading": "Chargement des détails...",

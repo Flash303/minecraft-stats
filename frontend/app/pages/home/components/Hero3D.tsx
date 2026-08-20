@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react"
-import { ArrowDown } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ArrowDown, Server, Wifi, Users } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import type { Server as ServerType } from "@/core/lib/api"
 
 // Predefined heights for the graph nodes (representing server player count stats)
 // Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
@@ -21,14 +22,45 @@ const points = defaultYValues.map((y, idx) => {
     }
 })
 
-export function Hero3D() {
+// Animated counter hook (module-level to comply with React rules of hooks)
+function useAnimatedCount(target: number, duration = 1200) {
+    const [count, setCount] = useState(0)
+    useEffect(() => {
+        if (target === 0) { setCount(0); return }
+        let start = 0
+        const step = target / (duration / 16)
+        const timer = setInterval(() => {
+            start += step
+            if (start >= target) {
+                setCount(target)
+                clearInterval(timer)
+            } else {
+                setCount(Math.floor(start))
+            }
+        }, 16)
+        return () => clearInterval(timer)
+    }, [target, duration])
+    return count
+}
+
+export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     const { t } = useLanguage()
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const hoveredPointRef = useRef<number | null>(null)
     const isVisibleRef = useRef<boolean>(true)
 
-    // Track mouse hover to highlight nodes
+    // Compute stats from server list
+    const totalServers = servers.filter(s => s.hidden !== true).length
+    const onlineServers = servers.filter(s => s.last_status === "online" && s.hidden !== true).length
+    const totalPlayers = servers
+        .filter(s => s.last_status === "online" && s.hidden !== true)
+        .reduce((sum, s) => sum + (s.last_connected ?? 0), 0)
+
+    const animatedTotal = useAnimatedCount(totalServers)
+    const animatedOnline = useAnimatedCount(onlineServers)
+    const animatedPlayers = useAnimatedCount(totalPlayers)
+
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const canvas = canvasRef.current
         if (!canvas) return
@@ -363,7 +395,54 @@ export function Hero3D() {
                             <ArrowDown className="h-4 w-4 animate-bounce" />
                         </button>
                     </div>
+
+                    {/* Stats Row */}
+                    <div className="flex flex-wrap items-center gap-3 pt-3 justify-center lg:justify-start">
+                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 shrink-0">
+                                <Server className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                                    {animatedTotal.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                    {t("hero.stats.servers")}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 shrink-0">
+                                <Wifi className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                                    {animatedOnline.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                    {t("hero.stats.online")}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/15 shrink-0">
+                                <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                                    {animatedPlayers.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                    {t("hero.stats.players")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
 
                 {/* 2D Animated Chart Canvas Area */}
                 <div 
