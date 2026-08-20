@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react"
-import { useParams, Link, useLoaderData, useRouteError } from "react-router"
+import { useEffect, useMemo, lazy, Suspense } from "react"
+import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
-import { fetchRecords, fetchServer, getServerIconUrl } from "@/core/lib/api"
-import type { Server } from "@/core/lib/api"
+import { fetchServer, getServerIconUrl } from "@/core/lib/api"
+
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
         default: m.PlayerChart
@@ -15,27 +15,13 @@ import { AlertsSection } from "@/pages/server-detail/components/AlertsSection"
 import { Button } from "@/ui/components/button"
 import { BarChart } from "lucide-react"
 
-import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
 import { cn, formatMinecraftVersion } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
-import {
-    getLabyModServerInfo,
-    type LabyModServer
-} from "@/core/lib/labymod"
-import {
-    getLunarServerInfo,
-    type LunarServer
-} from "@/core/lib/lunar"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
 import { useServerData } from "./hooks/useServerData"
-
-export type DateRange = {
-    from: Date | undefined
-    to?: Date | undefined
-}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
     if (!params.id)
@@ -135,13 +121,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 
 export default function ServerDetail() {
     const { t, language } = useLanguage()
-    const { id } = useParams<{ id: string }>()
-    const { getToken, isSignedIn, isLoaded } = useAuth()
 
     const loaderData = useLoaderData<typeof loader>()
     const { initialServer, initialRecords, initialFrom } = loaderData || {}
     const {
-        server, loading, loadingRecords, records, rawRecords,
+        server, loading, loadingRecords, records,
         selectedRange, setSelectedRange,
         selectedInterval, setSelectedInterval,
         customRange, setCustomRange,
@@ -407,7 +391,6 @@ export default function ServerDetail() {
                             labyServerInfo={labyServerInfo}
                             labyManifest={labyManifest}
                             lunarServerInfo={lunarServerInfo}
-                            serverName={server.name}
                         />
                     </div>
                 </div>

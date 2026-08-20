@@ -1,28 +1,32 @@
 export interface LabyModServer {
-  server_name: string;
-  nice_name: string;
-  direct_ip: string;
-  wildcards?: string[];
-  server_wildcards?: string[];
-  attachments?: {
-    file_name: string;
-    url: string;
-  }[];
-  social?: {
-    web?: string;
-    web_shop?: string;
-    twitter?: string;
-    tiktok?: string;
-    instagram?: string;
-    discord?: string;
-    youtube?: string;
-  };
-  gamemodes?: Record<string, {
-    name: string;
-    color?: string;
-    command?: string;
-  }>;
-  user_stats?: string;
+    server_name: string
+    nice_name: string
+    direct_ip: string
+    wildcards?: string[]
+    server_wildcards?: string[]
+    attachments?: {
+        file_name: string
+        url: string
+    }[]
+    social?: {
+        web?: string
+        web_shop?: string
+        twitter?: string
+        tiktok?: string
+        instagram?: string
+        discord?: string
+        youtube?: string
+    }
+    gamemodes?: Record<
+        string,
+        {
+            name: string
+            color?: string
+            command?: string
+        }
+    >
+    partnered?: boolean;
+    user_stats?: string
 }
 
 let cachedLabyServers: LabyModServer[] | null = null;

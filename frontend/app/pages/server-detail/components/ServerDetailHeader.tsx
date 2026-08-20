@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link, useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import type { Server } from "@/core/lib/api"
 import type { LunarServer } from "@/core/lib/lunar"
 import { Button } from "@/ui/components/button"

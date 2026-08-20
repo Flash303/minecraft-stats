@@ -97,7 +97,12 @@
     "title1": "Analytics",
     "title2": "Dashboard",
     "description": "The ultimate analytics platform for Minecraft servers. Track player evolution, receive real-time alerts (downtimes, player surges), and explore massive amounts of data. Whether you are an administrator or a player, discover top Java and Bedrock servers in real-time.",
-    "cta": "Browse Servers"
+    "cta": "Browse Servers",
+    "stats": {
+      "servers": "Tracked servers",
+      "online": "Servers online",
+      "players": "Players connected"
+    }
   },
   "serverDetail": {
     "loading": "Loading details...",

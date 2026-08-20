@@ -294,7 +294,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
 
     return (
         <>
-            {!searchQuery && <Hero3D />}
+            {!searchQuery && <Hero3D servers={servers} />}
 
             <div
                 id="server-list-section"

@@ -41,7 +41,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         {(() => {
                             const lunarInfo = getLunarInfo(s.ip);
                             return lunarInfo ? (
-                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
+                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} />
                             ) : null;
                         })()}
                         {(() => {
