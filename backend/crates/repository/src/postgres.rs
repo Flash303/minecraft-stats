@@ -385,6 +385,17 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
+    async fn list_alerts_for_user(&self, user_id: String) -> Result<Vec<Alert>, RepositoryError> {
+        let rows: Vec<AlertRow> = sqlx::query_as(
+            "SELECT * FROM alerts WHERE user_id = $1"
+        )
+            .bind(user_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+        Ok(rows.into_iter().map(|r| r.into()).collect())
+    }
+
     async fn list_alerts_for_server(&self, server_id: u32) -> Result<Vec<Alert>, RepositoryError> {
         let rows: Vec<AlertRow> = sqlx::query_as(
             "SELECT * FROM alerts WHERE server_id = $1"

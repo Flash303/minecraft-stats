@@ -9,12 +9,30 @@ use axum::{Extension, Json, Router};
 use repository::models::web_push::{WebPushSubscription, DraftWebPushSubscription};
 use serde::{Deserialize, Serialize};
 use std::env;
+use repository::models::alert::Alert;
 
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/vapid-key", get(get_vapid_key))
         .route("/subscribe", post(subscribe_device))
         .route("/unsubscribe", post(unsubscribe_device))
+        .route("/list", get(list_alerts))
+}
+
+async fn list_alerts(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
+    let account = account.ok_or(AppError::Authentication)?;
+
+    let alerts = state.repository.list_alerts_for_user(account.id().clone()).await?;
+
+    let user_alerts: Vec<Alert> = alerts
+        .into_iter()
+        .filter(|a| a.user_id.eq(account.id())) // Security
+        .collect();
+
+    Ok(ResponseFormat::success(user_alerts, StatusCode::OK))
 }
 
 #[derive(Serialize)]
