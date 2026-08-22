@@ -164,7 +164,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
             </div>
 
             {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-background/95 border border-border/80 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 p-1">
+                <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-popover/95 border border-border/80 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 p-1">
                     {filteredSuggestions.map((s, idx) => (
                         <button
                             key={s.id}
