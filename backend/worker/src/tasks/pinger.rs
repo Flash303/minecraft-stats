@@ -35,7 +35,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_version = Some(ping.version.name);
             server.last_max_players = Some(ping.players.max);
             server.last_ping_time = Some(ping.latency);
-            server.last_protocol_version = Some(ping.version.protocol as i64);
+            server.last_protocol_version = ping.version.protocol.map(|s| s as i64);
             server.last_motd = serde_json::to_value(&ping.description).ok();
 
             if let Some(players) = ping.players.sample {
