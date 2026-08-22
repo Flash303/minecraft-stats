@@ -231,8 +231,17 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     if (data.length === 0) {
         return (
-            <div className="flex flex-col gap-4">
-                {header}
+            <div className="w-full space-y-4">
+                <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 items-start">
+                    <div className="w-full lg:w-auto overflow-hidden">{header}</div>
+                    <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
+                        {timeSelector && (
+                            <div className="w-full sm:w-auto">
+                                {timeSelector}
+                            </div>
+                        )}
+                    </div>
+                </div>
                 <div className="w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
                     <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-zinc-400 font-medium">
                         {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
