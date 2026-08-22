@@ -307,7 +307,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "overview" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <LayoutGrid className="h-4.5 w-4.5" />
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "users" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Users className="h-4.5 w-4.5" />
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "servers" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <ServerIcon className="h-4.5 w-4.5" />
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "logs" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Activity className="h-4.5 w-4.5" />
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "settings" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Settings className="h-4.5 w-4.5" />

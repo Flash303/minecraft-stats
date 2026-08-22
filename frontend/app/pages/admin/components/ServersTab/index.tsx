@@ -105,7 +105,7 @@ export function ServersTab({
                         placeholder={t("admin.servers.searchPlaceholder")}
                         value={serverSearchQuery}
                         onChange={(e) => setServerSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-slate-200/85 dark:border-zinc-855"
+                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-855"
                     />
                 </div>
                 
@@ -114,7 +114,7 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("all")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
                             serverStatusFilter === "all" 
-                                ? "bg-slate-900 text-primary-foreground bg-primary dark:text-zinc-900" 
+                                ? "bg-zinc-900 text-primary-foreground bg-primary dark:text-zinc-900" 
                                 : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
@@ -188,7 +188,7 @@ export function ServersTab({
             <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-border/60">
                 <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr className="border-b bg-slate-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
+                        <tr className="border-b bg-zinc-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
                             <th className="p-4 w-10 text-center rounded-tl-xl">
                                 <Checkbox 
                                     checked={sortedServers.length > 0 && selectedIds.length === sortedServers.length}
@@ -264,8 +264,8 @@ export function ServersTab({
                                 return (
                                     <tr 
                                         key={server.id} 
-                                        className={`hover:bg-slate-50/30 dark:hover:bg-zinc-850/20 transition-all ${
-                                            isHidden ? "opacity-60 bg-slate-50/10 dark:bg-zinc-900/10" : ""
+                                        className={`hover:bg-zinc-50/30 dark:hover:bg-zinc-850/20 transition-all ${
+                                            isHidden ? "opacity-60 bg-zinc-50/10 dark:bg-zinc-900/10" : ""
                                         }`}
                                     >
                                         <td className="p-4 text-center">

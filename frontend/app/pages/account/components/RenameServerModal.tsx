@@ -38,7 +38,7 @@ export function RenameServerModal({ server, onSuccess }: { server: Server, onSuc
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-slate-200 dark:hover:bg-zinc-800 cursor-pointer text-slate-500">
+                <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer text-zinc-500">
                     <Edit2 className="h-4 w-4" />
                 </Button>
             </DialogTrigger>

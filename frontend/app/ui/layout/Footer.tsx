@@ -63,7 +63,7 @@ export function Footer() {
                 </div>
                 <div className="flex items-center gap-1">
                     <span>{t("footer.madeWith")}</span>
-                    <Heart className="h-3 w-3 text-rose-500 fill-rose-500 animate-pulse" />
+                    <Heart className="h-3 w-3 text-destructive fill-destructive animate-pulse" />
                     <span>{t("footer.forCommunity")}</span>
                 </div>
             </div>

@@ -57,15 +57,15 @@ function StatusTab({
     onClick: () => void
 }) {
     const dotColors = {
-        green: "bg-emerald-500",
-        red: "bg-rose-500",
-        amber: "bg-amber-500",
+        green: "bg-success",
+        red: "bg-destructive",
+        amber: "bg-warning",
     }
     const activeStyles = {
-        green: "bg-emerald-500/10 text-success border border-emerald-500/25",
-        red: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/25",
-        amber: "bg-amber-500/10 text-warning border border-amber-500/25",
-        default: "bg-slate-900 text-primary-foreground bg-primary dark:text-zinc-950 shadow-sm",
+        green: "bg-success/10 text-success border border-success/25",
+        red: "bg-destructive/10 text-destructive border border-destructive/25",
+        amber: "bg-warning/10 text-warning border border-warning/25",
+        default: "bg-primary text-primary-foreground shadow-sm",
     }
 
     return (
@@ -113,7 +113,7 @@ function SegmentedControl<T extends string>({
     onChange: (val: T) => void
 }) {
     return (
-        <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl w-full gap-1">
+        <div className="flex p-1 bg-muted rounded-xl w-full gap-1">
             {options.map((opt) => {
                 const isActive = value === opt.value
                 return (
@@ -124,7 +124,7 @@ function SegmentedControl<T extends string>({
                             "flex-1 min-w-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2 px-2 rounded-lg font-medium transition-all text-center whitespace-nowrap cursor-pointer",
                             isActive
                                 ? "bg-card shadow-sm text-foreground font-semibold"
-                                : "text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         )}
                     >
                         {opt.icon && (
@@ -158,7 +158,7 @@ function SortControl({
     onToggleDirection: () => void
 }) {
     return (
-        <div className="flex p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl w-full gap-1">
+        <div className="flex p-1 bg-muted rounded-xl w-full gap-1">
             {options.map((opt) => {
                 const isActive = value === opt.value
                 const flexClass =
@@ -182,7 +182,7 @@ function SortControl({
                                 "w-full flex items-center justify-center gap-1.5 text-xs py-2 px-1.5 rounded-lg font-medium transition-all whitespace-nowrap cursor-pointer",
                                 isActive
                                     ? "bg-card shadow-sm text-foreground font-semibold"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-zinc-800/40"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                             )}
                             title={
                                 isActive
@@ -314,7 +314,7 @@ export function ServerListFilters({
                             className={cn(
                                 "relative flex items-center gap-2 px-4 py-2 h-10 rounded-xl text-sm font-medium border shadow-sm transition-colors cursor-pointer",
                                 hasActiveFilters
-                                    ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white hover:bg-slate-800 dark:hover:bg-slate-100"
+                                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
                                     : "bg-card border-border text-foreground hover:bg-accent"
                             )}
                         >
@@ -377,12 +377,12 @@ export function ServerListFilters({
                                         {
                                             value: "name",
                                             label: t("serverList.filters.sortName") || "Nom",
-                                            icon: <ArrowDownAZ className="w-3.5 h-3.5 text-indigo-500" />,
+                                            icon: <ArrowDownAZ className="w-3.5 h-3.5 text-primary" />,
                                         },
                                         {
                                             value: "recent",
                                             label: t("serverList.filters.sortRecent") || "Récents",
-                                            icon: <Clock className="w-3.5 h-3.5 text-sky-500" />,
+                                            icon: <Clock className="w-3.5 h-3.5 text-info" />,
                                         },
                                     ]}
                                     onChange={(v) => setActiveSort(v as "popularity" | "name" | "recent")}

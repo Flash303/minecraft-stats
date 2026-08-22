@@ -44,8 +44,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
     return (
         <div
             className={cn(
-                "relative flex flex-col justify-between shadow-sm border border-border/80 bg-white/95 dark:bg-zinc-900/50 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group",
-                to ? "hover:border-indigo-500/30 dark:hover:border-indigo-500/20 hover:shadow-md hover:-translate-y-0.5" : ""
+                "relative flex flex-col justify-between shadow-sm border border-border/80 bg-card/95 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group",
+                to ? "hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
             )}
         >
             {/* Top row: Favicon, Name, IP address, and Player/Status */}
@@ -63,11 +63,11 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
                     <div className="flex items-center gap-1.5 min-w-0">
                         {to ? (
-                            <Link to={to} prefetch="intent" className="text-[16px] font-bold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
+                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
                                 {server.name}
                             </Link>
                         ) : (
-                            <h2 className="text-[16px] font-bold text-foreground transition-colors tracking-tight truncate leading-tight">
+                            <h2 className="text-base font-bold text-foreground transition-colors tracking-tight truncate leading-tight">
                                 {server.name}
                             </h2>
                         )}
@@ -77,11 +77,11 @@ export function ServerCard({ server, to }: ServerCardProps) {
                     
                     <button 
                         onClick={handleCopy}
-                        className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-[11px] font-mono text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
+                        className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
                     >
                         <span className="truncate">{displayIp}</span>
                         {copied ? (
-                            <Check className="h-3 w-3 text-emerald-500 flex-shrink-0" />
+                            <Check className="h-3 w-3 text-success flex-shrink-0" />
                         ) : (
                             <Copy className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
                         )}
@@ -94,8 +94,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
                         {isOnline ? (
                             <>
                                 <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success/75 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
                                 </span>
                                 {server.last_sample ? (
                                     <CursorTooltip 
@@ -110,12 +110,12 @@ export function ServerCard({ server, to }: ServerCardProps) {
                                             </div>
                                         }
                                     >
-                                        <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200 cursor-default select-none border-b border-dashed border-slate-400 dark:border-zinc-500">
+                                        <span className="text-sm font-extrabold text-foreground cursor-default select-none border-b border-dashed border-muted-foreground/50">
                                             {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
                                         </span>
                                     </CursorTooltip>
                                 ) : (
-                                    <span className="text-sm font-extrabold text-slate-700 dark:text-zinc-200">
+                                    <span className="text-sm font-extrabold text-foreground">
                                         {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
                                     </span>
                                 )}
@@ -124,16 +124,16 @@ export function ServerCard({ server, to }: ServerCardProps) {
                             <>
                                 <span className={cn(
                                     "h-2 w-2 rounded-full",
-                                    isOffline ? "bg-rose-500" : "bg-slate-450"
+                                    isOffline ? "bg-destructive" : "bg-muted-foreground"
                                 )} />
-                                <span className="text-xs font-bold text-slate-400 dark:text-zinc-550 uppercase tracking-wider">
+                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                                     {t("common.offline")}
                                 </span>
                             </>
                         )}
                     </div>
                     {isOnline && (
-                        <span className="text-[9.5px] text-muted-foreground font-medium lowercase leading-none">
+                        <span className="text-[10px] text-muted-foreground font-medium lowercase leading-none">
                             {t("common.players")}
                         </span>
                     )}
@@ -156,7 +156,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                             {t("common.version", { version: formatMinecraftVersion(server.last_version) })}
                         </span>
                     ) : (
-                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-[10px] font-semibold bg-muted/30 text-slate-400 dark:text-zinc-600 shadow-xs whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-[10px] font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
                             {t("common.unknownVersion")}
                         </span>
                     )}
@@ -164,7 +164,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
 
                 <div className={cn(
                     "flex items-center gap-1 text-[10px] font-medium",
-                    isOnline ? "text-success" : "text-rose-500/90 dark:text-rose-400/90"
+                    isOnline ? "text-success" : "text-destructive"
                 )}>
                     {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                     {isOnline ? t("common.online") : t("common.offline")}

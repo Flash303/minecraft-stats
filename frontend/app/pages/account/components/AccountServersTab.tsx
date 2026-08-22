@@ -70,13 +70,13 @@ export function AccountServersTab({ t, loading, servers, loadData }: AccountServ
                     ))}
                 </div>
             ) : servers.length === 0 ? (
-                <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center">
+                <div className="text-center py-20 border-2 border-dashed rounded-2xl bg-zinc-50 dark:bg-zinc-900/20 flex flex-col items-center justify-center">
                     <ServerIcon className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{t("profile.servers.noServersTitle")}</h3>
+                    <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-200">{t("profile.servers.noServersTitle")}</h3>
                     <p className="text-muted-foreground mt-1 max-w-sm">{t("profile.servers.noServersDescription")}</p>
                 </div>
             ) : filteredServers.length === 0 ? (
-                <div className="text-center py-16 border-2 border-dashed rounded-2xl bg-slate-50 dark:bg-slate-900/20 flex flex-col items-center justify-center px-4">
+                <div className="text-center py-16 border-2 border-dashed rounded-2xl bg-zinc-50 dark:bg-zinc-900/20 flex flex-col items-center justify-center px-4">
                     <SearchX className="h-12 w-12 text-muted-foreground/30 mb-4" />
                     <p className="text-muted-foreground text-sm max-w-md">
                         {t("profile.servers.noSearchResults", { query: searchQuery })}

@@ -48,7 +48,7 @@ export function AccountAlertsTab({
                             {t("alerts.pushNotSupported")}
                         </span>
                     ) : checkingSubscription ? (
-                        <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
+                        <div className="h-8 w-24 bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-md" />
                     ) : isSubscribed ? (
                         <div className="flex items-center gap-3">
                             <span className="text-xs text-success flex items-center gap-1.5 font-medium">
@@ -84,7 +84,7 @@ export function AccountAlertsTab({
             {/* Configured Alerts List */}
             <div>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("profile.alerts.configuredAlerts")}</h3>
+                    <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">{t("profile.alerts.configuredAlerts")}</h3>
                 </div>
                 
                 {allAlerts.length === 0 ? (
@@ -96,25 +96,25 @@ export function AccountAlertsTab({
                         {allAlerts.map((alert) => (
                             <div 
                                 key={alert.id} 
-                                className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-border/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
+                                className="group flex items-center justify-between p-4 bg-zinc-50/50 dark:bg-zinc-800/40 rounded-lg border border-border/80 transition-colors hover:bg-zinc-100/50 dark:hover:bg-zinc-800/60"
                             >
                                 <div className="flex flex-col">
                                     <span className="text-xs font-semibold tracking-wider text-muted-foreground mb-1">
                                         {t("profile.alertForServer")} : <strong className="text-foreground ml-1">{alert.serverName}</strong>
                                     </span>
-                                    <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                    <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
                                         {t(`alerts.types.${alert.alert_type}`)}
                                     </span>
                                     {(alert.alert_type === "player_above" || alert.alert_type === "player_below") && (
                                         <span className="text-xs text-muted-foreground mt-1">
-                                            {t("alerts.thresholdLabel")} : <strong className="text-foreground font-medium px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded ml-1">{alert.player_threshold}</strong>
+                                            {t("alerts.thresholdLabel")} : <strong className="text-foreground font-medium px-1.5 py-0.5 bg-zinc-200/50 dark:bg-zinc-700/50 rounded ml-1">{alert.player_threshold}</strong>
                                         </span>
                                     )}
                                 </div>
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                    className="h-8 w-8 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                                     title={t("profile.deleteAlert")}
                                     onClick={() => handleDeleteAlert(alert.id)}
                                 >

@@ -22,14 +22,14 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
             {selectedServers.map((s) => (
                 <div
                     key={s.id}
-                    className="flex items-center rounded-xl border border-indigo-500/10 dark:border-indigo-500/20 bg-indigo-500/5 dark:bg-indigo-500/10 shadow-xs hover:border-indigo-500/35 transition-colors overflow-hidden"
+                    className="flex items-center rounded-xl border border-primary/20 bg-primary/10 shadow-xs hover:border-primary/30 transition-colors overflow-hidden"
                 >
                     {/* Zone cliquable → page de détails */}
                     <Link
                         to={`/server/${s.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 text-xs text-info hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                        className="flex items-center gap-2 px-3 py-2 text-xs text-primary hover:text-primary/80 transition-colors"
                         title={`Voir ${s.name}`}
                     >
                         <ServerIcon
@@ -56,12 +56,12 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                     </Link>
 
                     {/* Séparateur */}
-                    <div className="w-px h-4 bg-indigo-500/20 flex-shrink-0" />
+                    <div className="w-px h-4 bg-primary/20 flex-shrink-0" />
 
                     {/* Bouton retirer */}
                     <button
                         onClick={() => removeServer(s.id)}
-                        className="flex items-center justify-center px-2.5 py-2 text-indigo-400 hover:text-rose-500 transition-colors cursor-pointer focus:outline-none"
+                        className="flex items-center justify-center px-2.5 py-2 text-muted-foreground hover:text-destructive transition-colors cursor-pointer focus:outline-none"
                         title="Retirer"
                     >
                         <X className="h-3.5 w-3.5" />

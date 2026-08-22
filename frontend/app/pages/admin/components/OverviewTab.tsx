@@ -68,7 +68,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                             </span>
                             <span className="text-3xl font-extrabold text-foreground mt-2">{stats.onlineServers}</span>
                         </div>
-                        <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center relative">
+                        <div className="h-10 w-10 rounded-xl bg-success/10 text-emerald-500 flex items-center justify-center relative">
                             <span className="animate-ping absolute top-0 right-0 inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
                             <Wifi className="h-5 w-5" />
                         </div>
@@ -88,34 +88,34 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
                         {/* Item 1: Database */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Database className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.dbStatus")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
 
                         {/* Item 2: Ping worker */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Cpu className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.pingWorker")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
 
                         {/* Item 3: Clerk Auth */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Lock className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.clerkStatus")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>

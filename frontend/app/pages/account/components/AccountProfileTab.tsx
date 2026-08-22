@@ -9,7 +9,7 @@ export function AccountProfileTab() {
                 appearance={{ 
                     elements: { 
                         rootBox: "w-full max-w-4xl mx-auto",
-                        cardBox: "w-full shadow-sm border border-border rounded-2xl bg-white dark:bg-slate-950"
+                        cardBox: "w-full shadow-sm border border-border rounded-2xl bg-white dark:bg-zinc-950"
                     } 
                 }} 
             />

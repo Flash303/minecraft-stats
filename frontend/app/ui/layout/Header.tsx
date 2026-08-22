@@ -48,10 +48,10 @@ export function Header({ leftContent }: HeaderProps) {
             ? activeRoute.startsWith("/account")
             : activeRoute === path
             
-        return `text-sm font-semibold transition-all py-2 px-3 rounded-lg flex items-center justify-between cursor-pointer ${
+            return `text-sm font-semibold transition-all py-2 px-3 rounded-lg flex items-center justify-between cursor-pointer ${
             isActive
                 ? "text-primary bg-primary/10 dark:bg-primary/20"
-                : "text-slate-650 dark:text-zinc-400 hover:text-primary hover:bg-muted"
+                : "text-muted-foreground hover:text-primary hover:bg-muted"
         }`
     }
 
@@ -149,7 +149,7 @@ export function Header({ leftContent }: HeaderProps) {
                     {/* Desktop Language Switcher */}
                     <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
                         <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
-                            <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
+                            <SelectTrigger className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages className="h-4 w-4" />
                             </SelectTrigger>
                             <SelectContent align="end">
@@ -236,20 +236,20 @@ export function Header({ leftContent }: HeaderProps) {
                             <div className="flex gap-1.5">
                                 <button
                                     onClick={() => setLanguage("fr")}
-                                    className={`px-2.5 py-1 text-[11px] rounded-md font-semibold transition-all cursor-pointer ${
+                                    className={`px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer ${
                                         language === "fr"
                                             ? "bg-primary text-primary-foreground shadow-xs"
-                                            : "hover:bg-muted text-slate-650 dark:text-zinc-400"
+                                            : "hover:bg-muted text-muted-foreground"
                                     }`}
                                 >
                                     FR
                                 </button>
                                 <button
                                     onClick={() => setLanguage("en")}
-                                    className={`px-2.5 py-1 text-[11px] rounded-md font-semibold transition-all cursor-pointer ${
+                                    className={`px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer ${
                                         language === "en"
                                             ? "bg-primary text-primary-foreground shadow-xs"
-                                            : "hover:bg-muted text-slate-650 dark:text-zinc-400"
+                                            : "hover:bg-muted text-muted-foreground"
                                     }`}
                                 >
                                     EN

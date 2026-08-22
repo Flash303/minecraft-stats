@@ -157,7 +157,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                         <X className="h-3.5 w-3.5" />
                     </Button>
                 ) : !isMobile ? (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-slate-200 dark:border-zinc-700 bg-muted px-1.5 font-sans text-[10px] font-medium text-muted-foreground shadow-xs sm:flex">
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-zinc-200 dark:border-zinc-700 bg-muted px-1.5 font-sans text-[10px] font-medium text-muted-foreground shadow-xs sm:flex">
                         {isMac ? '⌘K' : 'Ctrl+K'}
                     </kbd>
                 ) : null}

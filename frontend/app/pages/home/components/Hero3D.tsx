@@ -371,9 +371,9 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     }
 
     return (
-        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 select-none border-b border-slate-200/40 dark:border-zinc-800/10">
+        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 select-none border-b border-zinc-200/40 dark:border-zinc-800/10">
             {/* Ambient Background Grid Glows */}
-            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-slate-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
+            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-zinc-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
             
             <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
                 {/* Hero Text */}
@@ -389,7 +389,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                     <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
                         <button
                             onClick={handleScrollDown}
-                            className="h-11 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-semibold transition-all duration-300 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-xs"
+                            className="h-11 px-5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition-all duration-300 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-xs"
                         >
                             {t("hero.cta")}
                             <ArrowDown className="h-4 w-4 animate-bounce" />
@@ -453,7 +453,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                     ref={containerRef}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
+                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-zinc-100/5 dark:shadow-none overflow-hidden"
                 >
                     <canvas 
                         ref={canvasRef} 
