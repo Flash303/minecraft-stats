@@ -1,6 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { cn } from "@/core/lib/utils"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { useMediaQuery } from "@/core/hooks/useMediaQuery"
 import {
     ArrowUp,
     ArrowDown,
@@ -17,6 +18,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/ui/components/popover"
+import {
+    Drawer,
+    DrawerContent,
+    DrawerTrigger,
+    DrawerTitle,
+    DrawerDescription,
+} from "@/ui/components/drawer"
+import { VisuallyHidden } from "radix-ui"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { JavaLogo } from "@/ui/components/JavaLogo"
@@ -200,9 +209,9 @@ function SortControl({
                             <span className="shrink-0">{opt.label}</span>
                             {isActive && (
                                 direction === "asc" ? (
-                                    <ArrowUp className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />
+                                    <ArrowUp aria-hidden="true" className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />
                                 ) : (
-                                    <ArrowDown className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />
+                                    <ArrowDown aria-hidden="true" className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />
                                 )
                             )}
                         </button>
@@ -233,6 +242,8 @@ export function ServerListFilters({
     isRefreshing,
 }: ServerListFiltersProps) {
     const { t } = useLanguage()
+    const isDesktop = useMediaQuery("(min-width: 640px)")
+    const [open, setOpen] = useState(false)
 
     const hasActiveFilters =
         activePlatform !== "all" ||
@@ -252,6 +263,127 @@ export function ServerListFilters({
         setActiveSort("popularity")
         setSortDirection("desc")
     }
+
+    const FilterContent = () => (
+        <>
+            {/* En-tête (affiché uniquement sur Desktop ou dans le Drawer pour le bouton reset) */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
+                <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <ListFilter aria-hidden="true" className="w-4 h-4 text-primary" />
+                    {t("serverList.filters.filterSort") || "Filtres & Tri"}
+                </span>
+                {hasActiveFilters && (
+                    <button
+                        onClick={resetFilters}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                        <X aria-hidden="true" className="w-3.5 h-3.5" />
+                        Réinitialiser
+                    </button>
+                )}
+            </div>
+
+            <div className="p-5 space-y-5">
+                {/* TRI */}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                            {t("serverList.filters.sort")}
+                        </p>
+                        <span className="text-[10px] text-muted-foreground/60">
+                            {directionText(sortDirection)}
+                        </span>
+                    </div>
+                    <SortControl
+                        value={activeSort}
+                        direction={sortDirection}
+                        options={[
+                            {
+                                value: "popularity",
+                                label: t("serverList.filters.sortPopularity") || "Populaire",
+                                icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-amber-500" />,
+                            },
+                            {
+                                value: "name",
+                                label: t("serverList.filters.sortName") || "Nom",
+                                icon: <ArrowDownAZ aria-hidden="true" className="w-3.5 h-3.5 text-primary" />,
+                            },
+                            {
+                                value: "recent",
+                                label: t("serverList.filters.sortRecent") || "Récents",
+                                icon: <Clock aria-hidden="true" className="w-3.5 h-3.5 text-info" />,
+                            },
+                        ]}
+                        onChange={(v) => setActiveSort(v as "popularity" | "name" | "recent")}
+                        onToggleDirection={() =>
+                            setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+                        }
+                    />
+                    <p className="text-[11px] text-muted-foreground/60 text-center">
+                        Cliquez à nouveau sur l'option active pour inverser l'ordre
+                    </p>
+                </div>
+
+                <hr className="border-border/50" />
+
+                {/* LAUNCHER */}
+                <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                        {t("serverList.filters.launcher") || "Launcher"}
+                    </p>
+                    <SegmentedControl
+                        value={activeLauncher}
+                        onChange={(v) => setActiveLauncher(v)}
+                        options={[
+                            {
+                                value: "all",
+                                label: t("serverList.filters.all") || "Tous",
+                                icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
+                            },
+                            {
+                                value: "lunar",
+                                label: "Lunar",
+                                icon: <LunarLogo className="w-3.5 h-3.5 text-sky-500" />,
+                            },
+                            {
+                                value: "labymod",
+                                label: "LabyMod",
+                                icon: <LabyLogo className="w-3.5 h-3.5 text-foreground" />,
+                            },
+                        ]}
+                    />
+                </div>
+
+                {/* PLATEFORME */}
+                <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                        {t("serverList.filters.platform")}
+                    </p>
+                    <SegmentedControl
+                        value={activePlatform}
+                        onChange={(v) => setActivePlatform(v)}
+                        options={[
+                            {
+                                value: "all",
+                                label: t("serverList.filters.all") || "Tous",
+                                icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
+                            },
+                            {
+                                value: "java",
+                                label: t("serverList.filters.java") || "Java",
+                                icon: <JavaLogo className="w-3.5 h-3.5 text-amber-500" />,
+                            },
+                            {
+                                value: "bedrock",
+                                label: t("serverList.filters.bedrock") || "Bedrock",
+                                icon: <BedrockLogo className="w-3.5 h-3.5" />,
+                            },
+                        ]}
+                    />
+                </div>
+            </div>
+        </>
+    )
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4">
@@ -301,160 +433,79 @@ export function ServerListFilters({
                             "bg-card border-border text-foreground hover:bg-accent active:scale-95"
                         )}
                     >
-                        <RotateCw className={cn("w-4 h-4 text-muted-foreground", isRefreshing && "animate-spin text-primary")} />
+                        <RotateCw aria-hidden="true" className={cn("w-4 h-4 text-muted-foreground", isRefreshing && "animate-spin text-primary")} />
                         <span className="hidden xs:inline text-xs font-semibold">
                             {isRefreshing ? t("common.loading") : t("common.refresh")}
                         </span>
                     </button>
                 )}
 
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <button
-                            className={cn(
-                                "relative flex items-center gap-2 px-4 py-2 h-10 rounded-xl text-sm font-medium border shadow-sm transition-colors cursor-pointer",
-                                hasActiveFilters
-                                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-                                    : "bg-card border-border text-foreground hover:bg-accent"
-                            )}
-                        >
-                            <ListFilter className="w-4 h-4 flex-shrink-0" />
-                            <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
-                            {hasActiveFilters && (
-                                <span
-                                    className={cn(
-                                        "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
-                                        "bg-white/20 dark:bg-zinc-950/20"
-                                    )}
-                                >
-                                    {activeFilterCount}
-                                </span>
-                            )}
-                        </button>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-                        className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-white dark:bg-zinc-950 overflow-hidden"
-                        align="end"
-                    >
-                        {/* En-tête du popover */}
-                        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
-                            <span className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                <ListFilter className="w-4 h-4 text-primary" />
-                                {t("serverList.filters.filterSort") || "Filtres & Tri"}
-                            </span>
-                            {hasActiveFilters && (
-                                <button
-                                    onClick={resetFilters}
-                                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                                >
-                                    <X className="w-3.5 h-3.5" />
-                                    Réinitialiser
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="p-5 space-y-5">
-                            {/* TRI — cliquer sur l'option active inverse la direction */}
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <p className="text-xs font-semibold text-muted-foreground">
-                                        {t("serverList.filters.sort")}
-                                    </p>
-                                    <span className="text-[10px] text-muted-foreground/60">
-                                        {directionText(sortDirection)}
+                {isDesktop ? (
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <button
+                                className={cn(
+                                    "relative flex items-center gap-2 px-4 py-2 h-10 rounded-xl text-sm font-medium border shadow-sm transition-colors cursor-pointer",
+                                    hasActiveFilters
+                                        ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                                        : "bg-card border-border text-foreground hover:bg-accent"
+                                )}
+                            >
+                                <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
+                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                {hasActiveFilters && (
+                                    <span
+                                        className={cn(
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
+                                            "bg-white/20 dark:bg-zinc-950/20"
+                                        )}
+                                    >
+                                        {activeFilterCount}
                                     </span>
-                                </div>
-                                <SortControl
-                                    value={activeSort}
-                                    direction={sortDirection}
-                                    options={[
-                                        {
-                                            value: "popularity",
-                                            label: t("serverList.filters.sortPopularity") || "Populaire",
-                                            icon: <Flame className="w-3.5 h-3.5 text-amber-500" />,
-                                        },
-                                        {
-                                            value: "name",
-                                            label: t("serverList.filters.sortName") || "Nom",
-                                            icon: <ArrowDownAZ className="w-3.5 h-3.5 text-primary" />,
-                                        },
-                                        {
-                                            value: "recent",
-                                            label: t("serverList.filters.sortRecent") || "Récents",
-                                            icon: <Clock className="w-3.5 h-3.5 text-info" />,
-                                        },
-                                    ]}
-                                    onChange={(v) => setActiveSort(v as "popularity" | "name" | "recent")}
-                                    onToggleDirection={() =>
-                                        setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-                                    }
-                                />
-                                <p className="text-[11px] text-muted-foreground/60 text-center">
-                                    Cliquez à nouveau sur l'option active pour inverser l'ordre
-                                </p>
-                            </div>
-
-                            <hr className="border-border/50" />
-
-                            {/* LAUNCHER */}
-                            <div className="space-y-2">
-                                <p className="text-xs font-semibold text-muted-foreground">
-                                    {t("serverList.filters.launcher") || "Launcher"}
-                                </p>
-                                <SegmentedControl
-                                    value={activeLauncher}
-                                    onChange={(v) => setActiveLauncher(v)}
-                                    options={[
-                                        {
-                                            value: "all",
-                                            label: t("serverList.filters.all") || "Tous",
-                                            icon: <Globe className="w-3.5 h-3.5 text-muted-foreground/80" />,
-                                        },
-                                        {
-                                            value: "lunar",
-                                            label: "Lunar",
-                                            icon: <LunarLogo className="w-3.5 h-3.5 text-sky-500" />,
-                                        },
-                                        {
-                                            value: "labymod",
-                                            label: "LabyMod",
-                                            icon: <LabyLogo className="w-3.5 h-3.5 text-foreground" />,
-                                        },
-                                    ]}
-                                />
-                            </div>
-
-                            {/* PLATEFORME */}
-                            <div className="space-y-2">
-                                <p className="text-xs font-semibold text-muted-foreground">
-                                    {t("serverList.filters.platform")}
-                                </p>
-                                <SegmentedControl
-                                    value={activePlatform}
-                                    onChange={(v) => setActivePlatform(v)}
-                                    options={[
-                                        {
-                                            value: "all",
-                                            label: t("serverList.filters.all") || "Tous",
-                                            icon: <Globe className="w-3.5 h-3.5 text-muted-foreground/80" />,
-                                        },
-                                        {
-                                            value: "java",
-                                            label: t("serverList.filters.java") || "Java",
-                                            icon: <JavaLogo className="w-3.5 h-3.5 text-amber-500" />,
-                                        },
-                                        {
-                                            value: "bedrock",
-                                            label: t("serverList.filters.bedrock") || "Bedrock",
-                                            icon: <BedrockLogo className="w-3.5 h-3.5" />,
-                                        },
-                                    ]}
-                                />
-                            </div>
-                        </div>
-                    </PopoverContent>
-                </Popover>
+                                )}
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                            className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-white dark:bg-zinc-950 overflow-hidden"
+                            align="end"
+                        >
+                            {FilterContent()}
+                        </PopoverContent>
+                    </Popover>
+                ) : (
+                    <Drawer open={open} onOpenChange={setOpen}>
+                        <DrawerTrigger asChild>
+                            <button
+                                className={cn(
+                                    "relative flex items-center gap-2 px-4 py-2 h-10 rounded-xl text-sm font-medium border shadow-sm transition-colors cursor-pointer",
+                                    hasActiveFilters
+                                        ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                                        : "bg-card border-border text-foreground hover:bg-accent"
+                                )}
+                            >
+                                <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
+                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                {hasActiveFilters && (
+                                    <span
+                                        className={cn(
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
+                                            "bg-white/20 dark:bg-zinc-950/20"
+                                        )}
+                                    >
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
+                        </DrawerTrigger>
+                        <DrawerContent>
+                            <VisuallyHidden>
+                                <DrawerTitle>Filtres de serveurs</DrawerTitle>
+                                <DrawerDescription>Affinez la liste des serveurs affichés.</DrawerDescription>
+                            </VisuallyHidden>
+                            {FilterContent()}
+                        </DrawerContent>
+                    </Drawer>
+                )}
             </div>
         </div>
     )

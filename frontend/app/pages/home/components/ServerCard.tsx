@@ -77,13 +77,14 @@ export function ServerCard({ server, to }: ServerCardProps) {
                     
                     <button 
                         onClick={handleCopy}
+                        aria-label={`Copier l'IP du serveur ${server.name}`}
                         className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
                     >
                         <span className="truncate">{displayIp}</span>
                         {copied ? (
-                            <Check className="h-3 w-3 text-success flex-shrink-0" />
+                            <Check aria-hidden="true" className="h-3 w-3 text-success flex-shrink-0" />
                         ) : (
-                            <Copy className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
+                            <Copy aria-hidden="true" className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
                         )}
                     </button>
                 </div>
@@ -166,7 +167,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                     "flex items-center gap-1 text-[10px] font-medium",
                     isOnline ? "text-success" : "text-destructive"
                 )}>
-                    {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+                    {isOnline ? <Wifi aria-hidden="true" className="h-3 w-3" /> : <WifiOff aria-hidden="true" className="h-3 w-3" />}
                     {isOnline ? t("common.online") : t("common.offline")}
                 </div>
             </div>

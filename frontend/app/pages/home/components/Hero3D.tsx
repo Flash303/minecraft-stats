@@ -449,21 +449,22 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
 
                 {/* 2D Animated Chart Canvas Area */}
-                <div 
-                    ref={containerRef}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseLeave}
-                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-zinc-100/5 dark:shadow-none overflow-hidden"
-                >
-                    <canvas 
-                        ref={canvasRef} 
-                        style={{
-                            width: "460px",
-                            height: "320px",
-                            display: "block",
-                        }}
-                    />
-                </div>
+            <div 
+                ref={containerRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className="flex flex-shrink-0 w-full max-w-[460px] aspect-[460/320] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-zinc-100/5 dark:shadow-none overflow-hidden"
+            >
+                <canvas 
+                    ref={canvasRef} 
+                    aria-hidden="true"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                    }}
+                />
+            </div>
             </div>
         </div>
     )

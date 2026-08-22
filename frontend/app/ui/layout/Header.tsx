@@ -16,6 +16,8 @@ import {
     SelectItem,
     SelectTrigger,
 } from "@/ui/components/select"
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/ui/components/sheet"
+import { VisuallyHidden } from "radix-ui"
 
 interface HeaderProps {
     leftContent?: React.ReactNode
@@ -65,9 +67,10 @@ export function Header({ leftContent }: HeaderProps) {
                             setIsSearchOpen(false)
                             setSearchQuery("")
                         }}
+                        aria-label="Close search"
                         className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
                     >
-                        <ArrowLeft className="h-5 w-5" />
+                        <ArrowLeft aria-hidden="true" className="h-5 w-5" />
                     </button>
                     <div className="flex-1">
                         <SearchBar 
@@ -141,16 +144,17 @@ export function Header({ leftContent }: HeaderProps) {
                     {/* Mobile Search Button (visible only on mobile) */}
                     <button
                         onClick={() => setIsSearchOpen(true)}
+                        aria-label="Open search"
                         className="h-8 w-8 flex md:hidden items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
                     >
-                        <SearchIcon className="h-4.5 w-4.5" />
+                        <SearchIcon aria-hidden="true" className="h-4.5 w-4.5" />
                     </button>
 
                     {/* Desktop Language Switcher */}
                     <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
                         <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
-                            <SelectTrigger className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
-                                <Languages className="h-4 w-4" />
+                            <SelectTrigger aria-label="Select language" className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
+                                <Languages aria-hidden="true" className="h-4 w-4" />
                             </SelectTrigger>
                             <SelectContent align="end">
                                 <SelectItem value="fr">Français</SelectItem>
@@ -180,85 +184,93 @@ export function Header({ leftContent }: HeaderProps) {
 
                     {/* Hamburger Button */}
                     <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        aria-label="Open menu"
                         className="h-8 w-8 flex md:hidden items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
                     >
-                        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                        <Menu aria-hidden="true" className="h-5 w-5" />
                     </button>
                 </div>
             </div>
 
-            {/* Mobile Dropdown Menu */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden border-t bg-background/95 backdrop-blur-md px-4 py-4 space-y-4 animate-in slide-in-from-top duration-200">
-                    <nav className="flex flex-col gap-1.5">
-                        <Link
-                            to="/"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={getMobileLinkClass("/")}
-                        >
-                            {t("common.home")}
-                        </Link>
-                        <Link 
-                            to="/compare" 
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className={getMobileLinkClass("/compare")}
-                        >
-                            {t("common.compare")}
-                        </Link>
-                        {isSignedIn && (
-                            <Link 
-                                to="/account/servers" 
+            {/* Mobile Menu via Sheet */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetContent side="top" className="md:hidden border-b bg-background/95 backdrop-blur-md px-4 py-6" aria-describedby="mobile-menu-description">
+                    <VisuallyHidden>
+                        <SheetTitle>Menu Navigation</SheetTitle>
+                        <SheetDescription id="mobile-menu-description">
+                            Menu de navigation principal pour les appareils mobiles.
+                        </SheetDescription>
+                    </VisuallyHidden>
+                    <div className="flex flex-col space-y-6 mt-2">
+                        <nav className="flex flex-col gap-1.5">
+                            <Link
+                                to="/"
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/account/servers")}
+                                className={getMobileLinkClass("/")}
                             >
-                                {t("common.mySpace")}
+                                {t("common.home")}
                             </Link>
-                        )}
-                        {isSignedIn && isAdmin && (
                             <Link 
-                                to="/dashboard" 
+                                to="/compare" 
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/dashboard")}
+                                className={getMobileLinkClass("/compare")}
                             >
-                                {t("header.admin")}
+                                {t("common.compare")}
                             </Link>
-                        )}
-                    </nav>
+                            {isSignedIn && (
+                                <Link 
+                                    to="/account/servers" 
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={getMobileLinkClass("/account/servers")}
+                                >
+                                    {t("common.mySpace")}
+                                </Link>
+                            )}
+                            {isSignedIn && isAdmin && (
+                                <Link 
+                                    to="/dashboard" 
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={getMobileLinkClass("/dashboard")}
+                                >
+                                    {t("header.admin")}
+                                </Link>
+                            )}
+                        </nav>
 
-                    <div className="border-t pt-3 flex flex-col gap-3">
-                        <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-muted/40">
-                            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                                <Languages className="h-4 w-4" />
-                                {language === "fr" ? "Français" : "English"}
-                            </span>
-                            <div className="flex gap-1.5">
-                                <button
-                                    onClick={() => setLanguage("fr")}
-                                    className={`px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer ${
-                                        language === "fr"
-                                            ? "bg-primary text-primary-foreground shadow-xs"
-                                            : "hover:bg-muted text-muted-foreground"
-                                    }`}
-                                >
-                                    FR
-                                </button>
-                                <button
-                                    onClick={() => setLanguage("en")}
-                                    className={`px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer ${
-                                        language === "en"
-                                            ? "bg-primary text-primary-foreground shadow-xs"
-                                            : "hover:bg-muted text-muted-foreground"
-                                    }`}
-                                >
-                                    EN
-                                </button>
+                        <div className="border-t pt-4 flex flex-col gap-3">
+                            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/40">
+                                <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
+                                    <Languages aria-hidden="true" className="h-4 w-4" />
+                                    {language === "fr" ? "Français" : "English"}
+                                </span>
+                                <div className="flex gap-1.5">
+                                    <button
+                                        onClick={() => setLanguage("fr")}
+                                        className={`px-3 py-1.5 text-xs rounded-md font-semibold transition-all cursor-pointer ${
+                                            language === "fr"
+                                                ? "bg-primary text-primary-foreground shadow-xs"
+                                                : "hover:bg-muted text-muted-foreground"
+                                        }`}
+                                    >
+                                        FR
+                                    </button>
+                                    <button
+                                        onClick={() => setLanguage("en")}
+                                        className={`px-3 py-1.5 text-xs rounded-md font-semibold transition-all cursor-pointer ${
+                                            language === "en"
+                                                ? "bg-primary text-primary-foreground shadow-xs"
+                                                : "hover:bg-muted text-muted-foreground"
+                                        }`}
+                                    >
+                                        EN
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                </SheetContent>
+            </Sheet>
         </header>
     )
 }
