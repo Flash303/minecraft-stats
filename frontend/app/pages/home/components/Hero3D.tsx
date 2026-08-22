@@ -371,7 +371,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     }
 
     return (
-        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 select-none border-b border-zinc-200/40 dark:border-zinc-800/10">
+        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 border-b border-zinc-200/40 dark:border-zinc-800/10">
             {/* Ambient Background Grid Glows */}
             <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-zinc-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
             
@@ -379,7 +379,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-                        {t("hero.title1")} <span className="text-foreground font-black">{t("hero.title2")}</span>
+                        {t("hero.title1")} <span className="text-primary font-black">{t("hero.title2")}</span>
                     </h1>
                     
                     <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
