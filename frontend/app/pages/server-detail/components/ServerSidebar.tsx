@@ -17,7 +17,7 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
     web_shop: { icon: ShoppingCart, colorClass: "text-emerald-500" },
     web_support: { icon: BiSupport, colorClass: "text-amber-500" },
     twitter: { icon: FaTwitter, colorClass: "text-sky-500" },
-    tiktok: { icon: FaTiktok, colorClass: "text-slate-900 dark:text-white" },
+    tiktok: { icon: FaTiktok, colorClass: "text-foreground" },
     instagram: { icon: FaInstagram, colorClass: "text-pink-600" },
     discord: { icon: FaDiscord, colorClass: "text-[#5865F2]" },
     youtube: { icon: FaYoutube, colorClass: "text-red-600" },
@@ -135,7 +135,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             <div className="flex items-center justify-between">
                 <h3 className="font-semibold leading-none tracking-tight text-lg flex items-center gap-2">
                     {isLaby ? (
-                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} />
+                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-foreground")} />
                     ) : (
                         <LunarLogo className={cn("w-5 h-5", lunarServerInfo?.partnered ? "text-orange-500" : "text-sky-500")} />
                     )}
@@ -351,7 +351,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                         href="https://github.com/LunarClient/ServerMappings/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted-foreground inline-flex items-center gap-1.5 text-xs transition-colors hover:text-sky-500"
+                        className="text-muted-foreground inline-flex items-center gap-1.5 text-xs transition-colors hover:text-primary"
                     >
                         <ExternalLink className="h-3 w-3" />
                         Lunar Client Servers
@@ -391,7 +391,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                         href={href}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="group flex items-center gap-2 text-sm hover:text-sky-500 transition-colors p-2 rounded-md hover:bg-muted"
+                                        className="group flex items-center gap-2 text-sm hover:text-primary transition-colors p-2 rounded-md hover:bg-muted"
                                     >
                                         <Icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", iconData.colorClass)} />
                                         <span className="truncate capitalize">{platform}</span>
@@ -403,7 +403,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                     href={lunarServerInfo.website}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 text-sm hover:text-sky-500 transition-colors p-2 rounded-md hover:bg-muted"
+                                    className="group flex items-center gap-2 text-sm hover:text-primary transition-colors p-2 rounded-md hover:bg-muted"
                                 >
                                     <SOCIAL_ICONS.web.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", SOCIAL_ICONS.web.colorClass)} />
                                     <span className="truncate capitalize">{t("serverDetail.sidebar.website")}</span>
@@ -414,7 +414,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                     href={lunarServerInfo.store}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 text-sm hover:text-sky-500 transition-colors p-2 rounded-md hover:bg-muted"
+                                    className="group flex items-center gap-2 text-sm hover:text-primary transition-colors p-2 rounded-md hover:bg-muted"
                                 >
                                     <SOCIAL_ICONS.web_shop.icon className={cn("w-4 h-4 shrink-0 transition-transform group-hover:scale-110", SOCIAL_ICONS.web_shop.colorClass)} />
                                     <span className="truncate capitalize">{t("serverDetail.sidebar.store")}</span>

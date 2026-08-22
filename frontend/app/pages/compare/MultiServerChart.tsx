@@ -59,7 +59,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         <div class="flex items-center justify-between gap-4 py-0.5">
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
-                                <span class="text-slate-300 font-medium">${name}</span>
+                                <span class="text-zinc-300 font-medium">${name}</span>
                             </div>
                             <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
                         </div>
@@ -226,7 +226,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
 
             <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
                 {data[0].length === 0 ? (
-                    <p className="text-center py-4 text-slate-400 font-medium animate-pulse">
+                    <p className="text-center py-4 text-zinc-400 font-medium animate-pulse">
                         {t("comparison.loadingData")}
                     </p>
                 ) : (

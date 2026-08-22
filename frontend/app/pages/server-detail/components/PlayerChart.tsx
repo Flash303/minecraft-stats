@@ -63,7 +63,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
                     <div class="flex items-center gap-1.5">
                         <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
-                        <span class="text-slate-400 text-[10px] uppercase">${t("common.players")}</span>
+                        <span class="text-zinc-400 text-[10px] uppercase">${t("common.players")}</span>
                     </div>
                 </div>
             `
@@ -234,7 +234,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             <div className="flex flex-col gap-4">
                 {header}
                 <div className="w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
-                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-slate-400 font-medium">
+                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-zinc-400 font-medium">
                         {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
                     </p>
                 </div>

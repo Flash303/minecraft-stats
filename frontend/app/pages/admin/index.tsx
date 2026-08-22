@@ -288,7 +288,7 @@ export default function AdminDashboard() {
                 <div className="h-14 border-b px-6 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
                         <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
-                        <span className="font-bold tracking-tight text-slate-900 dark:text-zinc-100 text-sm">
+                        <span className="font-bold tracking-tight text-foreground text-sm">
                             {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">Admin</span>
                         </span>
                     </Link>
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "overview" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <LayoutGrid className="h-4.5 w-4.5" />
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "users" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Users className="h-4.5 w-4.5" />
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "servers" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <ServerIcon className="h-4.5 w-4.5" />
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "logs" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Activity className="h-4.5 w-4.5" />
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                             activeTab === "settings" 
                                 ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-slate-100/50 dark:hover:bg-zinc-800/40"
+                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
                         }`}
                     >
                         <Settings className="h-4.5 w-4.5" />
@@ -426,7 +426,7 @@ export default function AdminDashboard() {
                             toastMessage.type === "success" 
                                 ? "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400" 
                                 : toastMessage.type === "warning"
-                                ? "bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400"
+                                ? "bg-amber-500/10 border-amber-500/20 text-warning"
                                 : "bg-destructive/10 border-destructive/20 text-destructive"
                         }`}>
                             <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />

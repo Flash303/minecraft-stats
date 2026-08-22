@@ -19,8 +19,8 @@ export function PlatformBadge({ type, size = "sm", className }: PlatformBadgePro
                     ? "rounded-lg px-2 py-0.5 text-[10px] gap-1"
                     : "rounded-lg px-2.5 py-1 text-xs gap-1.5",
                 isJava
-                    ? "border-amber-200/50 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 dark:border-amber-800/30"
-                    : "border-indigo-200/50 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 dark:border-indigo-800/30",
+                    ? "border-warning/20 bg-warning/10 text-warning"
+                    : "border-info/20 bg-info/10 text-info",
                 className
             )}
         >

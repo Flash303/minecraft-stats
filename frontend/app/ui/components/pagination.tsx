@@ -53,7 +53,7 @@ export function Pagination({
                 onClick={() => onPageChange(safeCurrentPage - 1)}
                 disabled={safeCurrentPage <= 1}
                 aria-label={prevText}
-                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-slate-200/80 dark:border-zinc-800 shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-border/80 shadow-xs cursor-pointer disabled:cursor-not-allowed"
             >
                 <ChevronLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">{prevText}</span>
@@ -71,7 +71,7 @@ export function Pagination({
                 onClick={() => onPageChange(safeCurrentPage + 1)}
                 disabled={safeCurrentPage >= totalPages}
                 aria-label={nextText}
-                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-slate-200/80 dark:border-zinc-800 shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-border/80 shadow-xs cursor-pointer disabled:cursor-not-allowed"
             >
                 <span className="hidden sm:inline">{nextText}</span>
                 <ChevronRight className="w-4 h-4" />

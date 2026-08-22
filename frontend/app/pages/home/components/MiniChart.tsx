@@ -77,7 +77,7 @@ export function MiniChart({ data }: MiniChartProps) {
     }, [chartData])
 
     if (data.length === 0) {
-        return <div className="h-full flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-600 font-medium italic">{t("common.noData")}</div>
+        return <div className="h-full flex items-center justify-center text-[10px] text-muted-foreground font-medium italic">{t("common.noData")}</div>
     }
 
     return (

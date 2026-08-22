@@ -69,31 +69,34 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             <LunarLogo className={cn("w-4 h-4 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
                         )}
                         {labyInfo && (
-                            <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} title="LabyMod" />
+                            <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} title="LabyMod" />
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <div className={cn(
-                            "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded",
-                            isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border",
+                            isOnline ? "bg-success/10 border-success/20 text-success" : "bg-destructive/10 border-destructive/20 text-destructive"
                         )}>
-                            {isOnline ? <Wifi className="h-2.5 w-2.5" /> : <WifiOff className="h-2.5 w-2.5" />}
+                            <span className="relative flex h-2 w-2">
+                                {isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>}
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
+                            </span>
                             {isOnline ? t("common.online") : t("common.offline")}
                         </div>
                         {server.type && <PlatformBadge type={server.type} />}
                         <button 
                             onClick={handleCopy}
-                            className="flex items-center gap-1 text-muted-foreground text-[10px] font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none"
+                            className="flex items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none"
                         >
                             <span className="truncate">{displayIp}</span>
                             {copied ? (
-                                <Check className="h-2.5 w-2.5 text-emerald-500 flex-shrink-0" />
+                                <Check className="h-2.5 w-2.5 text-success flex-shrink-0" />
                             ) : (
                                 <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
                             )}
                         </button>
                         {server.last_version && (
-                            <Badge variant="secondary" className="font-mono text-[10px] whitespace-nowrap">
+                            <Badge variant="secondary" className="font-mono text-xs whitespace-nowrap">
                                 v{formatMinecraftVersion(server.last_version)}
                             </Badge>
                         )}

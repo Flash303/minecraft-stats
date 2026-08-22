@@ -30,7 +30,7 @@ export function AccountServersSearchBar({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="pl-9 pr-9 h-10 rounded-xl bg-background border-slate-200/80 dark:border-zinc-800 focus-visible:ring-primary/20 text-sm shadow-xs transition-all"
+                className="pl-9 pr-9 h-10 rounded-xl bg-background border-border/80 focus-visible:ring-primary/20 text-sm shadow-xs transition-all"
             />
             {value && (
                 <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10">

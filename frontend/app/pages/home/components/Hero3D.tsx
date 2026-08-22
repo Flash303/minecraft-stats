@@ -371,25 +371,25 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     }
 
     return (
-        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 select-none border-b border-slate-200/40 dark:border-zinc-800/10">
+        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 border-b border-zinc-200/40 dark:border-zinc-800/10">
             {/* Ambient Background Grid Glows */}
-            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-slate-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
+            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-zinc-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
             
             <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
-                        {t("hero.title1")} <span className="text-slate-900 dark:text-white font-black">{t("hero.title2")}</span>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+                        {t("hero.title1")} <span className="text-primary font-black">{t("hero.title2")}</span>
                     </h1>
                     
-                    <p className="text-slate-500 dark:text-zinc-400 text-sm sm:text-base leading-relaxed">
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                         {t("hero.description")}
                     </p>
                     
                     <div className="flex flex-wrap gap-4 justify-center lg:justify-start pt-2">
                         <button
                             onClick={handleScrollDown}
-                            className="h-11 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-semibold transition-all duration-300 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-xs"
+                            className="h-11 px-5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-semibold transition-all duration-300 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-xs"
                         >
                             {t("hero.cta")}
                             <ArrowDown className="h-4 w-4 animate-bounce" />
@@ -397,47 +397,51 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="flex flex-wrap items-center gap-3 pt-3 justify-center lg:justify-start">
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 shrink-0">
-                                <Server className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
-                                    {animatedTotal.toLocaleString()}
+                    <div className="flex flex-col gap-4 pt-6 pb-2">
+                        <div className="flex items-center justify-center lg:justify-start gap-5 sm:gap-8">
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums flex items-baseline">
+                                    {animatedTotal.toLocaleString()}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.servers")}
                                 </p>
                             </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 shrink-0">
-                                <Wifi className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                            
+                            <div className="w-[1px] h-8 bg-border/60"></div>
+                            
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedOnline.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.online")}
                                 </p>
                             </div>
-                        </div>
 
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/15 shrink-0">
-                                <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                            <div className="w-[1px] h-8 bg-border/60"></div>
+                            
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedPlayers.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.players")}
                                 </p>
                             </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-center lg:items-start pl-0 lg:pl-1 mt-1">
+                            <div className="flex items-center gap-2">
+                                <div className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-info"></span>
+                                </div>
+                                <span className="text-foreground font-bold text-xs tracking-wide">Live</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                                Mis à jour / 10s
+                            </p>
                         </div>
                     </div>
 
@@ -445,21 +449,22 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
 
                 {/* 2D Animated Chart Canvas Area */}
-                <div 
-                    ref={containerRef}
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseLeave}
-                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200/60 dark:border-zinc-800/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
-                >
-                    <canvas 
-                        ref={canvasRef} 
-                        style={{
-                            width: "460px",
-                            height: "320px",
-                            display: "block",
-                        }}
-                    />
-                </div>
+            <div 
+                ref={containerRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                className="flex flex-shrink-0 w-full max-w-[460px] aspect-[460/320] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-zinc-100/5 dark:shadow-none overflow-hidden"
+            >
+                <canvas 
+                    ref={canvasRef} 
+                    aria-hidden="true"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        display: "block",
+                    }}
+                />
+            </div>
             </div>
         </div>
     )

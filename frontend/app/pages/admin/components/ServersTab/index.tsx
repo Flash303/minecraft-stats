@@ -105,7 +105,7 @@ export function ServersTab({
                         placeholder={t("admin.servers.searchPlaceholder")}
                         value={serverSearchQuery}
                         onChange={(e) => setServerSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-slate-200/85 dark:border-zinc-855"
+                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-855"
                     />
                 </div>
                 
@@ -114,8 +114,8 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("all")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
                             serverStatusFilter === "all" 
-                                ? "bg-slate-900 text-white dark:bg-white dark:text-zinc-900" 
-                                : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
+                                ? "bg-zinc-900 text-primary-foreground bg-primary dark:text-zinc-900" 
+                                : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
                         {t("admin.servers.statusAll")}
@@ -124,8 +124,8 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("online")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "online" 
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border border-emerald-500/20" 
-                                : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
+                                ? "bg-emerald-500/10 text-success border border-emerald-500/20" 
+                                : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -136,7 +136,7 @@ export function ServersTab({
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "offline" 
                                 ? "bg-rose-500/10 text-rose-650 dark:text-rose-450 border border-rose-500/20" 
-                                : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
+                                : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
                         <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
@@ -146,8 +146,8 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("hidden")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "hidden" 
-                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-450 border border-amber-500/20" 
-                                : "text-muted-foreground hover:bg-slate-100 dark:hover:bg-zinc-800"
+                                ? "bg-amber-500/10 text-warning border border-amber-500/20" 
+                                : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
                         {t("admin.servers.statusHidden")}
@@ -156,7 +156,7 @@ export function ServersTab({
             </div>
 
             {selectedIds.length > 0 && (
-                <div className="flex items-center gap-3 bg-muted/30 border border-slate-200 dark:border-zinc-800 rounded-xl p-3 shadow-xs">
+                <div className="flex items-center gap-3 bg-muted/30 border border-border rounded-xl p-3 shadow-xs">
                     <span className="text-sm font-semibold text-foreground">
                         {t("admin.servers.selectedCount", { count: selectedIds.length.toString() })}
                     </span>
@@ -185,10 +185,10 @@ export function ServersTab({
             )}
 
             {/* Servers Data Table */}
-            <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-slate-200/60 dark:border-zinc-800">
+            <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-border/60">
                 <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr className="border-b bg-slate-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
+                        <tr className="border-b bg-zinc-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
                             <th className="p-4 w-10 text-center rounded-tl-xl">
                                 <Checkbox 
                                     checked={sortedServers.length > 0 && selectedIds.length === sortedServers.length}
@@ -197,7 +197,7 @@ export function ServersTab({
                                 />
                             </th>
                             <th 
-                                className="p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors select-none"
+                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
                                 onClick={() => handleSort("name")}
                             >
                                 <div className="flex items-center gap-1">
@@ -208,7 +208,7 @@ export function ServersTab({
                                 </div>
                             </th>
                             <th 
-                                className="p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors select-none"
+                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
                                 onClick={() => handleSort("creator")}
                             >
                                 <div className="flex items-center gap-1">
@@ -219,7 +219,7 @@ export function ServersTab({
                                 </div>
                             </th>
                             <th 
-                                className="p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors select-none"
+                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
                                 onClick={() => handleSort("ip")}
                             >
                                 <div className="flex items-center gap-1">
@@ -230,7 +230,7 @@ export function ServersTab({
                                 </div>
                             </th>
                             <th 
-                                className="p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors select-none"
+                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
                                 onClick={() => handleSort("status")}
                             >
                                 <div className="flex items-center gap-1">
@@ -241,7 +241,7 @@ export function ServersTab({
                                 </div>
                             </th>
                             <th 
-                                className="p-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors select-none"
+                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
                                 onClick={() => handleSort("players")}
                             >
                                 <div className="flex items-center gap-1">
@@ -264,8 +264,8 @@ export function ServersTab({
                                 return (
                                     <tr 
                                         key={server.id} 
-                                        className={`hover:bg-slate-50/30 dark:hover:bg-zinc-850/20 transition-all ${
-                                            isHidden ? "opacity-60 bg-slate-50/10 dark:bg-zinc-900/10" : ""
+                                        className={`hover:bg-zinc-50/30 dark:hover:bg-zinc-850/20 transition-all ${
+                                            isHidden ? "opacity-60 bg-zinc-50/10 dark:bg-zinc-900/10" : ""
                                         }`}
                                     >
                                         <td className="p-4 text-center">
@@ -321,7 +321,7 @@ export function ServersTab({
                                         </td>
                                         <td className="p-4 font-mono font-semibold">
                                             {isOnline ? (
-                                                <span className="text-emerald-600 dark:text-emerald-400">
+                                                <span className="text-success">
                                                     {server.last_connected ?? 0}
                                                 </span>
                                             ) : (

@@ -24,7 +24,7 @@ interface LogsTabProps {
 export function LogsTab({ auditLogs, t }: LogsTabProps) {
     return (
         <div className="flex flex-col gap-6">
-            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-border/60 shadow-xs">
                 <CardHeader>
                     <CardTitle className="text-md font-semibold flex items-center gap-2">
                         <Activity className="h-5 w-5 text-indigo-500" />
@@ -35,7 +35,7 @@ export function LogsTab({ auditLogs, t }: LogsTabProps) {
                 <CardContent className="flex flex-col gap-6">
                     
                     {/* Timeline container */}
-                    <div className="relative border-l-2 border-slate-150 dark:border-zinc-800 pl-6 flex flex-col gap-6 ml-2">
+                    <div className="relative border-l-2 border-border pl-6 flex flex-col gap-6 ml-2">
                         {auditLogs.map((log) => {
                             let icon = <Info className="h-3.5 w-3.5" />
                             let bg = "bg-blue-500/10 text-blue-500"

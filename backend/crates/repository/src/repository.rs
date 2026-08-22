@@ -31,6 +31,7 @@ pub trait Repository: Send + Sync {
     // Alerts
     async fn create_alert(&self, alert: DraftAlert) -> Result<Alert, RepositoryError>;
     async fn delete_alert(&self, alert_id: u32, user_id: String) -> Result<(), RepositoryError>;
+    async fn list_alerts_for_user(&self, user_id: String) -> Result<Vec<Alert>, RepositoryError>;
     async fn list_alerts_for_server(&self, server_id: u32) -> Result<Vec<Alert>, RepositoryError>;
     async fn get_active_alerts_for_servers(&self, server_ids: &[u32]) -> Result<Vec<Alert>, RepositoryError>;
 
