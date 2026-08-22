@@ -397,47 +397,51 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                     </div>
 
                     {/* Stats Row */}
-                    <div className="flex flex-wrap items-center gap-3 pt-3 justify-center lg:justify-start">
-                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 shrink-0">
-                                <Server className="h-5 w-5 text-info" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
-                                    {animatedTotal.toLocaleString()}
+                    <div className="flex flex-col gap-4 pt-6 pb-2">
+                        <div className="flex items-center justify-center lg:justify-start gap-5 sm:gap-8">
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums flex items-baseline">
+                                    {animatedTotal.toLocaleString()}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
                                 </p>
-                                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.servers")}
                                 </p>
                             </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 shrink-0">
-                                <Wifi className="h-5 w-5 text-success" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                            
+                            <div className="w-[1px] h-8 bg-border/60"></div>
+                            
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedOnline.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.online")}
                                 </p>
                             </div>
-                        </div>
 
-                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/15 shrink-0">
-                                <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
+                            <div className="w-[1px] h-8 bg-border/60"></div>
+                            
+                            <div className="flex flex-col items-center">
+                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedPlayers.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.players")}
                                 </p>
                             </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-center lg:items-start pl-0 lg:pl-1 mt-1">
+                            <div className="flex items-center gap-2">
+                                <div className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-info"></span>
+                                </div>
+                                <span className="text-foreground font-bold text-xs tracking-wide">Live</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                                Mis à jour / 10s
+                            </p>
                         </div>
                     </div>
 
