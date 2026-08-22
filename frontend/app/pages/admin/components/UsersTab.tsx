@@ -91,7 +91,7 @@ export function UsersTab({
                     filteredUsers.map((user) => {
                         const userServers = servers.filter(s => s.user_id === user.id)
                         return (
-                            <Card key={user.id} className="hover:shadow-md transition-all duration-300 bg-card border-slate-200/60 dark:border-zinc-800 rounded-2xl flex flex-col text-center p-6 gap-0">
+                            <Card key={user.id} className="hover:shadow-md transition-all duration-300 bg-card border-border/60 rounded-2xl flex flex-col text-center p-6 gap-0">
                                 {/* Avatar */}
                                 {user.image_url ? (
                                     <img
@@ -114,11 +114,11 @@ export function UsersTab({
                                     {user.username ? `@${user.username}` : user.id}
                                 </span>
 
-                                <div className="text-[10px] text-muted-foreground/60 font-mono select-all bg-slate-50 dark:bg-zinc-950/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border dark:border-zinc-800">
+                                <div className="text-[10px] text-muted-foreground/60 font-mono select-all bg-background/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border dark:border-zinc-800">
                                     {user.id}
                                 </div>
 
-                                 <div className="flex justify-center items-center gap-1.5 mt-5 pt-4 border-t border-slate-100 dark:border-zinc-800/80 text-xs font-semibold text-muted-foreground">
+                                 <div className="flex justify-center items-center gap-1.5 mt-5 pt-4 border-t border-border/80 text-xs font-semibold text-muted-foreground">
                                     <ServerIcon className="h-3.5 w-3.5 text-primary/70" />
                                     <span>
                                         {t(
@@ -143,7 +143,7 @@ export function UsersTab({
                         )
                     })
                 ) : (
-                    <div className="col-span-full py-16 text-center text-muted-foreground border-2 border-dashed rounded-xl bg-card border-slate-200 dark:border-zinc-800">
+                    <div className="col-span-full py-16 text-center text-muted-foreground border-2 border-dashed rounded-xl bg-card border-border">
                         {t("admin.users.noUsers")}
                     </div>
                 )}
@@ -188,7 +188,7 @@ export function UsersTab({
                                             key={server.id} 
                                             className={`flex items-center justify-between gap-4 p-3 rounded-xl border transition-all duration-300 ${
                                                 isHidden 
-                                                    ? "bg-slate-100/40 dark:bg-slate-900/10 border-dashed border-slate-300 dark:border-zinc-800 opacity-70" 
+                                                    ? "bg-slate-100/40 dark:bg-slate-900/10 border-dashed border-border opacity-70" 
                                                     : "bg-card border-slate-200 dark:border-zinc-850 hover:shadow-xs"
                                             }`}
                                         >

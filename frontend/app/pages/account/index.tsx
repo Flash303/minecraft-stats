@@ -118,7 +118,7 @@ export default function Account() {
     return (
         <>
             {/* Header section with gradient background */}
-            <div className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
+            <div className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-border">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -131,10 +131,10 @@ export default function Account() {
                                 </div>
                             )}
                             <div>
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                <h1 className="text-3xl font-bold text-foreground tracking-tight">
                                     {t("profile.hello", { name: user?.firstName || user?.username || t("profile.defaultUser") })}
                                 </h1>
-                                <p className="text-slate-500 dark:text-zinc-400 mt-1 flex items-center gap-2">
+                                <p className="text-muted-foreground mt-1 flex items-center gap-2">
                                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
                                     {t("profile.loggedInAs", { email: user?.primaryEmailAddress?.emailAddress || "" })}
                                 </p>
@@ -142,11 +142,11 @@ export default function Account() {
                         </div>
                         
                         <div className="flex gap-4">
-                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm min-w-[120px]">
+                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm min-w-[120px]">
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.servers")}</span>
                                 <span className="text-2xl font-bold text-primary">{servers.length}</span>
                             </div>
-                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm min-w-[120px]">
+                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm min-w-[120px]">
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.alerts")}</span>
                                 <span className="text-2xl font-bold text-indigo-500 dark:text-indigo-400">{allAlerts.length}</span>
                             </div>
@@ -157,19 +157,19 @@ export default function Account() {
 
             <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Minimalist Tabs */}
-                <div className="flex flex-wrap items-center gap-6 border-b border-slate-200 dark:border-slate-800 mb-8 px-1">
+                <div className="flex flex-wrap items-center gap-6 border-b border-border mb-8 px-1">
                     <button
                         onClick={() => handleTabChange('servers')}
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'servers'
-                                ? "text-slate-900 dark:text-white"
+                                ? "text-foreground"
                                 : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
                         <ServerIcon className="h-4 w-4" />
                         {t("profile.tabs.servers")}
                         {activeTab === 'servers' && (
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary text-primary-foreground rounded-t-full" />
                         )}
                     </button>
                     
@@ -177,14 +177,14 @@ export default function Account() {
                         onClick={() => handleTabChange('alerts')}
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'alerts'
-                                ? "text-slate-900 dark:text-white"
+                                ? "text-foreground"
                                 : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
                         <Bell className="h-4 w-4" />
                         {t("profile.tabs.alerts")}
                         {activeTab === 'alerts' && (
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary text-primary-foreground rounded-t-full" />
                         )}
                     </button>
                     
@@ -192,14 +192,14 @@ export default function Account() {
                         onClick={() => handleTabChange('profile')}
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'profile'
-                                ? "text-slate-900 dark:text-white"
+                                ? "text-foreground"
                                 : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
                         }`}
                     >
                         <Settings className="h-4 w-4" />
                         {t("profile.tabs.settings")}
                         {activeTab === 'profile' && (
-                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-900 dark:bg-white rounded-t-full" />
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary text-primary-foreground rounded-t-full" />
                         )}
                     </button>
                 </div>

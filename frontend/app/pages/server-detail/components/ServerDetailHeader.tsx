@@ -69,7 +69,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             <LunarLogo className={cn("w-4 h-4 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
                         )}
                         {labyInfo && (
-                            <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} title="LabyMod" />
+                            <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} title="LabyMod" />
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

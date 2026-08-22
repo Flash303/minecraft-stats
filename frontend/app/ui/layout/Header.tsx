@@ -39,7 +39,7 @@ export function Header({ leftContent }: HeaderProps) {
         return `text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap px-2.5 py-1.5 rounded-md cursor-pointer ${
             isActive 
                 ? "text-primary bg-primary/10 dark:bg-primary/20" 
-                : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-muted"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
         }`
     }
 
@@ -91,7 +91,7 @@ export function Header({ leftContent }: HeaderProps) {
                         <div className="flex items-center gap-4 sm:gap-6 min-w-0">
                             <Link to="/" className="flex items-center gap-2 flex-shrink-0">
                                 <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
-                                <span className="font-bold tracking-tight hidden xs:inline-block text-slate-900 dark:text-zinc-100 text-sm sm:text-base">
+                                <span className="font-bold tracking-tight hidden xs:inline-block text-foreground text-sm sm:text-base">
                                     {t("header.title")}
                                 </span>
                             </Link>
@@ -229,7 +229,7 @@ export function Header({ leftContent }: HeaderProps) {
 
                     <div className="border-t pt-3 flex flex-col gap-3">
                         <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-muted/40">
-                            <span className="text-xs font-semibold text-slate-500 dark:text-zinc-400 flex items-center gap-2">
+                            <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                                 <Languages className="h-4 w-4" />
                                 {language === "fr" ? "Français" : "English"}
                             </span>

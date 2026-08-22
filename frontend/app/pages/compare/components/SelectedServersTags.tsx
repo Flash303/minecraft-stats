@@ -29,7 +29,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         to={`/server/${s.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+                        className="flex items-center gap-2 px-3 py-2 text-xs text-info hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
                         title={`Voir ${s.name}`}
                     >
                         <ServerIcon
@@ -48,7 +48,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                             const labyInfo = getLabyInfo(s.ip);
                             return labyInfo ? (
                                 <LabyLogo
-                                    className={cn("w-3.5 h-3.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")}
+                                    className={cn("w-3.5 h-3.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")}
                                     title="LabyMod"
                                 />
                             ) : null;

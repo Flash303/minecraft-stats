@@ -47,9 +47,9 @@ export function AccountServersTab({ t, loading, servers, loadData }: AccountServ
     return (
         <div className="space-y-6">
             {/* Header & Search */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t("profile.servers.title")}</h2>
+                    <h2 className="text-xl font-bold text-foreground">{t("profile.servers.title")}</h2>
                     <p className="text-muted-foreground mt-1 text-sm">{t("profile.servers.description")}</p>
                 </div>
 

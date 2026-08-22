@@ -32,7 +32,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
             
             {/* Key Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-border/60">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -46,7 +46,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-border/60">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -60,7 +60,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-slate-200/60 dark:border-zinc-800">
+                <Card className="hover:shadow-md transition-shadow duration-300 bg-card border-border/60">
                     <CardContent className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">
@@ -78,7 +78,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
 
             {/* System Health Checkups */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-card border-slate-200/60 dark:border-zinc-800">
+                <Card className="bg-card border-border/60">
                     <CardHeader>
                         <CardTitle className="text-md font-semibold flex items-center gap-2">
                             <ShieldCheck className="h-5 w-5 text-emerald-500" />
@@ -88,34 +88,34 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
                         {/* Item 1: Database */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Database className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.dbStatus")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
 
                         {/* Item 2: Ping worker */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Cpu className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.pingWorker")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
 
                         {/* Item 3: Clerk Auth */}
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-slate-100 dark:border-zinc-800/40">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-background/40 border border-border/40">
                             <div className="flex items-center gap-3">
                                 <Lock className="h-4 w-4 text-primary" />
                                 <span className="text-xs font-semibold text-foreground">{t("admin.overview.clerkStatus")}</span>
                             </div>
-                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[9px] px-1.5 py-0.5">
+                            <Badge variant="outline" className="bg-emerald-500/10 text-success border-emerald-500/20 text-[9px] px-1.5 py-0.5">
                                 {t("admin.overview.healthy")}
                             </Badge>
                         </div>
@@ -123,7 +123,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                 </Card>
 
                 {/* System activity placeholder */}
-                <Card className="bg-card border-slate-200/60 dark:border-zinc-800">
+                <Card className="bg-card border-border/60">
                     <CardHeader>
                         <CardTitle className="text-md font-semibold flex items-center gap-2">
                             <Activity className="h-5 w-5 text-indigo-500" />
@@ -138,7 +138,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                     <span>{t("admin.overview.avgPlayersOnline")}</span>
                                     <span className="text-primary font-bold">84%</span>
                                 </div>
-                                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                     <div className="h-full bg-indigo-500 rounded-full" style={{ width: "84%" }} />
                                 </div>
                             </div>
@@ -150,7 +150,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                     <span>{t("admin.overview.pingPerformance")}</span>
                                     <span className="text-emerald-500 font-bold">99.8%</span>
                                 </div>
-                                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                     <div className="h-full bg-emerald-500 rounded-full" style={{ width: "99.8%" }} />
                                 </div>
                             </div>
@@ -162,7 +162,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                     <span>{t("admin.overview.serversUptime")}</span>
                                     <span className="text-blue-500 font-bold">92%</span>
                                 </div>
-                                <div className="h-2 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                     <div className="h-full bg-blue-500 rounded-full" style={{ width: "92%" }} />
                                 </div>
                             </div>

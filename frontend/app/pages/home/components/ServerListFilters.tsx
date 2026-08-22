@@ -62,10 +62,10 @@ function StatusTab({
         amber: "bg-amber-500",
     }
     const activeStyles = {
-        green: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25",
+        green: "bg-emerald-500/10 text-success border border-emerald-500/25",
         red: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/25",
-        amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25",
-        default: "bg-slate-900 text-white dark:bg-white dark:text-zinc-950 shadow-sm",
+        amber: "bg-amber-500/10 text-warning border border-amber-500/25",
+        default: "bg-slate-900 text-primary-foreground bg-primary dark:text-zinc-950 shadow-sm",
     }
 
     return (
@@ -123,7 +123,7 @@ function SegmentedControl<T extends string>({
                         className={cn(
                             "flex-1 min-w-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2 px-2 rounded-lg font-medium transition-all text-center whitespace-nowrap cursor-pointer",
                             isActive
-                                ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground font-semibold"
+                                ? "bg-card shadow-sm text-foreground font-semibold"
                                 : "text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-zinc-800/40"
                         )}
                     >
@@ -181,7 +181,7 @@ function SortControl({
                             className={cn(
                                 "w-full flex items-center justify-center gap-1.5 text-xs py-2 px-1.5 rounded-lg font-medium transition-all whitespace-nowrap cursor-pointer",
                                 isActive
-                                    ? "bg-white dark:bg-zinc-800 shadow-sm text-foreground font-semibold"
+                                    ? "bg-card shadow-sm text-foreground font-semibold"
                                     : "text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-zinc-800/40"
                             )}
                             title={
@@ -254,7 +254,7 @@ export function ServerListFilters({
     }
 
     return (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/50 dark:border-zinc-800/50 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4">
             {/* Onglets de statut */}
             <div className="flex flex-wrap items-center gap-1.5">
                 <StatusTab
@@ -298,7 +298,7 @@ export function ServerListFilters({
                         aria-label={t("common.refresh")}
                         className={cn(
                             "flex items-center gap-2 px-3.5 py-2 h-10 rounded-xl text-sm font-medium border shadow-xs transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
-                            "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 active:scale-95"
+                            "bg-card border-border text-foreground hover:bg-accent active:scale-95"
                         )}
                     >
                         <RotateCw className={cn("w-4 h-4 text-muted-foreground", isRefreshing && "animate-spin text-primary")} />
@@ -315,7 +315,7 @@ export function ServerListFilters({
                                 "relative flex items-center gap-2 px-4 py-2 h-10 rounded-xl text-sm font-medium border shadow-sm transition-colors cursor-pointer",
                                 hasActiveFilters
                                     ? "bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white hover:bg-slate-800 dark:hover:bg-slate-100"
-                                    : "bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800"
+                                    : "bg-card border-border text-foreground hover:bg-accent"
                             )}
                         >
                             <ListFilter className="w-4 h-4 flex-shrink-0" />
@@ -334,11 +334,11 @@ export function ServerListFilters({
                     </PopoverTrigger>
 
                     <PopoverContent
-                        className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden"
+                        className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-white dark:bg-zinc-950 overflow-hidden"
                         align="end"
                     >
                         {/* En-tête du popover */}
-                        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-zinc-800/80">
+                        <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
                             <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                                 <ListFilter className="w-4 h-4 text-primary" />
                                 {t("serverList.filters.filterSort") || "Filtres & Tri"}
@@ -395,7 +395,7 @@ export function ServerListFilters({
                                 </p>
                             </div>
 
-                            <hr className="border-slate-100 dark:border-zinc-800/50" />
+                            <hr className="border-border/50" />
 
                             {/* LAUNCHER */}
                             <div className="space-y-2">
@@ -419,7 +419,7 @@ export function ServerListFilters({
                                         {
                                             value: "labymod",
                                             label: "LabyMod",
-                                            icon: <LabyLogo className="w-3.5 h-3.5 text-slate-900 dark:text-white" />,
+                                            icon: <LabyLogo className="w-3.5 h-3.5 text-foreground" />,
                                         },
                                     ]}
                                 />

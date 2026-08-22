@@ -17,7 +17,7 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
     web_shop: { icon: ShoppingCart, colorClass: "text-emerald-500" },
     web_support: { icon: BiSupport, colorClass: "text-amber-500" },
     twitter: { icon: FaTwitter, colorClass: "text-sky-500" },
-    tiktok: { icon: FaTiktok, colorClass: "text-slate-900 dark:text-white" },
+    tiktok: { icon: FaTiktok, colorClass: "text-foreground" },
     instagram: { icon: FaInstagram, colorClass: "text-pink-600" },
     discord: { icon: FaDiscord, colorClass: "text-[#5865F2]" },
     youtube: { icon: FaYoutube, colorClass: "text-red-600" },
@@ -135,7 +135,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             <div className="flex items-center justify-between">
                 <h3 className="font-semibold leading-none tracking-tight text-lg flex items-center gap-2">
                     {isLaby ? (
-                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} />
+                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-foreground")} />
                     ) : (
                         <LunarLogo className={cn("w-5 h-5", lunarServerInfo?.partnered ? "text-orange-500" : "text-sky-500")} />
                     )}

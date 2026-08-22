@@ -31,7 +31,7 @@ export function SettingsTab({
         <div className="flex flex-col gap-6">
             
             {/* Option 1: Maintenance Mode */}
-            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">
@@ -46,7 +46,7 @@ export function SettingsTab({
                         <button 
                             onClick={handleToggleMaintenance}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
-                                maintenanceMode ? "bg-amber-500" : "bg-slate-200 dark:bg-zinc-800"
+                                maintenanceMode ? "bg-amber-500" : "bg-muted"
                             }`}
                         >
                             <span 
@@ -60,7 +60,7 @@ export function SettingsTab({
             </Card>
 
             {/* Option 2: Rate Limit Switch */}
-            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-border/60 shadow-xs">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">
@@ -74,7 +74,7 @@ export function SettingsTab({
                         <button 
                             onClick={handleToggleRateLimit}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
-                                rateLimiting ? "bg-primary" : "bg-slate-200 dark:bg-zinc-800"
+                                rateLimiting ? "bg-primary" : "bg-muted"
                             }`}
                         >
                             <span 
@@ -88,7 +88,7 @@ export function SettingsTab({
             </Card>
 
             {/* Option 3: Manual Database Cleanup */}
-            <Card className="bg-card border-slate-200/60 dark:border-zinc-800 shadow-xs">
+            <Card className="bg-card border-border/60 shadow-xs">
                 <CardHeader className="pb-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex flex-col gap-1">

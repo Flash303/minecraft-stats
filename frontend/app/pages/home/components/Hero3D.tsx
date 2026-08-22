@@ -378,11 +378,11 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
-                        {t("hero.title1")} <span className="text-slate-900 dark:text-white font-black">{t("hero.title2")}</span>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+                        {t("hero.title1")} <span className="text-foreground font-black">{t("hero.title2")}</span>
                     </h1>
                     
-                    <p className="text-slate-500 dark:text-zinc-400 text-sm sm:text-base leading-relaxed">
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                         {t("hero.description")}
                     </p>
                     
@@ -398,35 +398,35 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
                     {/* Stats Row */}
                     <div className="flex flex-wrap items-center gap-3 pt-3 justify-center lg:justify-start">
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
                             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 shrink-0">
-                                <Server className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                <Server className="h-5 w-5 text-info" />
                             </div>
                             <div>
                                 <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
                                     {animatedTotal.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-xs text-muted-foreground mt-1 font-medium">
                                     {t("hero.stats.servers")}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
                             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/15 shrink-0">
-                                <Wifi className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                <Wifi className="h-5 w-5 text-success" />
                             </div>
                             <div>
                                 <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
                                     {animatedOnline.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-xs text-muted-foreground mt-1 font-medium">
                                     {t("hero.stats.online")}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
+                        <div className="flex items-center gap-3 bg-card border border-slate-200 dark:border-zinc-700/80 rounded-2xl px-5 py-3.5 shadow-md dark:shadow-black/30">
                             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-500/15 shrink-0">
                                 <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                             </div>
@@ -434,7 +434,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                                 <p className="text-2xl font-extrabold text-slate-900 dark:text-zinc-50 leading-none tabular-nums">
                                     {animatedPlayers.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">
+                                <p className="text-xs text-muted-foreground mt-1 font-medium">
                                     {t("hero.stats.players")}
                                 </p>
                             </div>
@@ -449,7 +449,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                     ref={containerRef}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={handleMouseLeave}
-                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-slate-200/60 dark:border-zinc-800/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
+                    className="hidden sm:flex flex-shrink-0 w-[460px] h-[320px] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-slate-100/5 dark:shadow-none overflow-hidden"
                 >
                     <canvas 
                         ref={canvasRef} 

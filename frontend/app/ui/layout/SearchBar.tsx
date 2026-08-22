@@ -143,7 +143,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                 onFocus={() => setShowSuggestions(true)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="pl-10 pr-14 h-10 bg-white dark:bg-zinc-900 border border-slate-250 dark:border-zinc-800 focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-xs text-slate-800 dark:text-zinc-200"
+                className="pl-10 pr-14 h-10 bg-card border border-border focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-xs text-foreground"
             />
             
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
@@ -157,14 +157,14 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                         <X className="h-3.5 w-3.5" />
                     </Button>
                 ) : !isMobile ? (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 px-1.5 font-sans text-[10px] font-medium text-slate-400 dark:text-zinc-500 shadow-xs sm:flex">
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-slate-200 dark:border-zinc-700 bg-muted px-1.5 font-sans text-[10px] font-medium text-muted-foreground shadow-xs sm:flex">
                         {isMac ? '⌘K' : 'Ctrl+K'}
                     </kbd>
                 ) : null}
             </div>
 
             {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white/95 dark:bg-zinc-950/95 border border-slate-200/80 dark:border-zinc-800/80 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 p-1">
+                <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-background/95 border border-border/80 backdrop-blur-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 p-1">
                     {filteredSuggestions.map((s, idx) => (
                         <button
                             key={s.id}
@@ -172,7 +172,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                             onMouseEnter={() => setSelectedIndex(idx)}
                             className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer",
-                                idx === selectedIndex ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-slate-700 dark:text-zinc-300"
+                                idx === selectedIndex ? "bg-primary/5 dark:bg-primary/10 text-primary" : "hover:bg-muted/60 text-foreground"
                             )}
                         >
                             <ServerIcon 
@@ -182,14 +182,14 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                             />
                             <div className="flex flex-col min-w-0 flex-1 gap-1">
                                 <div className="flex items-center gap-1.5 min-w-0">
-                                    <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-slate-900 dark:text-zinc-100")}>{s.name}</span>
+                                    <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-foreground")}>{s.name}</span>
                                     {(() => {
                                         const lunarInfo = getLunarInfo(s.ip);
                                         return lunarInfo ? <LunarLogo className={cn("w-2.5 h-2.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} /> : null;
                                     })()}
                                     {(() => {
                                         const labyInfo = getLabyInfo(s.ip);
-                                        return labyInfo ? <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-slate-900 dark:text-white")} /> : null;
+                                        return labyInfo ? <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} /> : null;
                                     })()}
                                 </div>
                                 <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none">{s.ip}</span>

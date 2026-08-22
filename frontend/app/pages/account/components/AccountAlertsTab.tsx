@@ -33,9 +33,9 @@ export function AccountAlertsTab({
     return (
         <div className="space-y-8 max-w-4xl">
             {/* Push Settings */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-5">
                 <div>
-                    <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t("profile.alerts.pushTitle")}</h2>
+                    <h2 className="text-lg font-semibold text-foreground">{t("profile.alerts.pushTitle")}</h2>
                     <p className="text-sm text-muted-foreground mt-1 max-w-xl">
                         {t("profile.alerts.pushDescription")}
                     </p>
@@ -51,7 +51,7 @@ export function AccountAlertsTab({
                         <div className="h-8 w-24 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-md" />
                     ) : isSubscribed ? (
                         <div className="flex items-center gap-3">
-                            <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
+                            <span className="text-xs text-success flex items-center gap-1.5 font-medium">
                                 <CheckCircle2 className="h-3.5 w-3.5" />
                                 {t("profile.alerts.pushEnabled")}
                             </span>
@@ -88,7 +88,7 @@ export function AccountAlertsTab({
                 </div>
                 
                 {allAlerts.length === 0 ? (
-                    <div className="py-12 border-2 border-dashed border-slate-100 dark:border-slate-800/60 rounded-xl flex flex-col items-center justify-center text-center text-muted-foreground">
+                    <div className="py-12 border-2 border-dashed border-border/60 rounded-xl flex flex-col items-center justify-center text-center text-muted-foreground">
                         <p className="text-sm">{t("profile.noAlertsGlobal")}</p>
                     </div>
                 ) : (
@@ -96,18 +96,18 @@ export function AccountAlertsTab({
                         {allAlerts.map((alert) => (
                             <div 
                                 key={alert.id} 
-                                className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-slate-200/60 dark:border-slate-800/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
+                                className="group flex items-center justify-between p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-lg border border-border/80 transition-colors hover:bg-slate-100/50 dark:hover:bg-slate-800/60"
                             >
                                 <div className="flex flex-col">
                                     <span className="text-xs font-semibold tracking-wider text-muted-foreground mb-1">
-                                        {t("profile.alertForServer")} : <strong className="text-slate-900 dark:text-slate-100 ml-1">{alert.serverName}</strong>
+                                        {t("profile.alertForServer")} : <strong className="text-foreground ml-1">{alert.serverName}</strong>
                                     </span>
                                     <span className="text-sm font-medium text-slate-800 dark:text-slate-200">
                                         {t(`alerts.types.${alert.alert_type}`)}
                                     </span>
                                     {(alert.alert_type === "player_above" || alert.alert_type === "player_below") && (
                                         <span className="text-xs text-muted-foreground mt-1">
-                                            {t("alerts.thresholdLabel")} : <strong className="text-slate-900 dark:text-slate-100 font-medium px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded ml-1">{alert.player_threshold}</strong>
+                                            {t("alerts.thresholdLabel")} : <strong className="text-foreground font-medium px-1.5 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded ml-1">{alert.player_threshold}</strong>
                                         </span>
                                     )}
                                 </div>
