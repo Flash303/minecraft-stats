@@ -378,6 +378,22 @@ export async function fetchAlerts(serverId: number, token: string): Promise<Aler
     }
 }
 
+export async function fetchAllUserAlerts(token: string): Promise<Alert[]> {
+    try {
+        const res = await fetch(`${API_BASE}/notifications/list`, {
+            headers: getHeaders(token)
+        })
+        if (res.status === 429) throw new Error('RATE_LIMIT')
+        if (!res.ok) return []
+        const json = await res.json()
+        return json.success ? json.data : []
+    } catch (error: any) {
+        if (error.message === 'RATE_LIMIT') throw error;
+        console.error("Failed to fetch all user alerts:", error)
+        return []
+    }
+}
+
 export async function createAlert(
     serverId: number,
     alert: { alert_type: string; player_threshold?: number | null; is_active?: boolean },

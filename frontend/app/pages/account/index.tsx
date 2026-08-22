@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { useAuth, useUser } from "@clerk/react"
-import { fetchMyServers, fetchAlerts, deleteAlert } from "@/core/lib/api"
+import { fetchMyServers, fetchAllUserAlerts, deleteAlert } from "@/core/lib/api"
 import type { Server, Alert } from "@/core/lib/api"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { User, Server as ServerIcon, Bell, Settings } from "lucide-react"
@@ -66,16 +66,18 @@ export default function Account() {
                 const sortedData = [...data].sort((a, b) => a.name.localeCompare(b.name))
                 setServers(sortedData)
 
-                const alertsPromises = sortedData.map(async (server) => {
-                    const alertsData = await fetchAlerts(server.id, token)
-                    return alertsData.map(alert => ({
+                const allAlertsData = await fetchAllUserAlerts(token)
+                
+                const mappedAlerts = allAlertsData.map(alert => {
+                    const server = sortedData.find(s => s.id === alert.server_id)
+                    return {
                         ...alert,
-                        serverId: server.id,
-                        serverName: server.name
-                    }))
+                        serverId: alert.server_id,
+                        serverName: server ? server.name : "Unknown Server"
+                    }
                 })
-                const results = await Promise.all(alertsPromises)
-                setAllAlerts(results.flat())
+                
+                setAllAlerts(mappedAlerts)
             }
         } catch (error) {
             console.error(error)
