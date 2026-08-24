@@ -212,7 +212,12 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                 </h2>
                 <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
                     {isZoomed && (
-                        <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleResetZoom}
+                            className="bg-background/95 backdrop-blur-sm"
+                        >
                             {t("comparison.resetZoom")}
                         </Button>
                     )}

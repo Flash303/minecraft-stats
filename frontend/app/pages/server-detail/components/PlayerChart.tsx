@@ -271,7 +271,12 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                             {t("common.pointsCount", { count: String(data.length) })}
                         </span>
                         {isZoomed && (
-                            <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={handleResetZoom}
+                                className="bg-background/95 backdrop-blur-sm"
+                            >
                                 {t("comparison.resetZoom")}
                             </Button>
                         )}

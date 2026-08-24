@@ -84,7 +84,7 @@ export function TimeIntervalSelector({
                             id="date"
                             variant={"outline"}
                             className={cn(
-                                "h-9 w-full md:w-[240px] justify-start text-left font-normal text-xs bg-background/95 hover:bg-background/95 hover:text-foreground dark:bg-background/95 dark:hover:bg-background/95 dark:hover:text-foreground backdrop-blur-sm",
+                                "h-9 w-full md:w-[240px] justify-start text-left font-normal text-xs bg-background/95 backdrop-blur-sm",
                                 !customRange && "text-muted-foreground",
                                 triggerClassName
                             )}
