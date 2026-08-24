@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/refs */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useMemo, useRef, useEffect, useState } from "react"
+import { useMemo, useRef } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
@@ -8,7 +8,14 @@ import { useTheme } from "@/core/contexts/ThemeContext"
 import { Button } from "@/ui/components/button"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
-import { useChartResize, useTouchInteractPlugin, useTooltipPlugin } from "@/core/hooks/useChartPlugins"
+import {
+    useChartResize,
+    useTouchInteractPlugin,
+    useTooltipPlugin,
+    useChartZoomControls,
+    makeXScaleRange,
+    sizeChartToContainer,
+} from "@/core/hooks/useChartPlugins"
 import { cn } from "@/core/lib/utils"
 
 interface PlayerChartProps {
@@ -31,20 +38,12 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const tooltipRef = useRef<HTMLDivElement | null>(null)
-    const [isZoomed, setIsZoomed] = useState(false)
-    const timeRangeRef = useRef(timeRange)
-    timeRangeRef.current = timeRange
-
-
-    const mouseEnterRef = useRef<(() => void) | null>(null)
-    const mouseLeaveRef = useRef<(() => void) | null>(null)
 
     // Ajustement de la taille responsive
     useChartResize(chartRef, containerRef, [data])
 
-    // Transformation des données : Tri + Injection de NULL pour casser les lignes
-    // (This block is not changed but shown for context)
+    const timeRangeRef = useRef(timeRange)
+    timeRangeRef.current = timeRange
 
     // Transformation des données : Tri + Injection de NULL pour casser les lignes
     const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
@@ -74,29 +73,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     })
 
-    const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                setSelect: (u: uPlot) => {
-                    if (u.scales.x.min != null && u.scales.x.max != null) {
-                        onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max)
-                    }
-                },
-                setScale: (u: uPlot, key: string) => {
-                    if (key === 'x' && u.scales.x.min != null && u.scales.x.max != null) {
-                        onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max)
-                        const tr = timeRangeRef.current;
-                        if (Math.abs(u.scales.x.min - tr.from) > 1 || Math.abs(u.scales.x.max - tr.to) > 1) {
-                            setIsZoomed(true);
-                        } else {
-                            setIsZoomed(false);
-                        }
-                    }
-                }
-            }
-        }
-    }, [onVisibleRangeChange])
-
     const disableLegendClickPlugin = useMemo<uPlot.Plugin>(() => {
         return {
             hooks: {
@@ -112,32 +88,14 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     const touchInteractPlugin = useTouchInteractPlugin()
 
-    // Reset Zoom calé directement sur les props issues du parent
-    const handleResetZoom = () => {
-        if (chartRef.current) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-            chartRef.current.setScale("y", {
-                min: undefined as unknown as number,
-                max: undefined as unknown as number
-            })
-        }
-    }
-
-    useEffect(() => {
-        onZoomChange?.(isZoomed)
-    }, [isZoomed, onZoomChange])
-
-    useEffect(() => {
-        if (chartRef.current && !isZoomed) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-        }
-    }, [timeRange.from, timeRange.to, isZoomed])
-
-    useEffect(() => {
-        if (chartRef.current) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-        }
-    }, [zoomResetId])
+    // Zoom : plugin de suivi, reset et effets partagés avec MultiServerChart
+    const { isZoomed, scaleHookPlugin, resetZoom: handleResetZoom } = useChartZoomControls({
+        chartRef,
+        timeRange,
+        zoomResetId,
+        onZoomChange,
+        onVisibleRangeChange,
+    })
 
     const hasData = data.length > 0
     // Configuration globale du graphique
@@ -169,32 +127,10 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     auto: false,
                     min: timeRangeRef.current?.from ?? 0,
                     max: timeRangeRef.current?.to ?? 0,
-                    range: (u: uPlot, min: number, max: number) => {
-                        const xData = u.data[0]
-                        const yData = u.data[1]
-
-                        if (!xData || xData.length === 0) return [min, max]
-
-                        let pointsCount = 0
-                        for (let i = 0; i < xData.length; i++) {
-                            if (xData[i] >= min && xData[i] <= max) {
-                                if (yData[i] !== null) {
-                                    pointsCount++
-                                }
-                            }
-                            if (xData[i] > max) break
-                        }
-
-                        if (pointsCount < 2 && u.scales.x && u.scales.x.min != null) {
-                            if (Math.abs(min - u.scales.x.min) > 1 || Math.abs(max - u.scales.x.max) > 1) {
-                                return [u.scales.x.min, u.scales.x.max]
-                            }
-                            const tr = timeRangeRef.current;
-                            return [tr?.from ?? min, tr?.to ?? max]
-                        }
-
-                        return [min, max]
-                    }
+                    range: makeXScaleRange({
+                        countNonNullValues: true,
+                        getTimeRange: () => timeRangeRef.current
+                    })
                 },
                 y: { auto: true }
             },
@@ -305,13 +241,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                         onCreate={(chart) => {
                             chartRef.current = chart
                             // Force resize to container width after creation
-                            if (containerRef.current) {
-                                const height = window.innerWidth < 640 ? 300 : 450
-                                chart.setSize({
-                                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                                    height: height
-                                })
-                            }
+                            sizeChartToContainer(chart, containerRef.current)
                         }}
                     />
                 </div>

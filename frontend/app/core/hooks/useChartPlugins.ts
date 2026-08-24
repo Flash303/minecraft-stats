@@ -1,16 +1,26 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import uPlot from 'uplot';
 import { formatTooltipDateTime } from '@/core/lib/chartUtils';
+
+const CHART_HEIGHT_MOBILE = 300;
+const CHART_HEIGHT_DESKTOP = 450;
+// p-4 = 16px * 2 de padding du conteneur
+const CHART_CONTAINER_PADDING = 32;
+
+/** Ajuste la taille d'un graphe à la largeur de son conteneur (hauteur responsive mobile). */
+export function sizeChartToContainer(chart: uPlot, container: HTMLElement | null) {
+    if (!container) return;
+    chart.setSize({
+        width: container.clientWidth - CHART_CONTAINER_PADDING,
+        height: window.innerWidth < 640 ? CHART_HEIGHT_MOBILE : CHART_HEIGHT_DESKTOP,
+    });
+}
 
 export function useChartResize(chartRef: React.MutableRefObject<uPlot | null>, containerRef: React.MutableRefObject<HTMLDivElement | null>, dataDeps: unknown[]) {
     useEffect(() => {
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
-                const height = window.innerWidth < 640 ? 300 : 450;
-                chartRef.current.setSize({
-                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                    height: height
-                });
+                sizeChartToContainer(chartRef.current, containerRef.current);
             }
         };
 
@@ -26,6 +36,129 @@ export function useChartResize(chartRef: React.MutableRefObject<uPlot | null>, c
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, dataDeps);
+}
+
+/**
+ * Fabrique la fonction `range` de l'échelle X partagée par tous les graphes :
+ * évite le zoom sur une plage quasi vide en revenant à la vue courante.
+ * - `countNonNullValues` : ne compter que les points dont la valeur Y est non nulle (gaps offline)
+ * - `getTimeRange` : plage temporelle de repli quand la vue courante est déjà la plage demandée
+ */
+export function makeXScaleRange(opts: {
+    countNonNullValues?: boolean;
+    getTimeRange?: () => { from: number; to: number } | undefined;
+} = {}) {
+    return (u: uPlot, min: number, max: number): [number, number] => {
+        const xData = u.data[0];
+        if (!xData || xData.length === 0) return [min, max];
+
+        let pointsCount = 0;
+        for (let i = 0; i < xData.length; i++) {
+            const x = xData[i];
+            if (x >= min && x <= max) {
+                if (!opts.countNonNullValues || u.data[1]?.[i] !== null) {
+                    pointsCount++;
+                }
+            }
+            if (x > max) break;
+        }
+
+        if (pointsCount < 2 && u.scales.x?.min != null && u.scales.x.max != null) {
+            if (Math.abs(min - u.scales.x.min) > 1 || Math.abs(max - u.scales.x.max) > 1) {
+                return [u.scales.x.min, u.scales.x.max];
+            }
+            const tr = opts.getTimeRange?.();
+            return tr ? [tr.from, tr.to] : [u.scales.x.min, u.scales.x.max];
+        }
+
+        return [min, max];
+    };
+}
+
+interface ChartZoomControlsOptions {
+    chartRef: React.MutableRefObject<uPlot | null>;
+    /** Plage temporelle "pleine" des données ; sert de référence de zoom et de cible de reset */
+    timeRange?: { from: number; to: number };
+    /** Changer cette valeur force un reset du zoom (ex: changement de plage sélectionnée) */
+    zoomResetId?: string;
+    onZoomChange?: (isZoomed: boolean) => void;
+    /** Notifie la plage visible (utilisé pour les stats sur la sélection) */
+    onVisibleRangeChange?: (min: number, max: number) => void;
+}
+
+/**
+ * Logique de zoom mutualisée entre PlayerChart et MultiServerChart :
+ * plugin de suivi du zoom, bouton reset, resets automatiques et propagation d'état.
+ */
+export function useChartZoomControls({
+    chartRef,
+    timeRange,
+    zoomResetId,
+    onZoomChange,
+    onVisibleRangeChange,
+}: ChartZoomControlsOptions) {
+    const [isZoomed, setIsZoomed] = useState(false);
+    const timeRangeRef = useRef(timeRange);
+    // eslint-disable-next-line react-hooks/refs
+    timeRangeRef.current = timeRange;
+
+    const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                ...(onVisibleRangeChange
+                    ? {
+                          setSelect: (u: uPlot) => {
+                              if (u.scales.x.min != null && u.scales.x.max != null) {
+                                  onVisibleRangeChange(u.scales.x.min, u.scales.x.max);
+                              }
+                          },
+                      }
+                    : {}),
+                setScale: (u: uPlot, key: string) => {
+                    if (key !== 'x' || u.scales.x.min == null || u.scales.x.max == null) return;
+                    onVisibleRangeChange?.(u.scales.x.min, u.scales.x.max);
+                    const tr = timeRangeRef.current;
+                    setIsZoomed(Math.abs(u.scales.x.min - tr.from) > 1 || Math.abs(u.scales.x.max - tr.to) > 1);
+                },
+            },
+        };
+    }, [onVisibleRangeChange]);
+
+    const resetZoom = useCallback(() => {
+        const chart = chartRef.current;
+        if (!chart) return;
+        const tr = timeRangeRef.current;
+        chart.setScale('x', { min: tr.from, max: tr.to });
+        chart.setScale('y', {
+            min: undefined as unknown as number,
+            max: undefined as unknown as number,
+        });
+    }, [chartRef]);
+
+    useEffect(() => {
+        onZoomChange?.(isZoomed);
+    }, [isZoomed, onZoomChange]);
+
+    const from = timeRange?.from;
+    const to = timeRange?.to;
+
+    // Suit la plage temporelle tant que l'utilisateur n'a pas zoomé
+    useEffect(() => {
+        if (from == null || to == null) return;
+        if (chartRef.current && !isZoomed) {
+            chartRef.current.setScale('x', { min: from, max: to });
+        }
+    }, [from, to, isZoomed, chartRef]);
+
+    // Reset forcé quand l'id de reset change (même si zoomé)
+    useEffect(() => {
+        if (zoomResetId == null || from == null || to == null) return;
+        chartRef.current?.setScale('x', { min: from, max: to });
+        // Reset intentionnel : uniquement déclenché par le changement d'identifiant
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zoomResetId]);
+
+    return { isZoomed, scaleHookPlugin, resetZoom };
 }
 
 export function useTouchInteractPlugin() {

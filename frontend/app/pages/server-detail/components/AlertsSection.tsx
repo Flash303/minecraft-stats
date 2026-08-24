@@ -5,58 +5,31 @@ import { Button } from "@/ui/components/button"
 import { Input } from "@/ui/components/input"
 import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
-import { fetchAlerts, createAlert, deleteAlert, fetchVapidKey, subscribeDevice, unsubscribeDevice, type Alert } from "@/core/lib/api"
+import { fetchAlerts, createAlert, deleteAlert, type Alert } from "@/core/lib/api"
+import { useWebPush } from "@/core/hooks/useWebPush"
 
 interface AlertsSectionProps {
     serverId: number
     t: (key: string) => string
 }
 
-function urlBase64ToUint8Array(base64String: string) {
-    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
-
 export function AlertsSection({ serverId, t }: AlertsSectionProps) {
     const { getToken, isSignedIn, isLoaded } = useAuth()
+    const {
+        isPushSupported,
+        isSubscribed,
+        checkingSubscription,
+        actionLoading,
+        checkSubscription,
+        handleSubscribe,
+        handleUnsubscribe
+    } = useWebPush(getToken)
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [loading, setLoading] = useState(true)
-    
-    // Web Push State
-    const isPushSupported = "serviceWorker" in navigator && "PushManager" in window
-    const [isSubscribed, setIsSubscribed] = useState(false)
-    const [checkingSubscription, setCheckingSubscription] = useState(true)
-    const [actionLoading, setActionLoading] = useState(false)
 
     // Form State
     const [alertType, setAlertType] = useState<"status_to_offline" | "status_to_online" | "player_above" | "player_below">("status_to_offline")
     const [threshold, setThreshold] = useState<string>("")
-
-    const checkSubscription = useCallback(async () => {
-        if (!isPushSupported) {
-            setCheckingSubscription(false)
-            return
-        }
-        try {
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
-            setIsSubscribed(!!subscription)
-        } catch (e) {
-            console.error("Error checking push subscription:", e)
-        } finally {
-            setCheckingSubscription(false)
-        }
-    }, [isPushSupported])
 
     const loadAlerts = useCallback(async () => {
         if (!isSignedIn || !isLoaded) return
@@ -81,82 +54,6 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
             checkSubscription()
         }
     }, [loadAlerts, checkSubscription, isLoaded])
-
-    const handleSubscribe = async () => {
-        if (!isPushSupported) return
-        setActionLoading(true)
-        try {
-            const token = await getToken()
-            if (!token) {
-                setActionLoading(false)
-                return
-            }
-
-            const vapidKey = await fetchVapidKey()
-            if (!vapidKey) {
-                alert("Failed to load VAPID public key from backend.")
-                setActionLoading(false)
-                return
-            }
-
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(vapidKey)
-            })
-
-            const p256dh = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('p256dh')!))))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
-            const auth = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('auth')!))))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '');
-
-            const success = await subscribeDevice({
-                endpoint: subscription.endpoint,
-                p256dh,
-                auth
-            }, token)
-
-            if (success) {
-                setIsSubscribed(true)
-            } else {
-                alert("Failed to sync subscription details with backend.")
-            }
-        } catch (e) {
-            console.error("Push registration failed:", e)
-            alert(`Subscription failed: ${e}`)
-        } finally {
-            setActionLoading(false)
-        }
-    }
-
-    const handleUnsubscribe = async () => {
-        if (!isPushSupported) return
-        setActionLoading(true)
-        try {
-            const token = await getToken()
-            if (!token) {
-                setActionLoading(false)
-                return
-            }
-
-            const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
-            if (subscription) {
-                await subscription.unsubscribe()
-                await unsubscribeDevice(subscription.endpoint, token)
-                setIsSubscribed(false)
-            }
-        } catch (e) {
-            console.error("Unsubscription failed:", e)
-            alert(`Unsubscription failed: ${e}`)
-        } finally {
-            setActionLoading(false)
-        }
-    }
 
     const handleAddAlert = async (e: React.FormEvent) => {
         e.preventDefault()

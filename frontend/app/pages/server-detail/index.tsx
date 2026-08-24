@@ -399,12 +399,13 @@ export function ErrorBoundary() {
     const error = useRouteError()
     const { t } = useLanguage()
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
+    // La stack trace n'est jamais affichée à l'utilisateur (fuite d'information potentielle)
     return (
         <div className="p-8 text-center text-destructive">
             <h1>{t("error.somethingWentWrong")} in ServerDetail</h1>
-            <pre className="bg-muted mt-4 overflow-auto rounded p-4 text-left">
-                {error instanceof Error ? error.stack : String(error)}
-            </pre>
+            <p className="text-muted-foreground mt-2 text-sm">
+                {error instanceof Error ? error.message : String(error)}
+            </p>
         </div>
     )
 }

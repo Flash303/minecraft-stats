@@ -32,7 +32,7 @@ interface ServersTabProps {
 }
 
 import { BulkDeleteModal } from "./BulkDeleteModal"
-import { RenameServerModal } from "./RenameServerModal"
+import { RenameServerModalButton } from "./RenameServerModal"
 import { DeleteServerModal } from "./DeleteServerModal"
 import { UpdateFaviconModal } from "./UpdateFaviconModal"
 import { ChangeIpModal } from "./ChangeIpModal"
@@ -358,7 +358,7 @@ export function ServersTab({
                                                 
                                                 <UpdateFaviconModal server={server} onSuccess={onRefresh} t={t} />
                                                 <ChangeIpModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
-                                                <RenameServerModal server={server} onSuccess={onRefresh} t={t} />
+                                                <RenameServerModalButton server={server} onSuccess={onRefresh} t={t} />
                                                 <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                             </div>
                                         </td>
@@ -377,4 +377,4 @@ export function ServersTab({
             </div>
         </div>
     )
-}
+}
