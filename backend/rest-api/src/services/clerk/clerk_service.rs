@@ -53,7 +53,7 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
         let limit = &MAX_USERS_PER_PAGE;
         let offset = i * MAX_USERS_PER_PAGE;
 
-        let fetched_users = client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", limit, offset))
+        let fetched_users = state.http_client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", limit, offset))
             .bearer_auth(token)
             .send()
             .await?
