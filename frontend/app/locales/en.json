@@ -158,24 +158,16 @@
     "menu": {
       "overview": "Overview",
       "users": "User Directory",
-      "servers": "Server Management",
-      "logs": "Audit Logs",
-      "settings": "System Settings"
+      "servers": "Server Management"
     },
     "overview": {
-      "healthChecks": "System Health",
-      "healthChecksDesc": "View real-time operational status of dependent services.",
-      "dbStatus": "Database Connection",
-      "pingWorker": "Ping Daemon",
-      "clerkStatus": "Auth Provider (Clerk)",
-      "cacheStatus": "Redis Cache Server",
-      "healthy": "Operational",
-      "avgConnected": "Average Connected",
-      "avgPlayersOnline": "Average Players Online",
-      "pingPerformance": "API Pinger Performance",
-      "serversUptime": "Servers Uptime",
-      "systemActivity": "System Activity",
-      "systemActivityDesc": "Summary activity report for today."
+      "playersOnline": "Players Online",
+      "availability": "Availability",
+      "topServers": "Top Servers",
+      "topServersDesc": "The most populated servers right now.",
+      "noOnlineServers": "No servers online at the moment.",
+      "distribution": "Server Fleet",
+      "distributionDesc": "Current breakdown of all registered servers."
     },
     "usersList": "Users List",
     "searchUser": "Search a user...",
@@ -187,7 +179,6 @@
     "serverIp": "IP Address",
     "serverPort": "Port",
     "serverStatus": "Status",
-    "mockRouteWarning": "Endpoint `/admin/servers/:id/toggle` called. State updated locally for testing.",
     "statsUsers": "Total Users",
     "statsServers": "Total Servers",
     "statsOnline": "Online Servers",
@@ -195,13 +186,11 @@
       "visibilitySuccess": "Visibility successfully updated for {{name}}",
       "visibilityChanged": "Visibility Changed",
       "visibilityDetails": "{{name}} is now {{status}}",
-      "visibilityChangedSimulated": "Visibility Changed (Simulated)",
-      "visibilityDetailsSimulated": "{{name}} is now {{status}} (simulated)",
-      "rateLimitToggled": "API Rate Limiting {{status}}",
-      "rateLimitEnabled": "enabled",
-      "rateLimitDisabled": "disabled",
       "hidden": "hidden",
-      "visible": "visible"
+      "visible": "visible",
+      "successTitle": "Success",
+      "warningTitle": "Warning",
+      "errorTitle": "Error"
     },
     "users": {
       "serversCreatedCount_one": "{{count}} server created",
@@ -261,27 +250,15 @@
       "changeIpSuccess": "IP for {{name}} has been updated successfully.",
       "changeIpError": "Failed to change the IP.",
       "saving": "Saving...",
-      "save": "Save"
+      "save": "Save",
+      "selectAll": "Select all",
+      "selectServer": "Select {{name}}"
     },
-    "auditLogs": {
-      "title": "Recent Activities",
-      "serverCreated": "Server created: {{name}} by {{user}}",
-      "serverVisibility": "Visibility updated: {{name}} is now {{status}}",
-      "userSignup": "New signup: {{user}}",
-      "dbCleanup": "Manual database cleanup executed",
-      "maintenanceEnabled": "Maintenance mode enabled by administrator",
-      "maintenanceDisabled": "Maintenance mode disabled by administrator"
-    },
-    "settings": {
-      "title": "Admin Settings",
-      "maintenance": "Maintenance Mode",
-      "maintenanceDesc": "Restrict access to public platform for maintenance.",
-      "rateLimit": "API Rate Limiting",
-      "rateLimitDesc": "Protect endpoints from abuse (max 100 req/min).",
-      "cleanup": "Database Maintenance",
-      "cleanupDesc": "Remove stale records older than 30 days.",
-      "runCleanup": "Run DB Cleanup"
-    }
+    "statsPlayers": "Players Online",
+    "refresh": "Refresh",
+    "updatedAt": "Updated at {{time}}",
+    "close": "Close",
+    "openMenu": "Open menu"
   },
   "alerts": {
     "title": "Notification Alerts",

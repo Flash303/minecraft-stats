@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 import type { MetaFunction } from "react-router"
 import { useAuth } from "@clerk/react"
@@ -7,6 +7,7 @@ import { useAdmin } from "@/core/contexts/AdminContext"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
+import { cn } from "@/core/lib/utils"
 import logo from "@/assets/logo.webp"
 import {
     Select,
@@ -19,24 +20,66 @@ import {
     Server as ServerIcon,
     ShieldAlert,
     ArrowLeft,
-    Info,
     RefreshCw,
     LayoutGrid,
-    Activity,
-    Settings,
     Menu,
     X,
-    Globe
+    Globe,
+    CheckCircle2,
+    AlertTriangle,
+    XCircle
 } from "lucide-react"
 
 import { OverviewTab } from "@/pages/admin/components/OverviewTab"
 import { UsersTab } from "@/pages/admin/components/UsersTab"
 import { ServersTab } from "@/pages/admin/components/ServersTab"
-import { LogsTab } from "@/pages/admin/components/LogsTab"
-import { SettingsTab } from "@/pages/admin/components/SettingsTab"
 import { ThemeToggle } from "@/ui/layout/ThemeToggle"
 
-type ActiveTab = "overview" | "users" | "servers" | "logs" | "settings"
+type ActiveTab = "overview" | "users" | "servers"
+
+type ToastMessage = { type: "success" | "warning" | "error"; text: string }
+
+interface ToastBannerProps {
+    message: ToastMessage
+    onClose: () => void
+    t: (key: string) => string
+}
+
+function ToastBanner({ message, onClose, t }: ToastBannerProps) {
+    const Icon = message.type === "success" ? CheckCircle2 : message.type === "warning" ? AlertTriangle : XCircle
+    const titleKey = message.type === "success"
+        ? "admin.toast.successTitle"
+        : message.type === "warning"
+            ? "admin.toast.warningTitle"
+            : "admin.toast.errorTitle"
+
+    return (
+        <div
+            role="status"
+            aria-live="polite"
+            className={cn(
+                "flex items-start gap-3 p-4 rounded-xl border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300",
+                message.type === "success" && "bg-success/10 border-success/20 text-success",
+                message.type === "warning" && "bg-warning/10 border-warning/20 text-warning",
+                message.type === "error" && "bg-destructive/10 border-destructive/20 text-destructive"
+            )}
+        >
+            <Icon className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider">{t(titleKey)}</p>
+                <p className="text-sm mt-0.5 font-medium break-words">{message.text}</p>
+            </div>
+            <button
+                type="button"
+                onClick={onClose}
+                aria-label={t("admin.close")}
+                className="mt-0.5 p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer transition-colors flex-shrink-0"
+            >
+                <X className="h-4 w-4" />
+            </button>
+        </div>
+    )
+}
 
 export const meta: MetaFunction = () => {
     return [
@@ -63,7 +106,7 @@ export default function AdminDashboard() {
     // Dashboard navigation & UI state
     const activeTab = useMemo(() => {
         const tab = subview || "overview"
-        if (["overview", "users", "servers", "logs", "settings"].includes(tab)) {
+        if (["overview", "users", "servers"].includes(tab)) {
             return tab as ActiveTab
         }
         return "overview"
@@ -78,33 +121,25 @@ export default function AdminDashboard() {
     // Data states
     const [users, setUsers] = useState<User[]>([])
     const [servers, setServers] = useState<Server[]>([])
-
-    // Mock states for proposed features
-    const [maintenanceMode, setMaintenanceMode] = useState(false)
-    const [rateLimiting, setRateLimiting] = useState(true)
-    const [isCleaningDb, setIsCleaningDb] = useState(false)
+    const [isLoadingData, setIsLoadingData] = useState(true)
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
     const [togglingServerId, setTogglingServerId] = useState<number | null>(null)
+    const [toastMessage, setToastMessage] = useState<ToastMessage | null>(null)
+    const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    // Log list state
-    const [auditLogs, setAuditLogs] = useState<Array<{
-        id: string
-        timestamp: string
-        action: string
-        type: "create" | "visibility" | "signup" | "system"
-        details: string
-    }>>([
-        // eslint-disable-next-line react-hooks/purity
-        { id: "log-1", timestamp: new Date(Date.now() - 120000).toISOString(), action: "New user registration", type: "signup", details: "flash303_test registered" },
-        // eslint-disable-next-line react-hooks/purity
-        { id: "log-2", timestamp: new Date(Date.now() - 3600000).toISOString(), action: "Server created", type: "create", details: "Awesome Vanilla Server created by flash303" },
-        // eslint-disable-next-line react-hooks/purity
-        { id: "log-3", timestamp: new Date(Date.now() - 7200000).toISOString(), action: "Database cleanup", type: "system", details: "Scheduled automatic cleaner cleared 15 records" },
-    ])
+    useEffect(() => () => {
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    }, [])
 
-    const [toastMessage, setToastMessage] = useState<{ type: "success" | "warning" | "error"; text: string } | null>(null)
+    const triggerToast = useCallback((type: ToastMessage["type"], text: string) => {
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+        setToastMessage({ type, text })
+        toastTimerRef.current = setTimeout(() => setToastMessage(null), 5000)
+    }, [])
 
     const loadData = useCallback(async () => {
         if (!isAdmin) return
+        setIsLoadingData(true)
         try {
             const token = await getToken()
             if (!token) return
@@ -116,14 +151,14 @@ export default function AdminDashboard() {
 
             setUsers(fetchedUsers)
             setServers(fetchedServers)
+            setLastUpdated(new Date())
         } catch (error) {
             console.error("Failed to load admin console data:", error)
-            setToastMessage({
-                type: "error",
-                text: t("common.error")
-            })
+            triggerToast("error", t("common.error"))
+        } finally {
+            setIsLoadingData(false)
         }
-    }, [isAdmin, getToken, t])
+    }, [isAdmin, getToken, t, triggerToast])
 
     useEffect(() => {
         if (isLoaded && isAdmin) {
@@ -132,20 +167,13 @@ export default function AdminDashboard() {
         }
     }, [isLoaded, isAdmin, loadData])
 
-    // Trigger simulation toast helper
-    const triggerToast = (type: "success" | "warning" | "error", text: string) => {
-        setToastMessage({ type, text })
-        setTimeout(() => setToastMessage(null), 5000)
-    }
-
-    // Toggle server visibility
+    // Toggle server visibility (state updated only after confirmed API success)
     const handleToggleServer = async (serverId: number, currentHidden: boolean) => {
         const token = await getToken()
         if (!token) return
 
         setTogglingServerId(serverId)
-        const targetServer = servers.find(s => s.id === serverId)
-        const serverName = targetServer ? targetServer.name : `#${serverId}`
+        const serverName = servers.find(s => s.id === serverId)?.name ?? `#${serverId}`
 
         try {
             const result = await toggleServerVisibility(serverId, token, !currentHidden)
@@ -153,88 +181,14 @@ export default function AdminDashboard() {
             if (result.success) {
                 setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))
                 triggerToast("success", t("admin.toast.visibilitySuccess", { name: serverName }))
-                
-                // Add to audit logs
-                const newLog = {
-                    id: `log-${Date.now()}`,
-                    timestamp: new Date().toISOString(),
-                    action: t("admin.toast.visibilityChanged"),
-                    type: "visibility" as const,
-                    details: t("admin.toast.visibilityDetails", { 
-                        name: serverName, 
-                        status: !currentHidden ? t("admin.toast.hidden") : t("admin.toast.visible") 
-                    })
-                }
-                setAuditLogs(prev => [newLog, ...prev])
-            } else if (result.message_key || result.message) {
-                triggerToast("error", result.message_key ? t(result.message_key) : result.message!)
             } else {
-                // Fallback simulation
-                setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))
-                triggerToast("warning", t("admin.mockRouteWarning"))
-                
-                // Add to audit logs
-                const newLog = {
-                    id: `log-${Date.now()}`,
-                    timestamp: new Date().toISOString(),
-                    action: t("admin.toast.visibilityChangedSimulated"),
-                    type: "visibility" as const,
-                    details: t("admin.toast.visibilityDetailsSimulated", { 
-                        name: serverName, 
-                        status: !currentHidden ? t("admin.toast.hidden") : t("admin.toast.visible") 
-                    })
-                }
-                setAuditLogs(prev => [newLog, ...prev])
+                triggerToast("error", result.message_key ? t(result.message_key) : result.message || t("common.error"))
             }
         } catch {
-            // Fallback simulation on error
-            setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))
-            triggerToast("warning", t("admin.mockRouteWarning"))
+            triggerToast("error", t("common.error"))
         } finally {
             setTogglingServerId(null)
         }
-    }
-
-    // Run database cleanup
-    const handleRunDbCleanup = () => {
-        setIsCleaningDb(true)
-        setTimeout(() => {
-            setIsCleaningDb(false)
-            triggerToast("success", t("admin.auditLogs.dbCleanup"))
-            const newLog = {
-                id: `log-${Date.now()}`,
-                timestamp: new Date().toISOString(),
-                action: t("admin.settings.cleanup"),
-                type: "system" as const,
-                details: t("admin.auditLogs.dbCleanup")
-            }
-            setAuditLogs(prev => [newLog, ...prev])
-        }, 1500)
-    }
-
-    // Toggle Maintenance mode
-    const handleToggleMaintenance = () => {
-        const nextState = !maintenanceMode
-        setMaintenanceMode(nextState)
-        triggerToast("warning", nextState ? t("admin.auditLogs.maintenanceEnabled") : t("admin.auditLogs.maintenanceDisabled"))
-        
-        const newLog = {
-            id: `log-${Date.now()}`,
-            timestamp: new Date().toISOString(),
-            action: t("admin.settings.maintenance"),
-            type: "system" as const,
-            details: nextState ? t("admin.auditLogs.maintenanceEnabled") : t("admin.auditLogs.maintenanceDisabled")
-        }
-        setAuditLogs(prev => [newLog, ...prev])
-    }
-
-    // Toggle Rate Limit mode
-    const handleToggleRateLimit = () => {
-        const nextState = !rateLimiting
-        setRateLimiting(nextState)
-        triggerToast("success", t("admin.toast.rateLimitToggled", {
-            status: nextState ? t("admin.toast.rateLimitEnabled") : t("admin.toast.rateLimitDisabled")
-        }))
     }
 
     // 1. Loading Permissions Check
@@ -277,9 +231,15 @@ export default function AdminDashboard() {
     }
 
     // 3. Authorized Console layout
+    const navItems: Array<{ id: ActiveTab; labelKey: string; icon: typeof LayoutGrid }> = [
+        { id: "overview", labelKey: "admin.menu.overview", icon: LayoutGrid },
+        { id: "users", labelKey: "admin.menu.users", icon: Users },
+        { id: "servers", labelKey: "admin.menu.servers", icon: ServerIcon },
+    ]
+
     return (
         <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
-            
+
             {/* Sidebar Navigation */}
             <aside className={`fixed md:sticky top-0 z-40 h-screen w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 ${
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -292,75 +252,44 @@ export default function AdminDashboard() {
                             {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">Admin</span>
                         </span>
                     </Link>
-                    <button 
+                    <button
+                        type="button"
                         onClick={() => setIsSidebarOpen(false)}
-                        className="md:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground cursor-pointer"
+                        aria-label={t("admin.close")}
+                        className="md:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
                 {/* Sidebar Navigation Items */}
-                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto">
-                    <button
-                        onClick={() => { setActiveTab("overview"); setIsSidebarOpen(false); }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                            activeTab === "overview" 
-                                ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
-                        }`}
-                    >
-                        <LayoutGrid className="h-4.5 w-4.5" />
-                        {t("admin.menu.overview")}
-                    </button>
-
-                    <button
-                        onClick={() => { setActiveTab("users"); setIsSidebarOpen(false); }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                            activeTab === "users" 
-                                ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
-                        }`}
-                    >
-                        <Users className="h-4.5 w-4.5" />
-                        {t("admin.menu.users")}
-                    </button>
-
-                    <button
-                        onClick={() => { setActiveTab("servers"); setIsSidebarOpen(false); }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                            activeTab === "servers" 
-                                ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
-                        }`}
-                    >
-                        <ServerIcon className="h-4.5 w-4.5" />
-                        {t("admin.menu.servers")}
-                    </button>
-
-                    <button
-                        onClick={() => { setActiveTab("logs"); setIsSidebarOpen(false); }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                            activeTab === "logs" 
-                                ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
-                        }`}
-                    >
-                        <Activity className="h-4.5 w-4.5" />
-                        {t("admin.menu.logs")}
-                    </button>
-
-                    <button
-                        onClick={() => { setActiveTab("settings"); setIsSidebarOpen(false); }}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                            activeTab === "settings" 
-                                ? "bg-primary/10 text-primary dark:bg-primary/20" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40"
-                        }`}
-                    >
-                        <Settings className="h-4.5 w-4.5" />
-                        {t("admin.menu.settings")}
-                    </button>
+                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label="Dashboard sections">
+                    <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                        {t("admin.title")}
+                    </p>
+                    {navItems.map((item) => {
+                        const isActive = activeTab === item.id
+                        return (
+                            <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => { setActiveTab(item.id); setIsSidebarOpen(false); }}
+                                aria-current={isActive ? "page" : undefined}
+                                className={cn(
+                                    "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer",
+                                    isActive
+                                        ? "bg-primary/10 text-primary dark:bg-primary/20"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                                )}
+                            >
+                                {isActive && (
+                                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-primary" aria-hidden />
+                                )}
+                                <item.icon className="h-4.5 w-4.5" />
+                                {t(item.labelKey)}
+                            </button>
+                        )
+                    })}
                 </nav>
 
                 {/* Sidebar Footer */}
@@ -376,73 +305,71 @@ export default function AdminDashboard() {
 
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
-                <div 
+                <div
                     onClick={() => setIsSidebarOpen(false)}
+                    aria-hidden
                     className="fixed inset-0 z-30 bg-black/40 md:hidden backdrop-blur-xs"
                 />
             )}
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-                
+
                 {/* Header panel */}
-                <header className="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-6 flex-shrink-0 shadow-xs">
-                    <div className="flex items-center gap-3">
-                        <button 
+                <header className="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-6 flex-shrink-0 shadow-xs gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <button
+                            type="button"
                             onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
+                            aria-label={t("admin.openMenu")}
+                            className="md:hidden h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
                         >
                             <Menu className="h-5 w-5" />
                         </button>
-                        <h2 className="font-bold text-sm text-foreground capitalize hidden xs:block">
+                        <h2 className="font-bold text-sm text-foreground truncate hidden xs:block capitalize">
                             {t(`admin.menu.${activeTab}`)}
                         </h2>
                     </div>
 
-                    {/* Right actions: Lang, Theme, Clerk user button */}
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
-                                <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
-                                    <Globe className="h-4 w-4 text-muted-foreground" />
-                                </SelectTrigger>
-                                <SelectContent align="end">
-                                    <SelectItem value="fr">FR</SelectItem>
-                                    <SelectItem value="en">EN</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            
-                            <ThemeToggle />
-                        </div>
+                    {/* Right actions: Refresh, last update, Lang, Theme */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {lastUpdated && (
+                            <span className="hidden lg:block text-xs text-muted-foreground font-medium whitespace-nowrap">
+                                {t("admin.updatedAt", { time: lastUpdated.toLocaleTimeString(language === "fr" ? "fr-FR" : "en-US", { hour: "2-digit", minute: "2-digit" }) })}
+                            </span>
+                        )}
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs"
+                            onClick={() => loadData()}
+                            disabled={isLoadingData}
+                            aria-label={t("admin.refresh")}
+                        >
+                            <RefreshCw className={cn("h-3.5 w-3.5", isLoadingData && "animate-spin")} />
+                            <span className="hidden sm:inline">{t("admin.refresh")}</span>
+                        </Button>
+
+                        <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
+                            <SelectTrigger className="h-8 w-8 sm:w-[45px] px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
+                                <Globe className="h-4 w-4 text-muted-foreground" />
+                            </SelectTrigger>
+                            <SelectContent align="end">
+                                <SelectItem value="fr">FR</SelectItem>
+                                <SelectItem value="en">EN</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <ThemeToggle />
                     </div>
                 </header>
 
                 {/* Main page view scroll container */}
-                <main className="flex-1 p-6 md:p-8 w-full max-w-full mx-auto flex flex-col gap-6">
-                    
-                    {/* Simulation Alerts */}
+                <main className="flex-1 p-6 md:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
+
                     {toastMessage && (
-                        <div className={`flex items-start gap-3 p-4 rounded-xl border shadow-sm transition-all duration-300 ${
-                            toastMessage.type === "success" 
-                                ? "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400" 
-                                : toastMessage.type === "warning"
-                                ? "bg-amber-500/10 border-amber-500/20 text-warning"
-                                : "bg-destructive/10 border-destructive/20 text-destructive"
-                        }`}>
-                            <Info className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="text-xs font-semibold uppercase tracking-wider">
-                                    {toastMessage.type === "success" ? "Success" : toastMessage.type === "warning" ? "Simulation Alert" : "Error"}
-                                </p>
-                                <p className="text-sm mt-0.5 font-medium">{toastMessage.text}</p>
-                            </div>
-                            <button 
-                                onClick={() => setToastMessage(null)} 
-                                className="text-xs font-bold hover:underline opacity-80 hover:opacity-100 cursor-pointer"
-                            >
-                                Fermer
-                            </button>
-                        </div>
+                        <ToastBanner message={toastMessage} onClose={() => setToastMessage(null)} t={t} />
                     )}
 
                     {/* TAB VIEW CONTROLLERS */}
@@ -479,27 +406,6 @@ export default function AdminDashboard() {
                             t={t}
                             onRefresh={loadData}
                             triggerToast={triggerToast}
-                        />
-                    )}
-
-                    {/* 4. AUDIT LOGS VIEW */}
-                    {activeTab === "logs" && (
-                        <LogsTab
-                            auditLogs={auditLogs}
-                            t={t}
-                        />
-                    )}
-
-                    {/* 5. SYSTEM SETTINGS VIEW */}
-                    {activeTab === "settings" && (
-                        <SettingsTab
-                            maintenanceMode={maintenanceMode}
-                            handleToggleMaintenance={handleToggleMaintenance}
-                            rateLimiting={rateLimiting}
-                            handleToggleRateLimit={handleToggleRateLimit}
-                            isCleaningDb={isCleaningDb}
-                            handleRunDbCleanup={handleRunDbCleanup}
-                            t={t}
                         />
                     )}
                 </main>

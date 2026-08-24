@@ -158,24 +158,16 @@
     "menu": {
       "overview": "Vue d'ensemble",
       "users": "Annuaire Utilisateurs",
-      "servers": "Gestion Serveurs",
-      "logs": "Journal d'Audit",
-      "settings": "Configuration Système"
+      "servers": "Gestion Serveurs"
     },
     "overview": {
-      "healthChecks": "Santé du Système",
-      "healthChecksDesc": "Visualisez l'état opérationnel en temps réel des services dépendants.",
-      "dbStatus": "Connexion Base de Données",
-      "pingWorker": "Démon de Ping",
-      "clerkStatus": "Fournisseur d'Auth (Clerk)",
-      "cacheStatus": "Serveur de Cache Redis",
-      "healthy": "Opérationnel",
-      "avgConnected": "Moyenne Connectés",
-      "avgPlayersOnline": "Moyenne Joueurs Connectés",
-      "pingPerformance": "Performance du pingeur API",
-      "serversUptime": "Disponibilité Serveurs",
-      "systemActivity": "Activité du Système",
-      "systemActivityDesc": "Rapport d'activité résumé pour aujourd'hui."
+      "playersOnline": "Joueurs en ligne",
+      "availability": "Disponibilité",
+      "topServers": "Top serveurs",
+      "topServersDesc": "Les serveurs les plus peuplés en ce moment.",
+      "noOnlineServers": "Aucun serveur en ligne pour l'instant.",
+      "distribution": "Parc de serveurs",
+      "distributionDesc": "Répartition actuelle de tous les serveurs enregistrés."
     },
     "usersList": "Liste des Utilisateurs",
     "searchUser": "Rechercher un utilisateur...",
@@ -187,7 +179,6 @@
     "serverIp": "Adresse IP",
     "serverPort": "Port",
     "serverStatus": "Statut",
-    "mockRouteWarning": "Point de terminaison `/admin/servers/:id/toggle` appelé. État mis à jour localement pour test.",
     "statsUsers": "Utilisateurs Totaux",
     "statsServers": "Serveurs Totaux",
     "statsOnline": "Serveurs en Ligne",
@@ -195,13 +186,11 @@
       "visibilitySuccess": "Visibilité mise à jour avec succès pour {{name}}",
       "visibilityChanged": "Visibilité modifiée",
       "visibilityDetails": "{{name}} est désormais {{status}}",
-      "visibilityChangedSimulated": "Visibilité modifiée (Simulée)",
-      "visibilityDetailsSimulated": "{{name}} est désormais {{status}} (simulé)",
-      "rateLimitToggled": "Limitation des requêtes API {{status}}",
-      "rateLimitEnabled": "activée",
-      "rateLimitDisabled": "désactivée",
       "hidden": "masqué",
-      "visible": "visible"
+      "visible": "visible",
+      "successTitle": "Succès",
+      "warningTitle": "Attention",
+      "errorTitle": "Erreur"
     },
     "users": {
       "serversCreatedCount_one": "{{count}} serveur créé",
@@ -261,27 +250,15 @@
       "changeIpSuccess": "L'IP de {{name}} a été modifiée avec succès.",
       "changeIpError": "Erreur lors du changement de l'IP.",
       "saving": "Enregistrement...",
-      "save": "Enregistrer"
+      "save": "Enregistrer",
+      "selectAll": "Tout sélectionner",
+      "selectServer": "Sélectionner {{name}}"
     },
-    "auditLogs": {
-      "title": "Activités Récentes",
-      "serverCreated": "Serveur créé : {{name}} par {{user}}",
-      "serverVisibility": "Visibilité modifiée : {{name}} est désormais {{status}}",
-      "userSignup": "Nouvelle inscription : {{user}}",
-      "dbCleanup": "Nettoyage manuel de la base de données exécuté",
-      "maintenanceEnabled": "Mode maintenance activé par l'administrateur",
-      "maintenanceDisabled": "Mode maintenance désactivé par l'administrateur"
-    },
-    "settings": {
-      "title": "Paramètres Admin",
-      "maintenance": "Mode Maintenance",
-      "maintenanceDesc": "Restreindre l'accès à la plateforme publique pour maintenance.",
-      "rateLimit": "Limitation des Requêtes API",
-      "rateLimitDesc": "Protéger les points de terminaison contre les abus (max 100 req/min).",
-      "cleanup": "Maintenance de la Base",
-      "cleanupDesc": "Supprimer les enregistrements obsolètes de plus de 30 jours.",
-      "runCleanup": "Lancer le Nettoyage"
-    }
+    "statsPlayers": "Joueurs en ligne",
+    "refresh": "Rafraîchir",
+    "updatedAt": "Mis à jour à {{time}}",
+    "close": "Fermer",
+    "openMenu": "Ouvrir le menu"
   },
   "alerts": {
     "title": "Alertes de notification",
