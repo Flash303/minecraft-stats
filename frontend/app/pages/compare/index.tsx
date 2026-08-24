@@ -189,7 +189,7 @@ export default function ServerComparison() {
                     )}
                     
                     {selectedServers.length > 0 && (
-                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">Loading chart...</div>}>
+                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">{t("comparison.loadingData")}</div>}>
                             <MultiServerChart 
                                 data={chartData} 
                                 serverNames={serverNames} 

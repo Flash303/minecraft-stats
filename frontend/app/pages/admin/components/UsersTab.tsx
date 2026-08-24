@@ -81,7 +81,7 @@ export function UsersTab({
                         placeholder={t("admin.searchUser")}
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-850"
+                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-800"
                     />
                 </div>
             </div>
@@ -189,7 +189,7 @@ export function UsersTab({
                                             className={`flex items-center justify-between gap-4 p-3 rounded-xl border transition-all duration-300 ${
                                                 isHidden 
                                                     ? "bg-zinc-100/40 dark:bg-zinc-900/10 border-dashed border-border opacity-70" 
-                                                    : "bg-card border-zinc-200 dark:border-zinc-850 hover:shadow-xs"
+                                                    : "bg-card border-zinc-200 dark:border-zinc-800 hover:shadow-xs"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">

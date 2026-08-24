@@ -38,6 +38,36 @@ import { UpdateFaviconModal } from "./UpdateFaviconModal"
 import { ChangeIpModal } from "./ChangeIpModal"
 import { useServersFilterSort } from "@/core/hooks/useServersFilterSort"
 
+type SortableField = "name" | "creator" | "ip" | "status" | "players"
+
+/** En-tête de colonne triable, accessible au clavier (bouton + aria-sort). */
+function SortableTh({ field, label, sortField, sortDirection, onSort }: {
+    field: SortableField
+    label: string
+    sortField: string
+    sortDirection: "asc" | "desc"
+    onSort: (field: SortableField) => void
+}) {
+    const isSorted = sortField === field
+    return (
+        <th
+            className="p-4 select-none"
+            aria-sort={isSorted ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+        >
+            <button
+                type="button"
+                onClick={() => onSort(field)}
+                className="flex items-center gap-1 cursor-pointer hover:bg-accent transition-colors rounded p-1 -m-1 text-left w-full"
+            >
+                {label}
+                {isSorted && (
+                    sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
+                )}
+            </button>
+        </th>
+    )
+}
+
 export function ServersTab({
     servers,
     users,
@@ -105,7 +135,7 @@ export function ServersTab({
                         placeholder={t("admin.servers.searchPlaceholder")}
                         value={serverSearchQuery}
                         onChange={(e) => setServerSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-855"
+                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-800"
                     />
                 </div>
                 
@@ -135,7 +165,7 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("offline")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "offline" 
-                                ? "bg-rose-500/10 text-rose-650 dark:text-rose-450 border border-rose-500/20" 
+                                ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20" 
                                 : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
@@ -196,61 +226,11 @@ export function ServersTab({
                                     aria-label="Select all"
                                 />
                             </th>
-                            <th 
-                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
-                                onClick={() => handleSort("name")}
-                            >
-                                <div className="flex items-center gap-1">
-                                    {t("admin.servers.tableServer")}
-                                    {sortField === "name" && (
-                                        sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                                    )}
-                                </div>
-                            </th>
-                            <th 
-                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
-                                onClick={() => handleSort("creator")}
-                            >
-                                <div className="flex items-center gap-1">
-                                    {t("admin.servers.creator")}
-                                    {sortField === "creator" && (
-                                        sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                                    )}
-                                </div>
-                            </th>
-                            <th 
-                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
-                                onClick={() => handleSort("ip")}
-                            >
-                                <div className="flex items-center gap-1">
-                                    {t("admin.serverIp")}
-                                    {sortField === "ip" && (
-                                        sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                                    )}
-                                </div>
-                            </th>
-                            <th 
-                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
-                                onClick={() => handleSort("status")}
-                            >
-                                <div className="flex items-center gap-1">
-                                    {t("admin.serverStatus")}
-                                    {sortField === "status" && (
-                                        sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                                    )}
-                                </div>
-                            </th>
-                            <th 
-                                className="p-4 cursor-pointer hover:bg-accent transition-colors select-none"
-                                onClick={() => handleSort("players")}
-                            >
-                                <div className="flex items-center gap-1">
-                                    {t("admin.servers.tablePlayers")}
-                                    {sortField === "players" && (
-                                        sortDirection === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />
-                                    )}
-                                </div>
-                            </th>
+                            <SortableTh field="name" label={t("admin.servers.tableServer")} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                            <SortableTh field="creator" label={t("admin.servers.creator")} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                            <SortableTh field="ip" label={t("admin.serverIp")} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                            <SortableTh field="status" label={t("admin.serverStatus")} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
+                            <SortableTh field="players" label={t("admin.servers.tablePlayers")} sortField={sortField} sortDirection={sortDirection} onSort={handleSort} />
                             <th className="p-4 text-right rounded-tr-xl">{t("admin.servers.actions")}</th>
                         </tr>
                     </thead>
@@ -264,7 +244,7 @@ export function ServersTab({
                                 return (
                                     <tr 
                                         key={server.id} 
-                                        className={`hover:bg-zinc-50/30 dark:hover:bg-zinc-850/20 transition-all ${
+                                        className={`hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20 transition-all ${
                                             isHidden ? "opacity-60 bg-zinc-50/10 dark:bg-zinc-900/10" : ""
                                         }`}
                                     >

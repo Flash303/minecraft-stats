@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react"
+import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
@@ -22,6 +22,14 @@ export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
     const { getLabyInfo, getLunarInfo } = useClientInfo()
     const [copied, setCopied] = useState(false)
+    const copiedTimerRef = useRef<number | null>(null)
+
+    // Nettoie le timer de feedback "copié" au démontage
+    useEffect(() => {
+        return () => {
+            if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
+        }
+    }, [])
 
     const records = server.data || []
 
@@ -38,7 +46,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
         e.preventDefault()
         copyServerIp(server.ip, server.port, server.type).then()
         setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
+        copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000)
     }
 
     return (

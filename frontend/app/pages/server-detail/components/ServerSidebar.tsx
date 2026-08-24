@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Input } from "@/ui/components/input"
 import { Button } from "@/ui/components/button"
 import type { LabyModServer } from "@/core/lib/labymod"
@@ -94,6 +94,15 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         window.open(url, '_blank', 'noopener,noreferrer');
     };
 
+    const switchTimerRef = useRef<number | null>(null);
+
+    // Nettoie le timer de transition au démontage
+    useEffect(() => {
+        return () => {
+            if (switchTimerRef.current !== null) clearTimeout(switchTimerRef.current);
+        };
+    }, []);
+
     const handleSwitch = (manual = false) => {
         if (!canSwitch || isTransitioning) return;
         if (manual) {
@@ -101,7 +110,8 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             setIsAutoSwitching(false); // disable auto switch on manual action
         }
         setIsTransitioning(true);
-        setTimeout(() => {
+        if (switchTimerRef.current !== null) clearTimeout(switchTimerRef.current);
+        switchTimerRef.current = window.setTimeout(() => {
             setActiveSource(prev => prev === 'laby' ? 'lunar' : 'laby');
             setProgress(0); // reset progress
             setIsTransitioning(false);
@@ -143,17 +153,20 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 </h3>
                 {canSwitch && (
                     <div className="flex items-center gap-1 z-10">
-                        <button 
-                            onClick={() => setIsAutoSwitching(!isAutoSwitching)} 
+                        <button
+                            type="button"
+                            onClick={() => setIsAutoSwitching(!isAutoSwitching)}
                             className="p-1 hover:bg-muted/50 rounded-md transition-colors text-muted-foreground mr-1"
                             title={isAutoSwitching ? "Pause auto-switch" : "Play auto-switch"}
+                            aria-label={isAutoSwitching ? "Pause auto-switch" : "Play auto-switch"}
+                            aria-pressed={isAutoSwitching}
                         >
                             {isAutoSwitching ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                         </button>
-                        <button onClick={() => handleSwitch(true)} disabled={isTransitioning} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
+                        <button type="button" onClick={() => handleSwitch(true)} disabled={isTransitioning} aria-label={t("serverDetail.sidebar.labymodInfo")} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleSwitch(true)} disabled={isTransitioning} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
+                        <button type="button" onClick={() => handleSwitch(true)} disabled={isTransitioning} aria-label={t("serverDetail.sidebar.lunarInfo")} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
                             <ChevronRight className="w-4 h-4" />
                         </button>
                     </div>

@@ -1,10 +1,10 @@
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router"
 import type { Server } from "@/core/lib/api"
 import type { LunarServer } from "@/core/lib/lunar"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
-import { ArrowLeft, Wifi, WifiOff, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
+import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -23,7 +23,15 @@ interface ServerDetailHeaderProps {
 
 export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
+    const copiedTimerRef = useRef<number | null>(null)
     const navigate = useNavigate()
+
+    // Nettoie le timer de feedback "copié" au démontage
+    useEffect(() => {
+        return () => {
+            if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
+        }
+    }, [])
 
     const isOnline = server.last_status === "online"
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
@@ -31,7 +39,8 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
     const handleCopy = () => {
         copyServerIp(server.ip, server.port, server.type)
         setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
+        if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
+        copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000)
     }
 
     const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -49,7 +58,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
     return (
         <div className="flex items-center gap-3 min-w-0">
             <Button variant="ghost" size="icon" className="flex-shrink-0" asChild>
-                <a href="/" onClick={handleBackClick}>
+                <a href="/" onClick={handleBackClick} aria-label={t("common.backToHome")}>
                     <ArrowLeft className="h-4 w-4" />
                 </a>
             </Button>
@@ -84,15 +93,17 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             {isOnline ? t("common.online") : t("common.offline")}
                         </div>
                         {server.type && <PlatformBadge type={server.type} />}
-                        <button 
+                        <button
+                            type="button"
                             onClick={handleCopy}
-                            className="flex items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none"
+                            aria-label={`${t("common.copy")} ${displayIp}`}
+                            className="flex items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none focus-visible:text-primary"
                         >
                             <span className="truncate">{displayIp}</span>
                             {copied ? (
                                 <Check className="h-2.5 w-2.5 text-success flex-shrink-0" />
                             ) : (
-                                <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
+                                <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 group-focus-visible/copy:opacity-100 transition-opacity flex-shrink-0" />
                             )}
                         </button>
                         {server.last_version && (

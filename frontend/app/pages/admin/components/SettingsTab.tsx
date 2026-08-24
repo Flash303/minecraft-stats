@@ -43,13 +43,17 @@ export function SettingsTab({
                         </div>
                         
                         {/* Styled Toggle Switch */}
-                        <button 
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={maintenanceMode}
+                            aria-label={t("admin.settings.maintenance")}
                             onClick={handleToggleMaintenance}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer ${
                                 maintenanceMode ? "bg-amber-500" : "bg-muted"
                             }`}
                         >
-                            <span 
+                            <span
                                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                                     maintenanceMode ? "translate-x-6" : "translate-x-1"
                                 }`}
@@ -71,9 +75,13 @@ export function SettingsTab({
                             <CardDescription>{t("admin.settings.rateLimitDesc")}</CardDescription>
                         </div>
                         
-                        <button 
+                        <button
+                            type="button"
+                            role="switch"
+                            aria-checked={rateLimiting}
+                            aria-label={t("admin.settings.rateLimit")}
                             onClick={handleToggleRateLimit}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer ${
                                 rateLimiting ? "bg-primary" : "bg-muted"
                             }`}
                         >
