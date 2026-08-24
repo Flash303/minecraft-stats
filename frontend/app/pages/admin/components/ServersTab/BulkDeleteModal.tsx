@@ -59,11 +59,11 @@ export function BulkDeleteModal({ selectedIds, onSuccess, triggerToast, onClear,
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{t("admin.servers.deleteBulkTitle", { count: selectedIds.length.toString() })}</DialogTitle>
-                    <DialogDescription dangerouslySetInnerHTML={{ __html: t("admin.servers.deleteBulkDesc", { count: selectedIds.length.toString() }) }} />
+                    <DialogDescription>{t("admin.servers.deleteBulkDesc", { count: selectedIds.length.toString() })}</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="bulk-confirm" dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirmBulk") }} />
+                        <Label htmlFor="bulk-confirm">{t("admin.servers.typeConfirmBulk")}</Label>
                         <Input
                             id="bulk-confirm"
                             value={confirmText}

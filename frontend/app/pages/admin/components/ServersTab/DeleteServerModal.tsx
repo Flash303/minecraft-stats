@@ -65,11 +65,11 @@ export function DeleteServerModal({ server, onSuccess, triggerToast, t }: { serv
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{t("admin.servers.deleteTitle")}</DialogTitle>
-                    <DialogDescription dangerouslySetInnerHTML={{ __html: t("admin.servers.deleteDesc", { name: server.name }) }} />
+                    <DialogDescription>{t("admin.servers.deleteDesc", { name: server.name })}</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor={`confirm-${server.id}`} dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirm") }} />
+                        <Label htmlFor={`confirm-${server.id}`}>{t("admin.servers.typeConfirm")}</Label>
                         <Input
                             id={`confirm-${server.id}`}
                             value={confirmText}

@@ -161,7 +161,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                     )}
 
                     <div className="grid gap-2">
-                        <Label htmlFor={`confirm-${server.id}`} dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirm") }} />
+                        <Label htmlFor={`confirm-${server.id}`}>{t("admin.servers.typeConfirm")}</Label>
                         <Input
                             id={`confirm-${server.id}`}
                             value={confirmText}

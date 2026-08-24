@@ -155,7 +155,8 @@ export default function ServerDetail() {
             image: `https://mc-stats.fr/api/favicon/${server.id}`
         }
 
-        script.innerHTML = JSON.stringify(schema)
+        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+        script.textContent = JSON.stringify(schema).replace(/</g, "\\u003c")
         document.head.appendChild(script)
 
         return () => {

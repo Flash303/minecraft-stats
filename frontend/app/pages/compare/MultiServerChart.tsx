@@ -8,6 +8,7 @@ import { BarChart3 } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
 import { useChartResize, useTouchInteractPlugin, useTooltipPlugin } from "@/core/hooks/useChartPlugins"
+import { escapeHtml } from "@/core/lib/utils"
 interface MultiServerChartProps {
     data: uPlot.AlignedData
     serverNames: string[]
@@ -59,7 +60,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         <div class="flex items-center justify-between gap-4 py-0.5">
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
-                                <span class="text-zinc-300 font-medium">${name}</span>
+                                <span class="text-zinc-300 font-medium">${escapeHtml(name)}</span>
                             </div>
                             <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
                         </div>
