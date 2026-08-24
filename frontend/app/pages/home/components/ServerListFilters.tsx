@@ -498,10 +498,10 @@ export function ServerListFilters({
                             </button>
                         </DrawerTrigger>
                         <DrawerContent>
-                            <VisuallyHidden>
+                            <VisuallyHidden.Root>
                                 <DrawerTitle>Filtres de serveurs</DrawerTitle>
                                 <DrawerDescription>Affinez la liste des serveurs affichés.</DrawerDescription>
-                            </VisuallyHidden>
+                            </VisuallyHidden.Root>
                             {FilterContent()}
                         </DrawerContent>
                     </Drawer>
