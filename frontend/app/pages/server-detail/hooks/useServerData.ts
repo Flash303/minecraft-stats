@@ -56,6 +56,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const backgroundUrl = labyBackground || lunarBackground
 
     useEffect(() => {
+        let cancelled = false
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLabyServerInfo(undefined)
         setLabyManifest(undefined)
@@ -63,23 +64,28 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
 
         if (server?.ip) {
             getLabyModServerInfo(server.ip).then((info) => {
-                if (info) {
-                    setLabyServerInfo(info)
-                    const manifestAttachment = info.attachments?.find((a) => a.file_name === 'manifest.json')
-                    if (manifestAttachment) {
-                        const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
-                        fetch(proxyUrl)
-                            .then(res => res.json())
-                            .then(data => setLabyManifest(data))
-                            .catch(console.error)
-                    }
+                if (cancelled || !info) return
+                setLabyServerInfo(info)
+                const manifestAttachment = info.attachments?.find((a) => a.file_name === 'manifest.json')
+                if (manifestAttachment) {
+                    const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
+                    fetch(proxyUrl)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!cancelled) setLabyManifest(data)
+                        })
+                        .catch(console.error)
                 }
-            })
+            }).catch(() => {})
             getLunarServerInfo(server.ip).then((info) => {
-                if (info) {
+                if (!cancelled && info) {
                     setLunarServerInfo(info)
                 }
-            })
+            }).catch(() => {})
+        }
+
+        return () => {
+            cancelled = true
         }
     }, [server?.ip])
 
@@ -93,6 +99,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     }, [id, initialServer, initialRecords, initialFrom])
 
     const isChartZoomed = useRef(false)
+    const fetchGenerationRef = useRef(0)
 
     useEffect(() => {
         if (!id) return
@@ -112,6 +119,12 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
 
         const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
         if (!paramsChanged) return
+
+        // Garde anti-stale : seule la dernière exécution qui fetch réellement
+        // peut écrire dans l'état. L'incrément est APRÈS l'early-return ci-dessus
+        // pour ne pas invalider les requêtes en vol (ex: double invocation StrictMode).
+        const generation = ++fetchGenerationRef.current
+        const isStale = () => generation !== fetchGenerationRef.current
 
         const prevParams = lastFetchParams.current
         lastFetchParams.current = currentParams
@@ -138,10 +151,12 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                 try {
                     const token = isLoaded && isSignedIn ? await getToken() : undefined
                     const data = await fetchServer(Number(id), token ?? undefined)
+                    if (isStale()) return
                     if (data) setServer(data)
-                } catch {
+                } catch (error: any) {
+                    if (error?.message === "RATE_LIMIT") setIsRateLimited(true)
                 } finally {
-                    if (!isBackground && !server) setLoading(false)
+                    if (!isBackground && !server && !isStale()) setLoading(false)
                 }
             }
             fetchSrv()
@@ -153,6 +168,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                 try {
                     const token = isLoaded && isSignedIn ? await getToken() : undefined
                     const data = await fetchRecords(Number(id), from, undefined, token ?? undefined)
+                    if (isStale()) return
 
                     if (isBackground && isChartZoomed.current) {
                         return
@@ -243,10 +259,14 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     }, [rawRecords, selectedRange, selectedInterval, customRange])
 
     useEffect(() => {
+        // Dédoublonnage : visibilitychange et focus peuvent être déclenchés quasi simultanément
+        let lastRefreshAt = 0
         const handleVisibilityChange = () => {
-            if (document.visibilityState === "visible" && !isChartZoomed.current) {
-                setRefreshCount((c) => c + 1)
-            }
+            if (document.visibilityState !== "visible" || isChartZoomed.current) return
+            const now = Date.now()
+            if (now - lastRefreshAt < 1000) return
+            lastRefreshAt = now
+            setRefreshCount((c) => c + 1)
         }
         window.addEventListener("visibilitychange", handleVisibilityChange)
         window.addEventListener("focus", handleVisibilityChange)

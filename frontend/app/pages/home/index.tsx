@@ -172,12 +172,12 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                 setServers(data)
                 serversCache = data // Mettre à jour le cache
             }
-        } catch {
-            // Keep existing servers on client fetch failure
+        } catch (err) {
+            console.error("Failed to load servers:", err)
+            setError(t("serverList.error"))
         } finally {
             if (!background) setLoading(false)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [getToken, isSignedIn, isLoaded, t])
 
     const handleRefresh = useCallback(async () => {
@@ -186,16 +186,17 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchServers(token ?? undefined, true)
-            if (data) {
+            if (data && data.length > 0) {
                 setServers(data)
                 serversCache = data // Mettre à jour le cache
             }
         } catch (err) {
             console.error("Failed to refresh servers:", err)
+            setError(t("serverList.error"))
         } finally {
             setRefreshing(false)
         }
-    }, [getToken, isSignedIn, isLoaded])
+    }, [getToken, isSignedIn, isLoaded, t])
 
     useEffect(() => {
         if (!isLoaded || isDeferredLoading) return

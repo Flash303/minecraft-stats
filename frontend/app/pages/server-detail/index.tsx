@@ -2,6 +2,7 @@ import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
+import { APP_URL } from "@/core/lib/config"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -107,14 +108,14 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { property: "og:description", content: description },
         {
             property: "og:image",
-            content: `https://mc-stats.fr/api/favicon/${server.id}`
+            content: `${APP_URL}/api/favicon/${server.id}`
         },
         { property: "twitter:card", content: "summary_large_image" },
         { property: "twitter:title", content: title },
         { property: "twitter:description", content: description },
         {
             property: "twitter:image",
-            content: `https://mc-stats.fr/api/favicon/${server.id}`
+            content: `${APP_URL}/api/favicon/${server.id}`
         }
     ]
 }
@@ -152,7 +153,7 @@ export default function ServerDetail() {
             applicationCategory: "GameApplication",
             operatingSystem: server.type === "java" ? "Java" : "Bedrock",
             url: window.location.href,
-            image: `https://mc-stats.fr/api/favicon/${server.id}`
+            image: `${APP_URL}/api/favicon/${server.id}`
         }
 
         // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")

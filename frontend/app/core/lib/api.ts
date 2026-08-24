@@ -82,24 +82,18 @@ export function normalizeServerData(server: any): Server {
 }
 
 export async function fetchServers(token?: string, includeStats?: boolean, forwardedFor?: string | null): Promise<Server[]> {
-    try {
-        const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
-        const res = await fetch(url, {
-            headers: getHeaders(token, forwardedFor)
-        })
-        if (res.status === 429) throw new Error('RATE_LIMIT')
-        if (!res.ok) return []
-        const json = await res.json()
-        if (!json.success || !json.data) return []
-        
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const servers = json.data as any[]
-        return servers.map(normalizeServerData)
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
-        console.error("Failed to fetch servers:", error)
-        return []
-    }
+    const url = includeStats ? `${API_BASE}/servers?include_stats=true` : `${API_BASE}/servers`
+    const res = await fetch(url, {
+        headers: getHeaders(token, forwardedFor)
+    })
+    if (res.status === 429) throw new Error('RATE_LIMIT')
+    if (!res.ok) throw new Error(`Failed to fetch servers: ${res.status}`)
+    const json = await res.json()
+    if (!json.success || !json.data) return []
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const servers = json.data as any[]
+    return servers.map(normalizeServerData)
 }
 
 export async function fetchMyServers(token: string, includeStats?: boolean): Promise<Server[]> {

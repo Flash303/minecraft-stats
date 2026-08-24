@@ -2,7 +2,7 @@ import { useMemo, useEffect, useRef } from 'react';
 import uPlot from 'uplot';
 import { formatTooltipDateTime } from '@/core/lib/chartUtils';
 
-export function useChartResize(chartRef: React.MutableRefObject<uPlot | null>, containerRef: React.MutableRefObject<HTMLDivElement | null>, dataDeps: any[]) {
+export function useChartResize(chartRef: React.MutableRefObject<uPlot | null>, containerRef: React.MutableRefObject<HTMLDivElement | null>, dataDeps: unknown[]) {
     useEffect(() => {
         const handleResize = () => {
             if (chartRef.current && containerRef.current) {
@@ -122,77 +122,106 @@ interface TooltipPluginOptions {
     t: (key: string) => string;
     renderRowsHtml: (u: uPlot, idx: number, locale: string) => string;
     tooltipWidth?: number;
-    deps?: any[];
+    deps?: unknown[];
 }
 
 export function useTooltipPlugin({ language, t, renderRowsHtml, tooltipWidth = 160, deps = [] }: TooltipPluginOptions) {
     const tooltipRef = useRef<HTMLDivElement | null>(null);
 
     return useMemo<uPlot.Plugin>(() => {
+        let overlay: HTMLDivElement | null = null;
+        let lastRenderedIdx: number | null = null;
+        let pendingFrame = 0;
+        let latestU: uPlot | null = null;
+
+        const hideOverlay = () => {
+            lastRenderedIdx = null;
+            if (overlay && overlay.style.display !== "none") overlay.style.display = "none";
+        };
+
+        // Traitement coalescé à une frame d'affichage : les événements curseur
+        // peuvent arriver à plusieurs centaines de Hz ; sans cela, chaque appel
+        // provoquerait des reflows (lectures de layout) synchrones.
+        const applyCursor = () => {
+            pendingFrame = 0;
+            const u = latestU;
+            if (!u || !overlay) return;
+
+            const idx = u.cursor.idx;
+            if (idx == null || idx < 0) return hideOverlay();
+
+            const xVal = u.data[0]?.[idx];
+            if (xVal == null) return hideOverlay();
+
+            // Perf : reconstruit le HTML seulement quand le point survolé change ;
+            // les micro-mouvements dans le même point ne font que replacer l'infobulle.
+            if (lastRenderedIdx !== idx) {
+                const locale = language === "fr" ? "fr-FR" : "en-US";
+                const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"));
+
+                const rowsHtml = renderRowsHtml(u, idx, locale);
+                if (!rowsHtml) return hideOverlay();
+
+                overlay.innerHTML = `
+                    <div class="border-b border-white/10 pb-1.5 mb-1.5 text-zinc-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
+                    <div class="space-y-1">${rowsHtml}</div>
+                `;
+                lastRenderedIdx = idx;
+            }
+
+            const left = u.cursor.left ?? 0;
+            const top = u.cursor.top ?? 0;
+            const rect = u.over.getBoundingClientRect();
+
+            let tooltipLeft = rect.left + left + 15;
+            const actualTooltipWidth = overlay.offsetWidth || tooltipWidth;
+
+            if (tooltipLeft + actualTooltipWidth > window.innerWidth - 10) {
+                tooltipLeft = rect.left + left - actualTooltipWidth - 15;
+            }
+            if (tooltipLeft < 10) {
+                tooltipLeft = 10;
+            }
+
+            overlay.style.left = `${tooltipLeft}px`;
+            overlay.style.top = `${rect.top + top - 15}px`;
+            overlay.style.display = "block";
+        };
+
         return {
             hooks: {
                 init: (u: uPlot) => {
-                    const overlay = document.createElement("div");
-                    overlay.className = `pointer-events-none absolute z-50 rounded-xl border border-zinc-800 bg-zinc-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[${tooltipWidth}px] transition-opacity duration-150`;
-                    overlay.style.display = "none";
-                    overlay.style.position = "fixed";
-                    u.over.appendChild(overlay);
-                    tooltipRef.current = overlay;
+                    const el = document.createElement("div");
+                    el.className = `pointer-events-none absolute z-50 rounded-xl border border-zinc-800 bg-zinc-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[${tooltipWidth}px] transition-opacity duration-150`;
+                    el.style.display = "none";
+                    el.style.position = "fixed";
+                    u.over.appendChild(el);
+                    overlay = el;
+                    tooltipRef.current = el;
+                },
+                // Nouvelles données -> le contenu doit être reconstruit au prochain survol
+                setData: () => {
+                    lastRenderedIdx = null;
                 },
                 setCursor: (u: uPlot) => {
-                    const overlay = tooltipRef.current;
-                    if (!overlay) return;
-
-                    const idx = u.cursor.idx;
-                    if (idx == null || idx < 0) {
-                        overlay.style.display = "none";
-                        return;
+                    latestU = u;
+                    if (!pendingFrame) {
+                        pendingFrame = requestAnimationFrame(applyCursor);
                     }
-
-                    const xVal = u.data[0][idx];
-                    if (xVal == null) {
-                        overlay.style.display = "none";
-                        return;
-                    }
-
-                    const locale = language === "fr" ? "fr-FR" : "en-US";
-                    const dateTimeStr = formatTooltipDateTime(xVal, language, locale, t("common.time"));
-                    
-                    const rowsHtml = renderRowsHtml(u, idx, locale);
-                    if (!rowsHtml) {
-                        overlay.style.display = "none";
-                        return;
-                    }
-
-                    overlay.innerHTML = `
-                        <div class="border-b border-white/10 pb-1.5 mb-1.5 text-zinc-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
-                        <div class="space-y-1">${rowsHtml}</div>
-                    `;
-
-                    const left = u.cursor.left ?? 0;
-                    const top = u.cursor.top ?? 0;
-                    const rect = u.over.getBoundingClientRect();
-
-                    let tooltipLeft = rect.left + left + 15;
-                    const actualTooltipWidth = overlay.offsetWidth || tooltipWidth;
-                    
-                    if (tooltipLeft + actualTooltipWidth > window.innerWidth - 10) {
-                        tooltipLeft = rect.left + left - actualTooltipWidth - 15;
-                    }
-                    if (tooltipLeft < 10) {
-                        tooltipLeft = 10;
-                    }
-
-                    overlay.style.left = `${tooltipLeft}px`;
-                    overlay.style.top = `${rect.top + top - 15}px`;
-                    overlay.style.display = "block";
                 },
                 destroy: () => {
-                    tooltipRef.current?.remove();
+                    if (pendingFrame) {
+                        cancelAnimationFrame(pendingFrame);
+                        pendingFrame = 0;
+                    }
+                    latestU = null;
+                    lastRenderedIdx = null;
+                    overlay?.remove();
+                    overlay = null;
                     tooltipRef.current = null;
                 }
             }
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
     }, [language, t, ...deps]);
 }

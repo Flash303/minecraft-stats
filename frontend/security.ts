@@ -8,14 +8,16 @@
 export const SECURITY_HEADERS: Record<string, string> = {
     "Content-Security-Policy": [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline'",
+        // Clerk charge clerk-js depuis son FAPI (*.clerk.accounts.dev en test,
+        // *.clerk.com / clerk.mc-stats.fr en production)
+        "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.mc-stats.fr",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https:",
         "media-src 'self' https:",
         "connect-src 'self' https: wss:",
-        "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
-        "worker-src 'self' blob:",
+        "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://*.clerk.accounts.dev https://*.clerk.com",
+        "worker-src 'self' blob: https://*.clerk.accounts.dev https://*.clerk.com",
         "manifest-src 'self'",
         "object-src 'none'",
         "base-uri 'self'",
