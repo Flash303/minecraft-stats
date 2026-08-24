@@ -35,6 +35,7 @@ WORKDIR /app
 COPY --from=builder /app/frontend/node_modules ./node_modules
 COPY --from=builder /app/frontend/build ./build
 COPY --from=builder /app/frontend/server.ts ./
+COPY --from=builder /app/frontend/security.ts ./
 COPY --from=builder /app/frontend/package.json ./
 
 ENV NODE_ENV=production

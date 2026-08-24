@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react"
+import { useMemo, useRef } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
@@ -7,7 +7,15 @@ import { Button } from "@/ui/components/button"
 import { BarChart3 } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
-import { useChartResize, useTouchInteractPlugin, useTooltipPlugin } from "@/core/hooks/useChartPlugins"
+import {
+    useChartResize,
+    useTouchInteractPlugin,
+    useTooltipPlugin,
+    useChartZoomControls,
+    makeXScaleRange,
+    sizeChartToContainer,
+} from "@/core/hooks/useChartPlugins"
+import { escapeHtml } from "@/core/lib/utils"
 interface MultiServerChartProps {
     data: uPlot.AlignedData
     serverNames: string[]
@@ -36,12 +44,15 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
-    const [isZoomed, setIsZoomed] = useState(false)
-    const timeRangeRef = useRef(timeRange)
-    // eslint-disable-next-line react-hooks/refs
-    timeRangeRef.current = timeRange
 
     useChartResize(chartRef, containerRef, [data])
+
+    const { isZoomed, scaleHookPlugin, resetZoom: handleResetZoom } = useChartZoomControls({
+        chartRef,
+        timeRange,
+        zoomResetId,
+        onZoomChange,
+    })
 
     const tooltipPlugin = useTooltipPlugin({
         language,
@@ -59,7 +70,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         <div class="flex items-center justify-between gap-4 py-0.5">
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
-                                <span class="text-zinc-300 font-medium">${name}</span>
+                                <span class="text-zinc-300 font-medium">${escapeHtml(name)}</span>
                             </div>
                             <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
                         </div>
@@ -71,50 +82,6 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     })
 
     const touchInteractPlugin = useTouchInteractPlugin()
-
-    const scaleHookPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                setScale: (u: uPlot, key: string) => {
-                    if (key === 'x' && u.scales.x.min != null && u.scales.x.max != null) {
-                        const tr = timeRangeRef.current;
-                        if (Math.abs(u.scales.x.min - tr.from) > 1 || Math.abs(u.scales.x.max - tr.to) > 1) {
-                            setIsZoomed(true);
-                        } else {
-                            setIsZoomed(false);
-                        }
-                    }
-                }
-            }
-        }
-    }, [])
-
-    const handleResetZoom = () => {
-        if (chartRef.current) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-            chartRef.current.setScale("y", {
-                min: undefined as unknown as number,
-                max: undefined as unknown as number
-            })
-        }
-    }
-
-    useEffect(() => {
-        onZoomChange?.(isZoomed)
-    }, [isZoomed, onZoomChange])
-
-    useEffect(() => {
-        if (chartRef.current && !isZoomed) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-        }
-    }, [timeRange.from, timeRange.to, isZoomed])
-
-    useEffect(() => {
-        if (chartRef.current) {
-            chartRef.current.setScale("x", { min: timeRange.from, max: timeRange.to })
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zoomResetId])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"
@@ -166,24 +133,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                     auto: false,
                     min: timeRange.from,
                     max: timeRange.to,
-                    range: (u: uPlot, min: number, max: number) => {
-                        const xData = u.data[0]
-                        if (!xData || xData.length === 0) return [min, max]
-
-                        let pointsCount = 0
-                        for (let i = 0; i < xData.length; i++) {
-                            if (xData[i] >= min && xData[i] <= max) {
-                                pointsCount++
-                            }
-                            if (xData[i] > max) break
-                        }
-
-                        if (pointsCount < 2 && u.scales.x && u.scales.x.min != null) {
-                            return [u.scales.x.min, u.scales.x.max]
-                        }
-
-                        return [min, max]
-                    }
+                    range: makeXScaleRange()
                 },
                 y: { auto: true }
             },
@@ -242,13 +192,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                             onCreate={(chart) => {
                                 chartRef.current = chart
                                 // Force resize to container width after creation
-                                if (containerRef.current) {
-                                    const height = window.innerWidth < 640 ? 300 : 450
-                                    chart.setSize({
-                                        width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                                        height: height
-                                    })
-                                }
+                                sizeChartToContainer(chart, containerRef.current)
                             }}
                         />
                     </div>

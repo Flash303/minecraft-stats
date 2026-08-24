@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use minecraft_pinger::MinecraftPinger;
+use reqwest::Client;
 use repository::repository::Repository;
 
 use crate::utils::cache::TtlCache;
@@ -9,6 +10,8 @@ use crate::services::clerk::model::ClerkUser;
 pub struct AppState {
     pub repository: Arc<dyn Repository>,
     pub pinger: Arc<MinecraftPinger>,
+    
+    pub http_client: Client,
 
     pub jwks: Arc<serde_json::Value>,
     pub clerk_instance_url: Arc<String>,

@@ -54,6 +54,8 @@ export function LanguageProvider({ children, serverLanguage }: { children: React
         if (!mounted) return
         localStorage.setItem("language", language)
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
+        // Synchronise l'attribut lang pour l'accessibilité et le SEO
+        document.documentElement.lang = language
     }, [language, mounted])
 
     const t = (path: TranslationKey, replacements?: Record<string, string>) => {

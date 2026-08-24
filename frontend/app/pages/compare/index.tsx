@@ -20,6 +20,8 @@ export default function ServerComparison() {
     const [recordsMap, setRecordsMap] = useState<{ [serverId: number]: { date: number; value: number }[] }>({})
     const [loadingRecords, setLoadingRecords] = useState(false)
     const fetchedServersRef = useRef<Set<number>>(new Set())
+    const recordsGenerationRef = useRef(0)
+    const lastBackgroundRefreshRef = useRef(0)
 
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -28,11 +30,14 @@ export default function ServerComparison() {
     const [selectedInterval, setSelectedInterval] = useState(60000)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
     const [timeRangeProps, setTimeRangeProps] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
- 
+
     const fetchServerRecords = useCallback(async (server: Server, from: number) => {
+        // Garde anti-stale : ignore les réponses d'une génération dépassée
+        const generation = recordsGenerationRef.current
         try {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
+            if (generation !== recordsGenerationRef.current) return
             setRecordsMap(prev => ({ ...prev, [server.id]: data }))
             fetchedServersRef.current.add(server.id)
         } catch (err) {
@@ -77,6 +82,10 @@ export default function ServerComparison() {
             const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
             if (paramsChanged) {
                 fetchedServersRef.current.clear()
+                // Invalide les réponses en vol d'une génération précédente.
+                // Seulement si les params changent, pour ne pas jeter les
+                // requêtes en cours (ex: double invocation StrictMode).
+                recordsGenerationRef.current++
             }
 
             setTimeRangeProps({ from, to: now })
@@ -103,9 +112,12 @@ export default function ServerComparison() {
         }
 
         const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible' && selectedServers.length > 0 && !isChartZoomed.current) {
-                refreshAll(true)
-            }
+            if (document.visibilityState !== 'visible' || selectedServers.length === 0 || isChartZoomed.current) return
+            // Dédoublonnage : visibilitychange et focus peuvent être déclenchés quasi simultanément
+            const now = Date.now()
+            if (now - lastBackgroundRefreshRef.current < 1000) return
+            lastBackgroundRefreshRef.current = now
+            refreshAll(true)
         }
         window.addEventListener('visibilitychange', handleVisibilityChange)
         window.addEventListener('focus', handleVisibilityChange)
@@ -177,7 +189,7 @@ export default function ServerComparison() {
                     )}
                     
                     {selectedServers.length > 0 && (
-                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">Loading chart...</div>}>
+                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">{t("comparison.loadingData")}</div>}>
                             <MultiServerChart 
                                 data={chartData} 
                                 serverNames={serverNames} 

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react"
-import { ArrowDown, Server, Wifi, Users } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { ArrowDown } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { useTheme } from "@/core/contexts/ThemeContext"
 import type { Server as ServerType } from "@/core/lib/api"
 
 // Predefined heights for the graph nodes (representing server player count stats)
@@ -26,6 +27,11 @@ const points = defaultYValues.map((y, idx) => {
 function useAnimatedCount(target: number, duration = 1200) {
     const [count, setCount] = useState(0)
     useEffect(() => {
+        // prefers-reduced-motion : pas d'animation, valeur finale directe
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            setCount(target)
+            return
+        }
         if (target === 0) { setCount(0); return }
         let start = 0
         const step = target / (duration / 16)
@@ -45,17 +51,23 @@ function useAnimatedCount(target: number, duration = 1200) {
 
 export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     const { t } = useLanguage()
+    const { theme } = useTheme()
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
     const hoveredPointRef = useRef<number | null>(null)
     const isVisibleRef = useRef<boolean>(true)
 
-    // Compute stats from server list
-    const totalServers = servers.filter(s => s.hidden !== true).length
-    const onlineServers = servers.filter(s => s.last_status === "online" && s.hidden !== true).length
-    const totalPlayers = servers
-        .filter(s => s.last_status === "online" && s.hidden !== true)
-        .reduce((sum, s) => sum + (s.last_connected ?? 0), 0)
+    // Mémoïsé : les compteurs animés provoquent ~60 re-renders/s pendant l'intro,
+    // il ne faut pas re-filtrer/réduire la liste à chaque frame.
+    const { totalServers, onlineServers, totalPlayers } = useMemo(() => {
+        const visible = servers.filter(s => s.hidden !== true)
+        const online = visible.filter(s => s.last_status === "online")
+        return {
+            totalServers: visible.length,
+            onlineServers: online.length,
+            totalPlayers: online.reduce((sum, s) => sum + (s.last_connected ?? 0), 0),
+        }
+    }, [servers])
 
     const animatedTotal = useAnimatedCount(totalServers)
     const animatedOnline = useAnimatedCount(onlineServers)
@@ -87,20 +99,6 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
         hoveredPointRef.current = null
     }
 
-    // Pause animation when off-screen
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                isVisibleRef.current = entry.isIntersecting
-            },
-            { threshold: 0 }
-        )
-        if (containerRef.current) {
-            observer.observe(containerRef.current)
-        }
-        return () => observer.disconnect()
-    }, [])
-
     useEffect(() => {
         const canvas = canvasRef.current
         if (!canvas) return
@@ -111,9 +109,19 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
         const dpr = window.devicePixelRatio || 1
         canvas.width = canvasWidth * dpr
         canvas.height = canvasHeight * dpr
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
         ctx.scale(dpr, dpr)
 
         let animationFrameId: number
+        let running = false
+
+        // Relance la boucle si elle s'est arrêtée (hero hors écran)
+        const startLoop = () => {
+            if (!running) {
+                running = true
+                animationFrameId = requestAnimationFrame(render)
+            }
+        }
         
         // Animation states
         let globalProgress = 0.0 // Goes from 0.0 to 1.15 to allow last point's elastic bounce to finish
@@ -155,13 +163,15 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
         const render = () => {
             if (!isVisibleRef.current) {
-                animationFrameId = requestAnimationFrame(render)
+                // Hors écran : on arrête la boucle ; l'IntersectionObserver
+                // relancera le rendu quand le hero redeviendra visible.
+                running = false
                 return
             }
 
             ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 
-            const isDark = document.documentElement.classList.contains("dark")
+            const isDark = theme === "dark"
             
             // Grid and label colors
             const gridColor = isDark ? "rgba(39, 39, 42, 0.5)" : "rgba(228, 228, 231, 0.6)"
@@ -356,12 +366,26 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             animationFrameId = requestAnimationFrame(render)
         }
 
-        render()
+        // Pause/reprend l'animation selon la visibilité du hero
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                isVisibleRef.current = entry.isIntersecting
+                if (entry.isIntersecting) startLoop()
+            },
+            { threshold: 0 }
+        )
+        if (containerRef.current) {
+            observer.observe(containerRef.current)
+        }
+
+        startLoop()
 
         return () => {
+            observer.disconnect()
             cancelAnimationFrame(animationFrameId)
+            running = false
         }
-    }, [])
+    }, [theme])
 
     const handleScrollDown = () => {
         const target = document.getElementById("server-list-section")
@@ -439,9 +463,6 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                                 </div>
                                 <span className="text-foreground font-bold text-xs tracking-wide">Live</span>
                             </div>
-                            <p className="text-[10px] text-muted-foreground font-medium mt-0.5">
-                                Mis à jour / 10s
-                            </p>
                         </div>
                     </div>
 

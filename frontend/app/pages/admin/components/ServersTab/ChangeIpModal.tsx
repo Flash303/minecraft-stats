@@ -3,7 +3,7 @@ import type { Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
 import { Input } from "@/ui/components/input"
 import { Label } from "@/ui/components/label"
-import { Edit2, RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { useAuth } from "@clerk/react"
 import { updateServerIp, pingServerIp } from "@/core/lib/api"
 import {
@@ -13,20 +13,37 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/ui/components/dialog"
 import { MinecraftMotd } from "@/ui/motd"
 
-export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: Server, onSuccess: () => void, triggerToast?: (type: "success" | "warning" | "error", text: string) => void, t: (key: string, options?: Record<string, string>) => string }) {
+interface ChangeIpModalProps {
+    server: Server
+    onSuccess: () => void
+    triggerToast?: (type: "success" | "warning" | "error", text: string) => void
+    t: (key: string, options?: Record<string, string>) => string
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}
+
+export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpenChange }: ChangeIpModalProps) {
     const { getToken } = useAuth()
-    const [open, setOpen] = useState(false)
     const [confirmText, setConfirmText] = useState("")
     const [ip, setIp] = useState(server.ip)
     const [port, setPort] = useState(server.port.toString())
-    
+
     const [loadingPing, setLoadingPing] = useState(false)
     const [pingResult, setPingResult] = useState<{ is_reachable: boolean, motd?: any, version?: string, favicon?: string, current_players?: number, max_players?: number } | null>(null)
     const [loading, setLoading] = useState(false)
+
+    const handleOpenChange = (v: boolean) => {
+        if (!v) {
+            setConfirmText("")
+            setPingResult(null)
+            setIp(server.ip)
+            setPort(server.port.toString())
+        }
+        onOpenChange(v)
+    }
 
     const handlePing = async () => {
         if (!ip || !port) return
@@ -60,7 +77,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
             if (token) {
                 const res = await updateServerIp(server.id, ip, parseInt(port), token)
                 if (res.success) {
-                    setOpen(false)
+                    handleOpenChange(false)
                     onSuccess()
                     if (triggerToast) {
                         triggerToast("success", t("admin.servers.changeIpSuccess", { name: server.name }))
@@ -80,21 +97,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
     }
 
     return (
-        <Dialog open={open} onOpenChange={(v) => {
-            if (!v) {
-                setConfirmText("")
-                setPingResult(null)
-                setIp(server.ip)
-                setPort(server.port.toString())
-            }
-            setOpen(v)
-        }}>
-            <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1">
-                    <Edit2 className="h-3 w-3" />
-                    {t("admin.servers.changeIp")}
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                     <DialogTitle>{t("admin.servers.changeIpTitle")}</DialogTitle>
@@ -161,7 +164,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                     )}
 
                     <div className="grid gap-2">
-                        <Label htmlFor={`confirm-${server.id}`} dangerouslySetInnerHTML={{ __html: t("admin.servers.typeConfirm") }} />
+                        <Label htmlFor={`confirm-${server.id}`}>{t("admin.servers.typeConfirm")}</Label>
                         <Input
                             id={`confirm-${server.id}`}
                             value={confirmText}
@@ -171,7 +174,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t }: { server: 
                         />
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t("common.cancel")}</Button>
+                        <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>{t("common.cancel")}</Button>
                         <Button type="submit" disabled={loading || confirmText !== t("admin.servers.confirmText")}>
                             {loading ? t("admin.servers.saving") : t("admin.servers.save")}
                         </Button>

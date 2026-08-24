@@ -21,6 +21,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
+use reqwest::Client;
 use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 use repository::postgres::PostgresRepository;
@@ -101,6 +102,8 @@ async fn main() {
     let state = AppState {
         repository: Arc::new(repository),
         pinger: Arc::new(pinger),
+
+        http_client: Client::new(),
 
         jwks: Arc::new(keys),
         clerk_instance_url: Arc::new(clerk_instance),

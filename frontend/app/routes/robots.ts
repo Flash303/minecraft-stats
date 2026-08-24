@@ -1,11 +1,14 @@
+import { APP_URL } from "@/core/lib/config";
+
 export async function loader() {
     const robotsContent = `User-agent: *
 Allow: /
 
 Disallow: /admin
+Disallow: /dashboard
 Disallow: /account
 
-Sitemap: https://mc-stats.fr/sitemap.xml
+Sitemap: ${APP_URL}/sitemap.xml
 `;
 
     return new Response(robotsContent, {

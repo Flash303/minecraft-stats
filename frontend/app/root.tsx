@@ -18,6 +18,7 @@ import { ClientInfoProvider } from "./core/contexts/ClientInfoContext";
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./ui/components/global-loading";
+import { APP_URL } from "./core/lib/config";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -46,21 +47,23 @@ export function meta() {
     { property: "og:site_name", content: "Minecraft-Stats" },
     { property: "og:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
     { property: "og:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
-    { property: "og:image", content: "https://mc-stats.fr/opengraph.webp" },
+    { property: "og:image", content: `${APP_URL}/opengraph.webp` },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
-    { property: "og:url", content: "https://mc-stats.fr" },
-    { property: "og:logo", content: "https://mc-stats.fr/logo.webp" },
+    { property: "og:url", content: APP_URL },
+    { property: "og:logo", content: `${APP_URL}/logo.webp` },
     { property: "twitter:card", content: "summary_large_image" },
     { property: "twitter:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
     { property: "twitter:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
-    { property: "twitter:image", content: "https://mc-stats.fr/opengraph.webp" },
+    { property: "twitter:image", content: `${APP_URL}/opengraph.webp` },
   ];
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const rootData = useRouteLoaderData<typeof loader>("root");
   const theme = rootData?.serverTheme || "dark"; // Default to dark if no cookie
+  // "fr" par défaut pour correspondre à la langue par défaut du LanguageProvider
+  const lang = rootData?.serverLanguage || "fr";
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
@@ -71,11 +74,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className={theme}>
+    <html lang={lang} className={theme}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/webp" href="/logo.webp" />
+        {/* Google Fonts : connexion anticipée pour réduire le render-blocking du @import CSS */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <Meta />
         <Links />
         <script
@@ -85,11 +91,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "Minecraft-Stats",
-              "url": "https://mc-stats.fr",
+              "url": APP_URL,
               "description": "Advanced Minecraft server analytics and player tracking.",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://mc-stats.fr/?search={search_term_string}",
+                "target": `${APP_URL}/?search={search_term_string}`,
                 "query-input": "required name=search_term_string"
               }
             })

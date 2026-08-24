@@ -2,6 +2,7 @@ import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
+import { APP_URL } from "@/core/lib/config"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -107,14 +108,14 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { property: "og:description", content: description },
         {
             property: "og:image",
-            content: `https://mc-stats.fr/api/favicon/${server.id}`
+            content: `${APP_URL}/api/favicon/${server.id}`
         },
         { property: "twitter:card", content: "summary_large_image" },
         { property: "twitter:title", content: title },
         { property: "twitter:description", content: description },
         {
             property: "twitter:image",
-            content: `https://mc-stats.fr/api/favicon/${server.id}`
+            content: `${APP_URL}/api/favicon/${server.id}`
         }
     ]
 }
@@ -152,10 +153,11 @@ export default function ServerDetail() {
             applicationCategory: "GameApplication",
             operatingSystem: server.type === "java" ? "Java" : "Bedrock",
             url: window.location.href,
-            image: `https://mc-stats.fr/api/favicon/${server.id}`
+            image: `${APP_URL}/api/favicon/${server.id}`
         }
 
-        script.innerHTML = JSON.stringify(schema)
+        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+        script.textContent = JSON.stringify(schema).replace(/</g, "\\u003c")
         document.head.appendChild(script)
 
         return () => {
@@ -397,12 +399,13 @@ export function ErrorBoundary() {
     const error = useRouteError()
     const { t } = useLanguage()
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
+    // La stack trace n'est jamais affichée à l'utilisateur (fuite d'information potentielle)
     return (
         <div className="p-8 text-center text-destructive">
             <h1>{t("error.somethingWentWrong")} in ServerDetail</h1>
-            <pre className="bg-muted mt-4 overflow-auto rounded p-4 text-left">
-                {error instanceof Error ? error.stack : String(error)}
-            </pre>
+            <p className="text-muted-foreground mt-2 text-sm">
+                {error instanceof Error ? error.message : String(error)}
+            </p>
         </div>
     )
 }
