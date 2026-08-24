@@ -252,7 +252,9 @@
       "saving": "Saving...",
       "save": "Save",
       "selectAll": "Select all",
-      "selectServer": "Select {{name}}"
+      "selectServer": "Select {{name}}",
+      "moreActions": "More actions",
+      "updateFavicon": "Update favicon"
     },
     "statsPlayers": "Players Online",
     "refresh": "Refresh",
@@ -405,6 +407,10 @@
     }
   },
   "adminFavicon": {
-    "title": "Update Favicon"
+    "title": "Update Favicon",
+    "description": "Upload an image to override the server favicon. It will automatically be resized to 64x64 and converted.",
+    "upload": "Upload an image",
+    "reset": "Reset",
+    "empty": "No image set. The favicon will update automatically from the game."
   }
 }

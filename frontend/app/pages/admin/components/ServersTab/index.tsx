@@ -32,10 +32,7 @@ interface ServersTabProps {
 }
 
 import { BulkDeleteModal } from "./BulkDeleteModal"
-import { RenameServerModalButton } from "./RenameServerModal"
-import { DeleteServerModal } from "./DeleteServerModal"
-import { UpdateFaviconModal } from "./UpdateFaviconModal"
-import { ChangeIpModal } from "./ChangeIpModal"
+import { RowActionsMenu } from "./RowActionsMenu"
 import { useServersFilterSort } from "@/core/hooks/useServersFilterSort"
 
 type SortableField = "name" | "creator" | "ip" | "status" | "players"
@@ -319,37 +316,26 @@ export function ServersTab({
                                             )}
                                         </td>
                                         <td className="p-4 text-right">
-                                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                            <div className="flex items-center justify-end gap-0.5">
                                                 <Link to={`/server/${server.id}`} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="outline" size="sm">
+                                                    <Button variant="ghost" size="sm" className="h-8 px-2.5 text-xs cursor-pointer">
                                                         {t("admin.servers.inspect")}
                                                     </Button>
                                                 </Link>
-                                                
-                                                <Button 
-                                                    variant={isHidden ? "default" : "destructive"} 
-                                                    size="sm" 
-                                                    className="gap-1"
+
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
                                                     disabled={togglingServerId === server.id}
                                                     onClick={() => handleToggleServer(server.id, isHidden)}
+                                                    aria-label={isHidden ? t("admin.showServer") : t("admin.hideServer")}
+                                                    title={isHidden ? t("admin.showServer") : t("admin.hideServer")}
                                                 >
-                                                    {isHidden ? (
-                                                        <>
-                                                            <Eye className="h-3 w-3" />
-                                                            {t("admin.showServer")}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <EyeOff className="h-3 w-3" />
-                                                            {t("admin.hideServer")}
-                                                        </>
-                                                    )}
+                                                    {isHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                                                 </Button>
-                                                
-                                                <UpdateFaviconModal server={server} onSuccess={onRefresh} t={t} />
-                                                <ChangeIpModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
-                                                <RenameServerModalButton server={server} onSuccess={onRefresh} t={t} />
-                                                <DeleteServerModal server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
+
+                                                <RowActionsMenu server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                             </div>
                                         </td>
                                     </tr>

@@ -252,7 +252,9 @@
       "saving": "Enregistrement...",
       "save": "Enregistrer",
       "selectAll": "Tout sélectionner",
-      "selectServer": "Sélectionner {{name}}"
+      "selectServer": "Sélectionner {{name}}",
+      "moreActions": "Plus d'actions",
+      "updateFavicon": "Modifier le favicon"
     },
     "statsPlayers": "Joueurs en ligne",
     "refresh": "Rafraîchir",
@@ -405,6 +407,10 @@
     }
   },
   "adminFavicon": {
-    "title": "Mettre à jour le Favicon"
+    "title": "Mettre à jour le Favicon",
+    "description": "Uploadez une image pour forcer le favicon du serveur. Elle sera automatiquement redimensionnée en 64x64 et convertie.",
+    "upload": "Uploader une image",
+    "reset": "Réinitialiser",
+    "empty": "Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu."
   }
 }
