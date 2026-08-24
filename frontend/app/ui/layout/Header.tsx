@@ -196,12 +196,12 @@ export function Header({ leftContent }: HeaderProps) {
             {/* Mobile Menu via Sheet */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetContent side="top" className="md:hidden border-b bg-background/95 backdrop-blur-md px-4 py-6" aria-describedby="mobile-menu-description">
-                    <VisuallyHidden>
+                    <VisuallyHidden.Root>
                         <SheetTitle>Menu Navigation</SheetTitle>
                         <SheetDescription id="mobile-menu-description">
                             Menu de navigation principal pour les appareils mobiles.
                         </SheetDescription>
-                    </VisuallyHidden>
+                    </VisuallyHidden.Root>
                     <div className="flex flex-col space-y-6 mt-2">
                         <nav className="flex flex-col gap-1.5">
                             <Link
