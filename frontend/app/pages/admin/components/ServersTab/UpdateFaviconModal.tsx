@@ -11,12 +11,19 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/ui/components/dialog"
 
-export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, onSuccess: () => void, t: (key: string, options?: Record<string, string>) => string }) {
+interface UpdateFaviconModalProps {
+    server: Server
+    onSuccess: () => void
+    triggerToast?: (type: "success" | "warning" | "error", text: string) => void
+    t: (key: string, options?: Record<string, string>) => string
+    open: boolean
+    onOpenChange: (open: boolean) => void
+}
+
+export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, onOpenChange }: UpdateFaviconModalProps) {
     const { getToken } = useAuth()
-    const [open, setOpen] = useState(false)
     const [favicon, setFavicon] = useState(server.last_favicon || "")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -47,7 +54,7 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError(null)
-        
+
         setLoading(true)
         try {
             const token = await getToken()
@@ -56,10 +63,11 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
             const payload = favicon.trim() ? favicon.trim() : null
             const res = await updateFavicon(server.id, payload, token)
             if (res.success) {
-                setOpen(false)
+                onOpenChange(false)
                 onSuccess()
             } else {
                 setError(res.message_key ? t(res.message_key) : (res.message || t("common.error")))
+                if (triggerToast) triggerToast("error", res.message_key ? t(res.message_key) : (res.message || t("common.error")))
             }
         } catch (error) {
             console.error(error)
@@ -70,19 +78,13 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1">
-                    <ImageIcon className="h-3 w-3" />
-                    Favicon
-                </Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>{t("adminFavicon.title")}</DialogTitle>
                         <DialogDescription>
-                            Uploadez une image pour forcer le favicon du serveur. L'image sera automatiquement redimensionnée en 64x64 et convertie.
+                            {t("adminFavicon.description")}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-6 py-6">
@@ -96,23 +98,23 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
                             )}
                             <div className="flex gap-2">
                                 <Button type="button" variant="outline" size="sm" className="relative cursor-pointer">
-                                    Uploader une image
-                                    <input 
-                                        type="file" 
-                                        accept="image/png, image/jpeg, image/webp" 
-                                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                                    {t("adminFavicon.upload")}
+                                    <input
+                                        type="file"
+                                        accept="image/png, image/jpeg, image/webp"
+                                        className="absolute inset-0 opacity-0 cursor-pointer"
                                         onChange={handleImageUpload}
                                     />
                                 </Button>
                                 {favicon && (
                                     <Button type="button" variant="destructive" size="sm" onClick={() => setFavicon("")}>
-                                        Réinitialiser
+                                        {t("adminFavicon.reset")}
                                     </Button>
                                 )}
                             </div>
                             {!favicon && (
                                 <p className="text-xs text-muted-foreground text-center">
-                                    Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu.
+                                    {t("adminFavicon.empty")}
                                 </p>
                             )}
                         </div>
@@ -127,4 +129,4 @@ export function UpdateFaviconModal({ server, onSuccess, t }: { server: Server, o
             </DialogContent>
         </Dialog>
     )
-}
+}

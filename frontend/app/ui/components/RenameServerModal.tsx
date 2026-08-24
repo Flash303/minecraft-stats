@@ -31,19 +31,29 @@ interface RenameServerModalProps {
     server: Server
     onSuccess: () => void
     texts: RenameServerTexts
-    trigger: React.ReactNode
+    /** Déclencheur cliquable ; optionnel si la modal est contrôlée via open/onOpenChange */
+    trigger?: React.ReactNode
+    /** Mode contrôlé : open + onOpenChange pilotés par l'appelant (ex. menu d'actions) */
+    open?: boolean
+    onOpenChange?: (open: boolean) => void
 }
 
 /**
  * Modal de renommage de serveur, partagée entre la page compte et l'admin.
  * Les libellés sont fournis par l'appelant (les clés i18n diffèrent selon le contexte).
  */
-export function RenameServerModal({ server, onSuccess, texts, trigger }: RenameServerModalProps) {
+export function RenameServerModal({ server, onSuccess, texts, trigger, open: controlledOpen, onOpenChange }: RenameServerModalProps) {
     const { getToken } = useAuth()
-    const [open, setOpen] = useState(false)
+    const [internalOpen, setInternalOpen] = useState(false)
     const [name, setName] = useState(server.name)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    const open = controlledOpen ?? internalOpen
+    const setOpen = (v: boolean) => {
+        if (controlledOpen === undefined || !onOpenChange) setInternalOpen(v)
+        onOpenChange?.(v)
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -72,9 +82,11 @@ export function RenameServerModal({ server, onSuccess, texts, trigger }: RenameS
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                {trigger}
-            </DialogTrigger>
+            {trigger ? (
+                <DialogTrigger asChild>
+                    {trigger}
+                </DialogTrigger>
+            ) : null}
             <DialogContent className="sm:max-w-[425px]">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
