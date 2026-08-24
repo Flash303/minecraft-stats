@@ -286,38 +286,33 @@ export default function ServerDetail() {
                         </div>
                     </div>
 
-                    <div className="relative flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]">
-                        {(loadingRecords || isPending) && (
-                            <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
-                                {isCustomRangeIncomplete ? (
-                                    <p className="text-muted-foreground text-sm font-medium">
-                                        {t("serverDetail.selectCustomRange")}
-                                    </p>
-                                ) : (
-                                    <>
-                                        <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
-                                        <p className="text-muted-foreground animate-pulse text-sm font-medium">
-                                            {t("serverDetail.chartLoading")}
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                        <div
-                            className={cn(
-                                "w-full transition-opacity duration-200",
-                                loadingRecords || isPending
-                                    ? "pointer-events-none opacity-30 [&_.hide-on-load]:opacity-0"
-                                    : "opacity-100"
-                            )}
+                    <div className="w-full">
+                        <Suspense
+                            fallback={
+                                <div className="flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]"></div>
+                            }
                         >
-                            <Suspense
-                                fallback={
-                                    <div className="flex min-h-[340px] w-full items-center justify-center sm:min-h-[500px]"></div>
+                            <PlayerChart
+                                isLoading={loadingRecords || isPending}
+                                overlay={
+                                    (loadingRecords || isPending) && (
+                                        <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
+                                            {isCustomRangeIncomplete ? (
+                                                <p className="text-muted-foreground text-sm font-medium">
+                                                    {t("serverDetail.selectCustomRange")}
+                                                </p>
+                                            ) : (
+                                                <>
+                                                    <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
+                                                    <p className="text-muted-foreground animate-pulse text-sm font-medium">
+                                                        {t("serverDetail.chartLoading")}
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    )
                                 }
-                            >
-                                <PlayerChart
-                                    data={records}
+                                data={records}
                                     serverName={server.name}
                                     interval={appliedInterval}
                                     timeRange={timeLimits}
@@ -371,7 +366,6 @@ export default function ServerDetail() {
                                     }
                                 />
                             </Suspense>
-                        </div>
                     </div>
 
                     <div className="flex flex-col gap-8 lg:flex-row">
