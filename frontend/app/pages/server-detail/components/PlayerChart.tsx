@@ -9,6 +9,8 @@ import { Button } from "@/ui/components/button"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
 import { useChartResize, useTouchInteractPlugin, useTooltipPlugin } from "@/core/hooks/useChartPlugins"
+import { cn } from "@/core/lib/utils"
+
 interface PlayerChartProps {
     data: { date: number; value: number }[]
     serverName: string
@@ -20,9 +22,11 @@ interface PlayerChartProps {
     timeSelector?: React.ReactNode
     zoomResetId?: string
     isRateLimited?: boolean
+    isLoading?: boolean
+    overlay?: React.ReactNode
 }
 
-export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, timeSelector, zoomResetId, isRateLimited }: PlayerChartProps) {
+export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRangeChange, onZoomChange, header, timeSelector, zoomResetId, isRateLimited, isLoading, overlay }: PlayerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
@@ -242,10 +246,16 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                         )}
                     </div>
                 </div>
-                <div className="w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
-                    <p className="hide-on-load transition-opacity duration-200 text-center py-4 text-zinc-400 font-medium">
-                        {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
-                    </p>
+                <div className="relative w-full bg-card p-4 rounded-xl border shadow-sm min-h-[332px] sm:min-h-[482px] flex items-center justify-center">
+                    {overlay}
+                    <div className={cn(
+                        "w-full transition-opacity duration-200 flex items-center justify-center",
+                        isLoading ? "opacity-30 pointer-events-none" : "opacity-100"
+                    )}>
+                        <p className="text-center py-4 text-zinc-400 font-medium">
+                            {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
+                        </p>
+                    </div>
                 </div>
             </div>
         )
@@ -274,22 +284,32 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 </div>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
-                <UplotReact
-                    options={options}
-                    data={chartData}
-                    onCreate={(chart) => {
-                        chartRef.current = chart
-                        // Force resize to container width after creation
-                        if (containerRef.current) {
-                            const height = window.innerWidth < 640 ? 300 : 450
-                            chart.setSize({
-                                width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
-                                height: height
-                            })
-                        }
-                    }}
-                />
+            <div ref={containerRef} className="relative w-full bg-card p-4 rounded-xl border shadow-sm">
+                {overlay}
+                <div
+                    className={cn(
+                        "w-full transition-opacity duration-200",
+                        isLoading
+                            ? "pointer-events-none opacity-30 [&_.hide-on-load]:opacity-0"
+                            : "opacity-100"
+                    )}
+                >
+                    <UplotReact
+                        options={options}
+                        data={chartData}
+                        onCreate={(chart) => {
+                            chartRef.current = chart
+                            // Force resize to container width after creation
+                            if (containerRef.current) {
+                                const height = window.innerWidth < 640 ? 300 : 450
+                                chart.setSize({
+                                    width: containerRef.current.clientWidth - 32, // account for padding (p-4 = 16px*2)
+                                    height: height
+                                })
+                            }
+                        }}
+                    />
+                </div>
             </div>
         </div>
     )
