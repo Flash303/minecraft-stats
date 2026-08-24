@@ -60,7 +60,7 @@ export function Header({ leftContent }: HeaderProps) {
     // Mobile Search Overlay Mode
     if (isSearchOpen) {
         return (
-            <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-[100] w-full border-b backdrop-blur-md">
+            <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-40 w-full border-b backdrop-blur-md">
                 <div className="w-full flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
                     <button
                         onClick={() => {
@@ -85,7 +85,7 @@ export function Header({ leftContent }: HeaderProps) {
     }
 
     return (
-        <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-[100] w-full border-b backdrop-blur-md">
+        <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-40 w-full border-b backdrop-blur-md">
             <div className="w-full flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 xl:px-12">
                 
                 {/* Left: Branding & Navigation */}
