@@ -5,6 +5,7 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use log::{error, info};
 use minecraft_pinger::config::PingConfig;
+use minecraft_pinger::error::PingError;
 use minecraft_pinger::java::config::JavaPingConfig;
 use repository::duplicate_detection::{DuplicateDetectionService, ServerFingerprint};
 use repository::models::server::{DraftServer, Server, ServerType};
@@ -23,7 +24,7 @@ pub(super) async fn create_server(State(state): State<AppState>,
     
     let mut draft = query?.0;
 
-    let (is_reachable, version_name) = ping_server(&state, &mut draft).await;
+    let (is_reachable, version_name) = ping_server(&state, &mut draft).await?;
     if !is_reachable {
         return Err(AppError::ServerCreation(ServerCreationError::NotReachable));
     }
@@ -66,12 +67,13 @@ pub(super) async fn create_server(State(state): State<AppState>,
     Ok(ResponseFormat::success(rs, StatusCode::OK))
 }
 
-async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option<String>) {
+async fn ping_server(state: &AppState, draft: &mut DraftServer) -> Result<(bool, Option<String>), AppError> {
     let mut is_reachable = false;
     let mut version_name = None;
 
     let cfg = PingConfig::builder()
         .set_timeout(ADD_TIMEOUT)
+        .deny_non_public_ips()
         .build();
 
     let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
@@ -88,7 +90,10 @@ async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option
                 }
 
                 if let Err(err) = &res {
-                    error!("Could not add java the server {} error {}", draft.ip, err)
+                    error!("Could not add java the server {} error {}", draft.ip, err);
+                    if let PingError::BlockedEndpoint(detail) = err {
+                        return Err(AppError::BlockedEndpoint(detail.clone()));
+                    }
                 }
                 res.is_ok()
             },
@@ -102,7 +107,10 @@ async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option
                 }
 
                 if let Err(err) = &res {
-                    error!("Could not add bedrock the server {} error {}", draft.ip, err)
+                    error!("Could not add bedrock the server {} error {}", draft.ip, err);
+                    if let PingError::BlockedEndpoint(detail) = err {
+                        return Err(AppError::BlockedEndpoint(detail.clone()));
+                    }
                 }
                 res.is_ok()
             }
@@ -114,5 +122,5 @@ async fn ping_server(state: &AppState, draft: &mut DraftServer) -> (bool, Option
         }
     }
 
-    (is_reachable, version_name)
+    Ok((is_reachable, version_name))
 }

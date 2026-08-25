@@ -92,6 +92,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
     let pinger = Arc::new(result.unwrap());
     let pinger_config = Arc::new(PingConfig::builder()
         .set_timeout(MAX_PING_RESPONSE_TIME)
+        .deny_non_public_ips()
         .build());
 
     let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config.to_builder()).build());

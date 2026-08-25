@@ -2,6 +2,7 @@ use std::time::Duration;
 use axum::routing::delete;
 use axum::{extract::{rejection::{PathRejection, QueryRejection}, Path, Query, State}, routing::{post, patch}, Router, Json};
 use minecraft_pinger::config::PingConfig;
+use minecraft_pinger::error::PingError;
 use minecraft_pinger::java::config::JavaPingConfig;
 use reqwest::StatusCode;
 use serde::Deserialize;
@@ -99,6 +100,7 @@ async fn ping_server_ip(
 
     let cfg = PingConfig::builder()
         .set_timeout(Duration::from_secs(2))
+        .deny_non_public_ips()
         .build();
 
     let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
@@ -121,6 +123,9 @@ async fn ping_server_ip(
                     current_players = Some(ping.players.online);
                     max_players = Some(ping.players.max as u32);
                 }
+                if let Err(PingError::BlockedEndpoint(detail)) = &res {
+                    return Err(AppError::BlockedEndpoint(detail.clone()));
+                }
                 res.is_ok()
             },
             ServerType::Bedrock => {
@@ -130,6 +135,9 @@ async fn ping_server_ip(
                     version = Some(ping.version.clone());
                     current_players = Some(ping.current_players);
                     max_players = Some(ping.max_players as u32);
+                }
+                if let Err(PingError::BlockedEndpoint(detail)) = &res {
+                    return Err(AppError::BlockedEndpoint(detail.clone()));
                 }
                 res.is_ok()
             }
