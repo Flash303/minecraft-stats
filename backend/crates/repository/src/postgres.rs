@@ -318,6 +318,60 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
+    async fn get_server_without_favicon(&self, server_id: u32) -> Result<Option<Server>, RepositoryError> {
+        let result: Option<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(result.map(|r| r.into()))
+    }
+
+    async fn list_servers_without_favicon(&self) -> Result<Vec<Server>, RepositoryError> {
+        let rows: Vec<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers")
+            .fetch_all(&self.pool)
+            .await?;
+
+        let mut rs: Vec<Server> = Vec::new();
+        for row in rows {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
+
+    async fn get_servers_of_user_without_favicon(&self, user_id: String) -> Result<Vec<Server>, RepositoryError> {
+        let rows: Vec<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers WHERE user_id = $1")
+            .bind(user_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+        let mut rs: Vec<Server> = Vec::new();
+        for row in rows {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
+
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, RepositoryError> {
         let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");
 

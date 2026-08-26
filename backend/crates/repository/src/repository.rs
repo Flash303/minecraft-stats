@@ -25,6 +25,13 @@ pub trait Repository: Send + Sync {
     async fn get_server(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
     async fn list_servers(&self) -> Result<Vec<Server>, RepositoryError>;
     async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, RepositoryError>;
+    // Same as above but without loading the heavy base64 favicon from the
+    // database: intended for public JSON endpoints. Never use their result
+    // for write-backs (update_server/update_servers), the empty favicon
+    // would erase the stored one.
+    async fn get_server_without_favicon(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
+    async fn list_servers_without_favicon(&self) -> Result<Vec<Server>, RepositoryError>;
+    async fn get_servers_of_user_without_favicon(&self, user_id: String) -> Result<Vec<Server>, RepositoryError>;
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, RepositoryError>;
     async fn count_resolved_endpoints(&self, resolved_endpoint: &str, exclude_id: Option<u32>) -> Result<u32, RepositoryError>;
 
