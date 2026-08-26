@@ -1,6 +1,6 @@
 import React from "react"
 import { getServerIconUrl } from "@/core/lib/api"
-import default_icon from "@/assets/default_favicon.svg"
+import default_icon from "@/assets/default_favicon.webp"
 
 interface ServerIconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     serverId: number | string

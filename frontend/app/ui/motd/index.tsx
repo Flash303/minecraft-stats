@@ -1,7 +1,7 @@
 import { cn } from "@/core/lib/utils"
 import pingIcon from "@/assets/ping.webp";
 import pingUnknownIcon from "@/assets/ping_unknown.webp";
-import default_icon from "@/assets/default_favicon.svg";
+import default_icon from "@/assets/default_favicon.webp";
 import {
   Tooltip,
   TooltipContent,

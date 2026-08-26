@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -34,7 +34,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -42,7 +42,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -50,7 +50,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -58,7 +58,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -66,7 +66,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -74,7 +74,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -82,7 +82,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -90,7 +90,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
