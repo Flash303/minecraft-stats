@@ -6,7 +6,7 @@ pub mod middleware;
 pub mod services;
 pub mod utils;
 
-use services::clerk::account_checker::fetch_clerk_jwks;
+use services::clerk::account_checker::{fetch_clerk_jwks, JwksStore};
 use crate::middleware::auth::auth_middleware;
 use crate::middleware::statistics::stats_middleware;
 use crate::routes::admin;
@@ -72,6 +72,7 @@ async fn main() {
         return;
     }
     let keys = result.unwrap();
+    let jwks_store = JwksStore::new(format!("{}/.well-known/jwks.json", clerk_instance), keys);
 
 
     // Init clerk - API
@@ -105,7 +106,7 @@ async fn main() {
 
         http_client: Client::new(),
 
-        jwks: Arc::new(keys),
+        jwks: jwks_store,
         clerk_instance_url: Arc::new(clerk_instance),
 
         clerk_secret_key: Arc::new(clerk_secret_key),

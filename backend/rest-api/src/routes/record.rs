@@ -14,14 +14,14 @@ use time::{ OffsetDateTime};
 use tokio::time::Instant;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::key_extractor::SmartIpKeyExtractor;
+use crate::utils::rate_limit::ClientIpKeyExtractor;
 use crate::response::ResponseFormat;
 
 pub fn router() -> Router<AppState> {
     let rate_limit_config = GovernorConfigBuilder::default()
         .per_second(10)
         .burst_size(40)
-        .key_extractor(SmartIpKeyExtractor)
+        .key_extractor(ClientIpKeyExtractor)
         .finish()
         .unwrap();
 

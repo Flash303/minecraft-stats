@@ -1,4 +1,3 @@
-use std::ops::Sub;
 use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
 use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME, PING_TRY_COUNT};
 use futures::{stream, StreamExt};
@@ -12,7 +11,7 @@ use repository::models::server::{Server, ServerStatus, ServerType};
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use log::info;
 use minecraft_pinger::java::config::JavaPingConfig;
 use time::OffsetDateTime;
@@ -92,6 +91,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
     let pinger = Arc::new(result.unwrap());
     let pinger_config = Arc::new(PingConfig::builder()
         .set_timeout(MAX_PING_RESPONSE_TIME)
+        .deny_non_public_ips()
         .build());
 
     let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config.to_builder()).build());
@@ -207,6 +207,9 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
         }
 
         info!("Ping duration : {:?}ms", count_time.elapsed().as_millis());
-        sleep(DELAY_BETWEEN_EACH_PING.clone().sub(count_time.elapsed())).await;
+        let remaining_delay = DELAY_BETWEEN_EACH_PING
+            .checked_sub(count_time.elapsed())
+            .unwrap_or(Duration::ZERO);
+        sleep(remaining_delay).await;
     }
 }

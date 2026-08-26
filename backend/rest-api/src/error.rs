@@ -64,6 +64,9 @@ pub enum AppError {
     
     #[error("{0}")]
     InvalidJson(#[from] JsonRejection),
+
+    #[error("Blocked endpoint: {0}")]
+    BlockedEndpoint(String),
 }
 
 impl AppError {
@@ -79,6 +82,7 @@ impl AppError {
             AppError::InvalidParam(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidQuery(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidJson(_) => StatusCode::BAD_REQUEST,
+            AppError::BlockedEndpoint(_) => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -94,6 +98,7 @@ impl AppError {
             AppError::InvalidParam(_) => "error.validation.invalid_param".into(),
             AppError::InvalidQuery(_) => "error.validation.invalid_query".into(),
             AppError::InvalidJson(_) => "error.validation.invalid_json".into(),
+            AppError::BlockedEndpoint(_) => "error.validation.blocked_endpoint".into(),
         }
     }
 }

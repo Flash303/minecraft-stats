@@ -403,7 +403,8 @@
     "validation": {
       "invalid_param": "Paramètre invalide fourni dans la requête.",
       "invalid_query": "Paramètres de requête invalides.",
-      "invalid_json": "Format JSON invalide dans le corps de la requête."
+      "invalid_json": "Format JSON invalide dans le corps de la requête.",
+      "blocked_endpoint": "Cette adresse n'est pas autorisée : le serveur doit être joignable publiquement."
     }
   },
   "adminFavicon": {

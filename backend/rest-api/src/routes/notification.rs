@@ -9,14 +9,35 @@ use axum::{Extension, Json, Router};
 use repository::models::web_push::{WebPushSubscription, DraftWebPushSubscription};
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::time::Duration;
 use repository::models::alert::Alert;
+use tower_governor::governor::GovernorConfigBuilder;
+use tower_governor::GovernorLayer;
+use crate::utils::rate_limit::ClientIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
+    let read_limit = GovernorConfigBuilder::default()
+        .per_second(5)
+        .burst_size(40)
+        .key_extractor(ClientIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let write_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(5)
+        .key_extractor(ClientIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let read_layer = GovernorLayer::new(read_limit);
+    let write_layer = GovernorLayer::new(write_limit);
+
     Router::new()
-        .route("/vapid-key", get(get_vapid_key))
-        .route("/subscribe", post(subscribe_device))
-        .route("/unsubscribe", post(unsubscribe_device))
-        .route("/list", get(list_alerts))
+        .route("/vapid-key", get(get_vapid_key).route_layer(read_layer.clone()))
+        .route("/subscribe", post(subscribe_device).route_layer(write_layer.clone()))
+        .route("/unsubscribe", post(unsubscribe_device).route_layer(write_layer))
+        .route("/list", get(list_alerts).route_layer(read_layer))
 }
 
 async fn list_alerts(

@@ -16,28 +16,42 @@ use repository::models::server::Server;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::key_extractor::SmartIpKeyExtractor;
 use tower_governor::GovernorLayer;
+use crate::utils::rate_limit::ClientIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
     let get_server_limit = GovernorConfigBuilder::default()
         .per_second(5)
         .burst_size(40)
-        .key_extractor(SmartIpKeyExtractor)
+        .key_extractor(ClientIpKeyExtractor)
         .finish()
         .unwrap();
 
     let push_server_limit = GovernorConfigBuilder::default()
         .period(Duration::from_secs(10))
         .burst_size(3)
-        .key_extractor(SmartIpKeyExtractor)
+        .key_extractor(ClientIpKeyExtractor)
         .finish()
         .unwrap();
 
     let patch_server_limit = GovernorConfigBuilder::default()
         .period(Duration::from_secs(10))
         .burst_size(10)
-        .key_extractor(SmartIpKeyExtractor)
+        .key_extractor(ClientIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let push_alert_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(3)
+        .key_extractor(ClientIpKeyExtractor)
+        .finish()
+        .unwrap();
+
+    let delete_alert_limit = GovernorConfigBuilder::default()
+        .period(Duration::from_secs(10))
+        .burst_size(10)
+        .key_extractor(ClientIpKeyExtractor)
         .finish()
         .unwrap();
 
@@ -48,10 +62,11 @@ pub fn router() -> Router<AppState> {
 
         .route("/{id}", get(get_server).route_layer(layer.clone()))
         .route("/mine", get(get_mine_server).route_layer(layer.clone()))
-        .route("/{id}/icon", get(get_server_icon).route_layer(layer))
+        .route("/{id}/icon", get(get_server_icon).route_layer(layer.clone()))
 
-        .route("/{id}/alerts", get(list_alerts).post(create_alert))
-        .route("/alerts/{alert_id}", delete(delete_alert))
+        .route("/{id}/alerts", get(list_alerts).route_layer(layer.clone())
+            .post(create_alert).route_layer(GovernorLayer::new(push_alert_limit)))
+        .route("/alerts/{alert_id}", delete(delete_alert).route_layer(GovernorLayer::new(delete_alert_limit)))
 
         .route("/", post(create_server).route_layer(GovernorLayer::new(push_server_limit)))
         .route("/{id}", patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)))

@@ -403,7 +403,8 @@
     "validation": {
       "invalid_param": "Invalid parameter provided in request.",
       "invalid_query": "Invalid query parameters.",
-      "invalid_json": "Invalid JSON format in request body."
+      "invalid_json": "Invalid JSON format in request body.",
+      "blocked_endpoint": "This address is not allowed: the server must be publicly reachable."
     }
   },
   "adminFavicon": {

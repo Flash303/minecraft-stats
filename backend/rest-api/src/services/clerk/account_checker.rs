@@ -1,8 +1,90 @@
-use crate::state::AppState;
+use std::sync::{Arc, RwLock};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use rsa::{pkcs1v15::Pkcs1v15Sign, BoxedUint, RsaPublicKey};
 use sha2::{Digest, Sha256};
+
 use crate::services::clerk::model::ClerkClaims;
+use crate::state::AppState;
+
+// Grace time
+const CLAIMS_LEEWAY_SECS: u64 = 5;
+const JWKS_REFRESH_COOLDOWN: Duration = Duration::from_secs(60);
+
+#[derive(Clone)]
+pub struct JwksStore {
+    jwks_url: String,
+    slot: Arc<RwLock<JwksSlot>>,
+}
+
+struct JwksSlot {
+    keys: Arc<serde_json::Value>,
+    fetched_at: Instant,
+}
+
+impl JwksStore {
+    pub fn new(jwks_url: String, initial_keys: serde_json::Value) -> Self {
+        Self {
+            jwks_url,
+            slot: Arc::new(RwLock::new(JwksSlot {
+                keys: Arc::new(initial_keys),
+                fetched_at: Instant::now(),
+            })),
+        }
+    }
+
+    fn keys(&self) -> Arc<serde_json::Value> {
+        self.slot.read().unwrap().keys.clone()
+    }
+
+    /// Returns the JWK matching `kid`. In steady state this is a pure cache
+    /// hit: nothing is ever fetched. When the kid is unknown (Clerk key
+    /// rotation), the JWKS is refreshed once and the lookup retried. Refreshes
+    /// happen on demand only, and are rate-limited by [`JWKS_REFRESH_COOLDOWN`].
+    ///
+    /// Locks are std RwLocks held only across tiny critical sections; the
+    /// network fetch runs without any lock held.
+    pub async fn resolve_jwk(&self, kid: &str) -> Result<serde_json::Value, String> {
+        if let Some(jwk) = find_jwk(&self.keys(), kid) {
+            return Ok(jwk.clone());
+        }
+
+        {
+            let slot = self.slot.read().unwrap();
+            if slot.fetched_at.elapsed() < JWKS_REFRESH_COOLDOWN {
+                return Err("Pubkey not found".to_string());
+            }
+        }
+
+        let fresh = fetch_clerk_jwks(&self.jwks_url)
+            .await
+            .map_err(|e| format!("JWKS refresh failed: {}", e))?;
+        let fresh = Arc::new(fresh);
+
+        let mut slot = self.slot.write().unwrap();
+
+        // Double-check: a concurrent request may have refreshed meanwhile.
+        if let Some(jwk) = find_jwk(&slot.keys, kid) {
+            return Ok(jwk.clone());
+        }
+
+        slot.fetched_at = Instant::now();
+        slot.keys = fresh;
+
+        find_jwk(&slot.keys, kid).cloned()
+            .ok_or_else(|| "Pubkey not found".to_string())
+    }
+}
+
+fn find_jwk<'a>(jwks: &'a serde_json::Value, kid: &'a str) -> Option<&'a serde_json::Value> {
+    jwks.as_object()
+        .and_then(|jwks| jwks.get("keys"))
+        .and_then(|keys| keys.as_array())
+        .and_then(|keys| keys.iter().find(|key| {
+            key.get("kid").and_then(|k| k.as_str()) == Some(kid)
+        }))
+}
 
 pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let response = reqwest::get(jwks_url)
@@ -14,7 +96,7 @@ pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<d
     Ok(response)
 }
 
-pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, String> {
+pub async fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, String> {
     let parts: Vec<&str> = token.split('.').collect();
     if parts.len() != 3 {
         return Err("Invalid token format".to_string());
@@ -29,13 +111,7 @@ pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, 
         .get("kid").and_then(|k| k.as_str()).map(|s| s.to_string())
         .ok_or_else(|| "KID not found".to_string())?;
 
-    let jwk = state.jwks.as_object()
-        .and_then(|jwks| jwks.get("keys"))
-        .and_then(|keys| keys.as_array())
-        .and_then(|keys| keys.iter().find(|key| {
-            key.get("kid").and_then(|k| k.as_str()) == Some(&kid)
-        }))
-        .ok_or_else(|| "Pubkey not found".to_string())?;
+    let jwk = state.jwks.resolve_jwk(&kid).await?;
 
     let n = jwk.get("n").and_then(|v| v.as_str()).ok_or("Missing n")?;
     let e = jwk.get("e").and_then(|v| v.as_str()).ok_or("Missing e")?;
@@ -68,10 +144,31 @@ pub fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkClaims, 
     let claims: ClerkClaims = serde_json::from_slice(&URL_SAFE_NO_PAD.decode(claims_b64).map_err(|e| e.to_string())?)
         .map_err(|e| format!("Claims deserialization error: {}", e))?;
 
+    validate_claims_time_window(&claims)?;
+
     // Validate issuer
     if claims.iss != state.clerk_instance_url.as_str() {
         return Err("Invalid issuer".to_string());
     }
 
     Ok(claims)
+}
+
+fn validate_claims_time_window(claims: &ClerkClaims) -> Result<(), String> {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|_| "System clock error".to_string())?
+        .as_secs();
+
+    if now.saturating_sub(CLAIMS_LEEWAY_SECS) >= claims.exp {
+        return Err("Token expired".to_string());
+    }
+
+    if let Some(nbf) = claims.nbf.as_ref().and_then(|v| v.as_u64()) {
+        if now.saturating_add(CLAIMS_LEEWAY_SECS) < nbf {
+            return Err("Token not yet valid".to_string());
+        }
+    }
+
+    Ok(())
 }

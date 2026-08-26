@@ -4,6 +4,7 @@ use reqwest::Client;
 use repository::repository::Repository;
 
 use crate::utils::cache::TtlCache;
+use crate::services::clerk::account_checker::JwksStore;
 use crate::services::clerk::model::ClerkUser;
 
 #[derive(Clone)]
@@ -13,7 +14,7 @@ pub struct AppState {
     
     pub http_client: Client,
 
-    pub jwks: Arc<serde_json::Value>,
+    pub jwks: JwksStore,
     pub clerk_instance_url: Arc<String>,
 
     pub clerk_secret_key: Arc<Option<String>>,
