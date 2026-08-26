@@ -281,6 +281,9 @@
     "description": "Receive Web Push notifications on this device when the following events occur.",
     "addSuccess": "Alert created successfully!",
     "deleteSuccess": "Alert deleted successfully!",
+    "addError": "Failed to create the alert.",
+    "deleteError": "Failed to delete the alert.",
+    "thresholdInvalid": "Please enter a valid player threshold.",
     "subscribeSuccess": "This device is now configured to receive notifications!",
     "unauthenticated": "Sign in to configure alerts.",
     "addRule": "Add a rule",
@@ -330,6 +333,18 @@
       "pushEnable": "Enable",
       "configuredAlerts": "Configured alert rules"
     }
+  },
+  "toast": {
+    "successTitle": "Success",
+    "warningTitle": "Warning",
+    "errorTitle": "Error",
+    "close": "Dismiss notification"
+  },
+  "push": {
+    "vapidKeyError": "Could not load the VAPID key from the server.",
+    "syncError": "Could not sync the subscription with the server.",
+    "subscribeError": "Failed to enable notifications.",
+    "unsubscribeError": "Failed to disable notifications."
   },
   "footer": {
     "description": "Modern analytics platform for Minecraft servers. Track, compare, and observe your favorite servers' activity in real-time.",

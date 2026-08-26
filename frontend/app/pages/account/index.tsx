@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from "react-router"
 import type { MetaFunction } from "react-router"
 
 import { useWebPush } from "@/core/hooks/useWebPush"
+import { useToast } from "@/core/contexts/ToastContext"
 import { AccountServersTab } from "./components/AccountServersTab"
 import { AccountAlertsTab } from "./components/AccountAlertsTab"
 import { AccountProfileTab } from "./components/AccountProfileTab"
@@ -26,6 +27,7 @@ export const meta: MetaFunction = () => {
 
 export default function Account() {
     const { t } = useLanguage()
+    const { showToast } = useToast()
     const { user, isLoaded, isSignedIn } = useUser()
     const { getToken } = useAuth()
     const location = useLocation()
@@ -101,8 +103,9 @@ export default function Account() {
         const success = await deleteAlert(alertId, token)
         if (success) {
             setAllAlerts(prev => prev.filter(a => a.id !== alertId))
+            showToast("success", t("alerts.deleteSuccess"))
         } else {
-            alert("Failed to delete alert.")
+            showToast("error", t("alerts.deleteError"))
         }
     }
 

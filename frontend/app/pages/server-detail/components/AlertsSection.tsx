@@ -7,6 +7,7 @@ import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
 import { fetchAlerts, createAlert, deleteAlert, type Alert } from "@/core/lib/api"
 import { useWebPush } from "@/core/hooks/useWebPush"
+import { useToast } from "@/core/contexts/ToastContext"
 
 interface AlertsSectionProps {
     serverId: number
@@ -24,6 +25,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
         handleSubscribe,
         handleUnsubscribe
     } = useWebPush(getToken)
+    const { showToast } = useToast()
     const [alerts, setAlerts] = useState<Alert[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -67,7 +69,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
             : null
 
         if (playerThreshold !== null && (isNaN(playerThreshold) || playerThreshold < 0)) {
-            alert("Please enter a valid player threshold.")
+            showToast("warning", t("alerts.thresholdInvalid"))
             return
         }
 
@@ -80,8 +82,9 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
         if (newAlert) {
             setAlerts(prev => [...prev, newAlert])
             setThreshold("")
+            showToast("success", t("alerts.addSuccess"))
         } else {
-            alert("Failed to create alert.")
+            showToast("error", t("alerts.addError"))
         }
     }
 
@@ -92,8 +95,9 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
         const success = await deleteAlert(alertId, token)
         if (success) {
             setAlerts(prev => prev.filter(a => a.id !== alertId))
+            showToast("success", t("alerts.deleteSuccess"))
         } else {
-            alert("Failed to delete alert.")
+            showToast("error", t("alerts.deleteError"))
         }
     }
 

@@ -12,6 +12,7 @@ import "./index.css";
 import { ThemeProvider } from "./core/contexts/ThemeContext";
 import { SearchProvider } from "./core/contexts/SearchContext";
 import { LanguageProvider } from "./core/contexts/LanguageContext";
+import { ToastProvider } from "./core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
 import { AdminProvider } from "./core/contexts/AdminContext";
 import { ClientInfoProvider } from "./core/contexts/ClientInfoContext";
@@ -129,13 +130,15 @@ export default function App() {
       <AdminProvider>
         <ThemeProvider serverTheme={serverTheme}>
           <LanguageProvider serverLanguage={serverLanguage}>
-            <ClientInfoProvider>
-              <SearchProvider>
-                <TooltipProvider>
-                  <Outlet />
-                </TooltipProvider>
-              </SearchProvider>
-            </ClientInfoProvider>
+            <ToastProvider>
+              <ClientInfoProvider>
+                <SearchProvider>
+                  <TooltipProvider>
+                    <Outlet />
+                  </TooltipProvider>
+                </SearchProvider>
+              </ClientInfoProvider>
+            </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
       </AdminProvider>

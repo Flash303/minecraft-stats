@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Link, useNavigate, useParams } from "react-router"
 import type { MetaFunction } from "react-router"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useAdmin } from "@/core/contexts/AdminContext"
+import { useToast } from "@/core/contexts/ToastContext"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
@@ -24,10 +25,7 @@ import {
     LayoutGrid,
     Menu,
     X,
-    Globe,
-    CheckCircle2,
-    AlertTriangle,
-    XCircle
+    Globe
 } from "lucide-react"
 
 import { OverviewTab } from "@/pages/admin/components/OverviewTab"
@@ -36,50 +34,6 @@ import { ServersTab } from "@/pages/admin/components/ServersTab"
 import { ThemeToggle } from "@/ui/layout/ThemeToggle"
 
 type ActiveTab = "overview" | "users" | "servers"
-
-type ToastMessage = { type: "success" | "warning" | "error"; text: string }
-
-interface ToastBannerProps {
-    message: ToastMessage
-    onClose: () => void
-    t: (key: string) => string
-}
-
-function ToastBanner({ message, onClose, t }: ToastBannerProps) {
-    const Icon = message.type === "success" ? CheckCircle2 : message.type === "warning" ? AlertTriangle : XCircle
-    const titleKey = message.type === "success"
-        ? "admin.toast.successTitle"
-        : message.type === "warning"
-            ? "admin.toast.warningTitle"
-            : "admin.toast.errorTitle"
-
-    return (
-        <div
-            role="status"
-            aria-live="polite"
-            className={cn(
-                "flex items-start gap-3 p-4 rounded-xl border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300",
-                message.type === "success" && "bg-success/10 border-success/20 text-success",
-                message.type === "warning" && "bg-warning/10 border-warning/20 text-warning",
-                message.type === "error" && "bg-destructive/10 border-destructive/20 text-destructive"
-            )}
-        >
-            <Icon className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider">{t(titleKey)}</p>
-                <p className="text-sm mt-0.5 font-medium break-words">{message.text}</p>
-            </div>
-            <button
-                type="button"
-                onClick={onClose}
-                aria-label={t("admin.close")}
-                className="mt-0.5 p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer transition-colors flex-shrink-0"
-            >
-                <X className="h-4 w-4" />
-            </button>
-        </div>
-    )
-}
 
 export const meta: MetaFunction = () => {
     return [
@@ -124,18 +78,8 @@ export default function AdminDashboard() {
     const [isLoadingData, setIsLoadingData] = useState(true)
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
     const [togglingServerId, setTogglingServerId] = useState<number | null>(null)
-    const [toastMessage, setToastMessage] = useState<ToastMessage | null>(null)
-    const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    useEffect(() => () => {
-        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-    }, [])
-
-    const triggerToast = useCallback((type: ToastMessage["type"], text: string) => {
-        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-        setToastMessage({ type, text })
-        toastTimerRef.current = setTimeout(() => setToastMessage(null), 5000)
-    }, [])
+    const { showToast: triggerToast } = useToast()
 
     const loadData = useCallback(async () => {
         if (!isAdmin) return
@@ -367,10 +311,6 @@ export default function AdminDashboard() {
 
                 {/* Main page view scroll container */}
                 <main className="flex-1 p-6 md:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
-
-                    {toastMessage && (
-                        <ToastBanner message={toastMessage} onClose={() => setToastMessage(null)} t={t} />
-                    )}
 
                     {/* TAB VIEW CONTROLLERS */}
 

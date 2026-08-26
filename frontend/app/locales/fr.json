@@ -281,6 +281,9 @@
     "description": "Recevez des notifications Push sur cet appareil lorsque les événements ci-dessous se produisent.",
     "addSuccess": "Alerte créée avec succès !",
     "deleteSuccess": "Alerte supprimée avec succès !",
+    "addError": "Échec de la création de l'alerte.",
+    "deleteError": "Échec de la suppression de l'alerte.",
+    "thresholdInvalid": "Veuillez saisir un seuil de joueurs valide.",
     "subscribeSuccess": "Cet appareil est maintenant configuré pour recevoir des notifications !",
     "unauthenticated": "Connectez-vous pour configurer des alertes.",
     "addRule": "Ajouter une règle",
@@ -330,6 +333,18 @@
       "pushEnable": "Activer",
       "configuredAlerts": "Règles d'alerte configurées"
     }
+  },
+  "toast": {
+    "successTitle": "Succès",
+    "warningTitle": "Attention",
+    "errorTitle": "Erreur",
+    "close": "Fermer la notification"
+  },
+  "push": {
+    "vapidKeyError": "Impossible de récupérer la clé VAPID depuis le serveur.",
+    "syncError": "Impossible de synchroniser l'abonnement avec le serveur.",
+    "subscribeError": "L'activation des notifications a échoué.",
+    "unsubscribeError": "La désactivation des notifications a échoué."
   },
   "footer": {
     "description": "Plateforme analytique moderne pour serveurs Minecraft. Suivez, comparez et observez l'activité de vos serveurs favoris en temps réel.",
