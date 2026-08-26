@@ -6,6 +6,10 @@
     "compare": "Comparer",
     "myServers": "Mes serveurs",
     "mySpace": "Mon Espace",
+    "closeDialog": "Fermer",
+    "toggleTheme": "Changer de thème",
+    "viewServer": "Voir {{name}}",
+    "remove": "Retirer",
     "back": "Retour",
     "home": "Accueil",
     "backToHome": "Retour à l'accueil",
@@ -58,7 +62,8 @@
     "adding": "Ajout...",
     "success": "Serveur ajouté avec succès",
     "error": "Erreur lors de l'ajout du serveur",
-    "unauthenticated": "Non authentifié"
+    "unauthenticated": "Non authentifié",
+    "typePlaceholder": "Sélectionner le type"
   },
   "serverList": {
     "loading": "Chargement des serveurs...",
@@ -85,7 +90,10 @@
       "allLaunchers": "Tous les launchers",
       "lunar": "Lunar Client",
       "labymod": "LabyMod",
-      "filterSort": "Filtres & Tri"
+      "filterSort": "Filtres & Tri",
+      "reset": "Réinitialiser",
+      "sortAscTitle": "Ordre croissant",
+      "sortDescTitle": "Ordre décroissant"
     }
   },
   "hero": {
@@ -120,6 +128,10 @@
     "interval1h": "1 heure",
     "sidebar": {
       "socials": "Réseaux Sociaux",
+      "labyEmpty": "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations.",
+      "lunarEmpty": "Ce serveur est référencé sur Lunar Client mais n'a pas encore renseigné ses informations.",
+      "labyPartner": "Partenaire officiel LabyMod",
+      "lunarPartner": "Partenaire officiel Lunar Client",
       "playerStats": "Statistiques Joueurs",
       "searchPlayer": "Rechercher un joueur...",
       "gamemodes": "Modes de jeu",
@@ -340,6 +352,16 @@
     "syncError": "Impossible de synchroniser l'abonnement avec le serveur.",
     "subscribeError": "L'activation des notifications a échoué.",
     "unsubscribeError": "La désactivation des notifications a échoué."
+  },
+  "seo": {
+    "homeTitle": "Minecraft-Stats | Analytique de serveurs Minecraft",
+    "homeDescription": "Suivez les statistiques de vos serveurs Minecraft : joueurs en temps réel, historique, uptime et alertes personnalisées. Support Java & Bedrock.",
+    "notFoundTitle": "Serveur introuvable | Minecraft-Stats",
+    "notFoundDescription": "Le serveur Minecraft demandé est introuvable.",
+    "serverTitleSuffix": "Statistiques du serveur Minecraft | Minecraft-Stats",
+    "serverDescription": "Consultez le nombre de joueurs, l'uptime et les statistiques de {{name}} ({{ip}}).",
+    "statusOnline": "🟢 En ligne : {{count}} joueurs.",
+    "statusOffline": "🔴 Hors ligne."
   },
   "footer": {
     "description": "Plateforme analytique moderne pour serveurs Minecraft. Suivez, comparez et observez l'activité de vos serveurs favoris en temps réel.",

@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import fr from "../../locales/fr.json"
-import en from "../../locales/en.json"
+import { translate } from "@/core/lib/i18n"
+import type fr from "../../locales/fr.json"
 
 type Language = "fr" | "en"
-type Translations = typeof fr
 
 type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
@@ -20,8 +19,6 @@ interface LanguageContextType {
     t: (key: TranslationKey, replacements?: Record<string, string>) => string
 }
 
-const translations: Record<Language, Translations> = { fr, en }
-
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children, serverLanguage }: { children: ReactNode, serverLanguage?: Language | null }) {
@@ -35,26 +32,8 @@ export function LanguageProvider({ children, serverLanguage }: { children: React
         document.documentElement.lang = language
     }, [language])
 
-    const t = (path: TranslationKey, replacements?: Record<string, string>) => {
-        const keys = (path as string).split(".")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let current: any = translations[language]
-
-        for (const key of keys) {
-            if (current[key] === undefined) return path
-            current = current[key]
-        }
-
-        if (typeof current !== "string") return path
-
-        let result = current
-        if (replacements) {
-            Object.entries(replacements).forEach(([key, value]) => {
-                result = result.replace(`{{${key}}}`, value)
-            })
-        }
-        return result
-    }
+    const t = (path: TranslationKey, replacements?: Record<string, string>) =>
+        translate(language, path, replacements)
 
     return (
         <LanguageContext.Provider value={{ language, setLanguage, t }}>

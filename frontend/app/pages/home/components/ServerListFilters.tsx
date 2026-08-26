@@ -191,8 +191,8 @@ function SortControl({
                             title={
                                 isActive
                                     ? direction === "desc"
-                                        ? "Ordre croissant"
-                                        : "Ordre décroissant"
+                                        ? t("serverList.filters.sortAscTitle")
+                                        : t("serverList.filters.sortDescTitle")
                                     : opt.label
                             }
                         >
@@ -265,7 +265,7 @@ export function ServerListFilters({
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
                 <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ListFilter aria-hidden="true" className="w-4 h-4 text-primary" />
-                    {t("serverList.filters.filterSort") || "Filtres & Tri"}
+                    {t("serverList.filters.filterSort")}
                 </span>
                 {hasActiveFilters && (
                     <button
@@ -273,7 +273,7 @@ export function ServerListFilters({
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                         <X aria-hidden="true" className="w-3.5 h-3.5" />
-                        Réinitialiser
+                        {t("serverList.filters.reset")}
                     </button>
                 )}
             </div>
@@ -286,7 +286,7 @@ export function ServerListFilters({
                             {t("serverList.filters.sort")}
                         </p>
                         <span className="text-2xs text-muted-foreground/60">
-                            {directionText(sortDirection)}
+                            {directionText(sortDirection, t)}
                         </span>
                     </div>
                     <SortControl
@@ -295,17 +295,17 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "popularity",
-                                label: t("serverList.filters.sortPopularity") || "Populaire",
+                                label: t("serverList.filters.sortPopularity"),
                                 icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-warning" />,
                             },
                             {
                                 value: "name",
-                                label: t("serverList.filters.sortName") || "Nom",
+                                label: t("serverList.filters.sortName"),
                                 icon: <ArrowDownAZ aria-hidden="true" className="w-3.5 h-3.5 text-primary" />,
                             },
                             {
                                 value: "recent",
-                                label: t("serverList.filters.sortRecent") || "Récents",
+                                label: t("serverList.filters.sortRecent"),
                                 icon: <Clock aria-hidden="true" className="w-3.5 h-3.5 text-info" />,
                             },
                         ]}
@@ -324,7 +324,7 @@ export function ServerListFilters({
                 {/* LAUNCHER */}
                 <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground">
-                        {t("serverList.filters.launcher") || "Launcher"}
+                        {t("serverList.filters.launcher")}
                     </p>
                     <SegmentedControl
                         value={activeLauncher}
@@ -332,7 +332,7 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "all",
-                                label: t("serverList.filters.all") || "Tous",
+                                label: t("serverList.filters.all"),
                                 icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
                             },
                             {
@@ -360,17 +360,17 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "all",
-                                label: t("serverList.filters.all") || "Tous",
+                                label: t("serverList.filters.all"),
                                 icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
                             },
                             {
                                 value: "java",
-                                label: t("serverList.filters.java") || "Java",
+                                label: t("serverList.filters.java"),
                                 icon: <JavaLogo className="w-3.5 h-3.5 text-amber-500" />,
                             },
                             {
                                 value: "bedrock",
-                                label: t("serverList.filters.bedrock") || "Bedrock",
+                                label: t("serverList.filters.bedrock"),
                                 icon: <BedrockLogo className="w-3.5 h-3.5" />,
                             },
                         ]}
@@ -447,7 +447,7 @@ export function ServerListFilters({
                                 )}
                             >
                                 <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
-                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                <span>{t("serverList.filters.filterSort")}</span>
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
@@ -479,7 +479,7 @@ export function ServerListFilters({
                                 )}
                             >
                                 <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
-                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                <span>{t("serverList.filters.filterSort")}</span>
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
@@ -506,6 +506,6 @@ export function ServerListFilters({
     )
 }
 
-function directionText(dir: "asc" | "desc") {
-    return dir === "desc" ? "Décroissant" : "Croissant"
+function directionText(dir: "asc" | "desc", t: (key: string) => string) {
+    return t(dir === "desc" ? "serverList.filters.sortDesc" : "serverList.filters.sortAsc")
 }

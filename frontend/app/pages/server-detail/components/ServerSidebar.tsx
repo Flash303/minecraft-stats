@@ -196,9 +196,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                     <LabyLogo className="text-muted-foreground/40 h-8 w-8" />
                     <p className="text-muted-foreground text-sm">
-                        {language === "fr"
-                            ? "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations."
-                            : "This server is registered on LabyMod but hasn't filled in its information yet."}
+                        {t("serverDetail.sidebar.labyEmpty")}
                     </p>
                     <a
                         href={`https://github.com/LabyMod/server-media`}
@@ -218,7 +216,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 {labyServerInfo.partnered && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border border-cyan-500/20 rounded-lg shadow-sm">
                         <LabyLogo className="w-5 h-5 shrink-0" />
-                        <span className="font-bold text-sm tracking-tight">Official LabyMod Partner</span>
+                        <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.labyPartner")}</span>
                     </div>
                 )}
                 {hasSocials && (
@@ -359,9 +357,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                     <LunarLogo className="text-muted-foreground/40 h-8 w-8" />
                     <p className="text-muted-foreground text-sm">
-                        {language === "fr"
-                            ? "Ce serveur est référencé sur Lunar Client mais n'a pas encore renseigné ses informations."
-                            : "This server is registered on Lunar Client but hasn't filled in its information yet."}
+                        {t("serverDetail.sidebar.lunarEmpty")}
                     </p>
                     <a
                         href="https://github.com/LunarClient/ServerMappings/"
@@ -381,7 +377,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 {lunarServerInfo.partnered && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-orange-500/10 text-orange-600 dark:text-orange-500 border border-orange-500/20 rounded-lg shadow-sm">
                         <LunarLogo className="w-5 h-5 shrink-0" />
-                        <span className="font-bold text-sm tracking-tight">Official Lunar Partner</span>
+                        <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.lunarPartner")}</span>
                     </div>
                 )}
                 {lunarServerInfo.description && (

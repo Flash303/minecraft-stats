@@ -1,11 +1,15 @@
+const isFrench = ((self.navigator && self.navigator.language) || '').toLowerCase().startsWith('fr');
+const DEFAULT_TITLE = isFrench ? 'Alerte Minecraft' : 'Minecraft Alert';
+const DEFAULT_BODY = isFrench ? 'Changement détecté' : 'Change detected';
+
 self.addEventListener('push', function(event) {
   if (event.data) {
     try {
       const payload = event.data.json();
       
-      const title = payload.title || 'Alerte Minecraft';
+      const title = payload.title || DEFAULT_TITLE;
       const options = {
-        body: payload.body || 'Changement détecté',
+        body: payload.body || DEFAULT_BODY,
         icon: payload.icon || '/logo.webp',
         badge: payload.badge || '/logo.webp',
         data: {
@@ -21,7 +25,7 @@ self.addEventListener('push', function(event) {
       // Fallback for raw text payloads
       const text = event.data.text();
       event.waitUntil(
-        self.registration.showNotification('Alerte Minecraft', {
+        self.registration.showNotification(DEFAULT_TITLE, {
           body: text,
           icon: '/logo.webp'
         })

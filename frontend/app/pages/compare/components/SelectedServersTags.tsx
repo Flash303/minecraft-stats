@@ -5,6 +5,7 @@ import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
+import { useLanguage } from "@/core/contexts/LanguageContext"
 import type { Server } from "@/core/lib/api"
 import { cn } from "@/core/lib/utils"
 
@@ -15,6 +16,7 @@ interface SelectedServersTagsProps {
 
 export function SelectedServersTags({ selectedServers, removeServer }: SelectedServersTagsProps) {
     const { getLunarInfo, getLabyInfo } = useClientInfo()
+    const { t } = useLanguage()
 
     if (selectedServers.length === 0) return null
 
@@ -31,7 +33,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 px-3 py-2 text-xs text-primary hover:text-primary/80 transition-colors"
-                        title={`Voir ${s.name}`}
+                        title={t("common.viewServer", { name: s.name })}
                     >
                         <ServerIcon
                             serverId={s.id}
@@ -63,7 +65,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                     <button
                         onClick={() => removeServer(s.id)}
                         className="flex items-center justify-center px-2.5 py-2 text-muted-foreground hover:text-destructive transition-colors cursor-pointer focus:outline-none"
-                        title="Retirer"
+                        title={t("common.remove")}
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>

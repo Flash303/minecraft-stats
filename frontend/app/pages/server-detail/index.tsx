@@ -3,6 +3,7 @@ import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
+import { translate } from "@/core/lib/i18n"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -83,24 +84,31 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { loaderData: data } = args as any
 
+    // Langue résolue par le loader root (cookie ou Accept-Language)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rootData: any = args.matches?.find((m: any) => m.id === "root")?.data
+    const lang: "fr" | "en" = rootData?.serverLanguage ?? "fr"
+    const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
+    const locale = lang === "fr" ? "fr-FR" : "en-US"
+
     if (!data || !data.initialServer) {
         return [
-            { title: "Server Not Found | Minecraft-Stats" },
-            { name: "description", content: "Minecraft server not found." }
+            { title: L("seo.notFoundTitle") },
+            { name: "description", content: L("seo.notFoundDescription") }
         ]
     }
     const server = data.initialServer
-    const title = `${server.name} - Minecraft Server Stats | Minecraft-Stats`
+    const title = `${server.name} - ${L("seo.serverTitleSuffix")}`
     const isOnline = server.last_status === "online"
     const players = isOnline
-        ? new Intl.NumberFormat("en-US").format(server.last_connected ?? 0)
+        ? new Intl.NumberFormat(locale).format(server.last_connected ?? 0)
         : 0
     const playersText = isOnline
-        ? ` 🟢 Online: ${players} players.`
+        ? ` ${L("seo.statusOnline", { count: players })}`
         : server.last_status === "offline"
-          ? ` 🔴 Offline.`
+          ? ` ${L("seo.statusOffline")}`
           : ""
-    const description = `View player count, uptime, and stats for ${server.name} (${server.ip}).${playersText}`
+    const description = `${L("seo.serverDescription", { name: server.name, ip: server.ip })}${playersText}`
     return [
         { title },
         { name: "description", content: description },

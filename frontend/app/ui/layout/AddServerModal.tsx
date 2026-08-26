@@ -118,7 +118,7 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                             }}
                         >
                             <SelectTrigger id="type">
-                                <SelectValue placeholder="Sélectionner le type" />
+                                <SelectValue placeholder={t("addServer.typePlaceholder")} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="java">

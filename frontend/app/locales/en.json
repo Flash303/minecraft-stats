@@ -4,8 +4,12 @@
     "refresh": "Refresh",
     "search": "Search for a server...",
     "compare": "Compare",
-    "myServers": "My Servers",
+    "myServers": "My servers",
     "mySpace": "My Space",
+    "closeDialog": "Close",
+    "toggleTheme": "Toggle theme",
+    "viewServer": "View {{name}}",
+    "remove": "Remove",
     "back": "Back",
     "home": "Home",
     "backToHome": "Back to Home",
@@ -58,7 +62,8 @@
     "adding": "Adding...",
     "success": "Server added successfully",
     "error": "Failed to add server",
-    "unauthenticated": "Unauthenticated"
+    "unauthenticated": "Unauthenticated",
+    "typePlaceholder": "Select type"
   },
   "serverList": {
     "loading": "Loading servers...",
@@ -85,7 +90,10 @@
       "allLaunchers": "All Launchers",
       "lunar": "Lunar Client",
       "labymod": "LabyMod",
-      "filterSort": "Filter & Sort"
+      "filterSort": "Filter & Sort",
+      "reset": "Reset",
+      "sortAscTitle": "Ascending order",
+      "sortDescTitle": "Descending order"
     }
   },
   "hero": {
@@ -120,6 +128,10 @@
     "interval1h": "1 hour",
     "sidebar": {
       "socials": "Social Networks",
+      "labyEmpty": "This server is registered on LabyMod but hasn't filled in its information yet.",
+      "lunarEmpty": "This server is registered on Lunar Client but hasn't filled in its information yet.",
+      "labyPartner": "Official LabyMod Partner",
+      "lunarPartner": "Official Lunar Partner",
       "playerStats": "Player Statistics",
       "searchPlayer": "Search for a player...",
       "gamemodes": "Gamemodes",
@@ -340,6 +352,16 @@
     "syncError": "Could not sync the subscription with the server.",
     "subscribeError": "Failed to enable notifications.",
     "unsubscribeError": "Failed to disable notifications."
+  },
+  "seo": {
+    "homeTitle": "Minecraft-Stats | Minecraft Server Analytics",
+    "homeDescription": "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins.",
+    "notFoundTitle": "Server Not Found | Minecraft-Stats",
+    "notFoundDescription": "The requested Minecraft server could not be found.",
+    "serverTitleSuffix": "Minecraft Server Stats | Minecraft-Stats",
+    "serverDescription": "View player count, uptime, and stats for {{name}} ({{ip}}).",
+    "statusOnline": "🟢 Online: {{count}} players.",
+    "statusOffline": "🔴 Offline."
   },
   "footer": {
     "description": "Modern analytics platform for Minecraft servers. Track, compare, and observe your favorite servers' activity in real-time.",

@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { GlobalLoading } from "./ui/components/global-loading";
 import { APP_URL } from "./core/lib/config";
 import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
+import { translate } from "./core/lib/i18n";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -45,22 +46,25 @@ export function shouldRevalidate() {
   return false;
 }
 
-export function meta() {
+export function meta({ data }: { data?: { serverLanguage?: "fr" | "en" } }) {
+  const lang = data?.serverLanguage ?? "fr"
+  const L = (path: string) => translate(lang, path)
+
   return [
-    { title: "Minecraft-Stats | Minecraft Server Analytics" },
-    { name: "description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
+    { title: L("seo.homeTitle") },
+    { name: "description", content: L("seo.homeDescription") },
     { property: "og:type", content: "website" },
     { property: "og:site_name", content: "Minecraft-Stats" },
-    { property: "og:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
-    { property: "og:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
+    { property: "og:title", content: L("seo.homeTitle") },
+    { property: "og:description", content: L("seo.homeDescription") },
     { property: "og:image", content: `${APP_URL}/opengraph.webp` },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:url", content: APP_URL },
     { property: "og:logo", content: `${APP_URL}/logo.webp` },
     { property: "twitter:card", content: "summary_large_image" },
-    { property: "twitter:title", content: "Minecraft-Stats | Minecraft Server Analytics" },
-    { property: "twitter:description", content: "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins." },
+    { property: "twitter:title", content: L("seo.homeTitle") },
+    { property: "twitter:description", content: L("seo.homeDescription") },
     { property: "twitter:image", content: `${APP_URL}/opengraph.webp` },
   ];
 }
