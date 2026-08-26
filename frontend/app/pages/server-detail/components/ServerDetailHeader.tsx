@@ -7,6 +7,7 @@ import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
+import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
@@ -76,7 +77,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             {server.name}
                         </h1>
                         {lunarInfo && (
-                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
+                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarLogoClass(lunarInfo.partnered))} title="Lunar Client" />
                         )}
                         {labyInfo && (
                             <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} title="LabyMod" />

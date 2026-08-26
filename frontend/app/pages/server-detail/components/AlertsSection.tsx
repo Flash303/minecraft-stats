@@ -102,8 +102,8 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
     if (!isSignedIn) {
         return (
             <div className="mt-8 border border-dashed rounded-xl p-8 flex flex-col items-center text-center">
-                <ShieldAlert className="h-6 w-6 text-zinc-400 mb-3" />
-                <h3 className="font-medium text-zinc-800 dark:text-zinc-200">{t("alerts.title")}</h3>
+                <ShieldAlert className="h-6 w-6 text-muted-foreground mb-3" />
+                <h3 className="font-medium text-foreground">{t("alerts.title")}</h3>
                 <p className="text-sm text-muted-foreground mt-1">{t("alerts.unauthenticated")}</p>
             </div>
         )
@@ -124,7 +124,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                             {t("alerts.pushNotSupported")}
                         </span>
                     ) : checkingSubscription ? (
-                        <div className="h-8 w-24 bg-zinc-100 dark:bg-zinc-800 animate-pulse rounded-md" />
+                        <div className="h-8 w-24 bg-muted animate-pulse rounded-md" />
                     ) : isSubscribed ? (
                         <div className="flex items-center gap-3">
                             <span className="text-xs text-success flex items-center gap-1.5 font-medium">
@@ -160,7 +160,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Alert Creation Form */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">{t("alerts.addRule")}</h4>
+                    <h4 className="text-sm font-medium text-foreground">{t("alerts.addRule")}</h4>
                     <form onSubmit={handleAddAlert} className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="alert-type" className="text-xs text-muted-foreground">{t("alerts.typeLabel")}</Label>
@@ -203,12 +203,12 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
 
                 {/* Active Alerts List */}
                 <div className="flex flex-col gap-4">
-                    <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-200">{t("alerts.activeRules")}</h4>
+                    <h4 className="text-sm font-medium text-foreground">{t("alerts.activeRules")}</h4>
                     
                     {loading ? (
                         <div className="flex flex-col gap-3">
-                            <div className="h-12 bg-zinc-100 dark:bg-zinc-800/50 rounded-md animate-pulse" />
-                            <div className="h-12 bg-zinc-100 dark:bg-zinc-800/50 rounded-md animate-pulse" />
+                            <div className="h-12 bg-muted/60 rounded-md animate-pulse" />
+                            <div className="h-12 bg-muted/60 rounded-md animate-pulse" />
                         </div>
                     ) : alerts.length === 0 ? (
                         <div className="py-8 flex flex-col items-center justify-center text-center text-muted-foreground border-2 border-dashed border-border/60 rounded-lg">
@@ -217,14 +217,14 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                     ) : (
                         <div className="flex flex-col gap-2.5">
                             {alerts.map((alert) => (
-                                <div key={alert.id} className="group flex items-center justify-between p-3.5 bg-zinc-50/50 dark:bg-zinc-800/40 rounded-lg border border-border/80 transition-colors hover:bg-zinc-100/50 dark:hover:bg-zinc-800/60">
+                                <div key={alert.id} className="group flex items-center justify-between p-3.5 bg-muted/40 rounded-lg border border-border/80 transition-colors hover:bg-muted/60">
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                                        <span className="text-sm font-medium text-foreground">
                                             {t(`alerts.types.${alert.alert_type}`)}
                                         </span>
                                         {(alert.alert_type === "player_above" || alert.alert_type === "player_below") && (
                                             <span className="text-xs text-muted-foreground mt-1">
-                                                {t("alerts.thresholdLabel")} : <strong className="text-foreground font-medium px-1.5 py-0.5 bg-zinc-200/50 dark:bg-zinc-700/50 rounded">{alert.player_threshold}</strong>
+                                                {t("alerts.thresholdLabel")} : <strong className="text-foreground font-medium px-1.5 py-0.5 bg-muted/70 rounded">{alert.player_threshold}</strong>
                                             </span>
                                         )}
                                     </div>

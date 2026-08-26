@@ -17,6 +17,7 @@ import {
     sizeChartToContainer,
 } from "@/core/hooks/useChartPlugins"
 import { cn } from "@/core/lib/utils"
+import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 
 interface PlayerChartProps {
     data: { date: number; value: number }[]
@@ -58,15 +59,14 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             const yVal = u.data[1][idx]
             if (yVal == null) return ""
 
-            const isDark = document.documentElement.classList.contains("dark")
-            const strokeColor = isDark ? "#6366f1" : "#4f46e5"
+            const strokeColor = resolveToken("--primary")
 
             return `
                 <div class="flex items-center gap-2 py-0.5">
                     <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
                     <div class="flex items-center gap-1.5">
                         <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
-                        <span class="text-zinc-400 text-[10px] uppercase">${t("common.players")}</span>
+                        <span class="text-muted-foreground text-[10px] uppercase">${t("common.players")}</span>
                     </div>
                 </div>
             `
@@ -101,10 +101,10 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     // Configuration globale du graphique
     const options = useMemo(() => {
         const isDark = theme === "dark"
-        const strokeColor = isDark ? "#60a5fa" : "#2563eb"
-        const fillColor = isDark ? "rgba(96, 165, 250, 0.15)" : "rgba(37, 99, 235, 0.1)"
-        const gridColor = isDark ? "#374151" : "#e5e7eb"
-        const textColor = isDark ? "#d1d5db" : "#374151"
+        const strokeColor = resolveToken("--info")
+        const fillColor = withAlpha(strokeColor, isDark ? 0.15 : 0.1)
+        const gridColor = resolveToken("--chart-grid")
+        const textColor = resolveToken("--chart-axis-text")
         const locale = language === "fr" ? "fr-FR" : "en-US"
 
         return {
@@ -188,7 +188,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                         "w-full transition-opacity duration-200 flex items-center justify-center",
                         isLoading ? "opacity-30 pointer-events-none" : "opacity-100"
                     )}>
-                        <p className="text-center py-4 text-zinc-400 font-medium">
+                        <p className="text-center py-4 text-muted-foreground font-medium">
                             {isRateLimited ? t("common.rateLimited") : t("common.noDataForRange")}
                         </p>
                     </div>

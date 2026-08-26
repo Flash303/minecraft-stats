@@ -1,7 +1,7 @@
 
 export function ServerCardSkeleton() {
     return (
-        <div className="relative flex flex-col justify-between shadow-sm border border-border/80 bg-white/95 dark:bg-zinc-900/50 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] animate-pulse">
+        <div className="relative flex flex-col justify-between shadow-sm border border-border/80 bg-card/95 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] animate-pulse">
             {/* Top row */}
             <div className="flex flex-row gap-4 w-full min-w-0 items-start">
                 {/* Favicon Skeleton */}

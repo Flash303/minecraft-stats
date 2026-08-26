@@ -5,6 +5,7 @@ import "uplot/dist/uPlot.min.css"
 import { useTheme } from "@/core/contexts/ThemeContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData } from "@/core/lib/chartUtils"
+import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 
 interface PlayerDataPoint {
     date: number
@@ -25,8 +26,8 @@ export function MiniChart({ data }: MiniChartProps) {
 
     const options = useMemo(() => {
         const isDark = theme === "dark"
-        const strokeColor = isDark ? "#3b82f6" : "#2563eb"
-        const fillColor = isDark ? "rgba(59, 130, 246, 0.1)" : "rgba(37, 99, 235, 0.05)"
+        const strokeColor = resolveToken("--info")
+        const fillColor = withAlpha(strokeColor, isDark ? 0.1 : 0.05)
 
         return {
             width: 160,

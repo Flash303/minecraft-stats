@@ -132,7 +132,7 @@ export function ServersTab({
                         placeholder={t("admin.servers.searchPlaceholder")}
                         value={serverSearchQuery}
                         onChange={(e) => setServerSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-800"
+                        className="pl-9 h-10 rounded-xl bg-background border-border"
                     />
                 </div>
                 
@@ -155,11 +155,11 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("online")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "online"
-                                ? "bg-emerald-500/10 text-success border border-emerald-500/20"
+                                ? "bg-success/10 text-success border border-success/20"
                                 : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
                         {t("admin.servers.statusOnline")}
                     </button>
                     <button
@@ -168,11 +168,11 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("offline")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "offline"
-                                ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                                ? "bg-destructive/10 text-destructive border border-destructive/20"
                                 : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
-                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
                         {t("admin.servers.statusOffline")}
                     </button>
                     <button
@@ -181,7 +181,7 @@ export function ServersTab({
                         onClick={() => setServerStatusFilter("hidden")}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all flex items-center gap-1 ${
                             serverStatusFilter === "hidden"
-                                ? "bg-amber-500/10 text-warning border border-amber-500/20"
+                                ? "bg-warning/10 text-warning border border-warning/20"
                                 : "text-muted-foreground hover:bg-accent"
                         }`}
                     >
@@ -223,7 +223,7 @@ export function ServersTab({
             <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-border/60">
                 <table className="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr className="border-b bg-zinc-50/70 dark:bg-zinc-950/50 text-muted-foreground font-semibold">
+                        <tr className="border-b bg-muted/40 text-muted-foreground font-semibold">
                             <th className="p-4 w-10 text-center rounded-tl-xl">
                                 <Checkbox
                                     checked={sortedServers.length > 0 && selectedIds.length === sortedServers.length}
@@ -249,8 +249,8 @@ export function ServersTab({
                                 return (
                                     <tr 
                                         key={server.id} 
-                                        className={`hover:bg-zinc-50/30 dark:hover:bg-zinc-800/20 transition-all ${
-                                            isHidden ? "opacity-60 bg-zinc-50/10 dark:bg-zinc-900/10" : ""
+                                        className={`hover:bg-muted/30 transition-all ${
+                                            isHidden ? "opacity-60 bg-muted/20" : ""
                                         }`}
                                     >
                                         <td className="p-4 text-center">
@@ -302,8 +302,8 @@ export function ServersTab({
                                         <td className="p-4">
                                             <span className={`inline-flex items-center gap-1 text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                                                 isOnline 
-                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+? "bg-success/10 text-success"
+                    : "bg-destructive/10 text-destructive"
                                             }`}>
                                                 {isOnline ? t("common.online") : t("common.offline")}
                                             </span>

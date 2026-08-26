@@ -301,7 +301,7 @@ export function ServerListFilters({
                             {
                                 value: "popularity",
                                 label: t("serverList.filters.sortPopularity") || "Populaire",
-                                icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-amber-500" />,
+                                icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-warning" />,
                             },
                             {
                                 value: "name",
@@ -457,7 +457,7 @@ export function ServerListFilters({
                                     <span
                                         className={cn(
                                             "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
-                                            "bg-white/20 dark:bg-zinc-950/20"
+                                            "bg-background/20"
                                         )}
                                     >
                                         {activeFilterCount}
@@ -466,7 +466,7 @@ export function ServerListFilters({
                             </button>
                         </PopoverTrigger>
                         <PopoverContent
-                            className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-white dark:bg-zinc-950 overflow-hidden"
+                            className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-card overflow-hidden"
                             align="end"
                         >
                             {FilterContent()}
@@ -489,7 +489,7 @@ export function ServerListFilters({
                                     <span
                                         className={cn(
                                             "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
-                                            "bg-white/20 dark:bg-zinc-950/20"
+                                            "bg-background/20"
                                         )}
                                     >
                                         {activeFilterCount}

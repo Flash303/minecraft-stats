@@ -19,7 +19,7 @@ export function RenameServerModalButton({ server, onSuccess }: { server: Server,
                 saving: t("profile.servers.renameSaving"),
             }}
             trigger={
-                <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-zinc-200 dark:hover:bg-zinc-800 cursor-pointer text-zinc-500">
+                <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-muted cursor-pointer text-muted-foreground">
                     <Edit2 className="h-4 w-4" />
                 </Button>
             }

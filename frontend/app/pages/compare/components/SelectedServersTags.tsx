@@ -1,6 +1,7 @@
 import { X } from "lucide-react"
 import { Link } from "react-router"
 import { ServerIcon } from "@/ui/components/ServerIcon"
+import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
@@ -41,14 +42,14 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         {(() => {
                             const lunarInfo = getLunarInfo(s.ip);
                             return lunarInfo ? (
-                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} />
+                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(lunarInfo.partnered))} />
                             ) : null;
                         })()}
                         {(() => {
                             const labyInfo = getLabyInfo(s.ip);
                             return labyInfo ? (
                                 <LabyLogo
-                                    className={cn("w-3.5 h-3.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")}
+                                    className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partnered))}
                                     title="LabyMod"
                                 />
                             ) : null;

@@ -120,7 +120,7 @@ export default function Account() {
     return (
         <>
             {/* Header section with gradient background */}
-            <div className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-border">
+            <div className="relative overflow-hidden bg-card border-b border-border">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
                 <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 relative z-10">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -137,7 +137,7 @@ export default function Account() {
                                     {t("profile.hello", { name: user?.firstName || user?.username || t("profile.defaultUser") })}
                                 </h1>
                                 <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+                                    <span className="inline-block w-2 h-2 rounded-full bg-success" />
                                     {t("profile.loggedInAs", { email: user?.primaryEmailAddress?.emailAddress || "" })}
                                 </p>
                             </div>
@@ -150,7 +150,7 @@ export default function Account() {
                             </div>
                             <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm min-w-[120px]">
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.alerts")}</span>
-                                <span className="text-2xl font-bold text-indigo-500 dark:text-indigo-400">{allAlerts.length}</span>
+                                <span className="text-2xl font-bold text-primary">{allAlerts.length}</span>
                             </div>
                         </div>
                     </div>
@@ -165,7 +165,7 @@ export default function Account() {
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'servers'
                                 ? "text-foreground"
-                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <ServerIcon className="h-4 w-4" />
@@ -180,7 +180,7 @@ export default function Account() {
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'alerts'
                                 ? "text-foreground"
-                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <Bell className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default function Account() {
                         className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
                             activeTab === 'profile'
                                 ? "text-foreground"
-                                : "text-muted-foreground hover:text-slate-900 dark:hover:text-slate-200"
+                                : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                         <Settings className="h-4 w-4" />

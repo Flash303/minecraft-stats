@@ -3,6 +3,7 @@ import { ArrowDown } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useTheme } from "@/core/contexts/ThemeContext"
 import type { Server as ServerType } from "@/core/lib/api"
+import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 
 // Predefined heights for the graph nodes (representing server player count stats)
 // Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
@@ -174,11 +175,11 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             const isDark = theme === "dark"
             
             // Grid and label colors
-            const gridColor = isDark ? "rgba(39, 39, 42, 0.5)" : "rgba(228, 228, 231, 0.6)"
-            const labelColor = isDark ? "#52525b" : "#a1a1aa"
-            const primaryColor = isDark ? "rgb(129, 140, 248)" : "rgb(79, 70, 229)"
-            const primaryGlow = isDark ? "rgba(129, 140, 248, 0.3)" : "rgba(79, 70, 229, 0.2)"
-            const areaGradientStart = isDark ? "rgba(129, 140, 248, 0.12)" : "rgba(79, 70, 229, 0.08)"
+            const gridColor = withAlpha(resolveToken("--border"), isDark ? 0.5 : 0.6)
+            const labelColor = resolveToken("--muted-foreground")
+            const primaryColor = resolveToken("--primary")
+            const primaryGlow = withAlpha(primaryColor, isDark ? 0.3 : 0.2)
+            const areaGradientStart = withAlpha(primaryColor, isDark ? 0.12 : 0.08)
 
             // 1. Draw Grid Lines
             ctx.strokeStyle = gridColor
@@ -291,7 +292,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
             const areaGrad = ctx.createLinearGradient(0, 70, 0, bottomY)
             areaGrad.addColorStop(0, areaGradientStart)
-            areaGrad.addColorStop(1, "rgba(99, 102, 241, 0.0)")
+            areaGrad.addColorStop(1, withAlpha(primaryColor, 0))
             ctx.fillStyle = areaGrad
             ctx.fill()
 
@@ -325,7 +326,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                 // Core dot
                 ctx.beginPath()
                 ctx.arc(drawX, drawY, 3.5, 0, Math.PI * 2)
-                ctx.fillStyle = isDark ? "#ffffff" : primaryColor
+                ctx.fillStyle = isDark ? resolveToken("--foreground") : primaryColor
                 ctx.fill()
             }
 
@@ -347,7 +348,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                 // Draw outer ring
                 ctx.beginPath()
                 ctx.arc(p.x, p.y, ringRadius, 0, Math.PI * 2)
-                ctx.fillStyle = isHovered ? primaryGlow : (isDark ? "rgba(129, 140, 248, 0.1)" : "rgba(79, 70, 229, 0.06)")
+                ctx.fillStyle = isHovered ? primaryGlow : withAlpha(primaryColor, isDark ? 0.1 : 0.06)
                 ctx.fill()
 
                 // Draw core border
@@ -355,7 +356,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                 ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2)
                 ctx.strokeStyle = primaryColor
                 ctx.lineWidth = 2 * nodeScale
-                ctx.fillStyle = isDark ? "#18181b" : "#ffffff"
+                ctx.fillStyle = resolveToken("--card")
                 ctx.fill()
                 ctx.stroke()
             }
@@ -395,9 +396,9 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     }
 
     return (
-        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 border-b border-zinc-200/40 dark:border-zinc-800/10">
+        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 border-b border-border/40">
             {/* Ambient Background Grid Glows */}
-            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-zinc-200/20 dark:bg-zinc-800/5 blur-3xl -z-10" />
+            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-primary/10 blur-3xl -z-10" />
             
             <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
                 {/* Hero Text */}
@@ -474,7 +475,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                 ref={containerRef}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
-                className="flex flex-shrink-0 w-full max-w-[460px] aspect-[460/320] items-center justify-center relative bg-white dark:bg-zinc-950 rounded-3xl border border-border/60 shadow-lg shadow-zinc-100/5 dark:shadow-none overflow-hidden"
+                className="flex flex-shrink-0 w-full max-w-[460px] aspect-[460/320] items-center justify-center relative bg-card rounded-3xl border border-border/60 shadow-lg shadow-primary/5 dark:shadow-none overflow-hidden"
             >
                 <canvas 
                     ref={canvasRef} 

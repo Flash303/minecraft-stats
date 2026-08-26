@@ -73,7 +73,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
 
     const distributionRows = [
         { key: "online", count: stats.onlineCount, barClass: "bg-success", dotClass: "bg-success" },
-        { key: "offline", count: stats.offlineCount, barClass: "bg-rose-500", dotClass: "bg-rose-500" },
+        { key: "offline", count: stats.offlineCount, barClass: "bg-destructive", dotClass: "bg-destructive" },
         { key: "hidden", count: stats.hiddenCount, barClass: "bg-warning", dotClass: "bg-warning" },
     ] as const
 
@@ -86,13 +86,13 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     label={t("admin.statsUsers")}
                     value={stats.totalUsers}
                     icon={Users}
-                    iconClassName="bg-blue-500/10 text-blue-500"
+                    iconClassName="bg-info/10 text-info"
                 />
                 <StatCard
                     label={t("admin.statsServers")}
                     value={stats.totalServers}
                     icon={ServerIcon}
-                    iconClassName="bg-indigo-500/10 text-indigo-500"
+                    iconClassName="bg-primary/10 text-primary"
                 />
                 <StatCard
                     label={t("admin.statsOnline")}
@@ -104,7 +104,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                     label={t("admin.statsPlayers")}
                     value={stats.playersOnline.toLocaleString()}
                     icon={Gamepad2}
-                    iconClassName="bg-amber-500/10 text-amber-500"
+                    iconClassName="bg-warning/10 text-warning"
                 />
             </div>
 
@@ -180,7 +180,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                 <Card className="lg:col-span-2 bg-card border-border/60">
                     <CardHeader className="pb-4">
                         <CardTitle className="text-md font-semibold flex items-center gap-2">
-                            <ServerIcon className="h-5 w-5 text-indigo-500" />
+                            <ServerIcon className="h-5 w-5 text-primary" />
                             {t("admin.overview.distribution")}
                         </CardTitle>
                         <CardDescription>{t("admin.overview.distributionDesc")}</CardDescription>

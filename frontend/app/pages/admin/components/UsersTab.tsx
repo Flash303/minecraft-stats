@@ -81,7 +81,7 @@ export function UsersTab({
                         placeholder={t("admin.searchUser")}
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-800"
+                        className="pl-9 h-10 rounded-xl bg-background border-border"
                     />
                 </div>
             </div>
@@ -102,7 +102,7 @@ export function UsersTab({
                                         decoding="async"
                                     />
                                 ) : (
-                                    <div className="h-16 w-16 mx-auto rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-muted-foreground border-2 border-primary/10">
+                                    <div className="h-16 w-16 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground border-2 border-primary/10">
                                         <UserIcon className="h-8 w-8" />
                                     </div>
                                 )}
@@ -116,7 +116,7 @@ export function UsersTab({
                                     {user.username ? `@${user.username}` : user.id}
                                 </span>
 
-                                <div className="text-[10px] text-muted-foreground/60 font-mono select-all bg-background/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border dark:border-zinc-800">
+                                <div className="text-[10px] text-muted-foreground/60 font-mono select-all bg-background/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border border-border">
                                     {user.id}
                                 </div>
 
@@ -192,8 +192,8 @@ export function UsersTab({
                                             key={server.id} 
                                             className={`flex items-center justify-between gap-4 p-3 rounded-xl border transition-all duration-300 ${
                                                 isHidden 
-                                                    ? "bg-zinc-100/40 dark:bg-zinc-900/10 border-dashed border-border opacity-70" 
-                                                    : "bg-card border-zinc-200 dark:border-zinc-800 hover:shadow-xs"
+? "bg-muted/30 border-dashed border-border opacity-70"
+                        : "bg-card border-border hover:shadow-xs"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">

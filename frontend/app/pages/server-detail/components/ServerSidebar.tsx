@@ -8,6 +8,7 @@ import { FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaYoutube, FaFacebook, FaT
 import { BiSupport } from "react-icons/bi"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { cn } from "@/core/lib/utils"
+import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 
@@ -147,7 +148,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                     {isLaby ? (
                         <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-foreground")} />
                     ) : (
-                        <LunarLogo className={cn("w-5 h-5", lunarServerInfo?.partnered ? "text-orange-500" : "text-sky-500")} />
+                        <LunarLogo className={cn("w-5 h-5", lunarLogoClass(lunarServerInfo?.partnered))} />
                     )}
                     {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>

@@ -3,6 +3,7 @@ import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
+import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { parseLegacyText } from "@/ui/motd/parser"
@@ -80,8 +81,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
                                 {server.name}
                             </h2>
                         )}
-                        {lunarInfo && <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} />}
-                        {labyInfo && <LabyLogo className={cn("w-3.5 h-3.5 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} />}
+                        {lunarInfo && <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(lunarInfo.partnered))} />}
+                        {labyInfo && <LabyLogo className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partnered))} />}
                     </div>
                     
                     <button 

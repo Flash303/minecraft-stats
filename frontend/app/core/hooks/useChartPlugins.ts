@@ -296,7 +296,7 @@ export function useTooltipPlugin({ language, t, renderRowsHtml, tooltipWidth = 1
                 if (!rowsHtml) return hideOverlay();
 
                 overlay.innerHTML = `
-                    <div class="border-b border-white/10 pb-1.5 mb-1.5 text-zinc-400 font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
+                    <div class="border-b border-border/60 pb-1.5 mb-1.5 text-muted-foreground font-semibold flex items-center gap-1.5">📅 ${dateTimeStr}</div>
                     <div class="space-y-1">${rowsHtml}</div>
                 `;
                 lastRenderedIdx = idx;
@@ -325,7 +325,7 @@ export function useTooltipPlugin({ language, t, renderRowsHtml, tooltipWidth = 1
             hooks: {
                 init: (u: uPlot) => {
                     const el = document.createElement("div");
-                    el.className = `pointer-events-none absolute z-50 rounded-xl border border-zinc-800 bg-zinc-950/90 px-3.5 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[${tooltipWidth}px] transition-opacity duration-150`;
+                    el.className = `pointer-events-none absolute z-50 rounded-xl border border-border bg-popover/90 px-3.5 py-2.5 text-xs text-popover-foreground shadow-2xl backdrop-blur-md font-sans leading-relaxed min-w-[${tooltipWidth}px] transition-opacity duration-150`;
                     el.style.display = "none";
                     el.style.position = "fixed";
                     u.over.appendChild(el);

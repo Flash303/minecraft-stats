@@ -222,6 +222,8 @@
     --chart-3: #22c55e;
     --chart-4: #f59e0b;
     --chart-5: #6366f1;
+    --chart-grid: #e5e7eb;
+    --chart-axis-text: #374151;
     --radius: 1rem;
   }
   .dark {
@@ -255,6 +257,8 @@
     --chart-3: #eab308;
     --chart-4: #a855f7;
     --chart-5: #f97316;
+    --chart-grid: #374151;
+    --chart-axis-text: #d1d5db;
   }
 }
 
