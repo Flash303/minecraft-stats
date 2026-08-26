@@ -287,6 +287,8 @@ export function ServersTab({
                                                         src={creator.image_url}
                                                         alt={t("alt.userAvatar", { name: creator.username || t("profile.defaultUser") })}
                                                         className="h-5 w-5 rounded-full object-cover border"
+                                                        loading="lazy"
+                                                        decoding="async"
                                                     />
                                                 ) : (
                                                     <UserIcon className="h-4 w-4 text-muted-foreground" />

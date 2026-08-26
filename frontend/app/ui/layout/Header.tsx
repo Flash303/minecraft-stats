@@ -93,7 +93,7 @@ export function Header({ leftContent }: HeaderProps) {
                     {leftContent || (
                         <div className="flex items-center gap-4 sm:gap-6 min-w-0">
                             <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-                                <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
+                                <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                                 <span className="font-bold tracking-tight hidden xs:inline-block text-foreground text-sm sm:text-base">
                                     {t("header.title")}
                                 </span>

@@ -59,10 +59,12 @@ export function MinecraftMotd({
                 className="flex items-start shrink-0"
                 style={{ marginRight: `${margin}px` }}
             >
-                <img 
+                <img
                     style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
-                    src={displayFavicon} 
+                    src={displayFavicon}
                     alt="Server icon"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAzSURBVGhD7cExAQAAAMKg9U9tCy8gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuBk4KAAAEyqOaAAAAABJRU5ErkJggg==' }}
                 />
             </div>
@@ -123,6 +125,8 @@ export function MinecraftMotd({
                                             style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
                                             src={typeof currentPlayers === 'string' ? pingUnknownIcon : pingIcon}
                                             alt="ping"
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                                         />
                                     </div>

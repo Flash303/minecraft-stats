@@ -16,7 +16,7 @@ export function Footer() {
                 {/* Left side: Site branding & info */}
                 <div className="flex flex-col gap-2 max-w-sm">
                     <div className="flex items-center gap-2">
-                        <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
+                        <img src={logo} alt="Logo" loading="lazy" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                         <span className="font-bold text-foreground tracking-tight">
                             {t("header.title")}
                         </span>

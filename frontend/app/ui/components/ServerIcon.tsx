@@ -6,10 +6,12 @@ interface ServerIconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     serverId: number | string
 }
 
-export function ServerIcon({ serverId, alt = "", className, ...props }: ServerIconProps) {
+export function ServerIcon({ serverId, alt = "", className, loading = "lazy", decoding = "async", ...props }: ServerIconProps) {
     return (
         <img
             src={getServerIconUrl(serverId)}
+            loading={loading}
+            decoding={decoding}
             onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = default_icon;

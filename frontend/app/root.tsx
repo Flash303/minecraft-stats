@@ -79,9 +79,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/webp" href="/logo.webp" />
-        {/* Google Fonts : connexion anticipée pour réduire le render-blocking du @import CSS */}
+        {/* Google Fonts : preconnect + stylesheet en <link> (l'@import CSS était render-blocking) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
+        />
         <Meta />
         <Links />
         <script

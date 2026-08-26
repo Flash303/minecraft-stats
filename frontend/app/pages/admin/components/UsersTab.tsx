@@ -98,6 +98,8 @@ export function UsersTab({
                                         src={user.image_url}
                                         alt={t("alt.userAvatar", { name: user.username || t("profile.defaultUser") })}
                                         className="h-16 w-16 mx-auto rounded-full object-cover border-2 border-primary/10 shadow-sm"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 ) : (
                                     <div className="h-16 w-16 mx-auto rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-muted-foreground border-2 border-primary/10">
@@ -155,10 +157,12 @@ export function UsersTab({
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-3">
                             {selectedUser?.image_url ? (
-                                <img 
-                                    src={selectedUser.image_url} 
-                                    className="h-10 w-10 rounded-full object-cover border" 
-                                    alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })} 
+                                <img
+                                    src={selectedUser.image_url}
+                                    className="h-10 w-10 rounded-full object-cover border"
+                                    alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })}
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             ) : (
                                 <UserIcon className="h-10 w-10 text-muted-foreground bg-muted p-2 rounded-full border" />

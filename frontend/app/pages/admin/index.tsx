@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                 {/* Sidebar Header */}
                 <div className="h-14 border-b px-6 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
-                        <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
+                        <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                         <span className="font-bold tracking-tight text-foreground text-sm">
                             {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">Admin</span>
                         </span>

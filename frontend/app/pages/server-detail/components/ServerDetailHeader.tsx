@@ -67,6 +67,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                     serverId={server.id}
                     alt={t("alt.serverLogo", { name: server.name })}
                     className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
+                    loading="eager"
                 />
                 <div className="flex flex-col min-w-0">
                     {/* Nom + icônes launcher */}
@@ -119,6 +120,8 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                                         src={server.user.image_url}
                                         alt={server.user.username || "User"}
                                         className="h-3.5 w-3.5 rounded-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 ) : (
                                     <UserIcon className="h-3 w-3" />

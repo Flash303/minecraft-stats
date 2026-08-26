@@ -309,10 +309,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                 
                                 return (
                                     <div key={lang} className="flex items-center gap-1.5 uppercase text-xs font-semibold px-2 py-1 bg-muted/50 rounded-md border text-muted-foreground transition-colors hover:bg-muted" title={lang}>
-                                        <img 
+                                        <img
                                             src={`https://flagcdn.com/w20/${flagCode}.png`}
                                             alt={lang}
                                             className="w-4 h-auto rounded-[1px] shadow-sm"
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                         />
                                         <span>{lang}</span>
@@ -475,10 +477,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                 
                                 return (
                                     <div key={lang} className="flex items-center gap-1.5 uppercase text-xs font-semibold px-2 py-1 bg-muted/50 rounded-md border text-muted-foreground transition-colors hover:bg-muted" title={lang}>
-                                        <img 
+                                        <img
                                             src={`https://flagcdn.com/w20/${flagCode}.png`}
                                             alt={lang}
                                             className="w-4 h-auto rounded-[1px] shadow-sm"
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                         />
                                         <span>{lang}</span>

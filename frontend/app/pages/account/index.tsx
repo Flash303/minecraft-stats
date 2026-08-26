@@ -126,7 +126,7 @@ export default function Account() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-5">
                             {user?.imageUrl ? (
-                                <img src={user.imageUrl} alt="Avatar" className="w-20 h-20 rounded-full border-4 border-background shadow-md" />
+                                <img src={user.imageUrl} alt="Avatar" loading="lazy" decoding="async" className="w-20 h-20 rounded-full border-4 border-background shadow-md" />
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-md">
                                     <User className="h-8 w-8 text-primary" />
