@@ -20,17 +20,22 @@ import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./ui/components/global-loading";
 import { APP_URL } from "./core/lib/config";
+import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 export function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie") || "";
   const matchTheme = cookieHeader.match(/theme=(light|dark)/);
-  const matchLang = cookieHeader.match(/language=(fr|en)/);
+
+  // Langue : cookie d'abord, sinon détection serveur via Accept-Language
+  // -> le SSR rend directement la bonne langue, aucun flash possible.
+  const serverLanguage = parseLanguageCookie(cookieHeader)
+    ?? resolveLanguageFromHeader(request.headers.get("Accept-Language"));
 
   return {
     serverTheme: matchTheme ? (matchTheme[1] as "light" | "dark") : null,
-    serverLanguage: matchLang ? (matchLang[1] as "fr" | "en") : null,
+    serverLanguage,
   };
 }
 
@@ -62,8 +67,8 @@ export function meta() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const rootData = useRouteLoaderData<typeof loader>("root");
-  const theme = rootData?.serverTheme || "dark"; // Default to dark if no cookie
-  // "fr" par défaut pour correspondre à la langue par défaut du LanguageProvider
+  // Résolue côté serveur (cookie ou Accept-Language) -> attribut lang correct
+  // dès le HTML SSR, sans bascule client.
   const lang = rootData?.serverLanguage || "fr";
 
   useEffect(() => {
@@ -74,11 +79,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // La classe de thème n'appartient PAS à React : le script anti-flash dans
+  // <head> la pose avant le premier paint, l'effet de ThemeContext la met à
+  // jour ensuite. Aucune divergence d'hydratation possible.
   return (
-    <html lang={lang} className={theme}>
+    <html lang={lang}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var m=document.cookie.match(/(?:^|; )theme=(light|dark)/);var t=m?m[1]:(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.classList.toggle("dark",t==="dark");}catch(e){}})();`,
+          }}
+        />
         <link rel="icon" type="image/webp" href="/logo.webp" />
         {/* Google Fonts : preconnect + stylesheet en <link> (l'@import CSS était render-blocking) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

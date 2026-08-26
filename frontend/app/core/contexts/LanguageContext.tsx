@@ -25,38 +25,15 @@ const translations: Record<Language, Translations> = { fr, en }
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children, serverLanguage }: { children: ReactNode, serverLanguage?: Language | null }) {
-    const [language, setLanguage] = useState<Language>(() => {
-        if (serverLanguage) return serverLanguage
-        if (typeof window === "undefined") return "fr"
-        return "fr" // Default to fr to match server initial render and prevent hydration mismatch
-    })
-
-    const [mounted, setMounted] = useState(false)
+    // Le loader SSR résout déjà la langue (cookie ou Accept-Language) :
+    // le HTML arrive dans la bonne langue, aucune bascule post-hydratation.
+    const [language, setLanguage] = useState<Language>(serverLanguage ?? "fr")
 
     useEffect(() => {
-        if (!serverLanguage && !mounted) {
-            // First visit without cookie, try to recover from localStorage or browser
-            const stored = localStorage.getItem("language")
-            if (stored === "fr" || stored === "en") {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setLanguage(stored)
-            } else {
-                const browserLang = navigator.language.split("-")[0]
-                if (browserLang === "fr" || browserLang === "en") {
-                    setLanguage(browserLang)
-                }
-            }
-        }
-        setMounted(true)
-    }, [serverLanguage, mounted])
-
-    useEffect(() => {
-        if (!mounted) return
-        localStorage.setItem("language", language)
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
         // Synchronise l'attribut lang pour l'accessibilité et le SEO
         document.documentElement.lang = language
-    }, [language, mounted])
+    }, [language])
 
     const t = (path: TranslationKey, replacements?: Record<string, string>) => {
         const keys = (path as string).split(".")
