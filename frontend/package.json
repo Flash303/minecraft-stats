@@ -30,7 +30,8 @@
     "tailwindcss-animate": "^1.0.7",
     "uplot": "^1.6.32",
     "uplot-react": "^1.2.4",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
