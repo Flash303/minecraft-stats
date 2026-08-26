@@ -271,12 +271,12 @@ export function ServersTab({
                                                     <span className="font-semibold text-foreground flex items-center gap-1.5">
                                                         {server.name}
                                                         {isHidden && (
-                                                            <Badge variant="destructive" className="h-3 text-[8px] px-1 py-0 uppercase">
+                                                            <Badge variant="destructive" className="h-3 text-2xs px-1 py-0 uppercase">
                                                                 {t("admin.hiddenBadge")}
                                                             </Badge>
                                                         )}
                                                     </span>
-                                                    <span className="text-[10px] text-muted-foreground mt-0.5 font-normal">v{formatMinecraftVersion(server.last_version) || "unknown"}</span>
+                                                    <span className="text-2xs text-muted-foreground mt-0.5 font-normal">v{formatMinecraftVersion(server.last_version) || "unknown"}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -300,7 +300,7 @@ export function ServersTab({
                                             {server.ip}:{server.port}
                                         </td>
                                         <td className="p-4">
-                                            <span className={`inline-flex items-center gap-1 text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                                            <span className={`inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                                                 isOnline 
 ? "bg-success/10 text-success"
                     : "bg-destructive/10 text-destructive"

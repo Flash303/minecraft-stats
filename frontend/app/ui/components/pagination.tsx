@@ -24,26 +24,12 @@ export function Pagination({
 
     const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages)
 
-    const prevText = t("common.pagination.previous") !== "common.pagination.previous"
-        ? t("common.pagination.previous")
-        : t("serverList.pagination.previous")
-
-    const nextText = t("common.pagination.next") !== "common.pagination.next"
-        ? t("common.pagination.next")
-        : t("serverList.pagination.next")
-
+    const prevText = t("common.pagination.previous")
+    const nextText = t("common.pagination.next")
     const pageText = t("common.pagination.page", {
         current: safeCurrentPage.toString(),
         total: totalPages.toString()
-    }) !== "common.pagination.page"
-        ? t("common.pagination.page", {
-              current: safeCurrentPage.toString(),
-              total: totalPages.toString()
-          })
-        : t("serverList.pagination.page", {
-              current: safeCurrentPage.toString(),
-              total: totalPages.toString()
-          })
+    })
 
     return (
         <div className={cn("flex items-center justify-center gap-3 sm:gap-4 mt-8 mb-4", className)}>

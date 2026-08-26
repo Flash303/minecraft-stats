@@ -149,7 +149,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                                     </>
                                                 )}
                                             </span>
-                                            <span className="font-mono text-[10px] text-muted-foreground truncate">
+                                            <span className="font-mono text-2xs text-muted-foreground truncate">
                                                 {server.ip}:{server.port}
                                             </span>
                                         </div>
@@ -157,10 +157,10 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                                             <span className="text-sm font-bold text-success tabular-nums">
                                                 {server.last_connected ?? 0}
                                                 {maxPlayers ? (
-                                                    <span className="text-[10px] font-medium text-muted-foreground"> / {maxPlayers}</span>
+                                                    <span className="text-2xs font-medium text-muted-foreground"> / {maxPlayers}</span>
                                                 ) : null}
                                             </span>
-                                            <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                                            <p className="text-2xs uppercase tracking-wider text-muted-foreground font-semibold">
                                                 {t("admin.servers.tablePlayers")}
                                             </p>
                                         </div>

@@ -66,7 +66,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
                     <div class="flex items-center gap-1.5">
                         <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
-                        <span class="text-muted-foreground text-[10px] uppercase">${t("common.players")}</span>
+                        <span class="text-muted-foreground text-2xs uppercase">${t("common.players")}</span>
                     </div>
                 </div>
             `

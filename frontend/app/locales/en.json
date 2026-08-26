@@ -86,11 +86,6 @@
       "lunar": "Lunar Client",
       "labymod": "LabyMod",
       "filterSort": "Filter & Sort"
-    },
-    "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "page": "Page {{current}} of {{total}}"
     }
   },
   "hero": {

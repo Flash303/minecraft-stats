@@ -428,7 +428,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums flex items-baseline">
                                     {animatedTotal.toLocaleString()}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
                                 </p>
-                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.servers")}
                                 </p>
                             </div>
@@ -439,7 +439,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedOnline.toLocaleString()}
                                 </p>
-                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.online")}
                                 </p>
                             </div>
@@ -450,7 +450,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
                                     {animatedPlayers.toLocaleString()}
                                 </p>
-                                <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.players")}
                                 </p>
                             </div>

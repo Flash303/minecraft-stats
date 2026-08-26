@@ -158,7 +158,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                         <X className="h-3.5 w-3.5" />
                     </Button>
                 ) : !isMobile ? (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-border bg-muted px-1.5 font-sans text-[10px] font-medium text-muted-foreground shadow-xs sm:flex">
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-border bg-muted px-1.5 font-sans text-2xs font-medium text-muted-foreground shadow-xs sm:flex">
                         {isMac ? '⌘K' : 'Ctrl+K'}
                     </kbd>
                 ) : null}
@@ -193,10 +193,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                                         return labyInfo ? <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyLogoClass(labyInfo.partnered))} /> : null;
                                     })()}
                                 </div>
-                                <span className="text-[9.5px] text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
+                                <span className="text-2xs text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
                             </div>
                             {idx === selectedIndex && (
-                                <div className="text-[9px] text-primary/80 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wide font-bold">{t("common.enter")}</div>
+                                <div className="text-2xs text-primary/80 border border-primary/20 bg-primary/5 px-1.5 py-0.5 rounded-md uppercase tracking-wide font-bold">{t("common.enter")}</div>
                             )}
                         </button>
                     ))}

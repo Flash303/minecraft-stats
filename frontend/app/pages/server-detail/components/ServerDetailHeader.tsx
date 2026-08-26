@@ -114,7 +114,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             </Badge>
                         )}
                         {server.user && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
                                 <span>{t("serverDetail.addedBy")}</span>
                                 {server.user.image_url ? (
                                     <img
@@ -133,7 +133,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             </div>
                         )}
                         {server.registered_date && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
                                 <Calendar className="h-3 w-3" />
                                 <span>{new Date(server.registered_date * 1000).toLocaleDateString(locale)}</span>
                             </div>

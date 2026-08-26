@@ -144,7 +144,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                         )}
                     </div>
                     {isOnline && (
-                        <span className="text-[10px] text-muted-foreground font-medium lowercase leading-none">
+                        <span className="text-2xs text-muted-foreground font-medium lowercase leading-none">
                             {t("common.players")}
                         </span>
                     )}
@@ -163,18 +163,18 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-row items-center gap-1.5 truncate">
                     {server.type && <PlatformBadge type={server.type} />}
                     {server.last_version ? (
-                        <span className="inline-flex items-center rounded-lg border border-border/50 px-2 py-0.5 text-[10px] font-semibold bg-muted/50 text-muted-foreground shadow-xs whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-lg border border-border/50 px-2 py-0.5 text-2xs font-semibold bg-muted/50 text-muted-foreground shadow-xs whitespace-nowrap">
                             {t("common.version", { version: formatMinecraftVersion(server.last_version) })}
                         </span>
                     ) : (
-                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-[10px] font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-2xs font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
                             {t("common.unknownVersion")}
                         </span>
                     )}
                 </div>
 
                 <div className={cn(
-                    "flex items-center gap-1 text-[10px] font-medium",
+                    "flex items-center gap-1 text-2xs font-medium",
                     isOnline ? "text-success" : "text-destructive"
                 )}>
                     {isOnline ? <Wifi aria-hidden="true" className="h-3 w-3" /> : <WifiOff aria-hidden="true" className="h-3 w-3" />}

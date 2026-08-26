@@ -108,6 +108,10 @@
 
   --breakpoint-xs: 475px;
 
+  /* Micro-échelle typographique sous text-xs : badges, compteurs, métadonnées */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 

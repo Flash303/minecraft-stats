@@ -30,6 +30,7 @@ import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { JavaLogo } from "@/ui/components/JavaLogo"
 import { BedrockLogo } from "@/ui/components/BedrockLogo"
+import { ToggleGroup, ToggleGroupItem } from "@/ui/components/toggle-group"
 
 interface ServerListFiltersProps {
     activeTab: "all" | "online" | "offline" | "hidden"
@@ -111,7 +112,7 @@ function StatusTab({
     )
 }
 
-/** Contrôle segmenté générique avec icônes */
+/** Contrôle segmenté générique avec icônes (basé sur radix ToggleGroup) */
 function SegmentedControl<T extends string>({
     options,
     value,
@@ -122,30 +123,24 @@ function SegmentedControl<T extends string>({
     onChange: (val: T) => void
 }) {
     return (
-        <div className="flex p-1 bg-muted rounded-xl w-full gap-1">
-            {options.map((opt) => {
-                const isActive = value === opt.value
-                return (
-                    <button
-                        key={opt.value}
-                        onClick={() => onChange(opt.value)}
-                        className={cn(
-                            "flex-1 min-w-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2 px-2 rounded-lg font-medium transition-all text-center whitespace-nowrap cursor-pointer",
-                            isActive
-                                ? "bg-card shadow-sm text-foreground font-semibold"
-                                : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                        )}
-                    >
-                        {opt.icon && (
-                            <span className="shrink-0 flex items-center justify-center">
-                                {opt.icon}
-                            </span>
-                        )}
-                        <span className="truncate">{opt.label}</span>
-                    </button>
-                )
-            })}
-        </div>
+        <ToggleGroup
+            type="single"
+            value={value}
+            onValueChange={(val) => {
+                if (val) onChange(val as T)
+            }}
+        >
+            {options.map((opt) => (
+                <ToggleGroupItem key={opt.value} value={opt.value} aria-label={opt.label}>
+                    {opt.icon && (
+                        <span className="shrink-0 flex items-center justify-center">
+                            {opt.icon}
+                        </span>
+                    )}
+                    <span className="truncate">{opt.label}</span>
+                </ToggleGroupItem>
+            ))}
+        </ToggleGroup>
     )
 }
 
@@ -290,7 +285,7 @@ export function ServerListFilters({
                         <p className="text-xs font-semibold text-muted-foreground">
                             {t("serverList.filters.sort")}
                         </p>
-                        <span className="text-[10px] text-muted-foreground/60">
+                        <span className="text-2xs text-muted-foreground/60">
                             {directionText(sortDirection)}
                         </span>
                     </div>
@@ -319,7 +314,7 @@ export function ServerListFilters({
                             setSortDirection(sortDirection === "asc" ? "desc" : "asc")
                         }
                     />
-                    <p className="text-[11px] text-muted-foreground/60 text-center">
+                    <p className="text-xs text-muted-foreground/60 text-center">
                         Cliquez à nouveau sur l'option active pour inverser l'ordre
                     </p>
                 </div>
@@ -456,7 +451,7 @@ export function ServerListFilters({
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
-                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-2xs font-bold",
                                             "bg-background/20"
                                         )}
                                     >
@@ -488,7 +483,7 @@ export function ServerListFilters({
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
-                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-2xs font-bold",
                                             "bg-background/20"
                                         )}
                                     >

@@ -208,7 +208,7 @@ export default function AdminDashboard() {
 
                 {/* Sidebar Navigation Items */}
                 <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label="Dashboard sections">
-                    <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                    <p className="px-3 pb-2 text-2xs font-bold uppercase tracking-widest text-muted-foreground/70">
                         {t("admin.title")}
                     </p>
                     {navItems.map((item) => {
