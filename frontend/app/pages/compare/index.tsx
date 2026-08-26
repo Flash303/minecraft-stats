@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from "react"
+import { useState, useMemo, useRef, lazy, Suspense } from "react"
 import { fetchRecords } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
+import { useQueryClient, useQueries } from "@tanstack/react-query"
 
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
 import { BarChart3 } from "lucide-react"
@@ -15,13 +16,9 @@ import type { DateRange } from "react-day-picker"
 export default function ServerComparison() {
     const { t } = useLanguage()
     const { getToken, isSignedIn, isLoaded } = useAuth()
+    const queryClient = useQueryClient()
     const [selectedServers, setSelectedServers] = useState<Server[]>([])
     const [searchQuery, setSearchQuery] = useState("")
-    const [recordsMap, setRecordsMap] = useState<{ [serverId: number]: { date: number; value: number }[] }>({})
-    const [loadingRecords, setLoadingRecords] = useState(false)
-    const fetchedServersRef = useRef<Set<number>>(new Set())
-    const recordsGenerationRef = useRef(0)
-    const lastBackgroundRefreshRef = useRef(0)
 
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
@@ -29,104 +26,56 @@ export default function ServerComparison() {
     const [selectedRange, setSelectedRange] = useState(86400000)
     const [selectedInterval, setSelectedInterval] = useState(60000)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
-    const [timeRangeProps, setTimeRangeProps] = useState<{ from: number; to: number }>({ from: 0, to: 0 })
 
-    const fetchServerRecords = useCallback(async (server: Server, from: number) => {
-        // Garde anti-stale : ignore les réponses d'une génération dépassée
-        const generation = recordsGenerationRef.current
-        try {
-            const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const data = await fetchRecords(server.id, from, selectedInterval, token ?? undefined)
-            if (generation !== recordsGenerationRef.current) return
-            setRecordsMap(prev => ({ ...prev, [server.id]: data }))
-            fetchedServersRef.current.add(server.id)
-        } catch (err) {
-            console.error(`Failed to load records for server ${server.id}`, err)
+    // Fenêtre temporelle courante (remplace le calcul dupliqué de l'ancien effet)
+    const { from, to: now } = useMemo((): { from: number; to: number } => {
+        if (selectedRange === -1) {
+            if (!customRange?.from || !customRange?.to) return { from: 0, to: 0 }
+            return {
+                from: Math.floor(customRange.from.getTime() / 1000),
+                to: Math.floor(customRange.to.getTime() / 1000) + 86399,
+            }
         }
-    }, [selectedInterval, isLoaded, isSignedIn, getToken])
- 
-    const isChartZoomed = useRef(false)
+        const nowSec = Math.floor(Date.now() / 1000)
+        return { from: nowSec - Math.floor(selectedRange / 1000), to: nowSec }
+    }, [selectedRange, customRange])
 
-    const lastFetchParams = useRef<{ range: number, interval: number, customFrom?: number, customTo?: number }>({
-        range: selectedRange,
-        interval: selectedInterval,
-        customFrom: customRange?.from?.getTime(),
-        customTo: customRange?.to?.getTime(),
+    const timeRangeProps = useMemo(() => ({ from, to: now }), [from, now])
+    const rangeReady = selectedRange !== -1 || (!!customRange?.from && !!customRange?.to)
+    const rangeKey = selectedRange === -1
+        ? `${Math.floor((customRange?.from?.getTime() ?? 0) / 60000)}-${Math.floor((customRange?.to?.getTime() ?? 0) / 60000)}`
+        : String(selectedRange)
+
+    // Une query PAR serveur : l'ajout d'un serveur ne refetch que lui-même,
+    // et le cache survit aux retraits. refetchOnWindowFocus remplace les
+    // listeners visibilitychange/focus et la garde anti-stale maison.
+    const recordQueries = useQueries({
+        queries: selectedServers.map((server) => ({
+            queryKey: ["compare-record", server.id, selectedInterval, rangeKey],
+            queryFn: async () => {
+                const token = isLoaded && isSignedIn ? await getToken() : undefined
+                return fetchRecords(server.id, from, selectedInterval, token ?? undefined)
+            },
+            enabled: isLoaded && rangeReady && from > 0,
+        })),
     })
 
-    useEffect(() => {
-        const refreshAll = async (isBackground = false) => {
-            if (!isBackground) setLoadingRecords(true)
-            // eslint-disable-next-line no-useless-assignment
-            let now = 0;
-            let from = 0;
-            
-            if (selectedRange === -1) {
-                if (!customRange?.from || !customRange?.to) {
-                    if (!isBackground) setLoadingRecords(false);
-                    return;
-                }
-                from = Math.floor(customRange.from.getTime() / 1000);
-                now = Math.floor(customRange.to.getTime() / 1000) + 86399;
-            } else {
-                now = Math.floor(Date.now() / 1000);
-                from = now - Math.floor(selectedRange / 1000);
-            }
-            
-            const currentParams = {
-                range: selectedRange,
-                interval: selectedInterval,
-                customFrom: customRange?.from?.getTime(),
-                customTo: customRange?.to?.getTime(),
-            }
-            const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
-            if (paramsChanged) {
-                fetchedServersRef.current.clear()
-                // Invalide les réponses en vol d'une génération précédente.
-                // Seulement si les params changent, pour ne pas jeter les
-                // requêtes en cours (ex: double invocation StrictMode).
-                recordsGenerationRef.current++
-            }
+    const recordsMap = useMemo(() => {
+        const map: { [serverId: number]: { date: number; value: number }[] } = {}
+        recordQueries.forEach((q, i) => {
+            const server = selectedServers[i]
+            if (server && q.data) map[server.id] = q.data
+        })
+        return map
+    }, [recordQueries, selectedServers])
 
-            setTimeRangeProps({ from, to: now })
-            
-            const serversToFetch = isBackground 
-                ? selectedServers 
-                : selectedServers.filter(s => !fetchedServersRef.current.has(s.id))
+    const loadingRecords = recordQueries.some(q => q.isFetching)
 
-            if (serversToFetch.length > 0) {
-                await Promise.all(serversToFetch.map(s => fetchServerRecords(s, from)))
-            }
-            
-            lastFetchParams.current = currentParams
-            if (!isBackground) setLoadingRecords(false)
-        }
-        if (selectedServers.length > 0) {
-            Promise.resolve().then(() => {
-                refreshAll()
-            })
-        } else {
-            Promise.resolve().then(() => {
-                setRecordsMap({})
-            })
-        }
+    const removeServer = (serverId: number) => {
+        setSelectedServers(prev => prev.filter(s => s.id !== serverId))
+        queryClient.removeQueries({ queryKey: ["compare-record", serverId] })
+    }
 
-        const handleVisibilityChange = () => {
-            if (document.visibilityState !== 'visible' || selectedServers.length === 0 || isChartZoomed.current) return
-            // Dédoublonnage : visibilitychange et focus peuvent être déclenchés quasi simultanément
-            const now = Date.now()
-            if (now - lastBackgroundRefreshRef.current < 1000) return
-            lastBackgroundRefreshRef.current = now
-            refreshAll(true)
-        }
-        window.addEventListener('visibilitychange', handleVisibilityChange)
-        window.addEventListener('focus', handleVisibilityChange)
-        return () => {
-            window.removeEventListener('visibilitychange', handleVisibilityChange)
-            window.removeEventListener('focus', handleVisibilityChange)
-        }
-    }, [selectedServers, selectedRange, selectedInterval, customRange, fetchServerRecords])
- 
     const addServer = (server: Server) => {
         if (selectedServers.find(s => s.id === server.id)) return
         setSelectedServers(prev => {
@@ -135,17 +84,9 @@ export default function ServerComparison() {
         })
         setSearchQuery("")
     }
- 
-    const removeServer = (serverId: number) => {
-        setSelectedServers(prev => prev.filter(s => s.id !== serverId))
-        fetchedServersRef.current.delete(serverId)
-        setRecordsMap(prev => {
-            const next = { ...prev }
-            delete next[serverId]
-            return next
-        })
-    }
- 
+
+    const isChartZoomed = useRef(false)
+
     const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
     const serverNames = useMemo(() => selectedServers.map(s => s.name), [selectedServers])
 

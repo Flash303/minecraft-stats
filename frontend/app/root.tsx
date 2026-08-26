@@ -14,6 +14,7 @@ import { SearchProvider } from "./core/contexts/SearchContext";
 import { LanguageProvider } from "./core/contexts/LanguageContext";
 import { ToastProvider } from "./core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminProvider } from "./core/contexts/AdminContext";
 import { ClientInfoProvider } from "./core/contexts/ClientInfoContext";
 import { TooltipProvider } from "@/ui/components/tooltip";
@@ -24,6 +25,18 @@ import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accep
 import { translate } from "./core/lib/i18n";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+// Singleton : les queries ne s'exécutent que côté client (post-hydratation),
+// pas besoin de client par requête SSR.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: true,
+      staleTime: 60_000,
+    },
+  },
+});
 
 export function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie") || "";
@@ -144,7 +157,8 @@ export default function App() {
 
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <AdminProvider>
+      <QueryClientProvider client={queryClient}>
+        <AdminProvider>
         <ThemeProvider serverTheme={serverTheme}>
           <LanguageProvider serverLanguage={serverLanguage}>
             <ToastProvider>
@@ -158,7 +172,8 @@ export default function App() {
             </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
-      </AdminProvider>
+        </AdminProvider>
+      </QueryClientProvider>
     </ClerkProvider>
   );
 }
