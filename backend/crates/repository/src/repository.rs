@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::models::record::{Record, RecordData};
 use crate::models::server::{Server, DraftServer};
 use crate::models::alert::{Alert, DraftAlert};
+use crate::models::mojang::MojangApiDowntime;
 use crate::models::web_push::{WebPushSubscription, DraftWebPushSubscription};
 use async_trait::async_trait;
 
@@ -49,6 +50,13 @@ pub trait Repository: Send + Sync {
     async fn get_subscriptions_for_users(&self, user_ids: &[String]) -> Result<Vec<WebPushSubscription>, RepositoryError>;
     
     async fn delete_server(&self, server_id: u32) -> Result<(), RepositoryError>;
+
+    // Mojang API
+    async fn get_mojang_api_status(&self) -> Result<bool, RepositoryError>;
+    async fn set_mojang_api_status(&self, is_down: bool) -> Result<(), RepositoryError>;
+    async fn start_mojang_api_downtime(&self, start_time: OffsetDateTime) -> Result<(), RepositoryError>;
+    async fn end_mojang_api_downtime(&self, end_time: OffsetDateTime) -> Result<(), RepositoryError>;
+    async fn get_mojang_api_downtimes(&self, limit: u32) -> Result<Vec<MojangApiDowntime>, RepositoryError>;
 
     async fn initialize(&self) -> Result<(), RepositoryError>;
 }

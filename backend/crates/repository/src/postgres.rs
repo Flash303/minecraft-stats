@@ -7,6 +7,7 @@ use time::{Duration, OffsetDateTime};
 use crate::models::record::{Record, RecordData};
 use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
+use crate::models::mojang::MojangApiDowntime;
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
 use futures::stream::StreamExt;
@@ -551,6 +552,45 @@ impl Repository for PostgresRepository {
         tx.commit().await?;
 
         Ok(())
+    }
+
+    async fn get_mojang_api_status(&self) -> Result<bool, RepositoryError> {
+        let row: (bool,) = sqlx::query_as("SELECT is_down FROM mojang_api_status WHERE id = 1")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(row.0)
+    }
+
+    async fn set_mojang_api_status(&self, is_down: bool) -> Result<(), RepositoryError> {
+        sqlx::query("UPDATE mojang_api_status SET is_down = $1, updated_at = NOW() WHERE id = 1")
+            .bind(is_down)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn start_mojang_api_downtime(&self, start_time: OffsetDateTime) -> Result<(), RepositoryError> {
+        sqlx::query("INSERT INTO mojang_api_downtimes (start_time) VALUES ($1)")
+            .bind(start_time)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn end_mojang_api_downtime(&self, end_time: OffsetDateTime) -> Result<(), RepositoryError> {
+        sqlx::query("UPDATE mojang_api_downtimes SET end_time = $1 WHERE end_time IS NULL")
+            .bind(end_time)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn get_mojang_api_downtimes(&self, limit: u32) -> Result<Vec<MojangApiDowntime>, RepositoryError> {
+        let downtimes = sqlx::query_as::<_, MojangApiDowntime>("SELECT id, start_time, end_time FROM mojang_api_downtimes ORDER BY start_time DESC LIMIT $1")
+            .bind(limit as i64)
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(downtimes)
     }
 
     async fn initialize(&self) -> Result<(), RepositoryError> {

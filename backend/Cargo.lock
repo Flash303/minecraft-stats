@@ -4677,10 +4677,12 @@ version = "0.1.0"
 dependencies = [
  "env_logger",
  "futures",
+ "hex",
  "log",
  "minecraft-pinger",
  "openssl",
  "repository",
+ "reqwest",
  "serde_json",
  "time",
  "tokio",
