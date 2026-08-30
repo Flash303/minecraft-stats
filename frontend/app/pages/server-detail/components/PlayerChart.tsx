@@ -18,6 +18,7 @@ import {
 } from "@/core/hooks/useChartPlugins"
 import { cn } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { ClientOnly } from "@/ui/components/ClientOnly"
 
 interface PlayerChartProps {
     data: { date: number; value: number }[]
@@ -235,15 +236,17 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                             : "opacity-100"
                     )}
                 >
-                    <UplotReact
-                        options={options}
-                        data={chartData}
-                        onCreate={(chart) => {
-                            chartRef.current = chart
-                            // Force resize to container width after creation
-                            sizeChartToContainer(chart, containerRef.current)
-                        }}
-                    />
+                    <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+                        <UplotReact
+                            options={options}
+                            data={chartData}
+                            onCreate={(chart) => {
+                                chartRef.current = chart
+                                // Force resize to container width after creation
+                                sizeChartToContainer(chart, containerRef.current)
+                            }}
+                        />
+                    </ClientOnly>
                 </div>
             </div>
         </div>

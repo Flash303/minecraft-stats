@@ -6,6 +6,7 @@ import { useTheme } from "@/core/contexts/ThemeContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData } from "@/core/lib/chartUtils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { ClientOnly } from "@/ui/components/ClientOnly"
 
 interface PlayerDataPoint {
     date: number
@@ -83,19 +84,21 @@ export function MiniChart({ data }: MiniChartProps) {
 
     return (
         <div ref={containerRef} className="w-full h-12 overflow-hidden flex items-center justify-end">
-            <UplotReact
-                options={options}
-                data={chartData}
-                onCreate={(chart) => {
-                    chartRef.current = chart
-                    if (containerRef.current) {
-                        chart.setSize({
-                            width: containerRef.current.clientWidth,
-                            height: 48
-                        })
-                    }
-                }}
-            />
+            <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+                <UplotReact
+                    options={options}
+                    data={chartData}
+                    onCreate={(chart) => {
+                        chartRef.current = chart
+                        if (containerRef.current) {
+                            chart.setSize({
+                                width: containerRef.current.clientWidth,
+                                height: 48
+                            })
+                        }
+                    }}
+                />
+            </ClientOnly>
         </div>
     )
 }

@@ -17,6 +17,8 @@ import {
 } from "@/core/hooks/useChartPlugins"
 import { escapeHtml } from "@/core/lib/utils"
 import { chartPalette, resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { ClientOnly } from "@/ui/components/ClientOnly"
+
 interface MultiServerChartProps {
     data: uPlot.AlignedData
     serverNames: string[]
@@ -176,18 +178,20 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         {t("comparison.loadingData")}
                     </p>
                 ) : (
-                    <div className="w-full">
-                        <UplotReact
-                            options={options}
-                            data={data}
-                            onCreate={(chart) => {
-                                chartRef.current = chart
-                                // Force resize to container width after creation
-                                sizeChartToContainer(chart, containerRef.current)
-                            }}
-                        />
-                    </div>
-                )}
+                            <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+                                <UplotReact
+                                    options={options}
+                                    data={data}
+                                    onCreate={(chart) => {
+                                        chartRef.current = chart
+                                        // Force resize to container width after creation
+                                        sizeChartToContainer(chart, containerRef.current)
+                                    }}
+                                />
+                            </ClientOnly>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )
