@@ -81,7 +81,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         if (data) setServers(data)
     }, [data])
 
-    const loading = isPending || isDeferredLoading
+    const loading = isPending || isDeferredLoading || (!isLoaded && servers.length === 0)
     const refreshing = isFetching
 
     const tabParam = searchParams.get("tab")
