@@ -178,19 +178,20 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         {t("comparison.loadingData")}
                     </p>
                 ) : (
-                            <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
-                                <UplotReact
-                                    options={options}
-                                    data={data}
-                                    onCreate={(chart) => {
-                                        chartRef.current = chart
-                                        // Force resize to container width after creation
-                                        sizeChartToContainer(chart, containerRef.current)
-                                    }}
-                                />
-                            </ClientOnly>
-                        </div>
-                    )}
+                    <div className="w-full">
+                        <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+                            <UplotReact
+                                options={options}
+                                data={data}
+                                onCreate={(chart) => {
+                                    chartRef.current = chart
+                                    // Force resize to container width after creation
+                                    sizeChartToContainer(chart, containerRef.current)
+                                }}
+                            />
+                        </ClientOnly>
+                    </div>
+                )}
                 </div>
             </div>
         </div>
