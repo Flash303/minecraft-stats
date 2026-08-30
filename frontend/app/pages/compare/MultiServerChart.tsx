@@ -192,7 +192,6 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                         </ClientOnly>
                     </div>
                 )}
-                </div>
             </div>
         </div>
     )
