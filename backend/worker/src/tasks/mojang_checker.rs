@@ -7,6 +7,8 @@ use openssl::sha::Sha1;
 use openssl::rand::rand_bytes;
 use tokio::time::sleep;
 
+const REQUIRED_FAILURES: u8 = 3;
+
 fn generate_minecraft_hash(server_id: &str, shared_secret: &[u8], public_key: &[u8]) -> String {
     let mut hasher = Sha1::new();
     hasher.update(server_id.as_bytes());
@@ -46,6 +48,7 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
         .build()
         .unwrap();
 
+    let mut consecutive_failures = 0;
     loop {
         let count_time = Instant::now();
 
@@ -79,10 +82,18 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
             }
         };
 
+        if is_currently_down {
+            consecutive_failures += 1;
+        } else {
+            consecutive_failures = 0;
+        }
+
+        let is_confirmed_down = consecutive_failures >= REQUIRED_FAILURES;
+
         match repository.get_mojang_api_status().await {
             Ok(db_is_down) => {
-                if is_currently_down && !db_is_down {
-                    info!("Mojang Session API went DOWN");
+                if is_confirmed_down && !db_is_down {
+                    info!("Mojang Session API went DOWN ({} consecutive failures)", consecutive_failures);
                     let _ = repository.set_mojang_api_status(true).await;
                     let _ = repository.start_mojang_api_downtime(OffsetDateTime::now_utc()).await;
                 } else if !is_currently_down && db_is_down {
