@@ -16,7 +16,7 @@ export function Footer() {
                 {/* Left side: Site branding & info */}
                 <div className="flex flex-col gap-2 max-w-sm">
                     <div className="flex items-center gap-2">
-                        <img src={logo} alt="Logo" className="h-6 w-6 object-contain rounded-md" />
+                        <img src={logo} alt="Logo" loading="lazy" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                         <span className="font-bold text-foreground tracking-tight">
                             {t("header.title")}
                         </span>
@@ -57,7 +57,7 @@ export function Footer() {
             </div>
 
             {/* Bottom Row: Copyright & Technology stack info */}
-            <div className="max-w-6xl mx-auto px-6 py-5 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-muted-foreground">
+            <div className="max-w-6xl mx-auto px-6 py-5 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-muted-foreground">
                 <div>
                     &copy; {currentYear} {t("header.title")}. {t("footer.rights")}
                 </div>

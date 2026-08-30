@@ -5,6 +5,7 @@ import {
     Await,
     type ShouldRevalidateFunctionArgs
 } from "react-router"
+import { useQuery } from "@tanstack/react-query"
 import { fetchServers } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { ServerCard } from "@/pages/home/components/ServerCard"
@@ -24,29 +25,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     const serversPromise = fetchServers(undefined, true, forwardedFor).catch(() => [])
     return { initialServersPromise: serversPromise }
-}
-
-let serversCache: Server[] | null = null;
-let serversPromiseCache: Promise<Server[]> | null = null;
-
-export async function clientLoader() {
-    // Cette fonction n'est appelée que lors des navigations côté client.
-    // Le chargement initial (SSR) utilisera toujours le `loader` serveur.
-    // Cela empêche React Router de faire la requête vers `_.data`.
-    if (serversCache) {
-        return { initialServersPromise: serversCache }
-    }
-    if (serversPromiseCache) {
-        return { initialServersPromise: serversPromiseCache }
-    }
-    serversPromiseCache = fetchServers(undefined, true).then(data => {
-        serversCache = data;
-        return data;
-    }).catch(() => {
-        serversPromiseCache = null;
-        return [];
-    })
-    return { initialServersPromise: serversPromiseCache }
 }
 
 export function shouldRevalidate({
@@ -81,9 +59,30 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
     const [servers, setServers] = useState<Server[]>(initialServers || [])
-    const [loading, setLoading] = useState(isDeferredLoading)
-    const [error, setError] = useState<string | null>(null)
     const [searchParams, setSearchParams] = useSearchParams()
+
+    // Source unique de vérité : le cache TanStack Query, amorcé par les
+    // données SSR. Remplace l'ancien doublon load()/handleRefresh(), les
+    // caches module-level et le refetch manuel au montage.
+    const { data, isPending, isFetching, error, refetch } = useQuery({
+        queryKey: ["servers"],
+        queryFn: async () => {
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
+            return fetchServers(token ?? undefined, true)
+        },
+        enabled: isLoaded,
+        initialData: initialServers || [],
+        // Considéré comme périmé dès l'amorçage -> refetch d'arrière-plan au
+        // montage, équivalent de l'ancien load(background=true).
+        initialDataUpdatedAt: 0,
+    })
+
+    useEffect(() => {
+        if (data) setServers(data)
+    }, [data])
+
+    const loading = isPending
+    const refreshing = isFetching
 
     const tabParam = searchParams.get("tab")
     const activeTabState = (tabParam === "online" || tabParam === "offline" || tabParam === "hidden") ? tabParam : "all"
@@ -160,55 +159,10 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         }
     }, [searchQuery, setSearchParams])
 
-    const [refreshing, setRefreshing] = useState(false)
-
-    const load = useCallback(async (background = false) => {
-        if (!background) setLoading(true)
-        setError(null)
-        try {
-            const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const data = await fetchServers(token ?? undefined, true)
-            if (data && data.length > 0) {
-                setServers(data)
-                serversCache = data // Mettre à jour le cache
-            }
-        } catch (err) {
-            console.error("Failed to load servers:", err)
-            setError(t("serverList.error"))
-        } finally {
-            if (!background) setLoading(false)
-        }
-    }, [getToken, isSignedIn, isLoaded, t])
-
-    const handleRefresh = useCallback(async () => {
-        setRefreshing(true)
-        setError(null)
-        try {
-            const token = isLoaded && isSignedIn ? await getToken() : undefined
-            const data = await fetchServers(token ?? undefined, true)
-            if (data && data.length > 0) {
-                setServers(data)
-                serversCache = data // Mettre à jour le cache
-            }
-        } catch (err) {
-            console.error("Failed to refresh servers:", err)
-            setError(t("serverList.error"))
-        } finally {
-            setRefreshing(false)
-        }
-    }, [getToken, isSignedIn, isLoaded, t])
-
-    useEffect(() => {
-        if (!isLoaded || isDeferredLoading) return
-        Promise.resolve().then(() => {
-            load(true).then(() => {}) // Run as background fetch to avoid UI flashing
-        })
-    }, [load, isLoaded, isDeferredLoading])
-
+    // Filtrage par plateforme
     const baseServersForCounts = useMemo(() => {
         let list = servers
 
-        // Filtrage par plateforme
         if (activePlatform === "java") {
             list = list.filter(s => s.type === "java")
         } else if (activePlatform === "bedrock") {
@@ -317,7 +271,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     setActiveSort={setActiveSort}
                     sortDirection={sortDirection}
                     setSortDirection={setSortDirection}
-                    onRefresh={handleRefresh}
+                    onRefresh={() => refetch()}
                     isRefreshing={refreshing}
                 />
 
@@ -330,7 +284,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                 )}
                 {error && (
                     <div className="bg-destructive/10 text-destructive border-destructive/20 my-8 rounded-lg border p-4 text-center shadow-sm">
-                        {error}
+                        {t("serverList.error")}
                     </div>
                 )}
                 {!loading && !error && (

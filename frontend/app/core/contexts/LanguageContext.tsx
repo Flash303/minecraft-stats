@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import fr from "../../locales/fr.json"
-import en from "../../locales/en.json"
+import { translate } from "@/core/lib/i18n"
+import type fr from "../../locales/fr.json"
 
-type Language = "fr" | "en"
-type Translations = typeof fr
+export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
 
 type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
@@ -20,64 +19,21 @@ interface LanguageContextType {
     t: (key: TranslationKey, replacements?: Record<string, string>) => string
 }
 
-const translations: Record<Language, Translations> = { fr, en }
-
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children, serverLanguage }: { children: ReactNode, serverLanguage?: Language | null }) {
-    const [language, setLanguage] = useState<Language>(() => {
-        if (serverLanguage) return serverLanguage
-        if (typeof window === "undefined") return "fr"
-        return "fr" // Default to fr to match server initial render and prevent hydration mismatch
-    })
-
-    const [mounted, setMounted] = useState(false)
+    // Le loader SSR résout déjà la langue (cookie ou Accept-Language) :
+    // le HTML arrive dans la bonne langue, aucune bascule post-hydratation.
+    const [language, setLanguage] = useState<Language>(serverLanguage ?? "fr")
 
     useEffect(() => {
-        if (!serverLanguage && !mounted) {
-            // First visit without cookie, try to recover from localStorage or browser
-            const stored = localStorage.getItem("language")
-            if (stored === "fr" || stored === "en") {
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-                setLanguage(stored)
-            } else {
-                const browserLang = navigator.language.split("-")[0]
-                if (browserLang === "fr" || browserLang === "en") {
-                    setLanguage(browserLang)
-                }
-            }
-        }
-        setMounted(true)
-    }, [serverLanguage, mounted])
-
-    useEffect(() => {
-        if (!mounted) return
-        localStorage.setItem("language", language)
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
         // Synchronise l'attribut lang pour l'accessibilité et le SEO
         document.documentElement.lang = language
-    }, [language, mounted])
+    }, [language])
 
-    const t = (path: TranslationKey, replacements?: Record<string, string>) => {
-        const keys = (path as string).split(".")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let current: any = translations[language]
-
-        for (const key of keys) {
-            if (current[key] === undefined) return path
-            current = current[key]
-        }
-
-        if (typeof current !== "string") return path
-
-        let result = current
-        if (replacements) {
-            Object.entries(replacements).forEach(([key, value]) => {
-                result = result.replace(`{{${key}}}`, value)
-            })
-        }
-        return result
-    }
+    const t = (path: TranslationKey, replacements?: Record<string, string>) =>
+        translate(language, path, replacements)
 
     return (
         <LanguageContext.Provider value={{ language, setLanguage, t }}>

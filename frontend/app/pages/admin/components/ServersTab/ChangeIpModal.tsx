@@ -136,7 +136,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpen
                             {pingResult.is_reachable ? (
                                 <div className="space-y-4 flex flex-col items-center">
                                     <div className="flex items-center gap-2 w-full">
-                                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></div>
+                                        <div className="w-2 h-2 rounded-full bg-success flex-shrink-0"></div>
                                         <span className="text-sm font-medium">{t("admin.servers.reachable")}</span>
                                         {pingResult.version && <span className="text-xs text-muted-foreground ml-auto truncate">{pingResult.version}</span>}
                                     </div>
@@ -156,7 +156,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpen
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                                    <div className="w-2 h-2 rounded-full bg-destructive"></div>
                                     <span className="text-sm font-medium text-destructive">{t("admin.servers.unreachable")}</span>
                                 </div>
                             )}

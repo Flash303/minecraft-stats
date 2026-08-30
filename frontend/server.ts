@@ -4,6 +4,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { applySecurityHeaders } from "./security";
+import { parseLanguageCookie, resolveLanguageFromHeader } from "./app/core/lib/accept-language";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -114,7 +115,9 @@ serve({
       const cookieHeader = req.headers.get("Cookie") || "";
 
       const theme = cookieHeader.match(/theme=(light|dark)/)?.[1] || "default";
-      const lang = cookieHeader.match(/language=(fr|en)/)?.[1] || "default";
+      // Langue résolue comme le loader SSR (cookie -> Accept-Language) :
+      // chaque langue obtient sa propre entrée de cache, sans croisement.
+      const lang = parseLanguageCookie(cookieHeader) ?? resolveLanguageFromHeader(req.headers.get("Accept-Language"));
       const cacheKey = `${url.pathname}${url.search}|theme:${theme}|lang:${lang}`;
       const cached = isrCache.get(cacheKey);
 

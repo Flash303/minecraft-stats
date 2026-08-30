@@ -16,7 +16,7 @@ export function PlatformBadge({ type, size = "sm", className }: PlatformBadgePro
             className={cn(
                 "inline-flex items-center font-semibold shadow-xs whitespace-nowrap border transition-colors",
                 size === "sm"
-                    ? "rounded-lg px-2 py-0.5 text-[10px] gap-1"
+                    ? "rounded-lg px-2 py-0.5 text-2xs gap-1"
                     : "rounded-lg px-2.5 py-1 text-xs gap-1.5",
                 isJava
                     ? "border-warning/20 bg-warning/10 text-warning"

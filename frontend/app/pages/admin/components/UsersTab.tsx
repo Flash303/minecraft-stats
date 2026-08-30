@@ -81,7 +81,7 @@ export function UsersTab({
                         placeholder={t("admin.searchUser")}
                         value={userSearchQuery}
                         onChange={(e) => setUserSearchQuery(e.target.value)}
-                        className="pl-9 h-10 rounded-xl bg-background border-zinc-200/85 dark:border-zinc-800"
+                        className="pl-9 h-10 rounded-xl bg-background border-border"
                     />
                 </div>
             </div>
@@ -98,9 +98,11 @@ export function UsersTab({
                                         src={user.image_url}
                                         alt={t("alt.userAvatar", { name: user.username || t("profile.defaultUser") })}
                                         className="h-16 w-16 mx-auto rounded-full object-cover border-2 border-primary/10 shadow-sm"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 ) : (
-                                    <div className="h-16 w-16 mx-auto rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-muted-foreground border-2 border-primary/10">
+                                    <div className="h-16 w-16 mx-auto rounded-full bg-muted flex items-center justify-center text-muted-foreground border-2 border-primary/10">
                                         <UserIcon className="h-8 w-8" />
                                     </div>
                                 )}
@@ -114,7 +116,7 @@ export function UsersTab({
                                     {user.username ? `@${user.username}` : user.id}
                                 </span>
 
-                                <div className="text-[10px] text-muted-foreground/60 font-mono select-all bg-background/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border dark:border-zinc-800">
+                                <div className="text-2xs text-muted-foreground/60 font-mono select-all bg-background/40 py-1 px-2.5 rounded-lg w-fit mx-auto mt-3 truncate max-w-full border border-border">
                                     {user.id}
                                 </div>
 
@@ -155,10 +157,12 @@ export function UsersTab({
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-3">
                             {selectedUser?.image_url ? (
-                                <img 
-                                    src={selectedUser.image_url} 
-                                    className="h-10 w-10 rounded-full object-cover border" 
-                                    alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })} 
+                                <img
+                                    src={selectedUser.image_url}
+                                    className="h-10 w-10 rounded-full object-cover border"
+                                    alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })}
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             ) : (
                                 <UserIcon className="h-10 w-10 text-muted-foreground bg-muted p-2 rounded-full border" />
@@ -168,7 +172,7 @@ export function UsersTab({
                                 <span className="text-xs text-muted-foreground font-normal">@{selectedUser?.username || selectedUser?.id}</span>
                             </div>
                         </DialogTitle>
-                        <DialogDescription className="font-mono text-[10px] mt-1 truncate text-left">
+                        <DialogDescription className="font-mono text-2xs mt-1 truncate text-left">
                             ID: {selectedUser?.id}
                         </DialogDescription>
                     </DialogHeader>
@@ -188,8 +192,8 @@ export function UsersTab({
                                             key={server.id} 
                                             className={`flex items-center justify-between gap-4 p-3 rounded-xl border transition-all duration-300 ${
                                                 isHidden 
-                                                    ? "bg-zinc-100/40 dark:bg-zinc-900/10 border-dashed border-border opacity-70" 
-                                                    : "bg-card border-zinc-200 dark:border-zinc-800 hover:shadow-xs"
+? "bg-muted/30 border-dashed border-border opacity-70"
+                        : "bg-card border-border hover:shadow-xs"
                                             }`}
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
@@ -202,10 +206,10 @@ export function UsersTab({
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="text-xs font-bold text-foreground leading-none">{server.name}</span>
                                                         {isHidden && (
-                                                            <Badge variant="destructive" className="h-3.5 text-[8px] px-1 py-0 uppercase">{t("admin.hiddenBadge")}</Badge>
+                                                            <Badge variant="destructive" className="h-3.5 text-2xs px-1 py-0 uppercase">{t("admin.hiddenBadge")}</Badge>
                                                         )}
                                                     </div>
-                                                    <span className="font-mono text-[10px] text-muted-foreground mt-0.5 truncate">{server.ip}:{server.port}</span>
+                                                    <span className="font-mono text-2xs text-muted-foreground mt-0.5 truncate">{server.ip}:{server.port}</span>
                                                 </div>
                                             </div>
 

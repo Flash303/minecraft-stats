@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::models::record::{Record, RecordData};
 use crate::models::server::{Server, DraftServer};
 use crate::models::alert::{Alert, DraftAlert};
+use crate::models::mojang::MojangApiDowntime;
 use crate::models::web_push::{WebPushSubscription, DraftWebPushSubscription};
 use async_trait::async_trait;
 
@@ -25,6 +26,13 @@ pub trait Repository: Send + Sync {
     async fn get_server(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
     async fn list_servers(&self) -> Result<Vec<Server>, RepositoryError>;
     async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, RepositoryError>;
+    // Same as above but without loading the heavy base64 favicon from the
+    // database: intended for public JSON endpoints. Never use their result
+    // for write-backs (update_server/update_servers), the empty favicon
+    // would erase the stored one.
+    async fn get_server_without_favicon(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
+    async fn list_servers_without_favicon(&self) -> Result<Vec<Server>, RepositoryError>;
+    async fn get_servers_of_user_without_favicon(&self, user_id: String) -> Result<Vec<Server>, RepositoryError>;
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, RepositoryError>;
     async fn count_resolved_endpoints(&self, resolved_endpoint: &str, exclude_id: Option<u32>) -> Result<u32, RepositoryError>;
 
@@ -42,6 +50,13 @@ pub trait Repository: Send + Sync {
     async fn get_subscriptions_for_users(&self, user_ids: &[String]) -> Result<Vec<WebPushSubscription>, RepositoryError>;
     
     async fn delete_server(&self, server_id: u32) -> Result<(), RepositoryError>;
+
+    // Mojang API
+    async fn get_mojang_api_status(&self) -> Result<bool, RepositoryError>;
+    async fn set_mojang_api_status(&self, is_down: bool) -> Result<(), RepositoryError>;
+    async fn start_mojang_api_downtime(&self, start_time: OffsetDateTime) -> Result<(), RepositoryError>;
+    async fn end_mojang_api_downtime(&self, end_time: OffsetDateTime) -> Result<(), RepositoryError>;
+    async fn get_mojang_api_downtimes(&self, limit: u32) -> Result<Vec<MojangApiDowntime>, RepositoryError>;
 
     async fn initialize(&self) -> Result<(), RepositoryError>;
 }

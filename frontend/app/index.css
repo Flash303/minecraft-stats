@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap');
 @import "tailwindcss";
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -11,7 +10,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -19,7 +18,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -27,7 +26,7 @@
 
 @font-face {
   font-family: 'Minecraft Default';
-  src: url('/fonts/MinecraftDefault-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftDefault-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -35,7 +34,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -43,7 +42,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -51,7 +50,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -59,7 +58,7 @@
 
 @font-face {
   font-family: 'Minecraft Enchanting';
-  src: url('/fonts/MinecraftEnchanting-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftEnchanting-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -67,7 +66,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Regular.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -75,7 +74,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Bold.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -83,7 +82,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-Italic.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-Italic.woff2') format('woff2');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -91,7 +90,7 @@
 
 @font-face {
   font-family: 'Minecraft Illager';
-  src: url('/fonts/MinecraftIllagerRunes-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/MinecraftIllagerRunes-BoldItalic.woff2') format('woff2');
   font-weight: bold;
   font-style: italic;
   font-display: swap;
@@ -108,6 +107,10 @@
   --font-minecraft: "Minecraft Default", "Minecraft", "Geist Mono", monospace;
 
   --breakpoint-xs: 475px;
+
+  /* Micro-échelle typographique sous text-xs : badges, compteurs, métadonnées */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1rem;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -223,6 +226,8 @@
     --chart-3: #22c55e;
     --chart-4: #f59e0b;
     --chart-5: #6366f1;
+    --chart-grid: #e5e7eb;
+    --chart-axis-text: #374151;
     --radius: 1rem;
   }
   .dark {
@@ -256,6 +261,8 @@
     --chart-3: #eab308;
     --chart-4: #a855f7;
     --chart-5: #f97316;
+    --chart-grid: #374151;
+    --chart-axis-text: #d1d5db;
   }
 }
 

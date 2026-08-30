@@ -1,41 +1,55 @@
-export interface User {
-    id: string
-    username: string | null
-    first_name: string | null
-    last_name: string | null
-    image_url: string | null
-    has_image: boolean
-}
+import { z } from "zod";
 
-export interface Server {
-    id: number
-    name: string
-    ip: string
-    port: number
-    last_favicon: string | null
-    last_status: "online" | "offline" | null
-    last_connected: number | null
-    max_players?: number | null
-    last_max_players?: number | null
-    last_version: string | null
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    last_motd?: { [key: string]: any } | null
-    last_ping_time?: number | null
-    last_sample?: string | null
-    last_protocol_version?: number | null
-    user_id: string
-    user?: User | null
-    type?: "java" | "bedrock"
-    hidden?: boolean
-    registered_date?: number
-    data?: Record[]
-}
+export const UserSchema = z.object({
+    id: z.string(),
+    username: z.string().nullish().catch(null),
+    first_name: z.string().nullish().catch(null),
+    last_name: z.string().nullish().catch(null),
+    image_url: z.string().nullish().catch(null),
+    has_image: z.boolean().catch(false),
+});
+export type User = z.infer<typeof UserSchema>;
 
+export const ServerRecordSchema = z.object({
+    date: z.number(),
+    value: z.number(),
+});
+export type ServerRecord = z.infer<typeof ServerRecordSchema>;
 
-export interface Record {
-    date: number
-    value: number
-}
+export const ServerSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    ip: z.string(),
+    port: z.number(),
+    last_favicon: z.string().nullish().catch(null),
+    last_status: z.enum(["online", "offline"]).nullish().catch(null),
+    last_connected: z.number().nullish().catch(null),
+    max_players: z.number().nullish().catch(null),
+    last_max_players: z.number().nullish().catch(null),
+    last_version: z.string().nullish().catch(null),
+    last_motd: z.any(),
+    last_ping_time: z.number().nullish().catch(null),
+    last_sample: z.string().nullish().catch(null),
+    last_protocol_version: z.number().nullish().catch(null),
+    user_id: z.string(),
+    user: UserSchema.nullish().catch(null),
+    type: z.enum(["java", "bedrock"]).nullish().catch(undefined),
+    hidden: z.boolean().nullish().catch(undefined),
+    registered_date: z.number().nullish().catch(undefined),
+    data: z.array(ServerRecordSchema).nullish().catch(undefined),
+});
+export type Server = z.infer<typeof ServerSchema>;
+
+export const AlertSchema = z.object({
+    id: z.number(),
+    user_id: z.string(),
+    server_id: z.number(),
+    alert_type: z.enum(["status_to_offline", "status_to_online", "player_above", "player_below"]),
+    player_threshold: z.number().nullish().catch(null),
+    is_active: z.boolean().catch(true),
+    created_at: z.unknown(),
+});
+export type Alert = z.infer<typeof AlertSchema>;
 
 export const API_BASE = (typeof window === "undefined" && process.env.SSR_API_URL) 
     ? process.env.SSR_API_URL 
@@ -61,24 +75,27 @@ function getHeaders(token?: string, forwardedFor?: string | null): HeadersInit {
     return headers
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeServerData(server: any): Server {
-    if (server.data && Array.isArray(server.data) && server.data.length >= 2) {
-        const dates = server.data[0] || []
-        const values = server.data[1] || []
-        const records: Record[] = []
-        for (let i = 0; i < dates.length; i++) {
-            records.push({
-                date: dates[i],
-                value: values[i]
-            })
-        }
-        return {
-            ...server,
-            data: records
+export function normalizeServerData(server: unknown): Server {
+    if (server && typeof server === 'object' && 'data' in server) {
+        const s = server as { data?: unknown };
+        if (Array.isArray(s.data) && s.data.length >= 2) {
+            const dataArr = s.data as [number[], number[]];
+            const dates = dataArr[0] || []
+            const values = dataArr[1] || []
+            const records: ServerRecord[] = []
+            for (let i = 0; i < dates.length; i++) {
+                records.push({
+                    date: dates[i],
+                    value: values[i]
+                })
+            }
+            return {
+                ...(server as object),
+                data: records
+            } as Server;
         }
     }
-    return server
+    return server as Server;
 }
 
 export async function fetchServers(token?: string, includeStats?: boolean, forwardedFor?: string | null): Promise<Server[]> {
@@ -91,9 +108,13 @@ export async function fetchServers(token?: string, includeStats?: boolean, forwa
     const json = await res.json()
     if (!json.success || !json.data) return []
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const servers = json.data as any[]
-    return servers.map(normalizeServerData)
+    const normalized = (json.data as unknown[]).map(normalizeServerData);
+    const parsed = z.array(ServerSchema).safeParse(normalized);
+    if (!parsed.success) {
+        console.error("Failed to parse servers:", parsed.error);
+        return [];
+    }
+    return parsed.data;
 }
 
 export async function fetchMyServers(token: string, includeStats?: boolean): Promise<Server[]> {
@@ -107,11 +128,15 @@ export async function fetchMyServers(token: string, includeStats?: boolean): Pro
         const json = await res.json()
         if (!json.success || !json.data) return []
         
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const servers = json.data as any[]
-        return servers.map(normalizeServerData)
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        const normalized = (json.data as unknown[]).map(normalizeServerData);
+        const parsed = z.array(ServerSchema).safeParse(normalized);
+        if (!parsed.success) {
+            console.error("Failed to parse my servers:", parsed.error);
+            return [];
+        }
+        return parsed.data;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch my servers:", error)
         return []
     }
@@ -133,9 +158,15 @@ export async function fetchServer(id: number | string, token?: string, forwarded
             return null;
         }
         
-        return normalizeServerData(json.data)
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        const normalized = normalizeServerData(json.data);
+        const parsed = ServerSchema.safeParse(normalized);
+        if (!parsed.success) {
+            console.error(`Failed to parse server ${id}:`, parsed.error);
+            return null;
+        }
+        return parsed.data;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`[SSR Debug] Failed to fetch server ${id} from API_BASE ${API_BASE}:`, error)
         return null
     }
@@ -146,7 +177,7 @@ export async function fetchRecords(
     from?: number,
     interval?: number,
     token?: string
-): Promise<Record[]> {
+): Promise<ServerRecord[]> {
     try {
         const params = new URLSearchParams()
         if (from !== undefined) params.set("from", String(from))
@@ -180,7 +211,7 @@ export async function fetchRecords(
 
         if (interval && interval > 0) {
             const intervalSec = interval / 1000
-            const buckets: { [bucketTime: number]: { sum: number; count: number } } = {}
+            const buckets: Record<number, { sum: number; count: number }> = {}
 
             for (let i = 0; i < len; i++) {
                 const t = dates[i]
@@ -202,7 +233,7 @@ export async function fetchRecords(
                 }
             }).sort((a, b) => a.date - b.date)
         } else {
-            const records: Record[] = []
+            const records: ServerRecord[] = []
             for (let i = 0; i < len; i++) {
                 records.push({
                     date: dates[i],
@@ -211,8 +242,8 @@ export async function fetchRecords(
             }
             return records
         }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to fetch records for server ${serverId}:`, error)
         return []
     }
@@ -230,8 +261,8 @@ export async function createServer(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to create server:", error)
         return { success: false }
     }
@@ -250,8 +281,8 @@ export async function renameServer(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to rename server ${serverId}:`, error)
         return { success: false }
     }
@@ -269,8 +300,8 @@ export async function deleteServer(
         if (res.status === 204 || res.status === 200) return { success: true }
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to delete server ${serverId}:`, error)
         return { success: false }
     }
@@ -289,8 +320,8 @@ export async function updateFavicon(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to update favicon for server ${serverId}:`, error)
         return { success: false }
     }
@@ -304,8 +335,8 @@ export async function checkAdminStatus(token: string): Promise<boolean> {
         if (!res.ok) return false
         const json = await res.json()
         return json.success === true
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to check admin status:", error)
         return false
     }
@@ -319,9 +350,17 @@ export async function fetchAdminUsers(token: string): Promise<User[]> {
         if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
-        return json.success ? json.data : []
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        if (json.success) {
+            const parsed = z.array(UserSchema).safeParse(json.data);
+            if (!parsed.success) {
+                console.error("Failed to parse admin users:", parsed.error);
+                return [];
+            }
+            return parsed.data;
+        }
+        return []
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch admin users:", error)
         return []
     }
@@ -339,21 +378,11 @@ export async function toggleServerVisibility(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to toggle visibility for server ${serverId}:`, error)
         return { success: false }
     }
-}
-
-export interface Alert {
-    id: number
-    user_id: string
-    server_id: number
-    alert_type: "status_to_offline" | "status_to_online" | "player_above" | "player_below"
-    player_threshold: number | null
-    is_active: boolean
-    created_at: string
 }
 
 export async function fetchAlerts(serverId: number, token: string): Promise<Alert[]> {
@@ -364,9 +393,17 @@ export async function fetchAlerts(serverId: number, token: string): Promise<Aler
         if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
-        return json.success ? json.data : []
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        if (json.success) {
+            const parsed = z.array(AlertSchema).safeParse(json.data);
+            if (!parsed.success) {
+                console.error("Failed to parse alerts:", parsed.error);
+                return [];
+            }
+            return parsed.data;
+        }
+        return []
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch alerts:", error)
         return []
     }
@@ -380,9 +417,17 @@ export async function fetchAllUserAlerts(token: string): Promise<Alert[]> {
         if (res.status === 429) throw new Error('RATE_LIMIT')
         if (!res.ok) return []
         const json = await res.json()
-        return json.success ? json.data : []
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        if (json.success) {
+            const parsed = z.array(AlertSchema).safeParse(json.data);
+            if (!parsed.success) {
+                console.error("Failed to parse all user alerts:", parsed.error);
+                return [];
+            }
+            return parsed.data;
+        }
+        return []
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch all user alerts:", error)
         return []
     }
@@ -401,9 +446,17 @@ export async function createAlert(
         })
         if (!res.ok) return null
         const json = await res.json()
-        return json.success ? json.data : null
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+        if (json.success) {
+            const parsed = AlertSchema.safeParse(json.data);
+            if (!parsed.success) {
+                console.error("Failed to parse created alert:", parsed.error);
+                return null;
+            }
+            return parsed.data;
+        }
+        return null;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to create alert:", error)
         return null
     }
@@ -416,8 +469,8 @@ export async function deleteAlert(alertId: number, token: string): Promise<boole
             headers: getHeaders(token)
         })
         return res.ok
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to delete alert ${alertId}:`, error)
         return false
     }
@@ -429,8 +482,8 @@ export async function fetchVapidKey(): Promise<string | null> {
         if (!res.ok) return null
         const json = await res.json()
         return json.success ? json.data.public_key : null
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to fetch VAPID key:", error)
         return null
     }
@@ -447,8 +500,8 @@ export async function subscribeDevice(
             body: JSON.stringify(subscription)
         })
         return res.ok
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to subscribe device:", error)
         return false
     }
@@ -462,8 +515,8 @@ export async function unsubscribeDevice(endpoint: string, token: string): Promis
             body: JSON.stringify({ endpoint })
         })
         return res.ok
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error("Failed to unsubscribe device:", error)
         return false
     }
@@ -474,7 +527,7 @@ export async function pingServerIp(
     ip: string,
     port: number,
     token: string
-): Promise<{ success: boolean; data?: any; message?: string; message_key?: string }> {
+): Promise<{ success: boolean; data?: unknown; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/admin/servers/${serverId}/ping-ip`, {
             method: "POST",
@@ -483,8 +536,8 @@ export async function pingServerIp(
         })
         const json = await res.json()
         return { success: json.success, data: json.data, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to ping server IP ${serverId}:`, error)
         return { success: false, message: "Network error" }
     }
@@ -504,10 +557,9 @@ export async function updateServerIp(
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
-    } catch (error: any) {
-        if (error.message === 'RATE_LIMIT') throw error;
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
         console.error(`Failed to update server IP ${serverId}:`, error)
         return { success: false, message: "Network error" }
     }
 }
-

@@ -7,6 +7,7 @@ use time::{Duration, OffsetDateTime};
 use crate::models::record::{Record, RecordData};
 use crate::models::server::{Server, ServerRow, DraftServer};
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
+use crate::models::mojang::MojangApiDowntime;
 use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
 use crate::repository::Repository;
 use futures::stream::StreamExt;
@@ -318,6 +319,60 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
+    async fn get_server_without_favicon(&self, server_id: u32) -> Result<Option<Server>, RepositoryError> {
+        let result: Option<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers WHERE id = $1")
+            .bind(server_id as i32)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(result.map(|r| r.into()))
+    }
+
+    async fn list_servers_without_favicon(&self) -> Result<Vec<Server>, RepositoryError> {
+        let rows: Vec<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers")
+            .fetch_all(&self.pool)
+            .await?;
+
+        let mut rs: Vec<Server> = Vec::new();
+        for row in rows {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
+
+    async fn get_servers_of_user_without_favicon(&self, user_id: String) -> Result<Vec<Server>, RepositoryError> {
+        let rows: Vec<ServerRow> = sqlx::query_as(
+            "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
+                    NULL::text AS last_favicon,
+                    last_status, last_connected, last_version, last_max_players, last_motd,
+                    last_ping_time, last_sample, last_protocol_version,
+                    favicon_hash, motd_hash, resolved_endpoint
+             FROM servers WHERE user_id = $1")
+            .bind(user_id)
+            .fetch_all(&self.pool)
+            .await?;
+
+        let mut rs: Vec<Server> = Vec::new();
+        for row in rows {
+            rs.push(row.into());
+        }
+
+        Ok(rs)
+    }
+
     async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, RepositoryError> {
         let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");
 
@@ -497,6 +552,45 @@ impl Repository for PostgresRepository {
         tx.commit().await?;
 
         Ok(())
+    }
+
+    async fn get_mojang_api_status(&self) -> Result<bool, RepositoryError> {
+        let row: (bool,) = sqlx::query_as("SELECT is_down FROM mojang_api_status WHERE id = 1")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(row.0)
+    }
+
+    async fn set_mojang_api_status(&self, is_down: bool) -> Result<(), RepositoryError> {
+        sqlx::query("UPDATE mojang_api_status SET is_down = $1, updated_at = NOW() WHERE id = 1")
+            .bind(is_down)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn start_mojang_api_downtime(&self, start_time: OffsetDateTime) -> Result<(), RepositoryError> {
+        sqlx::query("INSERT INTO mojang_api_downtimes (start_time) VALUES ($1)")
+            .bind(start_time)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn end_mojang_api_downtime(&self, end_time: OffsetDateTime) -> Result<(), RepositoryError> {
+        sqlx::query("UPDATE mojang_api_downtimes SET end_time = $1 WHERE end_time IS NULL")
+            .bind(end_time)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
+    async fn get_mojang_api_downtimes(&self, limit: u32) -> Result<Vec<MojangApiDowntime>, RepositoryError> {
+        let downtimes = sqlx::query_as::<_, MojangApiDowntime>("SELECT id, start_time, end_time FROM mojang_api_downtimes ORDER BY start_time DESC LIMIT $1")
+            .bind(limit as i64)
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(downtimes)
     }
 
     async fn initialize(&self) -> Result<(), RepositoryError> {

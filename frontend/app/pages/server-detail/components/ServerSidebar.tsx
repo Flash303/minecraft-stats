@@ -8,6 +8,7 @@ import { FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaYoutube, FaFacebook, FaT
 import { BiSupport } from "react-icons/bi"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { cn } from "@/core/lib/utils"
+import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 
@@ -147,7 +148,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                     {isLaby ? (
                         <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-foreground")} />
                     ) : (
-                        <LunarLogo className={cn("w-5 h-5", lunarServerInfo?.partnered ? "text-orange-500" : "text-sky-500")} />
+                        <LunarLogo className={cn("w-5 h-5", lunarLogoClass(lunarServerInfo?.partnered))} />
                     )}
                     {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>
@@ -195,9 +196,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                     <LabyLogo className="text-muted-foreground/40 h-8 w-8" />
                     <p className="text-muted-foreground text-sm">
-                        {language === "fr"
-                            ? "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations."
-                            : "This server is registered on LabyMod but hasn't filled in its information yet."}
+                        {t("serverDetail.sidebar.labyEmpty")}
                     </p>
                     <a
                         href={`https://github.com/LabyMod/server-media`}
@@ -217,7 +216,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 {labyServerInfo.partnered && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border border-cyan-500/20 rounded-lg shadow-sm">
                         <LabyLogo className="w-5 h-5 shrink-0" />
-                        <span className="font-bold text-sm tracking-tight">Official LabyMod Partner</span>
+                        <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.labyPartner")}</span>
                     </div>
                 )}
                 {hasSocials && (
@@ -309,10 +308,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                 
                                 return (
                                     <div key={lang} className="flex items-center gap-1.5 uppercase text-xs font-semibold px-2 py-1 bg-muted/50 rounded-md border text-muted-foreground transition-colors hover:bg-muted" title={lang}>
-                                        <img 
+                                        <img
                                             src={`https://flagcdn.com/w20/${flagCode}.png`}
                                             alt={lang}
                                             className="w-4 h-auto rounded-[1px] shadow-sm"
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                         />
                                         <span>{lang}</span>
@@ -356,9 +357,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 <div className="flex flex-col items-center gap-3 px-4 py-8 text-center">
                     <LunarLogo className="text-muted-foreground/40 h-8 w-8" />
                     <p className="text-muted-foreground text-sm">
-                        {language === "fr"
-                            ? "Ce serveur est référencé sur Lunar Client mais n'a pas encore renseigné ses informations."
-                            : "This server is registered on Lunar Client but hasn't filled in its information yet."}
+                        {t("serverDetail.sidebar.lunarEmpty")}
                     </p>
                     <a
                         href="https://github.com/LunarClient/ServerMappings/"
@@ -378,7 +377,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                 {lunarServerInfo.partnered && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-orange-500/10 text-orange-600 dark:text-orange-500 border border-orange-500/20 rounded-lg shadow-sm">
                         <LunarLogo className="w-5 h-5 shrink-0" />
-                        <span className="font-bold text-sm tracking-tight">Official Lunar Partner</span>
+                        <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.lunarPartner")}</span>
                     </div>
                 )}
                 {lunarServerInfo.description && (
@@ -475,10 +474,12 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
                                 
                                 return (
                                     <div key={lang} className="flex items-center gap-1.5 uppercase text-xs font-semibold px-2 py-1 bg-muted/50 rounded-md border text-muted-foreground transition-colors hover:bg-muted" title={lang}>
-                                        <img 
+                                        <img
                                             src={`https://flagcdn.com/w20/${flagCode}.png`}
                                             alt={lang}
                                             className="w-4 h-auto rounded-[1px] shadow-sm"
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                         />
                                         <span>{lang}</span>

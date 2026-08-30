@@ -19,3 +19,6 @@ time = { workspace = true }
 openssl = { workspace = true }
 
 web-push = { workspace = true }
+
+reqwest = { workspace = true }
+hex = { workspace = true }

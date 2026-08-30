@@ -7,6 +7,7 @@ import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
+import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
@@ -67,6 +68,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                     serverId={server.id}
                     alt={t("alt.serverLogo", { name: server.name })}
                     className="h-10 w-10 rounded shadow-sm flex-shrink-0 object-cover"
+                    loading="eager"
                 />
                 <div className="flex flex-col min-w-0">
                     {/* Nom + icônes launcher */}
@@ -75,7 +77,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             {server.name}
                         </h1>
                         {lunarInfo && (
-                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarInfo.partnered ? "text-orange-500" : "text-sky-500")} title="Lunar Client" />
+                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarLogoClass(lunarInfo.partnered))} title="Lunar Client" />
                         )}
                         {labyInfo && (
                             <LabyLogo className={cn("w-4 h-4 shrink-0", labyInfo.partnered ? "text-cyan-500" : "text-foreground")} title="LabyMod" />
@@ -112,13 +114,15 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             </Badge>
                         )}
                         {server.user && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
                                 <span>{t("serverDetail.addedBy")}</span>
                                 {server.user.image_url ? (
                                     <img
                                         src={server.user.image_url}
                                         alt={server.user.username || "User"}
                                         className="h-3.5 w-3.5 rounded-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 ) : (
                                     <UserIcon className="h-3 w-3" />
@@ -129,7 +133,7 @@ export function ServerDetailHeader({ server, t, locale, lunarInfo, labyInfo }: S
                             </div>
                         )}
                         {server.registered_date && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
                                 <Calendar className="h-3 w-3" />
                                 <span>{new Date(server.registered_date * 1000).toLocaleDateString(locale)}</span>
                             </div>

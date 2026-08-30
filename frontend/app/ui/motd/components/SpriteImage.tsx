@@ -61,10 +61,12 @@ export function SpriteImage({ src, alt, shadow, colorHex }: { src: string, alt: 
                     </filter>
                 </svg>
             )}
-            <img 
+            <img
                 ref={imgRef}
                 src={src}
                 alt={alt}
+                loading="lazy"
+                decoding="async"
                 style={{ 
                     display: 'block', 
                     height: '0.8888em',

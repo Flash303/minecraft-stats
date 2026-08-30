@@ -7,6 +7,7 @@ use crate::tasks::communication::{WorkerToVerifier, VerifierToSender};
 use crate::tasks::pinger::ping_worker;
 use crate::tasks::verifier::verifier_worker;
 use crate::tasks::sender::sender_worker;
+use crate::tasks::mojang_checker::mojang_checker_worker;
 
 mod tasks;
 
@@ -42,6 +43,12 @@ async fn main() {
     let repository_verifier = repository.clone();
     tokio::spawn(async move {
         verifier_worker(repository_verifier, rx_verifier, tx_sender).await;
+    });
+
+    // Spawn Mojang Checker
+    let repository_mojang = repository.clone();
+    tokio::spawn(async move {
+        mojang_checker_worker(repository_mojang).await;
     });
 
     // Spawn Sender

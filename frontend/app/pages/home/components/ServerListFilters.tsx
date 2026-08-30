@@ -30,6 +30,7 @@ import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { JavaLogo } from "@/ui/components/JavaLogo"
 import { BedrockLogo } from "@/ui/components/BedrockLogo"
+import { ToggleGroup, ToggleGroupItem } from "@/ui/components/toggle-group"
 
 interface ServerListFiltersProps {
     activeTab: "all" | "online" | "offline" | "hidden"
@@ -111,7 +112,7 @@ function StatusTab({
     )
 }
 
-/** Contrôle segmenté générique avec icônes */
+/** Contrôle segmenté générique avec icônes (basé sur radix ToggleGroup) */
 function SegmentedControl<T extends string>({
     options,
     value,
@@ -122,30 +123,24 @@ function SegmentedControl<T extends string>({
     onChange: (val: T) => void
 }) {
     return (
-        <div className="flex p-1 bg-muted rounded-xl w-full gap-1">
-            {options.map((opt) => {
-                const isActive = value === opt.value
-                return (
-                    <button
-                        key={opt.value}
-                        onClick={() => onChange(opt.value)}
-                        className={cn(
-                            "flex-1 min-w-0 flex items-center justify-center gap-1.5 text-xs sm:text-sm py-2 px-2 rounded-lg font-medium transition-all text-center whitespace-nowrap cursor-pointer",
-                            isActive
-                                ? "bg-card shadow-sm text-foreground font-semibold"
-                                : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                        )}
-                    >
-                        {opt.icon && (
-                            <span className="shrink-0 flex items-center justify-center">
-                                {opt.icon}
-                            </span>
-                        )}
-                        <span className="truncate">{opt.label}</span>
-                    </button>
-                )
-            })}
-        </div>
+        <ToggleGroup
+            type="single"
+            value={value}
+            onValueChange={(val) => {
+                if (val) onChange(val as T)
+            }}
+        >
+            {options.map((opt) => (
+                <ToggleGroupItem key={opt.value} value={opt.value} aria-label={opt.label}>
+                    {opt.icon && (
+                        <span className="shrink-0 flex items-center justify-center">
+                            {opt.icon}
+                        </span>
+                    )}
+                    <span className="truncate">{opt.label}</span>
+                </ToggleGroupItem>
+            ))}
+        </ToggleGroup>
     )
 }
 
@@ -196,8 +191,8 @@ function SortControl({
                             title={
                                 isActive
                                     ? direction === "desc"
-                                        ? "Ordre croissant"
-                                        : "Ordre décroissant"
+                                        ? t("serverList.filters.sortAscTitle")
+                                        : t("serverList.filters.sortDescTitle")
                                     : opt.label
                             }
                         >
@@ -270,7 +265,7 @@ export function ServerListFilters({
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
                 <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ListFilter aria-hidden="true" className="w-4 h-4 text-primary" />
-                    {t("serverList.filters.filterSort") || "Filtres & Tri"}
+                    {t("serverList.filters.filterSort")}
                 </span>
                 {hasActiveFilters && (
                     <button
@@ -278,7 +273,7 @@ export function ServerListFilters({
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                         <X aria-hidden="true" className="w-3.5 h-3.5" />
-                        Réinitialiser
+                        {t("serverList.filters.reset")}
                     </button>
                 )}
             </div>
@@ -290,8 +285,8 @@ export function ServerListFilters({
                         <p className="text-xs font-semibold text-muted-foreground">
                             {t("serverList.filters.sort")}
                         </p>
-                        <span className="text-[10px] text-muted-foreground/60">
-                            {directionText(sortDirection)}
+                        <span className="text-2xs text-muted-foreground/60">
+                            {directionText(sortDirection, t)}
                         </span>
                     </div>
                     <SortControl
@@ -300,17 +295,17 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "popularity",
-                                label: t("serverList.filters.sortPopularity") || "Populaire",
-                                icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-amber-500" />,
+                                label: t("serverList.filters.sortPopularity"),
+                                icon: <Flame aria-hidden="true" className="w-3.5 h-3.5 text-warning" />,
                             },
                             {
                                 value: "name",
-                                label: t("serverList.filters.sortName") || "Nom",
+                                label: t("serverList.filters.sortName"),
                                 icon: <ArrowDownAZ aria-hidden="true" className="w-3.5 h-3.5 text-primary" />,
                             },
                             {
                                 value: "recent",
-                                label: t("serverList.filters.sortRecent") || "Récents",
+                                label: t("serverList.filters.sortRecent"),
                                 icon: <Clock aria-hidden="true" className="w-3.5 h-3.5 text-info" />,
                             },
                         ]}
@@ -319,7 +314,7 @@ export function ServerListFilters({
                             setSortDirection(sortDirection === "asc" ? "desc" : "asc")
                         }
                     />
-                    <p className="text-[11px] text-muted-foreground/60 text-center">
+                    <p className="text-xs text-muted-foreground/60 text-center">
                         Cliquez à nouveau sur l'option active pour inverser l'ordre
                     </p>
                 </div>
@@ -329,7 +324,7 @@ export function ServerListFilters({
                 {/* LAUNCHER */}
                 <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground">
-                        {t("serverList.filters.launcher") || "Launcher"}
+                        {t("serverList.filters.launcher")}
                     </p>
                     <SegmentedControl
                         value={activeLauncher}
@@ -337,7 +332,7 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "all",
-                                label: t("serverList.filters.all") || "Tous",
+                                label: t("serverList.filters.all"),
                                 icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
                             },
                             {
@@ -365,17 +360,17 @@ export function ServerListFilters({
                         options={[
                             {
                                 value: "all",
-                                label: t("serverList.filters.all") || "Tous",
+                                label: t("serverList.filters.all"),
                                 icon: <Globe aria-hidden="true" className="w-3.5 h-3.5 text-muted-foreground/80" />,
                             },
                             {
                                 value: "java",
-                                label: t("serverList.filters.java") || "Java",
+                                label: t("serverList.filters.java"),
                                 icon: <JavaLogo className="w-3.5 h-3.5 text-amber-500" />,
                             },
                             {
                                 value: "bedrock",
-                                label: t("serverList.filters.bedrock") || "Bedrock",
+                                label: t("serverList.filters.bedrock"),
                                 icon: <BedrockLogo className="w-3.5 h-3.5" />,
                             },
                         ]}
@@ -452,12 +447,12 @@ export function ServerListFilters({
                                 )}
                             >
                                 <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
-                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                <span>{t("serverList.filters.filterSort")}</span>
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
-                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
-                                            "bg-white/20 dark:bg-zinc-950/20"
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-2xs font-bold",
+                                            "bg-background/20"
                                         )}
                                     >
                                         {activeFilterCount}
@@ -466,7 +461,7 @@ export function ServerListFilters({
                             </button>
                         </PopoverTrigger>
                         <PopoverContent
-                            className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-white dark:bg-zinc-950 overflow-hidden"
+                            className="w-[calc(100vw-2rem)] sm:w-[420px] p-0 rounded-2xl shadow-2xl border-border bg-card overflow-hidden"
                             align="end"
                         >
                             {FilterContent()}
@@ -484,12 +479,12 @@ export function ServerListFilters({
                                 )}
                             >
                                 <ListFilter aria-hidden="true" className="w-4 h-4 flex-shrink-0" />
-                                <span>{t("serverList.filters.filterSort") || "Filtres & Tri"}</span>
+                                <span>{t("serverList.filters.filterSort")}</span>
                                 {hasActiveFilters && (
                                     <span
                                         className={cn(
-                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-[10px] font-bold",
-                                            "bg-white/20 dark:bg-zinc-950/20"
+                                            "flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full text-2xs font-bold",
+                                            "bg-background/20"
                                         )}
                                     >
                                         {activeFilterCount}
@@ -511,6 +506,6 @@ export function ServerListFilters({
     )
 }
 
-function directionText(dir: "asc" | "desc") {
-    return dir === "desc" ? "Décroissant" : "Croissant"
+function directionText(dir: "asc" | "desc", t: (key: string) => string) {
+    return t(dir === "desc" ? "serverList.filters.sortDesc" : "serverList.filters.sortAsc")
 }

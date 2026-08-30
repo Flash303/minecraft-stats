@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/core/lib/api";
+import { useToast } from "@/core/contexts/ToastContext";
+import { useLanguage } from "@/core/contexts/LanguageContext";
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -17,6 +19,8 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function useWebPush(getToken: () => Promise<string | null>) {
+    const { showToast } = useToast();
+    const { t } = useLanguage();
     const isPushSupported = "serviceWorker" in navigator && "PushManager" in window;
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [checkingSubscription, setCheckingSubscription] = useState(true);
@@ -50,7 +54,7 @@ export function useWebPush(getToken: () => Promise<string | null>) {
 
             const vapidKey = await fetchVapidKey();
             if (!vapidKey) {
-                alert("Failed to load VAPID public key from backend.");
+                showToast("error", t("push.vapidKeyError"));
                 setActionLoading(false);
                 return;
             }
@@ -78,12 +82,13 @@ export function useWebPush(getToken: () => Promise<string | null>) {
 
             if (success) {
                 setIsSubscribed(true);
+                showToast("success", t("alerts.subscribeSuccess"));
             } else {
-                alert("Failed to sync subscription details with backend.");
+                showToast("error", t("push.syncError"));
             }
         } catch (e) {
             console.error("Push registration failed:", e);
-            alert(`Subscription failed: ${e}`);
+            showToast("error", t("push.subscribeError"));
         } finally {
             setActionLoading(false);
         }
@@ -108,7 +113,7 @@ export function useWebPush(getToken: () => Promise<string | null>) {
             }
         } catch (e) {
             console.error("Unsubscription failed:", e);
-            alert(`Unsubscription failed: ${e}`);
+            showToast("error", t("push.unsubscribeError"));
         } finally {
             setActionLoading(false);
         }

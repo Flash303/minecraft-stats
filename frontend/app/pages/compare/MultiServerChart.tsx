@@ -16,6 +16,9 @@ import {
     sizeChartToContainer,
 } from "@/core/hooks/useChartPlugins"
 import { escapeHtml } from "@/core/lib/utils"
+import { chartPalette, resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { ClientOnly } from "@/ui/components/ClientOnly"
+
 interface MultiServerChartProps {
     data: uPlot.AlignedData
     serverNames: string[]
@@ -28,22 +31,13 @@ interface MultiServerChartProps {
     timeSelector?: React.ReactNode
 }
 
-const COLORS = [
-    "#3b82f6", // blue
-    "#ef4444", // red
-    "#10b981", // emerald
-    "#f59e0b", // amber
-    "#8b5cf6", // violet
-    "#ec4899", // pink
-    "#06b6d4", // cyan
-    "#84cc16", // lime
-]
-
 export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange, timeSelector }: MultiServerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
+
+    const seriesColors = useMemo(() => chartPalette(serverNames.length || 1), [serverNames, theme])
 
     useChartResize(chartRef, containerRef, [data])
 
@@ -58,19 +52,19 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
         language,
         t,
         tooltipWidth: 220,
-        deps: [serverNames],
+        deps: [serverNames, seriesColors],
         renderRowsHtml: (u, idx, locale) => {
             let rowsHtml = ""
             for (let i = 1; i < u.data.length; i++) {
                 const yVal = u.data[i][idx]
                 if (yVal !== null && yVal !== undefined) {
                     const name = serverNames[i - 1]
-                    const color = COLORS[(i - 1) % COLORS.length]
+                    const color = seriesColors[(i - 1) % seriesColors.length]
                     rowsHtml += `
                         <div class="flex items-center justify-between gap-4 py-0.5">
                             <div class="flex items-center gap-2">
                                 <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
-                                <span class="text-zinc-300 font-medium">${escapeHtml(name)}</span>
+                                <span class="text-muted-foreground font-medium">${escapeHtml(name)}</span>
                             </div>
                             <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
                         </div>
@@ -84,9 +78,8 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const touchInteractPlugin = useTouchInteractPlugin()
 
     const options = useMemo(() => {
-        const isDark = theme === "dark"
-        const gridColor = isDark ? "#374151" : "#e5e7eb"
-        const textColor = isDark ? "#d1d5db" : "#374151"
+        const gridColor = resolveToken("--chart-grid")
+        const textColor = resolveToken("--chart-axis-text")
         const locale = language === "fr" ? "fr-FR" : "en-US"
 
         const series: uPlot.Series[] = [
@@ -100,11 +93,11 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
         ]
 
         for (let i = 0; i < serverNames.length; i++) {
-            const color = COLORS[i % COLORS.length]
+            const color = seriesColors[i % seriesColors.length]
             series.push({
                 label: serverNames[i],
                 stroke: color,
-                fill: color + "1a", // 10% opacity fill
+                fill: withAlpha(color, 0.1),
                 width: 2,
                 spanGaps: false, // Match PlayerChart - show gaps for server offline status
                 value: (_u: uPlot, val: number) => {
@@ -181,20 +174,22 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
 
             <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
                 {data[0].length === 0 ? (
-                    <p className="text-center py-4 text-zinc-400 font-medium animate-pulse">
+                    <p className="text-center py-4 text-muted-foreground font-medium animate-pulse">
                         {t("comparison.loadingData")}
                     </p>
                 ) : (
                     <div className="w-full">
-                        <UplotReact
-                            options={options}
-                            data={data}
-                            onCreate={(chart) => {
-                                chartRef.current = chart
-                                // Force resize to container width after creation
-                                sizeChartToContainer(chart, containerRef.current)
-                            }}
-                        />
+                        <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+                            <UplotReact
+                                options={options}
+                                data={data}
+                                onCreate={(chart) => {
+                                    chartRef.current = chart
+                                    // Force resize to container width after creation
+                                    sizeChartToContainer(chart, containerRef.current)
+                                }}
+                            />
+                        </ClientOnly>
                     </div>
                 )}
             </div>

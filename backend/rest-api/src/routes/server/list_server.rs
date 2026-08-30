@@ -14,22 +14,18 @@ pub(super) async fn list_all_servers(State(state): State<AppState>,
                                      Extension(user): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
     let do_include_stats = query.include_stats.unwrap_or(false);
 
-    let server_list = state.repository.list_servers().await?;
+    let server_list = state.repository.list_servers_without_favicon().await?;
 
     let is_admin = user.is_some_and(|u| u.is_admin());
     let mut servers: Vec<BiggerServerResponse> = stream::iter(server_list
             .into_iter()
             .filter(|s| is_admin || !s.hidden))
-        .map(async |mut server| {
+        .map(async |server| {
             let mut server_creator: Option<ClerkUser> = None;
             if query.include_owners.is_some_and(|t| t) {
                 server_creator = get_clerk_user_with_cache(&state, &server.user_id).await
                     .ok()
                     .map(|u| (*u).clone());
-            }
-
-            if !query.include_favicon.unwrap_or(false) {
-                server.last_favicon = None;
             }
 
             BiggerServerResponse::from_with_user(server.into(), server_creator)
