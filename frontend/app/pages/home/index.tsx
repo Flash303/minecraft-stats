@@ -325,13 +325,6 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                         )}
                     </>
                 )}
-                {!loading && !error && servers.length === 0 && (
-                    <div className="bg-muted/20 rounded-xl border-2 border-dashed py-20 text-center">
-                        <p className="text-muted-foreground italic">
-                            {t("serverList.noServers")}
-                        </p>
-                    </div>
-                )}
             </div>
         </>
     )
