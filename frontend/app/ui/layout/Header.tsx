@@ -152,13 +152,23 @@ export function Header({ leftContent }: HeaderProps) {
 
                     {/* Desktop Language Switcher */}
                     <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
-                        <Select value={language} onValueChange={(v: "fr" | "en") => setLanguage(v)}>
+                        <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
                             <SelectTrigger aria-label="Select language" className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages aria-hidden="true" className="h-4 w-4" />
                             </SelectTrigger>
                             <SelectContent align="end">
                                 <SelectItem value="fr">Français</SelectItem>
                                 <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="es">Español</SelectItem>
+                                <SelectItem value="it">Italiano</SelectItem>
+                                <SelectItem value="de">Deutsch</SelectItem>
+                                <SelectItem value="pt">Português</SelectItem>
+                                <SelectItem value="ru">Русский</SelectItem>
+                                <SelectItem value="pl">Polski</SelectItem>
+                                <SelectItem value="zh-CN">简体中文</SelectItem>
+                                <SelectItem value="ja">日本語</SelectItem>
+                                <SelectItem value="ko">한국어</SelectItem>
+                                <SelectItem value="nl">Nederlands</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -242,30 +252,31 @@ export function Header({ leftContent }: HeaderProps) {
                             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/40">
                                 <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
                                     <Languages aria-hidden="true" className="h-4 w-4" />
-                                    {language === "fr" ? "Français" : "English"}
+                                    Language
                                 </span>
-                                <div className="flex gap-1.5">
-                                    <button
-                                        onClick={() => setLanguage("fr")}
-                                        className={`px-3 py-1.5 text-xs rounded-md font-semibold transition-all cursor-pointer ${
-                                            language === "fr"
-                                                ? "bg-primary text-primary-foreground shadow-xs"
-                                                : "hover:bg-muted text-muted-foreground"
-                                        }`}
-                                    >
-                                        FR
-                                    </button>
-                                    <button
-                                        onClick={() => setLanguage("en")}
-                                        className={`px-3 py-1.5 text-xs rounded-md font-semibold transition-all cursor-pointer ${
-                                            language === "en"
-                                                ? "bg-primary text-primary-foreground shadow-xs"
-                                                : "hover:bg-muted text-muted-foreground"
-                                        }`}
-                                    >
-                                        EN
-                                    </button>
-                                </div>
+                                <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
+                                    <SelectTrigger aria-label="Select language" className="h-8 w-auto px-2 border-none bg-transparent hover:bg-muted justify-center cursor-pointer text-xs font-semibold">
+                                        <div className="flex items-center gap-2">
+                                            <span>
+                                                {language === "fr" ? "Français" : language === "en" ? "English" : language === "es" ? "Español" : language === "it" ? "Italiano" : language === "de" ? "Deutsch" : language === "pt" ? "Português" : language === "ru" ? "Русский" : language === "pl" ? "Polski" : language === "zh-CN" ? "简体中文" : language === "ja" ? "日本語" : language === "ko" ? "한국어" : "Nederlands"}
+                                            </span>
+                                        </div>
+                                    </SelectTrigger>
+                                    <SelectContent align="end">
+                                        <SelectItem value="fr">Français</SelectItem>
+                                        <SelectItem value="en">English</SelectItem>
+                                        <SelectItem value="es">Español</SelectItem>
+                                        <SelectItem value="it">Italiano</SelectItem>
+                                        <SelectItem value="de">Deutsch</SelectItem>
+                                        <SelectItem value="pt">Português</SelectItem>
+                                        <SelectItem value="ru">Русский</SelectItem>
+                                        <SelectItem value="pl">Polski</SelectItem>
+                                        <SelectItem value="zh-CN">简体中文</SelectItem>
+                                        <SelectItem value="ja">日本語</SelectItem>
+                                        <SelectItem value="ko">한국어</SelectItem>
+                                        <SelectItem value="nl">Nederlands</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                     </div>

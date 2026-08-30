@@ -3,7 +3,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { translate } from "@/core/lib/i18n"
 import type fr from "../../locales/fr.json"
 
-type Language = "fr" | "en"
+export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
 
 type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
