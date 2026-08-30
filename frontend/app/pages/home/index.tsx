@@ -81,7 +81,7 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         if (data) setServers(data)
     }, [data])
 
-    const loading = isPending
+    const loading = isPending || isDeferredLoading
     const refreshing = isFetching
 
     const tabParam = searchParams.get("tab")
@@ -275,19 +275,19 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
                     isRefreshing={refreshing}
                 />
 
-                {loading && servers.length === 0 && (
+                {(loading || (refreshing && servers.length === 0)) ? (
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
                             <ServerCardSkeleton key={i} />
                         ))}
                     </div>
-                )}
+                ) : null}
                 {error && (
                     <div className="bg-destructive/10 text-destructive border-destructive/20 my-8 rounded-lg border p-4 text-center shadow-sm">
                         {t("serverList.error")}
                     </div>
                 )}
-                {!loading && !error && (
+                {!(loading || (refreshing && servers.length === 0)) && !error && (
                     <>
                         {paginatedServers.length > 0 ? (
                             <>
