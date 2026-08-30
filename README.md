@@ -41,13 +41,13 @@ Minecraft Stats is a web platform that allows users to visualize the evolution o
 
 ## ⚙️ Backend Architecture (Rust)
 
-Each registered server is pinged approximately every 10 seconds. To achieve this efficiently, I developed a custom library, `minecraft-pinger`, which implements the Minecraft protocol for both Java and Bedrock editions.
+Each registered server is pinged approximately every 10 seconds. To achieve this efficiently, I developed a custom library, [`minecraft-pinger`](https://github.com/Flash303/minecraft-pinger), which implements the Minecraft protocol for both Java and Bedrock editions.
 
 To keep the codebase maintainable and clear, the project is split into multiple distinct crates:
 
 | Crate | Description |
 | :--- | :--- |
-| `minecraft-pinger` | External crate implementing the ping (status) protocol for Minecraft servers. |
+| [`minecraft-pinger`](https://github.com/Flash303/minecraft-pinger) | External crate implementing the ping (status) protocol for Minecraft servers. |
 | `repository` | Contains the core data models (`Server`, `PingRecord`, etc.) and the associated queries to communicate with the database. |
 | `worker` | A standalone application that connects to the DB and handles continuously pinging the servers. It is also responsible for dispatching alerts. |
 | `rest-api` | The API built with the [Axum](https://github.com/tokio-rs/axum) framework. It allows the frontend to fetch historical data and configure alerts. |
