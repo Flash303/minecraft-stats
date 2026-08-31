@@ -1,3 +1,5 @@
+
+
 <p align="center">
   <img src=".github/assets/logo.png" alt="Minecraft Stats Logo" width="200" />
 </p>
@@ -66,7 +68,7 @@ The project is continuously evolving (such as the recent addition of MOTD previe
 To run this project locally, you will need:
 
 *   [Bun](https://bun.sh/) (recommended) or [Node.js](https://nodejs.org/)
-*   [Rust & Cargo](https://rustup.rs/) (version 2024 or higher)
+*   [Rust & Cargo](https://rustup.rs/) (toolchain supporting Rust edition 2024)
 *   [Docker](https://www.docker.com/) and Docker Compose (for the database and full stack environment)
 *   A PostgreSQL database
 
