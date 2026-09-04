@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
     Search,
     ArrowUp,
@@ -17,6 +17,7 @@ import { Input } from "@/ui/components/input"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { Link } from "react-router"
+import { Pagination } from "@/ui/components/pagination"
 import { formatMinecraftVersion } from "@/core/lib/utils"
 import type { Server, User } from "@/core/lib/api"
 
@@ -85,6 +86,19 @@ export function ServersTab({
         handleSort,
         sortedServers
     } = useServersFilterSort({ servers, users, getUserDisplayName })
+
+    const ITEMS_PER_PAGE = 20;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [serverSearchQuery, serverStatusFilter, sortField, sortDirection]);
+
+    const totalPages = Math.max(1, Math.ceil(sortedServers.length / ITEMS_PER_PAGE));
+    const paginatedServers = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return sortedServers.slice(start, start + ITEMS_PER_PAGE);
+    }, [sortedServers, currentPage]);
 
     const { getToken } = useAuth()
     const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -240,8 +254,8 @@ export function ServersTab({
                         </tr>
                     </thead>
                     <tbody className="divide-y">
-                        {sortedServers.length > 0 ? (
-                            sortedServers.map((server) => {
+                        {paginatedServers.length > 0 ? (
+                            paginatedServers.map((server) => {
                                 const creator = users.find(u => u.id === server.user_id)
                                 const isOnline = server.last_status === "online"
                                 const isHidden = server.hidden === true
@@ -353,6 +367,14 @@ export function ServersTab({
                     </tbody>
                 </table>
             </div>
+
+            {totalPages > 1 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
+            )}
         </div>
     )
 }
