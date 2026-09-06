@@ -15,13 +15,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return new Response("Invalid URL", { status: 400 });
     }
 
-    // Validation stricte : protocole et hôte exacts (bloque les contournements
-    // via userinfo comme https://dl.labymod.net@evil.com/ ou les ports arbitraires)
+    const allowedOrigins = ["https://dl.labymod.net", "https://resource.laby.net"];
     if (
         parsedTarget.protocol !== "https:" ||
         parsedTarget.username ||
         parsedTarget.password ||
-        parsedTarget.origin !== "https://dl.labymod.net"
+        !allowedOrigins.includes(parsedTarget.origin)
     ) {
         return new Response("Invalid URL", { status: 400 });
     }

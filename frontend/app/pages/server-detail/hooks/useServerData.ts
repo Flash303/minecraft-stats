@@ -70,7 +70,10 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                 if (manifestAttachment) {
                     const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
                     fetch(proxyUrl)
-                        .then(res => res.json())
+                        .then(res => {
+                            if (!res.ok) throw new Error("Failed to fetch manifest")
+                            return res.json()
+                        })
                         .then(data => {
                             if (!cancelled) setLabyManifest(data)
                         })
