@@ -154,12 +154,14 @@ function SortControl({
     direction,
     onChange,
     onToggleDirection,
+    t,
 }: {
     options: { value: string; label: string; icon?: React.ReactNode }[]
     value: string
     direction: "asc" | "desc"
     onChange: (val: string) => void
     onToggleDirection: () => void
+    t: (key: string) => string
 }) {
     return (
         <div className="flex p-1 bg-muted rounded-xl w-full gap-1">
@@ -292,6 +294,7 @@ export function ServerListFilters({
                     <SortControl
                         value={activeSort}
                         direction={sortDirection}
+                        t={t}
                         options={[
                             {
                                 value: "popularity",

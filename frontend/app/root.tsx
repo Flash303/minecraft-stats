@@ -100,7 +100,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   // <head> la pose avant le premier paint, l'effet de ThemeContext la met à
   // jour ensuite. Aucune divergence d'hydratation possible.
   return (
-    <html lang={lang}>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
