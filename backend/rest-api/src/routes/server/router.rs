@@ -55,6 +55,13 @@ pub fn router() -> Router<AppState> {
         .finish()
         .unwrap();
 
+    let get_icon_limit = GovernorConfigBuilder::default()
+        .per_second(20)
+        .burst_size(200)
+        .key_extractor(ClientIpKeyExtractor)
+        .finish()
+        .unwrap();
+
     let layer = GovernorLayer::new(get_server_limit);
 
     Router::new()
@@ -62,7 +69,7 @@ pub fn router() -> Router<AppState> {
 
         .route("/{id}", get(get_server).route_layer(layer.clone()))
         .route("/mine", get(get_mine_server).route_layer(layer.clone()))
-        .route("/{id}/icon", get(get_server_icon).route_layer(layer.clone()))
+        .route("/{id}/icon", get(get_server_icon).route_layer(GovernorLayer::new(get_icon_limit)))
 
         .route("/{id}/alerts", get(list_alerts).route_layer(layer.clone())
             .post(create_alert).route_layer(GovernorLayer::new(push_alert_limit)))
