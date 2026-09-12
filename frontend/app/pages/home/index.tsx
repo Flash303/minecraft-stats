@@ -44,27 +44,43 @@ export default function ServerList() {
     const loaderData = useLoaderData<typeof loader>()
     
     return (
-        <Suspense fallback={<ServerListContent initialServers={[]} isDeferredLoading={true} />}>
+        <Suspense fallback={<ServerListFallback />}>
             <Await resolve={loaderData.initialServersPromise}>
-                {(servers) => <ServerListContent initialServers={servers} isDeferredLoading={false} />}
+                {(servers) => <ServerListContent initialServers={servers} />}
             </Await>
         </Suspense>
     )
 }
 
-function ServerListContent({ initialServers, isDeferredLoading = false }: { initialServers: Server[], isDeferredLoading?: boolean }) {
+function ServerListFallback() {
+    return (
+        <>
+            <Hero3D servers={[]} />
+            <div className="mx-auto max-w-6xl scroll-mt-20 px-2 pt-8">
+                {/* Espace réservé pour les filtres */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4 h-[72px]"></div>
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <ServerCardSkeleton key={i} />
+                    ))}
+                </div>
+            </div>
+        </>
+    )
+}
+
+function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const { t } = useLanguage()
     const { getLunarInfo, getLabyInfo } = useClientInfo()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
-    const [servers, setServers] = useState<Server[]>(initialServers || [])
     const [searchParams, setSearchParams] = useSearchParams()
 
     // Source unique de vérité : le cache TanStack Query, amorcé par les
     // données SSR. Remplace l'ancien doublon load()/handleRefresh(), les
     // caches module-level et le refetch manuel au montage.
-    const { data, isPending, isFetching, error, refetch } = useQuery({
+    const { data: servers = initialServers || [], isPending, isFetching, error, refetch } = useQuery({
         queryKey: ["servers"],
         queryFn: async () => {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
@@ -77,11 +93,10 @@ function ServerListContent({ initialServers, isDeferredLoading = false }: { init
         initialDataUpdatedAt: 0,
     })
 
-    useEffect(() => {
-        if (data) setServers(data)
-    }, [data])
-
-    const loading = isPending || isDeferredLoading || (!isLoaded && servers.length === 0)
+    // On ne montre le skeleton que si on n'a VRAIMENT pas de données (isPending)
+    // S'il y a initialData, isPending sera false, donc on ne montrera jamais le skeleton,
+    // ce qui évite le clignotement SSR.
+    const loading = isPending && servers.length === 0
     const refreshing = isFetching
 
     const tabParam = searchParams.get("tab")
