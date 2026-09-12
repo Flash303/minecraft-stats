@@ -25,7 +25,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     // On désactive les stats pour le SSR afin d'éviter une payload de 4.6MB dans le HTML.
     // React Query ira chercher les stats en arrière-plan sur le client.
-    const serversPromise = fetchServers(undefined, false, forwardedFor).catch(() => [])
+    const serversPromise = fetchServers(undefined, false, forwardedFor).catch((e) => {
+        console.error("SSR Error:", e)
+        return []
+    })
     return { initialServersPromise: serversPromise }
 }
 

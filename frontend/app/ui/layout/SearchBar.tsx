@@ -9,6 +9,7 @@ import type { Server } from "@/core/lib/api"
 import { useAuth } from "@clerk/react"
 import { cn } from "@/core/lib/utils"
 import { useNavigate } from "react-router"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useSearch } from "@/core/contexts/SearchContext"
 import { useClientInfo } from "@/core/contexts/ClientInfoContext"
@@ -29,9 +30,9 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const { refreshCounter } = useSearch()
     const { getLabyInfo, getLunarInfo } = useClientInfo()
     const { getToken, isSignedIn, isLoaded } = useAuth()
-    const [allServers, setAllServers] = useState<Server[]>([])
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [internalValue, setInternalValue] = useState("")
+    const [isFocused, setIsFocused] = useState(false)
     const [selectedIndex, setSelectedIndex] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -53,18 +54,22 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
         setIsMobile(typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
     }, [])
 
-    useEffect(() => {
-        const loadAll = async () => {
-            try {
-                const token = isLoaded && isSignedIn ? await getToken() : undefined
-                const data = await fetchServers(token ?? undefined)
-                setAllServers(data)
-            } catch (err) {
-                console.error("Failed to load servers", err)
+    const queryClient = useQueryClient()
+    const { data: allServers = [] } = useQuery({
+        queryKey: ["servers-search", refreshCounter],
+        queryFn: async () => {
+            // Optimisation : Si la homepage a déjà chargé les serveurs (via SSR ou client), on les réutilise
+            const cachedServers = queryClient.getQueryData<Server[]>(["servers"])
+            if (cachedServers && cachedServers.length > 0) {
+                return cachedServers
             }
-        }
-        if (isLoaded) loadAll()
-    }, [isLoaded, isSignedIn, getToken, refreshCounter])
+            
+            const token = isLoaded && isSignedIn ? await getToken() : undefined
+            return fetchServers(token ?? undefined, false)
+        },
+        enabled: isLoaded && isFocused,
+        staleTime: 60000,
+    })
 
     const filteredSuggestions = useMemo(() => {
         if (!value.trim()) return []
@@ -112,6 +117,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault()
                 onChange("")
+                setIsFocused(true)
                 inputRef.current?.focus()
             }
         }
@@ -141,7 +147,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                     onChange(e.target.value)
                     setShowSuggestions(true)
                 }}
-                onFocus={() => setShowSuggestions(true)}
+                onFocus={() => {
+                    setShowSuggestions(true)
+                    setIsFocused(true)
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
                 className="pl-10 pr-14 h-10 bg-card border border-border focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-xs text-foreground"
