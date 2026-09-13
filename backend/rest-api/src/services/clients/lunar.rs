@@ -32,7 +32,7 @@ fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarC
 pub async fn get_lunar_infos(state: &AppState, current_server: &Server) -> Option<LunarClientInfo> {
     let guard = state.lunar_servers_cache.read().await;
     for server in guard.iter() {
-        if server.addresses.contains(&current_server.ip) {
+        if server.addresses.contains(&current_server.ip) || server.primary_address.eq_ignore_ascii_case(current_server.ip.as_str()) {
             return Some(construct_lunar_info(state, server.clone()));
         }
     }
