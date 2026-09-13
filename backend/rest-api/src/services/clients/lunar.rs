@@ -53,7 +53,7 @@ pub async fn refresh_lunar_infos(state: &AppState) {
 
     let json = rs.unwrap().json::<Vec<RawLunarServer>>().await;
     if let Err(err) = json {
-        error!("Could not fetch lunar infos {err}");
+        error!("Could not parse lunar infos {err}");
         return;
     }
 
