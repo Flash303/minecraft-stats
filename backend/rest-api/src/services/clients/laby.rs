@@ -39,9 +39,8 @@ impl RawLabyServer {
 }
 
 fn construct_laby_info(state: &AppState, server: Arc<RawLabyServer>) -> LabyClientInfo {
-    let srv_part = state.lunar_partner_cache.get(&server.direct_ip);
-    let is_partner = srv_part.as_ref()
-        .and_then(|info| info.partnered)
+    let srv_part = state.laby_partner_cache.get(&server.direct_ip);
+    let is_partner = srv_part.map(|t| *t.value())
         .unwrap_or(false);
 
     let base = BaseClientInfo {
