@@ -4,7 +4,7 @@ import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
-import { useClientInfo } from "@/core/contexts/ClientInfoContext"
+
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import type { Server } from "@/core/lib/api"
 import { cn } from "@/core/lib/utils"
@@ -15,7 +15,7 @@ interface SelectedServersTagsProps {
 }
 
 export function SelectedServersTags({ selectedServers, removeServer }: SelectedServersTagsProps) {
-    const { getLunarInfo, getLabyInfo } = useClientInfo()
+
     const { t } = useLanguage()
 
     if (selectedServers.length === 0) return null
@@ -41,21 +41,15 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                             alt=""
                         />
                         <span className="font-bold">{s.name}</span>
-                        {(() => {
-                            const lunarInfo = getLunarInfo(s.ip);
-                            return lunarInfo ? (
-                                <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(lunarInfo.partnered))} />
-                            ) : null;
-                        })()}
-                        {(() => {
-                            const labyInfo = getLabyInfo(s.ip);
-                            return labyInfo ? (
-                                <LabyLogo
-                                    className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partnered))}
-                                    title="LabyMod"
-                                />
-                            ) : null;
-                        })()}
+                        {s.client_infos?.lunar && (
+                            <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(s.client_infos.lunar.partner))} />
+                        )}
+                        {s.client_infos?.laby && (
+                            <LabyLogo
+                                className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(s.client_infos.laby.partner))}
+                                title="LabyMod"
+                            />
+                        )}
                     </Link>
 
                     {/* Séparateur */}

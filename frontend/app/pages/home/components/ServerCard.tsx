@@ -8,7 +8,7 @@ import { Check, Copy, Wifi, WifiOff } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { parseLegacyText } from "@/ui/motd/parser"
 import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
-import { useClientInfo } from "@/core/contexts/ClientInfoContext"
+
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
@@ -21,7 +21,6 @@ interface ServerCardProps {
 
 export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
-    const { getLabyInfo, getLunarInfo } = useClientInfo()
     const [copied, setCopied] = useState(false)
     const copiedTimerRef = useRef<number | null>(null)
 
@@ -39,8 +38,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
 
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
     
-    const labyInfo = getLabyInfo(server.ip)
-    const lunarInfo = getLunarInfo(server.ip)
+    const labyInfo = server.client_infos?.laby;
+    const lunarInfo = server.client_infos?.lunar;
 
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -81,8 +80,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
                                 {server.name}
                             </h2>
                         )}
-                        {lunarInfo && <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(lunarInfo.partnered))} />}
-                        {labyInfo && <LabyLogo className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partnered))} />}
+                        {lunarInfo && <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(lunarInfo.partner))} />}
+                        {labyInfo && <LabyLogo className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partner))} />}
                     </div>
                     
                     <button 

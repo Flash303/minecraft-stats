@@ -12,7 +12,7 @@ import { useNavigate } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useSearch } from "@/core/contexts/SearchContext"
-import { useClientInfo } from "@/core/contexts/ClientInfoContext"
+
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 
@@ -28,7 +28,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const navigate = useNavigate()
     const { t } = useLanguage()
     const { refreshCounter } = useSearch()
-    const { getLabyInfo, getLunarInfo } = useClientInfo()
+
     const { getToken, isSignedIn, isLoaded } = useAuth()
     const [showSuggestions, setShowSuggestions] = useState(false)
     const [internalValue, setInternalValue] = useState("")
@@ -193,14 +193,8 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                             <div className="flex flex-col min-w-0 flex-1 gap-1">
                                 <div className="flex items-center gap-1.5 min-w-0">
                                     <span className={cn("text-xs font-bold line-clamp-1", idx === selectedIndex ? "text-primary" : "text-foreground")}>{s.name}</span>
-                                    {(() => {
-                                        const lunarInfo = getLunarInfo(s.ip);
-                                        return lunarInfo ? <LunarLogo className={cn("w-2.5 h-2.5 shrink-0", lunarLogoClass(lunarInfo.partnered))} /> : null;
-                                    })()}
-                                    {(() => {
-                                        const labyInfo = getLabyInfo(s.ip);
-                                        return labyInfo ? <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyLogoClass(labyInfo.partnered))} /> : null;
-                                    })()}
+                                    {s.client_infos?.lunar && <LunarLogo className={cn("w-2.5 h-2.5 shrink-0", lunarLogoClass(s.client_infos.lunar.partner))} />}
+                                    {s.client_infos?.laby && <LabyLogo className={cn("w-2.5 h-2.5 shrink-0", labyLogoClass(s.client_infos.laby.partner))} />}
                                 </div>
                                 <span className="text-2xs text-muted-foreground font-mono truncate leading-none">{s.ip}</span>
                             </div>

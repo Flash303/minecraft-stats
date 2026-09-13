@@ -3,8 +3,7 @@ import { useParams } from "react-router"
 import { useAuth } from "@clerk/react"
 import { fetchRecords, fetchServer } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
-import { getLabyModServerInfo, type LabyModServer } from "@/core/lib/labymod"
-import { getLunarServerInfo, type LunarServer } from "@/core/lib/lunar"
+
 
 export type DateRange = {
     from: Date | undefined
@@ -45,52 +44,38 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     
-    const [labyServerInfo, setLabyServerInfo] = useState<LabyModServer | undefined>()
     const [labyManifest, setLabyManifest] = useState<any | undefined>()
-    const [lunarServerInfo, setLunarServerInfo] = useState<LunarServer | undefined>()
 
-    const labyBackground = labyServerInfo?.attachments?.find(
-        (a) => a.file_name === "background.webp" || a.file_name === "background.png"
-    )?.url
-    const lunarBackground = lunarServerInfo?.images?.background
+    const labyBackground = server?.client_infos?.laby?.background
+    const lunarBackground = server?.client_infos?.lunar?.background
     const backgroundUrl = labyBackground || lunarBackground
 
     useEffect(() => {
         let cancelled = false
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLabyServerInfo(undefined)
         setLabyManifest(undefined)
-        setLunarServerInfo(undefined)
 
-        if (server?.ip) {
-            getLabyModServerInfo(server.ip).then((info) => {
-                if (cancelled || !info) return
-                setLabyServerInfo(info)
-                const manifestAttachment = info.attachments?.find((a) => a.file_name === 'manifest.json')
-                if (manifestAttachment) {
-                    const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
-                    fetch(proxyUrl)
-                        .then(res => {
-                            if (!res.ok) throw new Error("Failed to fetch manifest")
-                            return res.json()
-                        })
-                        .then(data => {
-                            if (!cancelled) setLabyManifest(data)
-                        })
-                        .catch(console.error)
-                }
-            }).catch(() => {})
-            getLunarServerInfo(server.ip).then((info) => {
-                if (!cancelled && info) {
-                    setLunarServerInfo(info)
-                }
-            }).catch(() => {})
+        if (server?.client_infos?.laby?.raw) {
+            const info = server.client_infos.laby.raw;
+            const manifestAttachment = info.attachments?.find((a: any) => a.file_name === 'manifest.json')
+            if (manifestAttachment) {
+                const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
+                fetch(proxyUrl)
+                    .then(res => {
+                        if (!res.ok) throw new Error("Failed to fetch manifest")
+                        return res.json()
+                    })
+                    .then(data => {
+                        if (!cancelled) setLabyManifest(data)
+                    })
+                    .catch(console.error)
+            }
         }
 
         return () => {
             cancelled = true
         }
-    }, [server?.ip])
+    }, [server?.client_infos])
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -287,7 +272,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         appliedRange, appliedInterval, appliedCustomRange,
         timeLimits, visibleRange, setVisibleRange,
         isChartZoomed,
-        labyServerInfo, labyManifest, lunarServerInfo,
+        labyManifest,
         backgroundUrl, labyBackground,
         isRateLimited
     }

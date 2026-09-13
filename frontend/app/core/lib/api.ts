@@ -37,6 +37,7 @@ export const ServerSchema = z.object({
     hidden: z.boolean().nullish().catch(undefined),
     registered_date: z.number().nullish().catch(undefined),
     data: z.array(ServerRecordSchema).nullish().catch(undefined),
+    client_infos: z.any().nullish().catch(undefined),
 });
 export type Server = z.infer<typeof ServerSchema>;
 
