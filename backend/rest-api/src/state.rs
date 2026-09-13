@@ -25,9 +25,9 @@ pub struct AppState {
 
     pub user_cache: TtlCache<String, Arc<ClerkUser>>,
 
-    pub laby_partner_cache: DashMap<String, bool>,
-    pub laby_servers_cache: DashMap<String, Value>,
+    pub laby_partner_cache: Arc<DashMap<String, bool>>,
+    pub laby_servers_cache: Arc<DashMap<String, Value>>,
 
     pub lunar_servers_cache: Arc<RwLock<Vec<Arc<RawLunarServer>>>>,
-    pub lunar_partner_cache: DashMap<String, RawLunarPartnerServer>,
+    pub lunar_partner_cache: Arc<DashMap<String, RawLunarPartnerServer>>,
 }

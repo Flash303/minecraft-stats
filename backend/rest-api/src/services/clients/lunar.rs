@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use log::{error, info};
+use log::{error};
 use serde::{Deserialize, Serialize};
 use repository::models::server::Server;
 use crate::services::clients::BaseClientInfo;
@@ -19,8 +19,6 @@ fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarC
     let is_partner = srv_part.as_ref()
         .and_then(|info| info.partnered)
         .unwrap_or(false);
-
-    info!("Server id : {}, found ? {}", server.id, is_partner);
 
     let base = BaseClientInfo {
         partner: is_partner,
@@ -90,7 +88,6 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
     }
 
     for server in json.unwrap().servers {
-        info!("Insert id : {}", server.id);
         state.lunar_partner_cache.insert(server.id.clone(), server);
     }
 }

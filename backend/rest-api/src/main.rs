@@ -115,10 +115,10 @@ async fn main() {
         clerk_secret_key: Arc::new(clerk_secret_key),
         user_cache: TtlCache::new(),
 
-        laby_partner_cache: DashMap::new(),
-        laby_servers_cache: DashMap::new(),
+        laby_partner_cache: Arc::new(DashMap::new()),
+        laby_servers_cache: Arc::new(DashMap::new()),
 
-        lunar_partner_cache: DashMap::new(),
+        lunar_partner_cache: Arc::new(DashMap::new()),
         lunar_servers_cache: Arc::new(RwLock::new(Vec::new())),
     };
 
