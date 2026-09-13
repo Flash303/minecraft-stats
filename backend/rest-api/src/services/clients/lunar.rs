@@ -107,8 +107,8 @@ pub struct RawLunarPartnerServer {
     pub minecraft_versions: Vec<String>,
     pub primary_minecraft_version: String,
     pub crossplay: Option<bool>,
-    pub primary_region: String,
-    pub regions: Vec<String>,
+    pub primary_region: Option<String>,
+    pub regions: Option<Vec<String>>,
     pub primary_language: Option<String>,
     pub languages: Option<Vec<String>>,
     pub game_types: Vec<String>,
@@ -142,8 +142,8 @@ pub struct RawLunarServer {
     pub primary_minecraft_version: String,
     pub crossplay: Option<bool>,
     pub offline: Option<bool>,
-    pub primary_region: String,
-    pub regions: Vec<String>,
+    pub primary_region: Option<String>,
+    pub regions: Option<Vec<String>>,
     pub primary_language: Option<String>,
     pub languages: Option<Vec<String>>,
     pub game_types: Vec<String>,
@@ -198,10 +198,10 @@ pub struct Modpack {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Compliance {
-    pub rules: String,
-    pub support: String,
-    pub privacy_policy: String,
-    pub terms_of_service: String,
+    pub rules: Option<String>,
+    pub support: Option<String>,
+    pub privacy_policy: Option<String>,
+    pub terms_of_service: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
