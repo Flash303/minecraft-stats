@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
+import { MiniChartSkeleton } from "./MiniChartSkeleton"
 import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
@@ -30,8 +31,6 @@ export function ServerCard({ server, to }: ServerCardProps) {
             if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
         }
     }, [])
-
-    const records = server.data || []
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
@@ -152,8 +151,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
 
             {/* Middle part: Sparkline mini chart (spanning full width of content) */}
             <div className="w-full h-12 opacity-80 group-hover:opacity-100 transition-opacity my-2 overflow-hidden flex items-center">
-                <Suspense fallback={<div className="h-full w-full" />}>
-                    <MiniChart data={records} />
+                <Suspense fallback={<MiniChartSkeleton />}>
+                    <MiniChart data={server.data} />
                 </Suspense>
             </div>
 

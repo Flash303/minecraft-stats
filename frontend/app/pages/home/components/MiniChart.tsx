@@ -7,6 +7,7 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData } from "@/core/lib/chartUtils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
+import { MiniChartSkeleton } from "./MiniChartSkeleton"
 
 interface PlayerDataPoint {
     date: number
@@ -14,7 +15,7 @@ interface PlayerDataPoint {
 }
 
 interface MiniChartProps {
-    data: PlayerDataPoint[]
+    data?: PlayerDataPoint[] | null
 }
 
 export function MiniChart({ data }: MiniChartProps) {
@@ -23,7 +24,7 @@ export function MiniChart({ data }: MiniChartProps) {
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    const chartData = useMemo(() => prepareSingleChartData(data, 300000), [data])
+    const chartData = useMemo(() => prepareSingleChartData(data || [], 300000), [data])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"
@@ -78,13 +79,18 @@ export function MiniChart({ data }: MiniChartProps) {
         }
     }, [chartData])
 
+    if (!data) {
+        // Skeleton (loading state)
+        return <MiniChartSkeleton />
+    }
+
     if (data.length === 0) {
         return <div className="h-full flex items-center justify-center text-2xs text-muted-foreground font-medium italic">{t("common.noData")}</div>
     }
 
     return (
         <div ref={containerRef} className="w-full h-12 overflow-hidden flex items-center justify-end">
-            <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
+            <ClientOnly fallback={<MiniChartSkeleton />}>
                 <UplotReact
                     options={options}
                     data={chartData}
