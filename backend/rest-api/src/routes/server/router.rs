@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::error::AppError;
 use crate::routes::server::create_alert::create_alert;
 use crate::routes::server::create_server::create_server;
@@ -17,6 +18,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::GovernorLayer;
+use crate::services::clients::{get_client_infos, ClientInfos};
 use crate::utils::rate_limit::ClientIpKeyExtractor;
 
 pub fn router() -> Router<AppState> {
@@ -100,30 +102,39 @@ pub(super) struct ServerListQueryParams {
     pub include_owners: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 pub(super) struct BiggerServerResponse {
     #[serde(flatten)]
     pub server: Server,
+    
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<RecordData>,
+    
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<ClerkUser>,
+    pub user: Option<Arc<ClerkUser>>,
+    
+    pub client_infos: ClientInfos
 }
 
 impl BiggerServerResponse {
-    pub fn from_with_user(server: Server, user: Option<ClerkUser>) -> BiggerServerResponse {
+    pub async fn from_user(state: &AppState,
+                           server: Server,
+                           user: Option<Arc<ClerkUser>>) -> BiggerServerResponse {
         Self {
+            client_infos: get_client_infos(state, &server).await,
             server,
             data: None,
-            user
+            user,
         }
     }
 
-    pub fn from(server: Server) -> BiggerServerResponse {
+    pub async fn from(state: &AppState,
+                server: Server) -> BiggerServerResponse {
         Self {
+            client_infos: get_client_infos(state, &server).await,
             server,
             data: None,
-            user: None
+            user: None,
         }
     }
 }

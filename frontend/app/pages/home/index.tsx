@@ -15,7 +15,7 @@ import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useSearch } from "@/core/contexts/SearchContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { useClientInfo } from "@/core/contexts/ClientInfoContext"
+
 import { Hero3D } from "@/pages/home/components/Hero3D"
 import { Pagination } from "@/ui/components/pagination"
 
@@ -76,7 +76,6 @@ function ServerListFallback() {
 
 function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const { t } = useLanguage()
-    const { getLunarInfo, getLabyInfo } = useClientInfo()
     const { userId, getToken, isSignedIn, isLoaded } = useAuth()
     const { isAdmin } = useAdmin()
     const { searchQuery } = useSearch()
@@ -191,9 +190,9 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
 
         // Filtrage par launcher
         if (activeLauncher === "lunar") {
-            list = list.filter(s => getLunarInfo(s.ip))
+            list = list.filter(s => s.client_infos?.lunar)
         } else if (activeLauncher === "labymod") {
-            list = list.filter(s => getLabyInfo(s.ip))
+            list = list.filter(s => s.client_infos?.laby)
         }
 
         // Filtrage par barre de recherche
@@ -207,7 +206,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         }
 
         return list
-    }, [servers, searchQuery, activePlatform, activeLauncher, getLunarInfo, getLabyInfo])
+    }, [servers, searchQuery, activePlatform, activeLauncher])
 
     const filteredServers = useMemo(() => {
         let list = baseServersForCounts

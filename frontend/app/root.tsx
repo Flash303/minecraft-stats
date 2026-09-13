@@ -16,7 +16,7 @@ import { ToastProvider } from "./core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminProvider } from "./core/contexts/AdminContext";
-import { ClientInfoProvider } from "./core/contexts/ClientInfoContext";
+
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./ui/components/global-loading";
@@ -162,13 +162,11 @@ export default function App() {
         <ThemeProvider serverTheme={serverTheme}>
           <LanguageProvider serverLanguage={serverLanguage}>
             <ToastProvider>
-              <ClientInfoProvider>
                 <SearchProvider>
                   <TooltipProvider>
                     <Outlet />
                   </TooltipProvider>
                 </SearchProvider>
-              </ClientInfoProvider>
             </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>

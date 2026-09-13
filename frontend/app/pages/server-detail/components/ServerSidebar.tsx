@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Input } from "@/ui/components/input"
 import { Button } from "@/ui/components/button"
-import type { LabyModServer } from "@/core/lib/labymod"
-import type { LunarServer } from "@/core/lib/lunar"
 import { ExternalLink, Search, Globe, ShoppingCart, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
 import { FaTwitter, FaTiktok, FaInstagram, FaDiscord, FaYoutube, FaFacebook, FaTeamspeak, FaReddit } from "react-icons/fa6"
 import { BiSupport } from "react-icons/bi"
@@ -28,13 +26,14 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
 }
 
 interface ServerSidebarProps {
-    labyServerInfo?: LabyModServer;
+    client_infos?: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     labyManifest?: any;
-    lunarServerInfo?: LunarServer;
 }
 
-export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }: ServerSidebarProps) {
+export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps) {
+    const labyServerInfo = client_infos?.laby?.raw;
+    const lunarServerInfo = client_infos?.lunar?.raw_partner || client_infos?.lunar?.raw;
     const [searchQuery, setSearchQuery] = useState("");
     const [showAllGamemodes, setShowAllGamemodes] = useState(false);
     const [showAllLunarGamemodes, setShowAllLunarGamemodes] = useState(false);
@@ -53,7 +52,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         labyScore += Object.keys(gamemodes).length;
         if (labyManifest?.supported_languages) labyScore += labyManifest.supported_languages.length;
         if (labyManifest?.yt_trailer) labyScore += 1;
-        if (labyServerInfo.partnered) labyScore += 1;
+        if (client_infos?.laby?.partner) labyScore += 1;
     }
 
     let lunarScore = 0;
@@ -66,7 +65,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
         if (lunarServerInfo.languages) lunarScore += lunarServerInfo.languages.length;
         if (lunarServerInfo.minecraftVersions) lunarScore += lunarServerInfo.minecraftVersions.length;
         if (lunarServerInfo.presentationVideo) lunarScore += 1;
-        if (lunarServerInfo.partnered) lunarScore += 1;
+        if (client_infos?.lunar?.partner) lunarScore += 1;
     }
 
     const bestSource = lunarScore > labyScore && lunarServerInfo ? 'lunar' : (labyServerInfo ? 'laby' : 'lunar');
@@ -146,9 +145,9 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
             <div className="flex items-center justify-between">
                 <h3 className="font-semibold leading-none tracking-tight text-lg flex items-center gap-2">
                     {isLaby ? (
-                        <LabyLogo className={cn("w-5 h-5", labyServerInfo?.partnered ? "text-cyan-500" : "text-foreground")} />
+                        <LabyLogo className={cn("w-5 h-5", client_infos?.laby?.partner ? "text-cyan-500" : "text-foreground")} />
                     ) : (
-                        <LunarLogo className={cn("w-5 h-5", lunarLogoClass(lunarServerInfo?.partnered))} />
+                        <LunarLogo className={cn("w-5 h-5", lunarLogoClass(client_infos?.lunar?.partner))} />
                     )}
                     {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>
@@ -187,7 +186,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
     const renderLabyBody = () => {
         if (!labyServerInfo) return null;
 
-        const hasContent = labyServerInfo.partnered || hasSocials || user_stats || hasGamemodes
+        const hasContent = client_infos?.laby?.partner || hasSocials || user_stats || hasGamemodes
             || (labyManifest?.supported_languages?.length > 0)
             || labyManifest?.yt_trailer;
 
@@ -213,7 +212,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
         return (
             <div className="p-4 flex flex-col gap-6">
-                {labyServerInfo.partnered && (
+                {client_infos?.laby?.partner && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-500 border border-cyan-500/20 rounded-lg shadow-sm">
                         <LabyLogo className="w-5 h-5 shrink-0" />
                         <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.labyPartner")}</span>
@@ -344,7 +343,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
     const renderLunarBody = () => {
         if (!lunarServerInfo) return null;
 
-        const hasLunarContent = lunarServerInfo.partnered || lunarServerInfo.description
+        const hasLunarContent = client_infos?.lunar?.partner || lunarServerInfo.description
             || (lunarServerInfo.socials && Object.keys(lunarServerInfo.socials).length > 0)
             || lunarServerInfo.website || lunarServerInfo.store
             || (lunarServerInfo.gameTypes && lunarServerInfo.gameTypes.length > 0)
@@ -374,7 +373,7 @@ export function ServerSidebar({ labyServerInfo, labyManifest, lunarServerInfo }:
 
         return (
             <div className="p-4 flex flex-col gap-6">
-                {lunarServerInfo.partnered && (
+                {client_infos?.lunar?.partner && (
                     <div className="flex items-center gap-2.5 px-3 py-2 bg-orange-500/10 text-orange-600 dark:text-orange-500 border border-orange-500/20 rounded-lg shadow-sm">
                         <LunarLogo className="w-5 h-5 shrink-0" />
                         <span className="font-bold text-sm tracking-tight">{t("serverDetail.sidebar.lunarPartner")}</span>
