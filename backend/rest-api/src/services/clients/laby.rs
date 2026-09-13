@@ -72,7 +72,7 @@ pub async fn get_laby_infos(state: &AppState, current_server: &Server) -> Option
 
 #[derive(Deserialize)]
 struct LabyServersResponses {
-    servers: Vec<RawLabyServer>,
+    server_groups: HashMap<String, RawLabyServer>,
 }
 
 pub async fn refresh_laby_infos(state: &AppState) {
@@ -92,7 +92,7 @@ pub async fn refresh_laby_infos(state: &AppState) {
     }
 
     let mut guard = state.laby_servers_cache.write().await;
-    *guard = json.unwrap().servers.into_iter()
+    *guard = json.unwrap().server_groups.into_values()
         .map(Arc::new)
         .collect();
 }
