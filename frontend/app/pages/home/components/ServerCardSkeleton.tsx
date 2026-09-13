@@ -1,3 +1,4 @@
+import { MiniChartSkeleton } from "./MiniChartSkeleton"
 
 export function ServerCardSkeleton() {
     return (
@@ -23,8 +24,8 @@ export function ServerCardSkeleton() {
             </div>
 
             {/* Chart Skeleton */}
-            <div className="w-full h-12 my-2 flex items-center justify-center">
-                <div className="w-full h-full bg-muted/50 rounded-lg" />
+            <div className="w-full h-12 my-2 overflow-hidden flex items-center justify-end">
+                <MiniChartSkeleton />
             </div>
 
             {/* Bottom row Skeleton */}
