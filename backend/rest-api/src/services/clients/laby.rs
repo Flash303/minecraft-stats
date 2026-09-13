@@ -133,15 +133,21 @@ pub struct RawLabyServer {
     pub server_name: String,
     pub nice_name: String,
     pub direct_ip: String,
+    #[serde(default)]
     pub wildcards: Vec<String>,
+    #[serde(default)]
     pub attachments: Vec<Attachment>,
-    pub social: Social,
+    #[serde(default)]
+    pub addons: Option<Vec<Addon>>,
+    pub social: Option<Social>,
+    #[serde(default)]
     pub gamemodes: HashMap<String, GameMode>,
     pub user_stats: Option<String>,
     pub chat: Option<Chat>,
     pub supported_languages: Option<Vec<String>>,
     pub brand: Option<Brand>,
     pub location: Option<Location>,
+    pub command_delay: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -149,6 +155,12 @@ pub struct Attachment {
     pub file_name: String,
     pub url: String,
     pub hash: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Addon {
+    pub uuid: String,
+    pub required: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -168,7 +180,7 @@ pub struct Social {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameMode {
     pub name: String,
-    pub command: String,
+    pub command: Option<String>,
     pub url: Option<String>,
     pub color: Option<String>,
     pub versions: Option<String>,
@@ -181,14 +193,14 @@ pub struct Chat {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Brand {
-    pub primary: String,
-    pub background: String,
-    pub text: String,
+    pub primary: Option<String>,
+    pub background: Option<String>,
+    pub text: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Location {
-    pub city: String,
+    pub city: Option<String>,
     pub country: String,
-    pub country_code: String,
+    pub country_code: Option<String>,
 }
