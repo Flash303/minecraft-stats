@@ -15,6 +15,7 @@ pub struct LunarClientInfo {
 }
 
 fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarClientInfo {
+    info!("Server id : {}", server.id);
     let srv_part = state.lunar_partner_cache.get(&server.id);
 
     let is_partner = srv_part.as_ref()
