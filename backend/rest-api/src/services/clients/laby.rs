@@ -22,20 +22,14 @@ impl RawLabyServer {
             return true;
         }
 
-        for wildcard in &self.wildcards {
-            let mut regex_str = wildcard.replace(".", "\\.");
-            regex_str = regex_str.replace("%\\.", "(.*\\.)?").replace("*\\.", "(.*\\.)?");
-            regex_str = regex_str.replace("%", ".*").replace("*", ".*");
-
-            let final_regex = format!("(?i)^{}$", regex_str);
-            if let Ok(re) = Regex::new(&final_regex) && re.is_match(&target) {
+        for re in &self.compiled_regexes {
+            if re.is_match(&target) {
                 return true;
             }
         }
 
         false
     }
-
 }
 
 fn construct_laby_info(state: &AppState, server: Arc<RawLabyServer>) -> LabyClientInfo {
@@ -92,7 +86,19 @@ pub async fn refresh_laby_infos(state: &AppState) {
 
     let mut guard = state.laby_servers_cache.write().await;
     *guard = json.unwrap().server_groups.into_values()
-        .map(Arc::new)
+        .map(|mut server| {
+            for wildcard in &server.wildcards {
+                let mut regex_str = wildcard.replace(".", "\\.");
+                regex_str = regex_str.replace("%\\.", "(.*\\.)?").replace("*\\.", "(.*\\.)?");
+                regex_str = regex_str.replace("%", ".*").replace("*", ".*");
+
+                let final_regex = format!("(?i)^{}$", regex_str);
+                if let Ok(re) = Regex::new(&final_regex) {
+                    server.compiled_regexes.push(re);
+                }
+            }
+            Arc::new(server)
+        })
         .collect();
 }
 
@@ -134,6 +140,8 @@ pub struct RawLabyServer {
     pub direct_ip: String,
     #[serde(default)]
     pub wildcards: Vec<String>,
+    #[serde(skip, default)]
+    pub compiled_regexes: Vec<Regex>,
     #[serde(default)]
     pub attachments: Vec<Attachment>,
     #[serde(default)]
