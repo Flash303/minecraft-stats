@@ -80,7 +80,7 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
 
     let json = rs.unwrap().json::<LunarPartnerResponse>().await;
     if let Err(err) = json {
-        error!("Could not fetch lunar infos {err}");
+        error!("Could not parse lunar infos {err}");
         return;
     }
 
