@@ -3067,6 +3067,7 @@ dependencies = [
  "futures",
  "log",
  "minecraft-pinger",
+ "regex",
  "repository",
  "reqwest",
  "rsa 0.10.0-rc.18",

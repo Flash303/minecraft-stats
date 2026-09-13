@@ -1,15 +1,15 @@
-use std::sync::Arc;
 use dashmap::DashMap;
 use minecraft_pinger::MinecraftPinger;
-use reqwest::Client;
-use serde_json::Value;
-use tokio::sync::RwLock;
 use repository::repository::Repository;
+use reqwest::Client;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
-use crate::utils::cache::TtlCache;
 use crate::services::clerk::account_checker::JwksStore;
 use crate::services::clerk::model::ClerkUser;
+use crate::services::clients::laby::RawLabyServer;
 use crate::services::clients::lunar::{RawLunarPartnerServer, RawLunarServer};
+use crate::utils::cache::TtlCache;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -26,7 +26,7 @@ pub struct AppState {
     pub user_cache: TtlCache<String, Arc<ClerkUser>>,
 
     pub laby_partner_cache: Arc<DashMap<String, bool>>,
-    pub laby_servers_cache: Arc<DashMap<String, Value>>,
+    pub laby_servers_cache: Arc<RwLock<Vec<Arc<RawLabyServer>>>>,
 
     pub lunar_servers_cache: Arc<RwLock<Vec<Arc<RawLunarServer>>>>,
     pub lunar_partner_cache: Arc<DashMap<String, RawLunarPartnerServer>>,

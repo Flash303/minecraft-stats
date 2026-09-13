@@ -1,4 +1,4 @@
-use crate::services::clients::laby::LabyClientInfo;
+use crate::services::clients::laby::{get_laby_infos, LabyClientInfo};
 use crate::services::clients::lunar::{LunarClientInfo, get_lunar_infos};
 use crate::state::AppState;
 use repository::models::server::Server;
@@ -24,7 +24,7 @@ pub struct BaseClientInfo {
 
 pub async fn get_client_infos(state: &AppState, server: &Server) -> ClientInfos {
     ClientInfos {
-        laby: None,
+        laby: get_laby_infos(state, server).await,
         lunar: get_lunar_infos(state, server).await
     }
 }

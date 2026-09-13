@@ -116,7 +116,7 @@ async fn main() {
         user_cache: TtlCache::new(),
 
         laby_partner_cache: Arc::new(DashMap::new()),
-        laby_servers_cache: Arc::new(DashMap::new()),
+        laby_servers_cache: Arc::new(RwLock::new(Vec::new())),
 
         lunar_partner_cache: Arc::new(DashMap::new()),
         lunar_servers_cache: Arc::new(RwLock::new(Vec::new())),
