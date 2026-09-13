@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use log::error;
+use log::{error, info};
 use serde::{Deserialize, Serialize};
 use repository::models::server::Server;
 use crate::services::clients::BaseClientInfo;
@@ -89,6 +89,7 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
     }
 
     for server in json.unwrap().servers {
+        info!("Insert id : {}", server.id);
         state.lunar_partner_cache.insert(server.id.clone(), server);
     }
 }
