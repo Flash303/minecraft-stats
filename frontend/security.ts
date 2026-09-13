@@ -10,7 +10,7 @@ export const SECURITY_HEADERS: Record<string, string> = {
         "default-src 'self'",
         // Clerk charge clerk-js depuis son FAPI (*.clerk.accounts.dev en test,
         // *.clerk.com / clerk.mc-stats.fr en production)
-        "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.mc-stats.fr",
+        "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.mc-stats.fr https://cloud.umami.is",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https:",
