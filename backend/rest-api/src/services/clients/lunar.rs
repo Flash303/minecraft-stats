@@ -63,6 +63,11 @@ pub async fn refresh_lunar_infos(state: &AppState) {
         .collect();
 }
 
+#[derive(Deserialize)]
+struct LunarPartnerResponse {
+    servers: Vec<RawLunarPartnerServer>,
+}
+
 pub async fn refresh_lunar_partner_infos(state: &AppState) {
     let rs = state.http_client.get("https://api.lunarclientprod.com/launcher/servers?installation_id=f080e21d-ce41-4f60-803b-886157bc775a&os=win32&os_release=10.0&arch=x64&launcher_version=3.0.0")
         .send()
@@ -73,19 +78,20 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
         return;
     }
 
-    let json = rs.unwrap().json::<Vec<RawLunarPartnerServer>>().await;
+    let json = rs.unwrap().json::<LunarPartnerResponse>().await;
     if let Err(err) = json {
         error!("Could not fetch lunar infos {err}");
         return;
     }
 
-    for server in json.unwrap() {
+    for server in json.unwrap().servers {
         state.lunar_partner_cache.insert(server.id.clone(), server);
     }
 }
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RawLunarPartnerServer {
     pub id: String,
     pub name: String,
@@ -120,6 +126,7 @@ pub struct RawLunarPartnerServer {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RawLunarServer {
     pub id: String,
     pub name: String,
@@ -179,6 +186,7 @@ pub struct Images {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Modpack {
     pub id: String,
     pub provider: String,
@@ -188,6 +196,7 @@ pub struct Modpack {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Compliance {
     pub rules: String,
     pub support: String,
@@ -196,11 +205,13 @@ pub struct Compliance {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TebexStore {
     pub background: TebexBackground,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TebexBackground {
     pub lower_color: String,
     pub upper_color: String,
