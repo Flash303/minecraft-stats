@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
@@ -21,14 +22,13 @@ pub(super) async fn list_all_servers(State(state): State<AppState>,
             .into_iter()
             .filter(|s| is_admin || !s.hidden))
         .map(async |server| {
-            let mut server_creator: Option<ClerkUser> = None;
+            let mut server_creator: Option<Arc<ClerkUser>> = None;
             if query.include_owners.is_some_and(|t| t) {
                 server_creator = get_clerk_user_with_cache(&state, &server.user_id).await
-                    .ok()
-                    .map(|u| (*u).clone());
+                    .ok();
             }
 
-            BiggerServerResponse::from_with_user(server.into(), server_creator)
+            BiggerServerResponse::from_user(&state, server.into(), server_creator).await
         })
         .buffered(5)
         .collect()

@@ -5,6 +5,7 @@ pub mod response;
 pub mod middleware;
 pub mod services;
 pub mod utils;
+pub mod worker;
 
 use services::clerk::account_checker::{fetch_clerk_jwks, JwksStore};
 use crate::middleware::auth::auth_middleware;
@@ -19,10 +20,12 @@ use tower_http::compression::CompressionLayer;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use dashmap::DashMap;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
 use reqwest::Client;
 use tokio::net::TcpListener;
+use tokio::sync::RwLock;
 use tower_http::cors::{Any, CorsLayer};
 use repository::postgres::PostgresRepository;
 
@@ -111,7 +114,15 @@ async fn main() {
 
         clerk_secret_key: Arc::new(clerk_secret_key),
         user_cache: TtlCache::new(),
+
+        laby_partner_cache: DashMap::new(),
+        laby_servers_cache: DashMap::new(),
+
+        lunar_partner_cache: DashMap::new(),
+        lunar_servers_cache: Arc::new(RwLock::new(Vec::new())),
     };
+
+    worker::client_fetcher::start(state.clone());
 
     let app = Router::new()
         .nest("/records", routes::record::router())

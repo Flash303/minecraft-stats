@@ -11,6 +11,8 @@ path = "src/main.rs"
 minecraft-pinger = { workspace = true }
 repository = { workspace = true }
 
+dashmap = { workspace = true }
+
 log = { workspace = true }
 env_logger = { workspace = true }
 thiserror = { workspace = true }

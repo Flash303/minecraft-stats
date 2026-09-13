@@ -1,24 +1,14 @@
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::routes::server::router::{include_stats, BiggerServerResponse, ServerListQueryParams};
+use crate::routes::server::router::{BiggerServerResponse, ServerListQueryParams, include_stats};
 use crate::services::clerk::clerk_service;
-use crate::services::clerk::model::{ClerkClaims, ClerkUser};
+use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use axum::Extension;
 use axum::extract::rejection::PathRejection;
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
-use axum::Extension;
-use repository::models::server::Server;
-use serde::Serialize;
-
-#[derive(Serialize)]
-pub(super) struct ServerWithUser {
-    #[serde(flatten)]
-    pub server: Server,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<ClerkUser>
-}
-
+use futures::{StreamExt, stream};
 pub(super) async fn get_mine_server(State(state): State<AppState>,
                                     Query(query): Query<ServerListQueryParams>,
                                     Extension(account): Extension<Option<ClerkClaims>>) -> Result<ResponseFormat<Vec<BiggerServerResponse>>, AppError> {
@@ -26,11 +16,12 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
     let do_include_stats = query.include_stats.unwrap_or(false);
 
     let result = state.repository.get_servers_of_user_without_favicon(account.id().clone()).await?;
-    let mut servers: Vec<BiggerServerResponse> = result
-        .into_iter()
-        .filter(|s| account.is_admin() || !s.hidden)
-        .map(BiggerServerResponse::from)
-        .collect();
+    let mut servers = stream::iter(result.into_iter()
+        .filter(|s| account.is_admin() || !s.hidden))
+        .map(async |s| BiggerServerResponse::from(&state, s).await)
+        .buffered(5)
+        .collect()
+        .await;
 
     include_stats(do_include_stats, &state, &mut servers).await?;
 
@@ -39,27 +30,18 @@ pub(super) async fn get_mine_server(State(state): State<AppState>,
 
 pub(super) async fn get_server(State(state): State<AppState>,
                     Extension(account): Extension<Option<ClerkClaims>>,
-                    id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<ServerWithUser>, AppError> {
-    let result = state.repository.get_server_without_favicon(*id?).await?
+                    id: Result<Path<u32>, PathRejection>) -> Result<ResponseFormat<BiggerServerResponse>, AppError> {
+    let server = state.repository.get_server_without_favicon(*id?).await?
         .ok_or(AppError::ServerNotFound)?;
 
-    let mut server = ServerWithUser {
-        server: result,
-        user: None
-    };
-
     let is_admin = account.is_some_and(|u| u.is_admin());
-    if server.server.hidden && !is_admin {
+    if server.hidden && !is_admin {
         return Err(AppError::ServerNotFound);
     }
 
-    let user = clerk_service::get_clerk_user_with_cache(&state, &server.server.user_id)
+    let user = clerk_service::get_clerk_user_with_cache(&state, &server.user_id)
         .await
         .ok();
 
-    if let Some(clerk_user) = user {
-        server.user = Some((*clerk_user).clone());
-    }
-
-    Ok(ResponseFormat::success(server, StatusCode::OK))
+    Ok(ResponseFormat::success(BiggerServerResponse::from_user(&state, server, user).await, StatusCode::OK))
 }
