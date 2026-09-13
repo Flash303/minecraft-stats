@@ -10,11 +10,14 @@ use crate::state::AppState;
 pub struct LunarClientInfo {
     #[serde(flatten)]
     base: BaseClientInfo,
-    raw: Arc<RawLunarServer>
+    raw: Arc<RawLunarServer>,
+    raw_partner: Option<RawLunarPartnerServer>,
 }
 
 fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarClientInfo {
-    let is_partner = state.lunar_partner_cache.get(&server.id)
+    let srv_part = state.lunar_partner_cache.get(&server.id);
+
+    let is_partner = srv_part.as_ref()
         .and_then(|info| info.partnered)
         .unwrap_or(false);
 
@@ -25,7 +28,8 @@ fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarC
 
     LunarClientInfo {
         base,
-        raw: server.clone()
+        raw: server.clone(),
+        raw_partner: srv_part.map(|info| info.value().clone())
     }
 }
 
