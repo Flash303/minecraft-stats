@@ -3,8 +3,8 @@ resolver = "3"
 members = ["worker", "rest-api"]
 
 [workspace.dependencies]
-minecraft-pinger = { git = "https://github.com/Flash303/minecraft-pinger" }
 repository = { path = "./crates/repository" }
+minecraft-pinger = "0.1.*"
 
 log = "0.4.*"
 env_logger = "0.11.*"
