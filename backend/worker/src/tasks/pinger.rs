@@ -55,9 +55,6 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
         }
         PingResultType::Bedrock(ping) => {
-            if !server.forced_favicon {
-                server.last_favicon = None;
-            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.current_players);
             server.last_version = Some(ping.version);
@@ -69,6 +66,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             // Update fingerprints
             if !server.forced_favicon {
                 server.favicon_hash = None;
+                server.last_favicon = None;
             }
             let motd_value = serde_json::to_value(&ping.motd).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
