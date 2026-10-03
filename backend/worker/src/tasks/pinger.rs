@@ -26,9 +26,6 @@ enum PingResultType {
 async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
     match ping {
         PingResultType::Java(ping) => {
-            if !server.forced_favicon {
-                server.last_favicon = ping.favicon.clone();
-            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.players.online);
             server.last_version = Some(ping.version.name);
@@ -49,8 +46,9 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
 
             // Update fingerprints
-            if !server.forced_favicon {
+            if !server.forced_favicon && server.last_favicon != ping.favicon {
                 server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                server.last_favicon = ping.favicon.clone();
             }
             let motd_value = serde_json::to_value(&ping.description).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
