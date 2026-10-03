@@ -26,9 +26,6 @@ enum PingResultType {
 async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
     match ping {
         PingResultType::Java(ping) => {
-            if !server.forced_favicon {
-                server.last_favicon = ping.favicon.clone();
-            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.players.online);
             server.last_version = Some(ping.version.name);
@@ -38,30 +35,26 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_motd = serde_json::to_value(&ping.description).ok();
 
             if let Some(players) = ping.players.sample {
-                let mut sample = String::new();
-                for player in players {
-                    sample.push_str(format!("{}\n", player.name).as_str())
-                }
-
-                if !sample.is_empty() {
-                    server.last_sample = Some(sample);
+                if !players.is_empty() {
+                    server.last_sample = Some(players.iter()
+                      .map(|p| p.name.as_str())
+                      .collect::<Vec<_>>()
+                      .join("\n"));
                 } else {
                     server.last_sample = None;
                 }
             }
 
             // Update fingerprints
-            if !server.forced_favicon {
+            if !server.forced_favicon && server.last_favicon != ping.favicon {
                 server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                server.last_favicon = ping.favicon.clone();
             }
             let motd_value = serde_json::to_value(&ping.description).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
             server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
         }
         PingResultType::Bedrock(ping) => {
-            if !server.forced_favicon {
-                server.last_favicon = None;
-            }
             server.last_status = Some(ServerStatus::Online);
             server.last_connected = Some(ping.current_players);
             server.last_version = Some(ping.version);
@@ -73,6 +66,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             // Update fingerprints
             if !server.forced_favicon {
                 server.favicon_hash = None;
+                server.last_favicon = None;
             }
             let motd_value = serde_json::to_value(&ping.motd).ok();
             server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
