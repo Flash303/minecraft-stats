@@ -32,7 +32,6 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_max_players = Some(ping.players.max);
             server.last_ping_time = Some(ping.latency);
             server.last_protocol_version = ping.version.protocol.map(|s| s as i64);
-            server.last_motd = serde_json::to_value(&ping.description).ok();
 
             if let Some(players) = ping.players.sample {
                 if !players.is_empty() {
@@ -46,13 +45,22 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
 
             // Update fingerprints
+            let motd_value = serde_json::to_value(&ping.description).ok();
+            if server.last_motd != motd_value {
+                server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                server.last_motd = motd_value;
+            }
+
             if !server.forced_favicon && server.last_favicon != ping.favicon {
                 server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
-                server.last_favicon = ping.favicon.clone();
+                server.last_favicon = ping.favicon;
             }
-            let motd_value = serde_json::to_value(&ping.description).ok();
-            server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
-            server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+
+            if let Some(addr) = ping.connected_addr {
+                server.resolved_endpoint = Some(addr.to_string());
+            } else if server.resolved_endpoint.is_none() {
+                server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+            }
         }
         PingResultType::Bedrock(ping) => {
             server.last_status = Some(ServerStatus::Online);
@@ -61,16 +69,24 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_max_players = Some(ping.max_players as i32);
             server.last_ping_time = Some(ping.latency);
             server.last_protocol_version = Some(ping.protocol_version as i64);
-            server.last_motd = serde_json::to_value(&ping.motd).ok();
 
             // Update fingerprints
+            let motd_value = serde_json::to_value(&ping.motd).ok();
+            if server.last_motd != motd_value {
+                server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
+                server.last_motd = motd_value;
+            }
+
             if !server.forced_favicon {
                 server.favicon_hash = None;
                 server.last_favicon = None;
             }
-            let motd_value = serde_json::to_value(&ping.motd).ok();
-            server.motd_hash = DuplicateDetectionService::hash_motd(motd_value.as_ref());
-            server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+
+            if let Some(addr) = ping.connected_addr {
+                server.resolved_endpoint = Some(addr.to_string());
+            } else if server.resolved_endpoint.is_none() {
+                server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+            }
         }
     }
 }
@@ -97,10 +113,10 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
         if let Ok(mut servers) = possible_servers {
             servers.sort_by_key(|server| match &server.last_status {
-                Some(ServerStatus::Online) => 0,
-                Some(ServerStatus::Offline) => 1,
-                None => 2,
-            }); // start with offline server
+                Some(ServerStatus::Offline) => 0,
+                None => 1,
+                Some(ServerStatus::Online) => 2,
+            }); // Start with offline / unknown servers first
 
             let mut optimised_tasks = stream::iter(servers)
                 .map(|mut server| {
