@@ -105,7 +105,7 @@ async fn main() {
 
     let state = AppState {
         repository: Arc::new(repository),
-        pinger: Arc::new(pinger),
+        pinger,
 
         http_client: Client::new(),
 

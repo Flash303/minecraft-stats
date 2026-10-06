@@ -92,13 +92,13 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
 }
 
 pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<WorkerToVerifier>) {
-    let result = MinecraftPinger::new();
-    if let Err(error) = result {
+    let pinger = MinecraftPinger::new();
+    if let Err(error) = pinger {
         info!("Failed to create minecraft ping client: {}", error);
         return;
     }
 
-    let pinger = Arc::new(result.unwrap());
+    let pinger = pinger.unwrap();
     let pinger_config = Arc::new(PingConfig::builder()
         .set_timeout(MAX_PING_RESPONSE_TIME)
         .deny_non_public_ips()
