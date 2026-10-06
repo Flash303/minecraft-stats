@@ -2,7 +2,6 @@ import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
-import { APP_URL } from "@/core/lib/config"
 import { translate } from "@/core/lib/i18n"
 
 const PlayerChart = lazy(() =>
@@ -116,14 +115,14 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { property: "og:description", content: description },
         {
             property: "og:image",
-            content: `${APP_URL}/api/favicon/${server.id}`
+            content: getServerIconUrl(server.id)
         },
         { property: "twitter:card", content: "summary_large_image" },
         { property: "twitter:title", content: title },
         { property: "twitter:description", content: description },
         {
             property: "twitter:image",
-            content: `${APP_URL}/api/favicon/${server.id}`
+            content: getServerIconUrl(server.id)
         }
     ]
 }
@@ -161,7 +160,7 @@ export default function ServerDetail() {
             applicationCategory: "GameApplication",
             operatingSystem: server.type === "java" ? "Java" : "Bedrock",
             url: window.location.href,
-            image: `${APP_URL}/api/favicon/${server.id}`
+            image: getServerIconUrl(server.id)
         }
 
         // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
