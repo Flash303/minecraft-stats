@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PUBLIC_API_URL } from "@/core/lib/config";
 
 export const UserSchema = z.object({
     id: z.string(),
@@ -57,7 +58,7 @@ export const API_BASE = (typeof window === "undefined" && process.env.SSR_API_UR
     : (import.meta.env.VITE_API_URL || "http://localhost:3000")
 
 export function getServerIconUrl(serverId: number | string): string {
-    return `/api/favicon/${serverId}`
+    return `${PUBLIC_API_URL}/servers/${serverId}/icon`
 }
 
 /**

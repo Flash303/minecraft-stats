@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
+import { PUBLIC_API_URL } from "@/core/lib/config";
 import type { Route } from "./+types/favicon";
 
 export async function loader({ params }: Route.LoaderArgs) {
-    const publicApiUrl = import.meta.env.VITE_API_URL || "https://mc-stats.fr/api";
-    return redirect(`${publicApiUrl}/servers/${params.id}/icon`, 301);
+    return redirect(`${PUBLIC_API_URL}/servers/${params.id}/icon`, 301);
 }
