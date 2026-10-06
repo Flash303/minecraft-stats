@@ -4,7 +4,7 @@ members = ["worker", "rest-api"]
 
 [workspace.dependencies]
 repository = { path = "./crates/repository" }
-minecraft-pinger = "0.1.*"
+minecraft-pinger = "0.1.6"
 
 log = "0.4.*"
 env_logger = "0.11.*"
