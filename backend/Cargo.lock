@@ -2262,9 +2262,9 @@ checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 
 [[package]]
 name = "minecraft-pinger"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54049bd9e8ad4c953cc388b383c781cf961e61f761c32d8ce3c1469dc25931fb"
+checksum = "2e7e9f55edc28287eaa93f63508c9a4058b1ca04ba1d5b35a4068519e9522b80"
 dependencies = [
  "bytes",
  "hickory-resolver",
