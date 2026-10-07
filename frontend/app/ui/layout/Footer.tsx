@@ -45,6 +45,9 @@ export function Footer() {
                     <Link to="/privacy" className="hover:text-primary transition-colors">
                         {t("footer.privacy")}
                     </Link>
+                    <Link to="/legal" className="hover:text-primary transition-colors">
+                        {t("footer.legal")}
+                    </Link>
                     <a 
                         href="https://github.com/Flash303/minecraft-stats" 
                         target="_blank" 

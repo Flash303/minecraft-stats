@@ -8,6 +8,7 @@ export default [
     route("account/*", "pages/account/index.tsx"),
     route("terms", "pages/Terms.tsx"),
     route("privacy", "pages/Privacy.tsx"),
+    route("legal", "pages/LegalNotice.tsx"),
     route("*", "routes/catchall.tsx"),
   ]),
   route("admin", "pages/admin/index.tsx", { id: "admin" }),

@@ -371,13 +371,14 @@
     "madeWith": "Gemacht mit",
     "forCommunity": "für die Minecraft-Community",
     "terms": "Nutzungsbedingungen",
-    "privacy": "Datenschutzrichtlinie"
+    "privacy": "Datenschutzrichtlinie",
+    "legal": "Impressum"
   },
   "legal": {
     "terms": {
       "title": "Nutzungsbedingungen",
       "lastUpdated": "Zuletzt aktualisiert: {{date}}",
-      "p1": "Diese Nutzungsbedingungen (\"Bedingungen\") regeln Ihre Nutzung der Plattform Minecraft Stats. Durch den Zugriff auf unsere Dienste oder deren Nutzung erklären Sie sich damit einverstanden, an diese Bedingungen und unsere Datenschutzrichtlinie gebunden zu sein.",
+      "p1": "Diese Nutzungsbedingungen regeln den Zugang zu und die Nutzung von Minecraft Stats, einem kostenlosen Dienst, der als persönliches Projekt angeboten wird. Durch die Nutzung unserer Dienste erklärst du dich mit diesen Bedingungen und unserer Datenschutzerklärung einverstanden.",
       "s1Title": "1. Leistungsbeschreibung",
       "s1Content": "Minecraft Stats bietet eine Analytics- und Tracking-Plattform für öffentliche Minecraft-Server. Wir sammeln, aggregieren und zeigen Statistiken (wie Spielerzahlen und Serverstatus) zu Informationszwecken an.",
       "s2Title": "2. Kontoregistrierung und Sicherheit",
@@ -396,21 +397,40 @@
     "privacy": {
       "title": "Datenschutzrichtlinie",
       "lastUpdated": "Zuletzt aktualisiert: {{date}}",
-      "p1": "Diese Datenschutzrichtlinie erklärt, wie Minecraft Stats (\"wir\", \"unser\" oder \"uns\") Informationen über Sie sammelt, verwendet und offenlegt, wenn Sie auf unsere Website zugreifen oder diese nutzen.",
+      "p1": "Diese Datenschutzerklärung beschreibt, wie Minecraft Stats (wir) Informationen über dich erhebt, nutzt und schützt, wenn du unsere Website nutzt. Verantwortlicher für die Datenverarbeitung ist {{ownerName}}, erreichbar unter {{contactEmail}}.",
       "s1Title": "1. Informationssammlung und -nutzung",
       "s1Content": "Wir erfassen Informationen, die Sie uns direkt zur Verfügung stellen, z. B. wenn Sie ein Konto erstellen, Ihr Profil aktualisieren oder mit uns kommunizieren. Da wir Clerk für unser Authentifizierungssystem verwenden, werden Ihre Registrierungsinformationen (wie E-Mail-Adresse, Benutzername und Passwort) von Clerk sicher verarbeitet und verwaltet.",
       "s2Title": "2. Automatisch gesammelte Informationen",
-      "s2Content": "Wenn Sie auf unsere Dienste zugreifen, erfassen wir automatisch bestimmte Informationen über Ihr Gerät und wie Sie mit unserer Plattform interagieren. Dies kann Ihre IP-Adresse, den Browsertyp, das Betriebssystem und Protokolldaten umfassen. Wir verwenden diese Informationen, um Trends zu analysieren und die Sicherheit unserer Plattform zu gewährleisten.",
+      "s2Content": "Beim Aufruf des Dienstes verarbeiten wir automatisch technische Daten, die für dessen Funktionierung unbedingt erforderlich sind: IP-Adresse, Browsertyp und Server-Protokolle. Diese Daten dienen ausschließlich der Sicherheit, der Verfügbarkeit der Website und der Missbrauchsprävention. Zudem setzen wir Umami ein, ein datenschutzfreundliches Analysewerkzeug: Es setzt keine Cookies, identifiziert keine Person und führt kein seitenübergreifendes Tracking durch.",
       "s3Title": "3. Cookies und Tracking-Technologien",
-      "s3Content": "Wir verwenden Cookies und ähnliche Tracking-Technologien, um Ihre Erfahrung zu verbessern, Ihre Präferenzen zu speichern und zu verstehen, wie Sie auf unserer Website navigieren. Sie können die Cookie-Einstellungen über Ihren Browser steuern, aber die Deaktivierung kann einige Funktionen unseres Dienstes einschränken.",
+      "s3Content": "Die Website setzt keine Werbe-Cookies und nutzt zu kommerziellen Zwecken keine Tracking-Dienste Dritter. Es sind nur technisch notwendige Cookies vorhanden: ein Cookie für die Designpräferenz (hell/dunkel) und ein Sprachecookie, beide für den Betrieb erforderlich und ein Jahr lang gespeichert. Sie können jederzeit in den Browsereinstellungen gelöscht werden, ohne dass Funktionalitäten verloren gehen. Die Analyse durch Umami funktioniert ohne Cookies.",
       "s4Title": "4. Datenaustausch und Dritte",
-      "s4Content": "Wir verkaufen Ihre persönlichen Daten nicht. Wir können Informationen mit vertrauenswürdigen Drittanbietern (wie Clerk für Authentifizierungs- und Hosting-Anbieter) ausschließlich zum Betrieb und zur Verbesserung unserer Dienste teilen. Diese Partner sind an strenge Vertraulichkeitsverpflichtungen gebunden.",
+      "s4Content": "Wir verkaufen oder vermieten deine personenbezogenen Daten nicht. Nur technische Dienstleister, die für den Dienst unerlässlich sind, erhalten Zugriff: Clerk (Authentifizierung), Umami (anonyme Reichweitenmessung) und unser Hosting-Anbieter {{hostName}}. Diese Dienstleister sind vertraglich zur Vertraulichkeit verpflichtet und verwenden die Daten ausschließlich für den Betrieb des Dienstes.",
       "s5Title": "5. Datensicherheit",
       "s5Content": "Wir ergreifen angemessene Maßnahmen, um Ihre persönlichen Daten vor Verlust, Diebstahl, Missbrauch, unbefugtem Zugriff, Offenlegung, Änderung und Zerstörung zu schützen. Bitte haben Sie jedoch Verständnis dafür, dass keine Übertragung über das Internet zu 100% sicher ist.",
       "s6Title": "6. Ihre Rechte",
-      "s6Content": "Abhängig von Ihrer Gerichtsbarkeit (z. B. unter der DSGVO oder CCPA) haben Sie möglicherweise das Recht, auf Ihre persönlichen Daten zuzugreifen, sie zu korrigieren, zu löschen oder deren Verarbeitung einzuschränken. Sie können Ihre Kontoeinstellungen direkt verwalten oder uns kontaktieren, um diese Rechte auszuüben.",
+      "s6Content": "Gemäß der Datenschutz-Grundverordnung (DSGVO) hast du Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung, Widerspruch und Datenübertragbarkeit. Zur Ausübung kontaktiere uns unter {{contactEmail}}. Du kannst dich außerdem bei der zuständigen Aufsichtsbehörde beschweren.",
       "s7Title": "7. Änderungen dieser Richtlinie",
       "s7Content": "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren. Wenn wir wesentliche Änderungen vornehmen, werden wir Sie durch eine Aktualisierung des Datums oben in dieser Richtlinie und in einigen Fällen durch eine zusätzliche Mitteilung informieren."
+    },
+    "notice": {
+      "title": "Impressum",
+      "lastUpdated": "Zuletzt aktualisiert: {{date}}",
+      "p1": "Gemäß dem französischen Gesetz Nr. 2004-575 vom 21. Juni 2004 für Vertrauen in der digitalen Wirtschaft (LCEN) weisen die folgenden Angaben den Anbieter und den Hosting-Dienstleister der Website {{siteName}} aus.",
+      "s1Title": "1. Anbieter der Website",
+      "s1Content": "Die Website {{siteName}} wird von {{ownerName}} als persönliches und kostenloses Projekt herausgegeben. Anfragen können an folgende Adresse gerichtet werden: {{contactEmail}}.",
+      "s2Title": "2. Hosting-Anbieter",
+      "s2Content": "Die Website wird bei {{hostName}} gehostet, erreichbar unter der Postanschrift {{hostAddress}}. Telefon: {{hostPhone}}. Website: {{hostWebsite}}.",
+      "s3Title": "3. Geistiges Eigentum",
+      "s3Content": "Alle Elemente der Website {{siteName}} (Texte, Grafiken, Logo, Struktur) sind durch das Urheberrecht geschützt. Eine Vervielfältigung ohne schriftliche Genehmigung ist untersagt. Minecraft ist eine Marke der Mojang Synergies AB; diese Website steht weder in Verbindung mit Mojang noch wird sie von Mojang unterstützt.",
+      "s4Title": "4. Personenbezogene Daten",
+      "s4Content": "Verantwortlicher für die Datenverarbeitung ist {{ownerName}}. Die Verarbeitung wird in unserer Datenschutzerklärung beschrieben: Es wird kein Werbe-Cookie verwendet. Nach der DSGVO stehen dir Rechte auf Auskunft, Berichtigung und Löschung zu; diese können ausgeübt werden, indem du an {{contactEmail}} schreibst.",
+      "s5Title": "5. Externe Links",
+      "s5Content": "Die Website {{siteName}} kann Links zu externen Websites enthalten. Wir haben keinen Einfluss auf deren Inhalte und übernehmen dafür keine Verantwortung.",
+      "s6Title": "6. Haftung",
+      "s6Content": "Die dargestellten Statistiken stammen aus öffentlichen Drittquellen und dienen ausschließlich zu Informationszwecken. Wir bemühen uns um den Betrieb des Dienstes, können jedoch keine uneingeschränkte Verfügbarkeit garantieren.",
+      "s7Title": "7. Anwendbares Recht",
+      "s7Content": "Dieses Impressum unterliegt französischem Recht. Ist eine einigung außergerichtlich nicht möglich, ist ausschließlich der französischen Gerichtsbarkeit der Vorzug zu geben."
     }
   },
   "alt": {

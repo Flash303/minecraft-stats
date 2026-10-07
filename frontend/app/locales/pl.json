@@ -371,13 +371,14 @@
     "madeWith": "Stworzono z",
     "forCommunity": "dla społeczności Minecraft",
     "terms": "Regulamin Usługi",
-    "privacy": "Polityka Prywatności"
+    "privacy": "Polityka Prywatności",
+    "legal": "Nota prawna"
   },
   "legal": {
     "terms": {
       "title": "Regulamin Usługi",
       "lastUpdated": "Ostatnia aktualizacja: {{date}}",
-      "p1": "Ten Regulamin określa zasady korzystania z platformy Minecraft Stats. Korzystając z naszych usług, zgadzasz się na przestrzeganie tego Regulaminu oraz naszej Polityki Prywatności.",
+      "p1": "Niniejsze Warunki Korzystania określają dostęp do Minecraft Stats i sposób korzystania z tego bezpłatnego serwisu udostępnianego jako projekt osobisty. Korzystając z naszych usług, zgadzasz się na te Warunki i naszą Politykę Prywatności.",
       "s1Title": "1. Opis Usługi",
       "s1Content": "Minecraft Stats zapewnia analitykę i śledzenie publicznych serwerów Minecraft. Zbieramy i wyświetlamy statystyki (takie jak liczba graczy i status serwera) w celach informacyjnych.",
       "s2Title": "2. Rejestracja Konta i Bezpieczeństwo",
@@ -396,21 +397,40 @@
     "privacy": {
       "title": "Polityka Prywatności",
       "lastUpdated": "Ostatnia aktualizacja: {{date}}",
-      "p1": "Ta Polityka Prywatności wyjaśnia, w jaki sposób Minecraft Stats gromadzi, wykorzystuje i ujawnia informacje o Tobie.",
+      "p1": "Niniejsza Polityka Prywatności wyjaśnia, w jaki sposób Minecraft Stats (my) gromadzi, wykorzystuje i chroni informacje dotyczące Ciebie podczas korzystania z naszej strony. Administratorem danych jest {{ownerName}}, dostępny pod adresem {{contactEmail}}.",
       "s1Title": "1. Gromadzenie i Wykorzystanie Informacji",
       "s1Content": "Gromadzimy informacje, które podajesz bezpośrednio, np. przy tworzeniu konta. Ponieważ używamy Clerk do uwierzytelniania, Twoje dane rejestracyjne (e-mail, nazwa użytkownika, hasło) są bezpiecznie przetwarzane przez Clerk.",
       "s2Title": "2. Informacje Gromadzone Automatycznie",
-      "s2Content": "Gdy korzystasz z usług, automatycznie gromadzimy pewne informacje o Twoim urządzeniu. Może to obejmować Twój adres IP, typ przeglądarki, system operacyjny i dane dziennika.",
+      "s2Content": "Podczas korzystania z usługi automatycznie przetwarzamy dane techniczne niezbędne do jej działania: adres IP, typ przeglądarki i dzienniki serwera. Dane te służą wyłącznie zapewnieniu bezpieczeństwa, dostępności strony oraz zapobieganiu nadużyciom. Korzystamy również z Umami — narzędzia do pomiaru odwiedzin przyjaznego prywatności: nie zapisuje ono plików cookie, nie identyfikuje osób i nie śledzi użytkowników między stronami.",
       "s3Title": "3. Pliki Cookies i Technologie Śledzenia",
-      "s3Content": "Używamy plików cookies i podobnych technologii, aby poprawić Twoje doświadczenia na stronie i zapamiętać preferencje.",
+      "s3Content": "Strona nie zapisuje plików cookie reklamowych i nie wykorzystuje zewnętrznych narzędzi śledzenia w celach handlowych. Obecne są wyłącznie pliki cookie niezbędne do działania usługi: cookie preferencji motywu (jasny/ciemny) i cookie języka, bez których strona nie działa; są przechowywane przez 1 rok. Można je w każdej chwili usunąć w ustawieniach przeglądarki bez utraty funkcjonalności. Pomiar odwiedzin za pomocą Umami działa bez plików cookie.",
       "s4Title": "4. Udostępnianie Danych",
-      "s4Content": "Nie sprzedajemy Twoich danych osobowych. Możemy udostępniać informacje zaufanym dostawcom usług stron trzecich (np. Clerk i dostawcom hostingu) wyłącznie w celu poprawy działania naszych usług.",
+      "s4Content": "Nie sprzedajemy ani nie wynajmujemy Twoich danych osobowych. Mają do nich dostęp wyłącznie dostawcy techniczni niezbędni do działania usługi: Clerk (uwierzytelnianie), Umami (anonimowy pomiar odwiedzin) oraz nasz hosting {{hostName}}. Dostawcy ci są związani umownymi obowiązkami poufności i wykorzystują dane wyłącznie do obsługi usługi.",
       "s5Title": "5. Bezpieczeństwo Danych",
       "s5Content": "Podejmujemy odpowiednie kroki, aby chronić Twoje dane osobowe przed utratą i nieautoryzowanym dostępem. Pamiętaj jednak, że żadna transmisja w Internecie nie jest w 100% bezpieczna.",
       "s6Title": "6. Twoje Prawa",
-      "s6Content": "W zależności od jurysdykcji, możesz mieć prawo do dostępu, poprawiania, usuwania lub ograniczania przetwarzania swoich danych osobowych.",
+      "s6Content": "Zgodnie z ogólnym rozporządzeniem o ochronie danych (RODO) przysługują Ci prawa dostępu, sprostowania, usunięcia, ograniczenia przetwarzania, sprzeciwu i przenoszenia danych. Aby z nich skorzystać, skontaktuj się z nami pod adresem {{contactEmail}}. Możesz również złożyć skargę do właściwego organu nadzorczego.",
       "s7Title": "7. Zmiany w tej Polityce",
       "s7Content": "Od czasu do czasu możemy zaktualizować naszą Politykę Prywatności. O ważnych zmianach powiadomimy Cię."
+    },
+    "notice": {
+      "title": "Nota Prawna",
+      "lastUpdated": "Ostatnia aktualizacja: {{date}}",
+      "p1": "Zgodnie z francuską ustawą nr 2004-575 z 21 czerwca 2004 r. o zaufaniu w gospodarce cyfrowej (LCEN) poniższe informacje identyfikują wydawcę i hostera strony {{siteName}}.",
+      "s1Title": "1. Wydawca strony",
+      "s1Content": "Strona {{siteName}} jest wydawana przez {{ownerName}} w ramach osobistego, bezpłatnego projektu. Pytania można kierować na adres: {{contactEmail}}.",
+      "s2Title": "2. Hosting",
+      "s2Content": "Strona jest hostowana przez {{hostName}}, dostępnego pod adresem pocztowym {{hostAddress}}. Telefon: {{hostPhone}}. Strona: {{hostWebsite}}.",
+      "s3Title": "3. Własność intelektualna",
+      "s3Content": "Wszystkie elementy strony {{siteName}} (teksty, grafika, logo, struktura) są chronione prawem autorskim. Jakiekolwiek reprodukcje bez pisemnej zgody są zabronione. Minecraft jest znakiem towarowym Mojang Synergies AB; ta strona nie jest powiązana z Mojang ani przez nią zatwierdzona.",
+      "s4Title": "4. Dane osobowe",
+      "s4Content": "Administratorem danych osobowych jest {{ownerName}}. Zasady przetwarzania opisano w naszej Polityce Prywatności: nie są używane pliki cookie reklamowe. Zgodnie z RODO przysługują Ci prawa dostępu, sprostowania i usunięcia danych, które można wykorzystać, pisząc na adres {{contactEmail}}.",
+      "s5Title": "5. Zewnętrzne odnośniki",
+      "s5Content": "Strona {{siteName}} może zawierać odnośniki do zewnętrznych stron. Nie sprawujemy kontroli nad ich treścią i nie ponosimy za nie odpowiedzialności.",
+      "s6Title": "6. Odpowiedzialność",
+      "s6Content": "Prezentowane statystyki pochodzą z publicznych źródeł zewnętrznych i służą wyłącznie celom informacyjnym. Dążymy do zapewnienia działania usługi, nie możemy jednak zagwarantować jej stałej dostępności.",
+      "s7Title": "7. Prawo właściwe",
+      "s7Content": "Niniejsza nota prawna podlega prawu francuskiemu. W razie braku polubownego rozwiązania sporu, właściwe są sądy francuskie."
     }
   },
   "alt": {
