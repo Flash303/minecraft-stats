@@ -48,6 +48,7 @@ interface ServerListFiltersProps {
     setSortDirection: (dir: "asc" | "desc") => void
     activeLauncher: "all" | "lunar" | "labymod"
     setActiveLauncher: (launcher: "all" | "lunar" | "labymod") => void
+    onResetFilters: () => void
     onRefresh?: () => void
     isRefreshing?: boolean
 }
@@ -235,6 +236,7 @@ export function ServerListFilters({
     setSortDirection,
     activeLauncher,
     setActiveLauncher,
+    onResetFilters,
     onRefresh,
     isRefreshing,
 }: ServerListFiltersProps) {
@@ -254,13 +256,6 @@ export function ServerListFilters({
         activeSort !== "popularity" || sortDirection !== "desc",
     ].filter(Boolean).length
 
-    const resetFilters = () => {
-        setActivePlatform("all")
-        setActiveLauncher("all")
-        setActiveSort("popularity")
-        setSortDirection("desc")
-    }
-
     const FilterContent = () => (
         <>
             {/* En-tête (affiché uniquement sur Desktop ou dans le Drawer pour le bouton reset) */}
@@ -271,7 +266,7 @@ export function ServerListFilters({
                 </span>
                 {hasActiveFilters && (
                     <button
-                        onClick={resetFilters}
+                        onClick={onResetFilters}
                         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                     >
                         <X aria-hidden="true" className="w-3.5 h-3.5" />
