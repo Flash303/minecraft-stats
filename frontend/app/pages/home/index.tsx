@@ -162,6 +162,23 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const setSortDirection = useCallback((dir: "desc" | "asc") => updateFilter("dir", dir, "desc"), [updateFilter])
     const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "labymod") => updateFilter("launcher", launcher, "all"), [updateFilter])
 
+    // Un seul appel à setSearchParams : la forme fonctionnelle de setSearchParams
+    // ne cumule pas les appels faits dans le même tick (pas de queue comme setState).
+    const resetFilters = useCallback(() => {
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                next.delete("platform")
+                next.delete("launcher")
+                next.delete("sort")
+                next.delete("dir")
+                next.delete("page")
+                return next
+            },
+            { replace: true, preventScrollReset: true }
+        )
+    }, [setSearchParams])
+
     useEffect(() => {
         if (searchQuery) {
             setSearchParams(
@@ -290,6 +307,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     setActiveSort={setActiveSort}
                     sortDirection={sortDirection}
                     setSortDirection={setSortDirection}
+                    onResetFilters={resetFilters}
                     onRefresh={() => refetch()}
                     isRefreshing={refreshing}
                 />
