@@ -6,7 +6,6 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteLoaderData,
-  useLocation,
 } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
@@ -17,17 +16,6 @@ import { ToastProvider } from "./core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminProvider } from "./core/contexts/AdminContext";
-
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
-
-if (typeof window !== "undefined") {
-  posthog.init(import.meta.env.VITE_POSTHOG_KEY || "phc_placeholder", {
-    api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
-    person_profiles: "identified_only",
-  });
-}
-
 
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
@@ -161,14 +149,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PostHogPageView() {
-  const location = useLocation();
-  useEffect(() => {
-    posthog.capture("$pageview");
-  }, [location]);
-  return null;
-}
-
 export default function App() {
   const { serverTheme, serverLanguage } = useLoaderData<typeof loader>();
 
@@ -178,25 +158,22 @@ export default function App() {
   }
 
   return (
-    <PostHogProvider client={posthog}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-        <QueryClientProvider client={queryClient}>
-          <AdminProvider>
-          <ThemeProvider serverTheme={serverTheme}>
-            <LanguageProvider serverLanguage={serverLanguage}>
-              <ToastProvider>
-                  <SearchProvider>
-                    <TooltipProvider>
-                      <PostHogPageView />
-                      <Outlet />
-                    </TooltipProvider>
-                  </SearchProvider>
-              </ToastProvider>
-            </LanguageProvider>
-          </ThemeProvider>
-          </AdminProvider>
-        </QueryClientProvider>
-      </ClerkProvider>
-    </PostHogProvider>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <QueryClientProvider client={queryClient}>
+        <AdminProvider>
+        <ThemeProvider serverTheme={serverTheme}>
+          <LanguageProvider serverLanguage={serverLanguage}>
+            <ToastProvider>
+                <SearchProvider>
+                  <TooltipProvider>
+                    <Outlet />
+                  </TooltipProvider>
+                </SearchProvider>
+            </ToastProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+        </AdminProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }
