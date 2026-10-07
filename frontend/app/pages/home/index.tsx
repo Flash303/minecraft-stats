@@ -21,14 +21,40 @@ import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs } from "react-router"
 
+// Réduit chaque serveur à ce dont la home a réellement besoin avant sérialisation
+// dans le HTML SSR (~90% du payload brut est inutilisé : client_infos complets, motd...).
+// Le client refait ensuite son fetch complet avec `include_stats=true`, donc aucun
+// champ présent ici ne doit manquer au rendu initial des cartes.
+function toServerCardSummary(server: Server): Server {
+    return {
+        id: server.id,
+        name: server.name,
+        ip: server.ip,
+        port: server.port,
+        user_id: server.user_id,
+        type: server.type,
+        hidden: server.hidden,
+        last_status: server.last_status,
+        last_connected: server.last_connected,
+        last_version: server.last_version,
+        last_sample: server.last_sample,
+        client_infos: {
+            ...(server.client_infos?.lunar ? { lunar: { partner: server.client_infos.lunar.partner } } : {}),
+            ...(server.client_infos?.laby ? { laby: { partner: server.client_infos.laby.partner } } : {}),
+        },
+    }
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     // On désactive les stats pour le SSR afin d'éviter une payload de 4.6MB dans le HTML.
     // React Query ira chercher les stats en arrière-plan sur le client.
-    const serversPromise = fetchServers(undefined, false, forwardedFor).catch((e) => {
-        console.error("SSR Error:", e)
-        return []
-    })
+    const serversPromise = fetchServers(undefined, false, forwardedFor)
+        .then((servers) => servers.map(toServerCardSummary))
+        .catch((e) => {
+            console.error("SSR Error:", e)
+            return []
+        })
     return { initialServersPromise: serversPromise }
 }
 
