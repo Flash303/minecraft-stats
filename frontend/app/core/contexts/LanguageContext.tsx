@@ -1,15 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { translate } from "@/core/lib/i18n"
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react"
+import { translate, loadLanguage, type Language } from "@/core/lib/i18n"
 import type fr from "../../locales/fr.json"
-
-export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
-
-type NestedKeyOf<ObjectType extends object> = {
-  [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
-    ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-    : `${Key}`
-}[keyof ObjectType & (string | number)]
 
 export type TranslationKey = NestedKeyOf<typeof fr>
 
@@ -24,7 +16,21 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export function LanguageProvider({ children, serverLanguage }: { children: ReactNode, serverLanguage?: Language | null }) {
     // Le loader SSR résout déjà la langue (cookie ou Accept-Language) :
     // le HTML arrive dans la bonne langue, aucune bascule post-hydratation.
-    const [language, setLanguage] = useState<Language>(serverLanguage ?? "fr")
+    const [language, setLanguageState] = useState<Language>(serverLanguage ?? "fr")
+    // Référence de la langue cible : si l'utilisateur bascule vite entre deux
+    // langues non encore chargées, seule la dernière requête est appliquée.
+    const pendingRef = useRef<Language | null>(null)
+
+    const setLanguage = useCallback((lang: Language) => {
+        pendingRef.current = lang
+        // Le dictionnaire cible est chargé dynamiquement avant bascule, pour ne
+        // jamais afficher de clés i18n lors d'un changement de langue.
+        void loadLanguage(lang).then(() => {
+            if (pendingRef.current === lang) {
+                setLanguageState(lang)
+            }
+        })
+    }, [])
 
     useEffect(() => {
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
