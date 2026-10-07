@@ -110,13 +110,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <link rel="icon" type="image/webp" href="/logo.webp" />
-        {/* Google Fonts : preconnect + stylesheet en <link> (l'@import CSS était render-blocking) */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
-        />
+        {/* Plus Jakarta Sans est auto-hébergée (voir index.css) -> plus de stylesheet
+            render-blocking Google Fonts ni de requêtes hors-domaine. */}
+        <link rel="preload" href="/fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         {/* Umami Analytics */}
         <script defer src="https://cloud.umami.is/script.js" data-website-id="367e7c31-118f-4c1d-91df-4d264facff62"></script>
         <Meta />
