@@ -42,7 +42,22 @@
       "previous": "이전",
       "next": "다음",
       "page": "{{total}}페이지 중 {{current}}페이지"
-    }
+    },
+    "dateFormat": "{{year}}년 {{month}}월 {{day}}일",
+    "months": [
+      "1월",
+      "2월",
+      "3월",
+      "4월",
+      "5월",
+      "6월",
+      "7월",
+      "8월",
+      "9월",
+      "10월",
+      "11월",
+      "12월"
+    ]
   },
   "header": {
     "title": "Minecraft Stats",

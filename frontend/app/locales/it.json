@@ -42,7 +42,22 @@
       "previous": "Precedente",
       "next": "Successivo",
       "page": "Pagina {{current}} di {{total}}"
-    }
+    },
+    "dateFormat": "{{day}} {{month}} {{year}}",
+    "months": [
+      "gennaio",
+      "febbraio",
+      "marzo",
+      "aprile",
+      "maggio",
+      "giugno",
+      "luglio",
+      "agosto",
+      "settembre",
+      "ottobre",
+      "novembre",
+      "dicembre"
+    ]
   },
   "header": {
     "title": "Statistiche Minecraft",

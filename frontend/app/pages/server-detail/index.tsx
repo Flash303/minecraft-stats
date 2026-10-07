@@ -18,7 +18,7 @@ import { BarChart } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
-import { cn, formatMinecraftVersion } from "@/core/lib/utils"
+import { cn, formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
@@ -88,7 +88,6 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     const rootData: any = args.matches?.find((m: any) => m.id === "root")?.data
     const lang: "fr" | "en" = rootData?.serverLanguage ?? "fr"
     const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
-    const locale = lang === "fr" ? "fr-FR" : "en-US"
 
     if (!data || !data.initialServer) {
         return [
@@ -100,8 +99,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     const title = `${server.name} - ${L("seo.serverTitleSuffix")}`
     const isOnline = server.last_status === "online"
     const players = isOnline
-        ? new Intl.NumberFormat(locale).format(server.last_connected ?? 0)
-        : 0
+        ? formatNumber(lang, server.last_connected ?? 0)
+        : "0"
     const playersText = isOnline
         ? ` ${L("seo.statusOnline", { count: players })}`
         : server.last_status === "offline"
@@ -227,7 +226,6 @@ export default function ServerDetail() {
     }
 
     const isOnline = server.last_status === "online"
-    const locale = language === "fr" ? "fr-FR" : "en-US"
 
     const isCustomRangeIncomplete =
         selectedRange === -1 && (!customRange?.from || !customRange?.to)
@@ -260,7 +258,7 @@ export default function ServerDetail() {
                         <ServerDetailHeader
                             server={server}
                             t={t}
-                            locale={locale}
+                            language={language}
                         />
                     </div>
                 </div>
@@ -359,12 +357,7 @@ export default function ServerDetail() {
                                             {isOnline && (
                                                 <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
                                                     (
-                                                    {new Intl.NumberFormat(
-                                                        locale
-                                                    ).format(
-                                                        server.last_connected ??
-                                                            0
-                                                    )}{" "}
+                                                    {formatNumber(language, server.last_connected ?? 0)}{" "}
                                                     {t("common.currentPlayers")}
                                                     )
                                                 </span>
@@ -380,7 +373,7 @@ export default function ServerDetail() {
                             {stats && (
                                 <StatsSection
                                     stats={stats}
-                                    locale={locale}
+                                    language={language}
                                     t={t}
                                 />
                             )}

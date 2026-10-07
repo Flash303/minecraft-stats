@@ -2,6 +2,7 @@ import { useMemo } from "react"
 import { Link } from "react-router"
 import type { User, Server } from "@/core/lib/api"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/ui/components/card"
+import { formatNumber } from "@/core/lib/utils"
 import { ServerIcon as CustomServerIcon } from "@/ui/components/ServerIcon"
 import {
     Users,
@@ -17,6 +18,7 @@ interface OverviewTabProps {
     users: User[]
     servers: Server[]
     t: (key: string, replacements?: Record<string, string>) => string
+    language: string
 }
 
 interface StatCardProps {
@@ -44,7 +46,7 @@ function StatCard({ label, value, icon: Icon, iconClassName }: StatCardProps) {
     )
 }
 
-export function OverviewTab({ users, servers, t }: OverviewTabProps) {
+export function OverviewTab({ users, servers, t, language }: OverviewTabProps) {
     const stats = useMemo(() => {
         const totalUsers = users.length
         const totalServers = servers.length
@@ -102,7 +104,7 @@ export function OverviewTab({ users, servers, t }: OverviewTabProps) {
                 />
                 <StatCard
                     label={t("admin.statsPlayers")}
-                    value={stats.playersOnline.toLocaleString()}
+                    value={formatNumber(language, stats.playersOnline)}
                     icon={Gamepad2}
                     iconClassName="bg-warning/10 text-warning"
                 />

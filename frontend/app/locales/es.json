@@ -42,7 +42,22 @@
       "previous": "Anterior",
       "next": "Siguiente",
       "page": "Página {{current}} de {{total}}"
-    }
+    },
+    "dateFormat": "{{day}} de {{month}} de {{year}}",
+    "months": [
+      "enero",
+      "febrero",
+      "marzo",
+      "abril",
+      "mayo",
+      "junio",
+      "julio",
+      "agosto",
+      "septiembre",
+      "octubre",
+      "noviembre",
+      "diciembre"
+    ]
   },
   "header": {
     "title": "Minecraft Stats",

@@ -8,6 +8,7 @@ import { useTheme } from "@/core/contexts/ThemeContext"
 import { Button } from "@/ui/components/button"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
+import { formatNumber } from "@/core/lib/utils"
 import {
     useChartResize,
     useTouchInteractPlugin,
@@ -66,7 +67,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 <div class="flex items-center gap-2 py-0.5">
                     <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                        <span class="font-bold text-white">${formatNumber(language, Math.round(yVal))}</span>
                         <span class="text-muted-foreground text-2xs uppercase">${t("common.players")}</span>
                     </div>
                 </div>
@@ -163,7 +164,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     spanGaps: false,
                     value: (_u: uPlot, val: number) => {
                         if (val == null) return ""
-                        return new Intl.NumberFormat(locale).format(Math.round(val)) + ` ${t("common.players")}`
+                        return formatNumber(language, Math.round(val)) + ` ${t("common.players")}`
                     }
                 }
             ]

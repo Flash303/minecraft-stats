@@ -4,7 +4,7 @@ import type { Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
-import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
+import { cn, getServerIp, copyServerIp, formatMinecraftVersion, formatDate, formatNumber } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -14,9 +14,9 @@ import { PlatformBadge } from "@/ui/components/PlatformBadge"
 interface ServerDetailHeaderProps {
     server: Server
     t: (key: string) => string
-    locale?: string
+    language?: string | null
 }
-export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProps) {
+export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderProps) {
     const [copied, setCopied] = useState(false)
     const copiedTimerRef = useRef<number | null>(null)
     const navigate = useNavigate()
@@ -129,7 +129,7 @@ export function ServerDetailHeader({ server, t, locale }: ServerDetailHeaderProp
                         {server.registered_date && (
                             <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
                                 <Calendar className="h-3 w-3" />
-                                <span>{new Date(server.registered_date * 1000).toLocaleDateString(locale)}</span>
+                                <span>{formatDate(server.registered_date * 1000, language)}</span>
                             </div>
                         )}
                     </div>

@@ -15,7 +15,7 @@ import {
     makeXScaleRange,
     sizeChartToContainer,
 } from "@/core/hooks/useChartPlugins"
-import { escapeHtml } from "@/core/lib/utils"
+import { escapeHtml, formatNumber } from "@/core/lib/utils"
 import { chartPalette, resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
 
@@ -66,7 +66,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                                 <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${color}"></div>
                                 <span class="text-muted-foreground font-medium">${escapeHtml(name)}</span>
                             </div>
-                            <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                            <span class="font-bold text-white">${formatNumber(language, Math.round(yVal))}</span>
                         </div>
                     `
                 }
@@ -102,7 +102,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                 spanGaps: false, // Match PlayerChart - show gaps for server offline status
                 value: (_u: uPlot, val: number) => {
                     if (val == null) return ""
-                    return new Intl.NumberFormat(locale).format(Math.round(val))
+                    return formatNumber(language, Math.round(val))
                 }
             })
         }

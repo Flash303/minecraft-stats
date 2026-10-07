@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { MiniChartSkeleton } from "./MiniChartSkeleton"
-import { cn, getServerIp, copyServerIp, formatMinecraftVersion } from "@/core/lib/utils"
+import { cn, getServerIp, copyServerIp, formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
@@ -120,12 +120,12 @@ export function ServerCard({ server, to }: ServerCardProps) {
                                         }
                                     >
                                         <span className="text-sm font-extrabold text-foreground cursor-default select-none border-b border-dashed border-muted-foreground/50">
-                                            {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                            {formatNumber(language, server.last_connected ?? 0)}
                                         </span>
                                     </CursorTooltip>
                                 ) : (
                                     <span className="text-sm font-extrabold text-foreground">
-                                        {new Intl.NumberFormat(language === "fr" ? "fr-FR" : "en-US").format(server.last_connected ?? 0)}
+                                        {formatNumber(language, server.last_connected ?? 0)}
                                     </span>
                                 )}
                             </>

@@ -42,7 +42,22 @@
       "previous": "上一页",
       "next": "下一页",
       "page": "第 {{current}} 页，共 {{total}} 页"
-    }
+    },
+    "dateFormat": "{{year}}年{{month}}月{{day}}日",
+    "months": [
+      "一月",
+      "二月",
+      "三月",
+      "四月",
+      "五月",
+      "六月",
+      "七月",
+      "八月",
+      "九月",
+      "十月",
+      "十一月",
+      "十二月"
+    ]
   },
   "header": {
     "title": "Minecraft Stats",

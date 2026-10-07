@@ -320,6 +320,7 @@ export default function AdminDashboard() {
                             users={users}
                             servers={servers}
                             t={t}
+                            language={language}
                         />
                     )}
 
