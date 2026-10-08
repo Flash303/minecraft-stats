@@ -20,6 +20,8 @@ import { AdminProvider } from "./core/contexts/AdminContext";
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
 import { GlobalLoading } from "./ui/components/global-loading";
+import { BedrockLogoSprite } from "./ui/components/BedrockLogo";
+import { LabyLogoSprite } from "./ui/components/LabyLogo";
 import { APP_URL } from "./core/lib/config";
 import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
 import { translate } from "./core/lib/i18n";
@@ -137,6 +139,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <GlobalLoading />
+        <BedrockLogoSprite />
+        <LabyLogoSprite />
         {children}
         <ScrollRestoration />
         <Scripts />

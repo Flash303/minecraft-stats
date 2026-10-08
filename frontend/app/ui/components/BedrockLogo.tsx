@@ -6,12 +6,22 @@ export const BedrockLogo = ({ className, title }: { className?: string; title?: 
         className={cn("shrink-0", className)}
         xmlns="http://www.w3.org/2000/svg"
         shapeRendering="crispEdges"
+        {...(title ? {} : { "aria-hidden": "true" })}
     >
         {title && <title>{title}</title>}
-        {/* Contour / Silhouette */}
-        <polygon points="16,1 30,8.5 30,23.5 16,31 2,23.5 2,8.5" fill="#080808" />
+        <use href="#bedrock-logo" />
+    </svg>
+)
 
-        {/* Top Face */}
+export const BedrockLogoSprite = () => (
+    <svg
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+    >
+        <symbol id="bedrock-logo" viewBox="0 0 32 32" shapeRendering="crispEdges">
+<polygon points="16,1 30,8.5 30,23.5 16,31 2,23.5 2,8.5" fill="#080808" />
         <g transform="matrix(0.8125, 0.4375, -0.8125, 0.4375, 16, 2)">
       <rect x="0" y="0" width="2" height="1" fill="#383838" />
       <rect x="2" y="0" width="2" height="1" fill="#5a5a5a" />
@@ -194,8 +204,6 @@ export const BedrockLogo = ({ className, title }: { className?: string; title?: 
       <rect x="13" y="15" width="2" height="1" fill="#7e7e7e" />
       <rect x="15" y="15" width="1" height="1" fill="#5a5a5a" />
         </g>
-
-        {/* Left Face */}
         <g transform="matrix(0.8125, 0.4375, 0, 0.875, 3, 9)">
       <rect x="0" y="0" width="2" height="1" fill="#2a2a2a" />
       <rect x="2" y="0" width="2" height="1" fill="#444444" />
@@ -378,8 +386,6 @@ export const BedrockLogo = ({ className, title }: { className?: string; title?: 
       <rect x="13" y="15" width="2" height="1" fill="#606060" />
       <rect x="15" y="15" width="1" height="1" fill="#444444" />
         </g>
-
-        {/* Right Face */}
         <g transform="matrix(0.8125, -0.4375, 0, 0.875, 16, 16)">
       <rect x="0" y="0" width="2" height="1" fill="#1c1c1c" />
       <rect x="2" y="0" width="2" height="1" fill="#303030" />
@@ -562,5 +568,6 @@ export const BedrockLogo = ({ className, title }: { className?: string; title?: 
       <rect x="13" y="15" width="2" height="1" fill="#454545" />
       <rect x="15" y="15" width="1" height="1" fill="#303030" />
         </g>
+        </symbol>
     </svg>
 )
