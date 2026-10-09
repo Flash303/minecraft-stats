@@ -14,8 +14,9 @@ import {
     useChartZoomControls,
     makeXScaleRange,
     sizeChartToContainer,
+    useEnsureOneSeriesVisiblePlugin,
 } from "@/core/hooks/useChartPlugins"
-import { escapeHtml, formatNumber } from "@/core/lib/utils"
+import { cn, escapeHtml, formatNumber } from "@/core/lib/utils"
 import { chartPalette, resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
 
@@ -29,13 +30,17 @@ interface MultiServerChartProps {
     zoomResetId?: string
     onZoomChange?: (isZoomed: boolean) => void
     timeSelector?: React.ReactNode
+    isLoading?: boolean
+    overlay?: React.ReactNode
 }
 
-export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange, timeSelector }: MultiServerChartProps) {
+export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, onZoomChange, timeSelector, isLoading, overlay }: MultiServerChartProps) {
     const { theme } = useTheme()
     const { language, t } = useLanguage()
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
+
+    const hasData = data[0]?.length > 0
 
     const seriesColors = useMemo(() => chartPalette(serverNames.length || 1), [serverNames, theme])
 
@@ -76,6 +81,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     })
 
     const touchInteractPlugin = useTouchInteractPlugin()
+    const ensureOneSeriesVisiblePlugin = useEnsureOneSeriesVisiblePlugin()
 
     const options = useMemo(() => {
         const gridColor = resolveToken("--chart-grid")
@@ -110,7 +116,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
         return {
             width: 800,
             height: (typeof window !== "undefined" && window.innerWidth < 640) ? 300 : 450,
-            plugins: [tooltipPlugin, touchInteractPlugin, scaleHookPlugin],
+            plugins: [tooltipPlugin, touchInteractPlugin, ensureOneSeriesVisiblePlugin, scaleHookPlugin],
             padding: [20, 15, 10, 10],
             cursor: {
                 y: false,
@@ -126,7 +132,10 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                     auto: false,
                     min: timeRange.from,
                     max: timeRange.to,
-                    range: makeXScaleRange()
+                    range: makeXScaleRange({
+                        countNonNullValues: true,
+                        getTimeRange: () => timeRange
+                    })
                 },
                 y: { auto: true }
             },
@@ -144,7 +153,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
             series: series
         } as uPlot.Options
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [serverNames, theme, tooltipPlugin, touchInteractPlugin, timeRange, language, t])
+    }, [serverNames, theme, tooltipPlugin, touchInteractPlugin, ensureOneSeriesVisiblePlugin, timeRange, language, t])
 
     return (
         <div className="w-full space-y-4">
@@ -172,13 +181,15 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                 </div>
             </div>
 
-            <div ref={containerRef} className="w-full bg-card p-4 rounded-xl border shadow-sm">
-                {data[0].length === 0 ? (
-                    <p className="text-center py-4 text-muted-foreground font-medium animate-pulse">
-                        {t("comparison.loadingData")}
-                    </p>
-                ) : (
-                    <div className="w-full">
+            <div ref={containerRef} className="relative w-full bg-card p-4 rounded-xl border shadow-sm">
+                {overlay}
+                <div
+                    className={cn(
+                        "w-full transition-opacity duration-200",
+                        isLoading ? "pointer-events-none opacity-30" : "opacity-100"
+                    )}
+                >
+                    {hasData ? (
                         <ClientOnly fallback={<div style={{ height: options.height }} className="w-full" />}>
                             <UplotReact
                                 options={options}
@@ -190,8 +201,14 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                                 }}
                             />
                         </ClientOnly>
-                    </div>
-                )}
+                    ) : (
+                        <div className="flex min-h-[332px] w-full items-center justify-center sm:min-h-[482px]">
+                            <p className="text-center py-4 text-muted-foreground font-medium">
+                                {t("common.noDataForRange")}
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

@@ -37,8 +37,8 @@ export default function ServerComparison() {
     const [selectedInterval, setSelectedInterval] = useState(60000)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
 
-    // Fenêtre temporelle courante (remplace le calcul dupliqué de l'ancien effet)
-    const { from, to: now } = useMemo((): { from: number; to: number } => {
+    // Fenêtre temporelle demandée (relative "dernières X" ou plage personnalisée).
+    const requestedWindow = useMemo((): { from: number; to: number } => {
         if (selectedRange === -1) {
             if (!customRange?.from || !customRange?.to) return { from: 0, to: 0 }
             return {
@@ -50,7 +50,7 @@ export default function ServerComparison() {
         return { from: nowSec - Math.floor(selectedRange / 1000), to: nowSec }
     }, [selectedRange, customRange])
 
-    const timeRangeProps = useMemo(() => ({ from, to: now }), [from, now])
+    const from = requestedWindow.from
     const rangeReady = selectedRange !== -1 || (!!customRange?.from && !!customRange?.to)
     const rangeKey = selectedRange === -1
         ? `${Math.floor((customRange?.from?.getTime() ?? 0) / 60000)}-${Math.floor((customRange?.to?.getTime() ?? 0) / 60000)}`
@@ -79,7 +79,13 @@ export default function ServerComparison() {
         return map
     }, [recordQueries, selectedServers])
 
-    const loadingRecords = recordQueries.some(q => q.isFetching)
+    // Fetch en cours OU query pas encore déclenchée (Clerk en cours de chargement) :
+    // évite d'afficher "aucune donnée" tant que la requête n'a pas réellement tourné.
+    const loadingRecords =
+        selectedServers.length > 0 &&
+        rangeReady &&
+        from > 0 &&
+        recordQueries.some(q => q.isFetching || q.isPending)
 
     const removeServer = (serverId: number) => {
         setSelectedServers(prev => prev.filter(s => s.id !== serverId))
@@ -97,8 +103,27 @@ export default function ServerComparison() {
 
     const isChartZoomed = useRef(false)
 
-    const chartData = useMemo(() => prepareMultiChartData(selectedServers, recordsMap, selectedInterval), [selectedServers, recordsMap, selectedInterval])
     const serverNames = useMemo(() => selectedServers.map(s => s.name), [selectedServers])
+
+    // Aligne les records sur la fenêtre demandée (comme ServerDetails filtre sur
+    // [from, now]) : sans cela des points hors fenêtre restent dans les données
+    // et le curseur uPlot s'y accroche (une seule date au survol, aucun point tracé).
+    const filteredRecordsMap = useMemo(() => {
+        if (from <= 0 || requestedWindow.to <= 0) return recordsMap
+        const map: { [serverId: number]: { date: number; value: number }[] } = {}
+        Object.entries(recordsMap).forEach(([id, rows]) => {
+            const sid = Number(id)
+            map[sid] = rows.filter(r => {
+                const d = r.date > 1000000000000 ? Math.floor(r.date / 1000) : r.date
+                return d >= from && d <= requestedWindow.to
+            })
+        })
+        return map
+    }, [recordsMap, from, requestedWindow.to])
+
+    const chartData = useMemo(() => prepareMultiChartData(selectedServers, filteredRecordsMap, selectedInterval), [selectedServers, filteredRecordsMap, selectedInterval])
+
+    const timeRangeProps = useMemo(() => ({ from, to: requestedWindow.to }), [from, requestedWindow.to])
 
     return (
         <>
@@ -128,25 +153,25 @@ export default function ServerComparison() {
                 </div>
  
                 <div className="relative flex w-full">
-                    {loadingRecords && selectedServers.length > 0 && (
-                        <div className="absolute inset-0 z-10 flex justify-center items-center bg-background/40 backdrop-blur-[1px] rounded-xl transition-all duration-300">
-                            <div className="bg-card border shadow-lg px-4 py-2 rounded-full flex items-center gap-2">
-                                <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                <div className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                <div className="h-2 w-2 bg-primary rounded-full animate-bounce" />
-                                <span className="text-xs font-medium ml-1">{t("comparison.updating")}</span>
-                            </div>
-                        </div>
-                    )}
-                    
                     {selectedServers.length > 0 && (
-                        <Suspense fallback={<div className="w-full min-h-[520px] flex flex-col items-center justify-center rounded-xl bg-muted/10 gap-4">{t("comparison.loadingData")}</div>}>
+                        <Suspense fallback={<div className="min-h-[420px] w-full animate-pulse rounded-xl bg-muted/10 sm:min-h-[520px]" />}>
                             <MultiServerChart 
                                 data={chartData} 
                                 serverNames={serverNames} 
                                 timeRange={timeRangeProps} 
                                 zoomResetId={`${selectedRange}-${selectedInterval}-${customRange?.from?.getTime()}-${customRange?.to?.getTime()}`}
                                 onZoomChange={(z) => isChartZoomed.current = z}
+                                isLoading={loadingRecords}
+                                overlay={
+                                    loadingRecords && (
+                                        <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
+                                            <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
+                                            <p className="text-muted-foreground animate-pulse text-sm font-medium">
+                                                {t("serverDetail.chartLoading")}
+                                            </p>
+                                        </div>
+                                    )
+                                }
                                 timeSelector={
                                     <TimeIntervalSelector
                                         selectedRange={selectedRange}

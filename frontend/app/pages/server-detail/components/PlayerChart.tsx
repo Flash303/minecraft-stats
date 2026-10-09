@@ -16,6 +16,7 @@ import {
     useChartZoomControls,
     makeXScaleRange,
     sizeChartToContainer,
+    useEnsureOneSeriesVisiblePlugin,
 } from "@/core/hooks/useChartPlugins"
 import { cn } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
@@ -75,18 +76,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     })
 
-    const disableLegendClickPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                ready: (u: uPlot) => {
-                    const legend = u.root.querySelector('.u-legend') as HTMLElement
-                    if (legend) {
-                        legend.style.pointerEvents = 'none'
-                    }
-                }
-            }
-        }
-    }, [])
+    const ensureOneSeriesVisiblePlugin = useEnsureOneSeriesVisiblePlugin()
 
     const touchInteractPlugin = useTouchInteractPlugin()
 
@@ -114,7 +104,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             height: (typeof window !== "undefined" && window.innerWidth < 640) ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             padding: [20, 15, 10, 10],
-            plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin, touchInteractPlugin],
+            plugins: [tooltipPlugin, scaleHookPlugin, ensureOneSeriesVisiblePlugin, touchInteractPlugin],
             cursor: {
                 y: false,
                 drag: { 

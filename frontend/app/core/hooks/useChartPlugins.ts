@@ -48,15 +48,43 @@ export function makeXScaleRange(opts: {
     countNonNullValues?: boolean;
     getTimeRange?: () => { from: number; to: number } | undefined;
 } = {}) {
+    // Un point est "rempli" dès qu'au moins une série a une valeur non nulle
+    // à cet index (compatible mon-série comme multi-séries).
+    const hasNonNullAt = (u: uPlot, idx: number): boolean => {
+        for (let s = 1; s < u.data.length; s++) {
+            const v = u.data[s]?.[idx];
+            if (v !== null && v !== undefined) return true;
+        }
+        return false;
+    };
+
     return (u: uPlot, min: number, max: number): [number, number] => {
         const xData = u.data[0];
+
+        // Garde-fou : une borne non finie (null/NaN) fige l'échelle X à [null, null]
+        // (graphe vide, sans ticks X, tooltip/légende intacts). Ça arrive quand un
+        // setData() hérite d'une échelle pas encore initialisée (recréation du graphe
+        // à l'ajout d'une série : nouvelles options + anciennes données). On replie
+        // alors sur la fenêtre temporelle demandée, puis sur l'échelle courante.
+        const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+        if (!finite(min) || !finite(max)) {
+            const tr = opts.getTimeRange?.();
+            if (tr && finite(tr.from) && finite(tr.to) && tr.to > tr.from) {
+                min = tr.from;
+                max = tr.to;
+            } else if (finite(u.scales.x?.min) && finite(u.scales.x?.max)) {
+                min = u.scales.x.min as number;
+                max = u.scales.x.max as number;
+            }
+        }
+
         if (!xData || xData.length === 0) return [min, max];
 
         let pointsCount = 0;
         for (let i = 0; i < xData.length; i++) {
             const x = xData[i];
             if (x >= min && x <= max) {
-                if (!opts.countNonNullValues || u.data[1]?.[i] !== null) {
+                if (!opts.countNonNullValues || hasNonNullAt(u, i)) {
                     pointsCount++;
                 }
             }
@@ -246,6 +274,28 @@ export function useTouchInteractPlugin() {
                     over.addEventListener("touchmove", handleTouchMove, { passive: false });
                 }
             }
+        };
+    }, []);
+}
+
+/**
+ * Garde la légende uPlot cliquable (masquer / isoler une courbe) mais empêche
+ * de masquer la dernière série visible : sans cela un utilisateur peut vider le
+ * graphe (aucune courbe affichée) en cliquant successivement tous les libellés.
+ */
+export function useEnsureOneSeriesVisiblePlugin() {
+    return useMemo<uPlot.Plugin>(() => {
+        return {
+            hooks: {
+                setSeries: (u: uPlot, seriesIdx: number | null, opts: { show?: boolean }) => {
+                    if (seriesIdx == null || seriesIdx <= 0 || opts?.show !== false) return;
+                    const anyVisible = u.series.some((s, i) => i > 0 && s.show);
+                    if (!anyVisible) {
+                        // Ré-affiche la série qu'on vient de cacher (fireHook=false pour éviter la récursion)
+                        u.setSeries(seriesIdx, { show: true }, false);
+                    }
+                },
+            },
         };
     }, []);
 }
