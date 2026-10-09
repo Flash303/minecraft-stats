@@ -2,6 +2,7 @@ import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
+import { APP_URL } from "@/core/lib/config"
 import { translate, type Language } from "@/core/lib/i18n"
 
 const PlayerChart = lazy(() =>
@@ -92,7 +93,8 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     if (!data || !data.initialServer) {
         return [
             { title: L("seo.notFoundTitle") },
-            { name: "description", content: L("seo.notFoundDescription") }
+            { name: "description", content: L("seo.notFoundDescription") },
+            { name: "robots", content: "noindex" }
         ]
     }
     const server = data.initialServer
@@ -110,6 +112,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [
         { title },
         { name: "description", content: description },
+        { tagName: "link", rel: "canonical", href: `${APP_URL}/server/${server.id}` },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         {

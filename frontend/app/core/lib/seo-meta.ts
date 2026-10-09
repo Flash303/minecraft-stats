@@ -27,6 +27,11 @@ export function truncateDescription(text: string, max = 157): string {
     return `${(lastSpace > 100 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
+/** Balise canonical vers l'URL officielle de la page (lutte contre le duplicate content). */
+export function canonicalLink(path: string) {
+    return { tagName: "link", rel: "canonical", href: `${APP_URL}${path}` } as const;
+}
+
 /** Balises title/description + Open Graph + Twitter pour une page statique. */
 export function staticPageMeta(opts: { title: string; description: string; path: string }) {
     const url = `${APP_URL}${opts.path}`;
@@ -34,6 +39,7 @@ export function staticPageMeta(opts: { title: string; description: string; path:
     return [
         { title: opts.title },
         { name: "description", content: opts.description },
+        canonicalLink(opts.path),
         { property: "og:title", content: opts.title },
         { property: "og:description", content: opts.description },
         { property: "og:url", content: url },
