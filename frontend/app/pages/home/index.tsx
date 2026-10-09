@@ -155,22 +155,15 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const pageParam = searchParams.get("page")
     const currentPage = pageParam && !isNaN(Number(pageParam)) ? Math.max(1, Number(pageParam)) : 1
 
-    const handlePageChange = useCallback(
+    const buildPageHref = useCallback(
         (page: number) => {
-            setSearchParams(
-                (prev) => {
-                    const next = new URLSearchParams(prev)
-                    if (page === 1) next.delete("page")
-                    else next.set("page", page.toString())
-                    return next
-                },
-                {
-                    replace: true,
-                    preventScrollReset: true
-                }
-            )
+            const next = new URLSearchParams(searchParams)
+            if (page <= 1) next.delete("page")
+            else next.set("page", page.toString())
+            const qs = next.toString()
+            return qs ? `/?${qs}` : "/"
         },
-        [setSearchParams]
+        [searchParams]
     )
 
     const updateFilter = useCallback((key: string, value: string, defaultValue: string) => {
@@ -374,7 +367,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                                     <Pagination
                                         currentPage={safeCurrentPage}
                                         totalPages={totalPages}
-                                        onPageChange={handlePageChange}
+                                        buildPageHref={buildPageHref}
                                         className="mt-12 mb-8"
                                     />
                                 )}

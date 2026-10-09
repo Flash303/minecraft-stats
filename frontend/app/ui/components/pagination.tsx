@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Link } from "react-router"
 import { Button } from "@/ui/components/button"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { cn } from "@/core/lib/utils"
@@ -6,7 +7,8 @@ import { cn } from "@/core/lib/utils"
 export interface PaginationProps {
     currentPage: number
     totalPages: number
-    onPageChange: (page: number) => void
+    onPageChange?: (page: number) => void
+    buildPageHref?: (page: number) => string
     className?: string
     showPageText?: boolean
 }
@@ -15,6 +17,7 @@ export function Pagination({
     currentPage,
     totalPages,
     onPageChange,
+    buildPageHref,
     className,
     showPageText = true
 }: PaginationProps) {
@@ -31,19 +34,55 @@ export function Pagination({
         total: totalPages.toString()
     })
 
-    return (
-        <div className={cn("flex items-center justify-center gap-3 sm:gap-4 mt-8 mb-4", className)}>
+    const buttonClassName =
+        "rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-border/80 shadow-xs cursor-pointer disabled:cursor-not-allowed"
+
+    const renderNavButton = (
+        page: number,
+        disabled: boolean,
+        ariaLabel: string,
+        content: React.ReactNode
+    ) => {
+        if (!disabled && buildPageHref) {
+            return (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    aria-label={ariaLabel}
+                    className={buttonClassName}
+                >
+                    <Link to={buildPageHref(page)} replace preventScrollReset>
+                        {content}
+                    </Link>
+                </Button>
+            )
+        }
+        return (
             <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onPageChange(safeCurrentPage - 1)}
-                disabled={safeCurrentPage <= 1}
-                aria-label={prevText}
-                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-border/80 shadow-xs cursor-pointer disabled:cursor-not-allowed"
+                onClick={() => onPageChange?.(page)}
+                disabled={disabled}
+                aria-label={ariaLabel}
+                className={buttonClassName}
             >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">{prevText}</span>
+                {content}
             </Button>
+        )
+    }
+
+    return (
+        <div className={cn("flex items-center justify-center gap-3 sm:gap-4 mt-8 mb-4", className)}>
+            {renderNavButton(
+                safeCurrentPage - 1,
+                safeCurrentPage <= 1,
+                prevText,
+                <>
+                    <ChevronLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">{prevText}</span>
+                </>
+            )}
 
             {showPageText && (
                 <div className="text-sm font-medium text-muted-foreground px-1 select-none">
@@ -51,17 +90,15 @@ export function Pagination({
                 </div>
             )}
 
-            <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange(safeCurrentPage + 1)}
-                disabled={safeCurrentPage >= totalPages}
-                aria-label={nextText}
-                className="rounded-xl h-10 px-3 sm:px-4 flex items-center gap-2 border-border/80 shadow-xs cursor-pointer disabled:cursor-not-allowed"
-            >
-                <span className="hidden sm:inline">{nextText}</span>
-                <ChevronRight className="w-4 h-4" />
-            </Button>
+            {renderNavButton(
+                safeCurrentPage + 1,
+                safeCurrentPage >= totalPages,
+                nextText,
+                <>
+                    <span className="hidden sm:inline">{nextText}</span>
+                    <ChevronRight className="w-4 h-4" />
+                </>
+            )}
         </div>
     )
 }
