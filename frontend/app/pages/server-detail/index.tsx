@@ -11,7 +11,7 @@ const PlayerChart = lazy(() =>
     }))
 )
 import { ServerDetailHeader } from "@/pages/server-detail/components/ServerDetailHeader"
-import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeIntervalSelector"
+import { TimeIntervalSelector } from "@/ui/components/TimeIntervalSelector"
 import { StatsSection } from "@/pages/server-detail/components/StatsSection"
 import { AlertsSection } from "@/pages/server-detail/components/AlertsSection"
 import { Button } from "@/ui/components/button"

@@ -4,7 +4,7 @@ const MultiServerChart = lazy(() => import("./MultiServerChart").then(m => ({ de
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { SearchBar } from "@/ui/layout/SearchBar"
 import { ChartLoadingOverlay, ChartLoadingSpinner } from "@/ui/components/ChartLoadingOverlay"
-import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeIntervalSelector"
+import { TimeIntervalSelector } from "@/ui/components/TimeIntervalSelector"
 import { SelectedServersTags } from "@/pages/compare/components/SelectedServersTags"
 import { useCompareRecords } from "@/pages/compare/hooks/useCompareRecords"
 import type { MetaFunction } from "react-router"
