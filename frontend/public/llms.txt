@@ -1,24 +1,35 @@
-# Minecraft-Stats
+# Minecraft Stats
 
-**URL**: https://mc-stats.fr
-**Description**: Minecraft-Stats is an advanced analytics and tracking platform designed for Minecraft servers (Java and Bedrock editions).
+> Minecraft Stats (mc-stats.fr) tracks connected players, uptime and versions for Minecraft Java and Bedrock servers, with history charts, server comparison, and downtime / player-threshold alerts.
 
-## Core Features
-- **Server Analytics**: We collect massive amounts of data about servers, offering historical player count tracking, uptime monitoring, and advanced data visualizations (charts, sparklines).
-- **Alert System**: Web push notifications for server administrators when their server goes offline (downtime) or crosses specific player thresholds (spikes).
-- **Server Comparison**: Compare multiple servers simultaneously to analyze trends, popularity, and market share.
-- **Real-time Data**: Frequent data collection to provide up-to-date metrics on connected players, versions, and server status.
+Minecraft Stats is a free analytics platform at https://mc-stats.fr for Minecraft server administrators and players. Each tracked server is pinged approximately every 8 seconds for Java and Bedrock editions, recording online status, player count, max capacity, version, MOTD, favicon and player samples.
+Use the links below to find content: Start lists all servers and the comparison tool, Data describes the public REST API, Project links the open-source code, Legal links terms and privacy. Server detail pages follow the pattern https://mc-stats.fr/server/{id} and are all listed in the sitemap. The interface is available in 12 languages (fr, en, es, it, de, pt, ru, pl, zh-CN, ja, ko, nl). Account pages (/account, /admin, /dashboard) require authentication and are disallowed in robots.txt.
 
-## Target Audience
-- **Server Administrators**: To monitor their server's performance, track player retention, receive downtime alerts, and understand their community growth.
-- **Players**: To discover the most popular and active Java and Bedrock servers at any given time, and see which ones perform the best.
+## Start
 
-## Data Points Collected
-- Online/Offline status (Uptime)
-- Current player count
-- Maximum player capacity
-- Server MOTD (Message of the Day)
-- Server Favicon/Logo
-- Minecraft Version (e.g., 1.21)
-- Platform Type (Java or Bedrock)
-- Player sample lists
+- [Server list](https://mc-stats.fr/): searchable list of tracked Minecraft servers with filters by status, platform and launcher, and per-server history charts.
+- [Compare servers](https://mc-stats.fr/compare): side-by-side comparison of player counts and trends for multiple Java and Bedrock servers.
+- [Sitemap](https://mc-stats.fr/sitemap.xml): complete list of indexed pages including every server page at /server/{id}.
+
+## Data
+
+- [List servers (API)](https://mc-stats.fr/api/servers): public JSON list of servers; add `?include_stats=true` for last ping and `?include_owners=true` for owner info.
+- [Server detail (API)](https://mc-stats.fr/api/servers/1): public JSON for one server at `/api/servers/{id}` with status, version, MOTD, favicon and client info.
+- [Server history (API)](https://mc-stats.fr/api/records/1?from=0): binary player-count history at `/api/records/{id}?from={unix_ts}&to={unix_ts}&json=true` for JSON output.
+- [Server icon (API)](https://mc-stats.fr/api/servers/1/icon): PNG or WebP favicon for one server at `/api/servers/{id}/icon`.
+
+## Project
+
+- [GitHub repository](https://github.com/Flash303/minecraft-stats): open-source code under GPL-3.0; React 19 + TypeScript + Vite + Tailwind frontend, Rust + Axum + PostgreSQL backend.
+- [minecraft-pinger library](https://github.com/Flash303/minecraft-pinger): Rust crate used by the worker to ping Minecraft Java and Bedrock servers.
+
+## Legal
+
+- [Terms of service](https://mc-stats.fr/terms): terms of use of the mc-stats.fr platform.
+- [Privacy policy](https://mc-stats.fr/privacy): how user and server data are collected and processed.
+- [Legal notice](https://mc-stats.fr/legal): publisher, hosting and contact information for mc-stats.fr.
+
+## Optional
+
+- [Robots](https://mc-stats.fr/robots.txt): crawl rules; /account, /admin and /dashboard are disallowed.
+- [Open Graph image](https://mc-stats.fr/opengraph.webp): default 1200x630 social preview image of Minecraft Stats.

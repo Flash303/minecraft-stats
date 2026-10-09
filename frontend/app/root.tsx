@@ -112,6 +112,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <link rel="icon" type="image/webp" href="/logo.webp" />
+        <link rel="describedby" href="/llms.txt" type="text/plain" />
         {/* Plus Jakarta Sans est auto-hébergée (voir index.css) -> plus de stylesheet
             render-blocking Google Fonts ni de requêtes hors-domaine. */}
         <link rel="preload" href="/fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />

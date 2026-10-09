@@ -40,6 +40,13 @@ export default async function handleRequest(
   }
 
   responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+  const existingLink = responseHeaders.get("Link");
+  const llmsLink = '</llms.txt>; rel="describedby"';
+  if (!existingLink) {
+    responseHeaders.set("Link", llmsLink);
+  } else if (!existingLink.includes("llms.txt")) {
+    responseHeaders.set("Link", `${existingLink}, ${llmsLink}`);
+  }
   applySecurityHeaders(responseHeaders);
 
   return new Response(body, {
