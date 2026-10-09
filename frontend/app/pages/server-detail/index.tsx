@@ -2,7 +2,7 @@ import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
-import { translate } from "@/core/lib/i18n"
+import { translate, type Language } from "@/core/lib/i18n"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -86,7 +86,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     // Langue résolue par le loader root (cookie ou Accept-Language)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rootData: any = args.matches?.find((m: any) => m.id === "root")?.data
-    const lang: "fr" | "en" = rootData?.serverLanguage ?? "fr"
+    const lang: Language = rootData?.serverLanguage ?? "fr"
     const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
 
     if (!data || !data.initialServer) {

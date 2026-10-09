@@ -24,7 +24,7 @@ import { BedrockLogoSprite } from "./ui/components/BedrockLogo";
 import { LabyLogoSprite } from "./ui/components/LabyLogo";
 import { APP_URL } from "./core/lib/config";
 import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
-import { translate } from "./core/lib/i18n";
+import { translate, type Language } from "./core/lib/i18n";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -61,7 +61,7 @@ export function shouldRevalidate() {
   return false;
 }
 
-export function meta({ data }: { data?: { serverLanguage?: "fr" | "en" } }) {
+export function meta({ data }: { data?: { serverLanguage?: Language } }) {
   const lang = data?.serverLanguage ?? "fr"
   const L = (path: string) => translate(lang, path)
 
