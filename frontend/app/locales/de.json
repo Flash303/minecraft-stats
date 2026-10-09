@@ -172,6 +172,19 @@
     "loadingData": "Vergleichsdaten werden geladen...",
     "resetZoom": "Zoom zurücksetzen"
   },
+  "faq": {
+    "title": "Häufige Fragen",
+    "q1": "Welcher Minecraft-Server ist derzeit am beliebtesten?",
+    "a1": "Die Rangliste auf dieser Seite sortiert Server nach Echtzeit-Spielerzahlen: Der erste ist aktuell der beliebteste. Nutze die Java- und Bedrock-Filter oder die Vergleichsseite, um Trends zu verfolgen.",
+    "q2": "Wie oft werden die Statistiken aktualisiert?",
+    "a2": "Jeder Server wird etwa alle 8 Sekunden abgefragt, sowohl Java- als auch Bedrock-Editionen. Die Diagramme zeigen die Historie von Spielerzahlen, Online-Status und Versionen.",
+    "q3": "Wie füge ich meinen Minecraft-Server hinzu?",
+    "a3": "Erstelle ein kostenloses Konto, öffne den Server-Tab deines Kontos und füge IP-Adresse und Port hinzu. Der Server wird automatisch überprüft und dann fortlaufend verfolgt.",
+    "q4": "Wie funktionieren Warnungen?",
+    "a4": "Richte auf einer Serverseite eine Warnung ein: Offline-Status, erneute Erreichbarkeit oder Spielerschwellen. Du erhältst eine Benachrichtigung, sobald die Bedingung eintritt.",
+    "q5": "Ist Minecraft Stats kostenlos?",
+    "a5": "Ja. Server-Tracking, Diagramme, Vergleich und Warnungen sind kostenlos. Ein Konto genügt, um einen Server hinzuzufügen oder Warnungen zu erhalten."
+  },
   "admin": {
     "title": "Admin-Konsole",
     "unauthorized": "Zugriff verweigert",

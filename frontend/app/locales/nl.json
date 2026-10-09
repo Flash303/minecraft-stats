@@ -172,6 +172,19 @@
     "loadingData": "Vergelijkende gegevens laden...",
     "resetZoom": "Zoom resetten"
   },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "q1": "Welke Minecraft-server is momenteel het populairst?",
+    "a1": "De ranglijst op deze pagina sorteert servers op realtime verbonden spelers: de eerste is momenteel het populairst. Gebruik de Java- en Bedrock-filters, of de vergelijkingspagina, om trends te volgen.",
+    "q2": "Hoe vaak worden de statistieken bijgewerkt?",
+    "a2": "Elke server wordt ongeveer elke 8 seconden opgevraagd, zowel Java- als Bedrock-edities. De grafieken tonen de geschiedenis van spelersaantallen, online-status en versies.",
+    "q3": "Hoe voeg ik mijn Minecraft-server toe?",
+    "a3": "Maak een gratis account aan, open het tabblad Servers van je account en voeg het IP-adres en de poort toe. De server wordt automatisch geverifieerd en daarna continu gevolgd.",
+    "q4": "Hoe werken waarschuwingen?",
+    "a4": "Stel op een serverpagina een waarschuwing in: offline gaan, weer online komen of spelersdrempels. Je ontvangt een melding zodra aan de voorwaarde is voldaan.",
+    "q5": "Is Minecraft Stats gratis?",
+    "a5": "Ja. Servertracking, grafieken, vergelijking en waarschuwingen zijn gratis. Een account is voldoende om een server toe te voegen of waarschuwingen te ontvangen."
+  },
   "admin": {
     "title": "Beheerdersconsole",
     "unauthorized": "Toegang geweigerd",

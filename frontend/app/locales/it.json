@@ -172,6 +172,19 @@
     "loadingData": "Caricamento dati comparativi...",
     "resetZoom": "Reimposta zoom"
   },
+  "faq": {
+    "title": "Domande frequenti",
+    "q1": "Qual è il server Minecraft più popolare?",
+    "a1": "La classifica di questa pagina ordina i server per giocatori connessi in tempo reale: il primo è il più popolare del momento. Usa i filtri Java e Bedrock, o la pagina di confronto, per seguire le tendenze.",
+    "q2": "Ogni quanto vengono aggiornate le statistiche?",
+    "a2": "Ogni server viene interrogato circa ogni 8 secondi, sia nelle edizioni Java che Bedrock. I grafici mostrano la cronologia di giocatori, stato online e versioni.",
+    "q3": "Come aggiungo il mio server Minecraft?",
+    "a3": "Crea un account gratuito, apri la scheda Server del tuo account e aggiungi indirizzo IP e porta. Il server viene verificato automaticamente e poi monitorato in modo continuo.",
+    "q4": "Come funzionano gli avvisi?",
+    "a4": "Nella pagina di un server, configura un avviso: server offline, ritorno online o soglie di giocatori. Riceverai una notifica appena la condizione si verifica.",
+    "q5": "Minecraft Stats è gratuito?",
+    "a5": "Sì. Monitoraggio dei server, grafici, confronto e avvisi sono gratuiti. Basta un account per aggiungere un server o ricevere avvisi."
+  },
   "admin": {
     "title": "Console di Amministrazione",
     "unauthorized": "Accesso negato",

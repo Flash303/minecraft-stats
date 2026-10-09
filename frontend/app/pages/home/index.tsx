@@ -17,6 +17,7 @@ import { useSearch } from "@/core/contexts/SearchContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 
 import { Hero3D } from "@/pages/home/components/Hero3D"
+import { FaqSection } from "@/pages/home/components/FaqSection"
 import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
@@ -396,6 +397,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     </>
                 )}
             </div>
+            <FaqSection />
         </>
     )
 }
