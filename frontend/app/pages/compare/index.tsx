@@ -12,6 +12,16 @@ import { SearchBar } from "@/ui/layout/SearchBar"
 import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeIntervalSelector"
 import { SelectedServersTags } from "@/pages/compare/components/SelectedServersTags"
 import type { DateRange } from "react-day-picker"
+import type { MetaFunction } from "react-router"
+import { translate } from "@/core/lib/i18n"
+import { resolveMetaLanguage, siteTitle, staticPageMeta } from "@/core/lib/seo-meta"
+
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
+    const title = siteTitle(lang, "comparison.title")
+    const description = translate(lang, "comparison.noSelectionDesc")
+    return staticPageMeta({ title, description, path: "/compare" })
+}
 
 export default function ServerComparison() {
     const { t } = useLanguage()

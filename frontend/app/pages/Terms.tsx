@@ -1,6 +1,18 @@
 
+import type { MetaFunction } from "react-router"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { legalReplacements } from "@/core/lib/legal-info"
+import { translate } from "@/core/lib/i18n"
+import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription } from "@/core/lib/seo-meta"
+
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
+    return staticPageMeta({
+        title: siteTitle(lang, "legal.terms.title"),
+        description: truncateDescription(translate(lang, "legal.terms.p1")),
+        path: "/terms",
+    })
+}
 
 const SECTIONS = [1, 2, 3, 4, 5, 6, 7] as const
 
