@@ -5,6 +5,7 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { fetchRecords } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { prepareMultiChartData, getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
+import { DEFAULT_INTERVAL_MS, DEFAULT_RANGE_MS, MINUTE_MS } from "@/core/lib/time"
 import type { DateRange } from "react-day-picker"
 import type uPlot from "uplot"
 
@@ -46,8 +47,8 @@ export function useCompareRecords(): UseCompareRecordsResult {
     const timeRanges = useMemo(() => getTimeRanges(t), [t])
     const intervals = useMemo(() => getIntervals(t), [t])
 
-    const [selectedRange, setSelectedRange] = useState(86400000)
-    const [selectedInterval, setSelectedInterval] = useState(60000)
+    const [selectedRange, setSelectedRange] = useState(DEFAULT_RANGE_MS)
+    const [selectedInterval, setSelectedInterval] = useState(DEFAULT_INTERVAL_MS)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
 
     const requestedWindow = useMemo((): CompareTimeRange => {
@@ -65,7 +66,7 @@ export function useCompareRecords(): UseCompareRecordsResult {
     const from = requestedWindow.from
     const rangeReady = selectedRange !== -1 || (!!customRange?.from && !!customRange?.to)
     const rangeKey = selectedRange === -1
-        ? `${Math.floor((customRange?.from?.getTime() ?? 0) / 60000)}-${Math.floor((customRange?.to?.getTime() ?? 0) / 60000)}`
+        ? `${Math.floor((customRange?.from?.getTime() ?? 0) / MINUTE_MS)}-${Math.floor((customRange?.to?.getTime() ?? 0) / MINUTE_MS)}`
         : String(selectedRange)
 
     // One query per server: adding a server only fetches that one, and the

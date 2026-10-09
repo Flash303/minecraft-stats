@@ -3,6 +3,7 @@ import { useParams } from "react-router"
 import { useAuth } from "@clerk/react"
 import { fetchRecords, fetchServer } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
+import { DEFAULT_INTERVAL_MS, DEFAULT_RANGE_MS } from "@/core/lib/time"
 
 
 export type DateRange = {
@@ -31,10 +32,10 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         refreshCount?: number
     }>({ refreshCount: 0 })
 
-    const [selectedRange, setSelectedRange] = useState(86400000)
-    const [selectedInterval, setSelectedInterval] = useState(60000)
-    const [appliedRange, setAppliedRange] = useState(86400000)
-    const [appliedInterval, setAppliedInterval] = useState(60000)
+    const [selectedRange, setSelectedRange] = useState(DEFAULT_RANGE_MS)
+    const [selectedInterval, setSelectedInterval] = useState(DEFAULT_INTERVAL_MS)
+    const [appliedRange, setAppliedRange] = useState(DEFAULT_RANGE_MS)
+    const [appliedInterval, setAppliedInterval] = useState(DEFAULT_INTERVAL_MS)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
     const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
     
