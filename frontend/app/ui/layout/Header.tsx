@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Languages, Search as SearchIcon, ArrowLeft, Menu, X } from "lucide-react"
+import { Languages, Search as SearchIcon, ArrowLeft, Menu } from "lucide-react"
 import logo from "@/assets/logo.webp"
 import { ThemeToggle } from "./ThemeToggle"
 import { Button } from "@/ui/components/button"
@@ -9,6 +9,7 @@ import { AddServerModal } from "./AddServerModal"
 import { SearchBar } from "./SearchBar"
 import { useSearch } from "@/core/contexts/SearchContext"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import type { Language } from "@/core/lib/i18n"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import {
     Select,
@@ -152,7 +153,7 @@ export function Header({ leftContent }: HeaderProps) {
 
                     {/* Desktop Language Switcher */}
                     <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
-                        <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
+                        <Select value={language} onValueChange={(v: string) => setLanguage(v as Language)}>
                             <SelectTrigger aria-label="Select language" className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
                                 <Languages aria-hidden="true" className="h-4 w-4" />
                             </SelectTrigger>
@@ -254,7 +255,7 @@ export function Header({ leftContent }: HeaderProps) {
                                     <Languages aria-hidden="true" className="h-4 w-4" />
                                     Language
                                 </span>
-                                <Select value={language} onValueChange={(v: any) => setLanguage(v)}>
+                                <Select value={language} onValueChange={(v: string) => setLanguage(v as Language)}>
                                     <SelectTrigger aria-label="Select language" className="h-8 w-auto px-2 border-none bg-transparent hover:bg-muted justify-center cursor-pointer text-xs font-semibold">
                                         <div className="flex items-center gap-2">
                                             <span>
