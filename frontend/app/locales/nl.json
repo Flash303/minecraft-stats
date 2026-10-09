@@ -141,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 uur",
+    "offlineMotdNotice": "Deze server is momenteel offline, de laatst opgeslagen status wordt weergegeven",
     "sidebar": {
       "socials": "Sociale netwerken",
       "labyEmpty": "Deze server is geregistreerd op LabyMod maar heeft zijn informatie nog niet ingevuld.",

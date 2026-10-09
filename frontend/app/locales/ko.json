@@ -141,6 +141,7 @@
     "interval5m": "5분",
     "interval30m": "30분",
     "interval1h": "1시간",
+    "offlineMotdNotice": "이 서버는 현재 오프라인 상태이므로 마지막으로 저장된 상태를 표시합니다",
     "sidebar": {
       "socials": "소셜 네트워크",
       "labyEmpty": "이 서버는 LabyMod에 등록되어 있지만 아직 정보가 입력되지 않았습니다.",

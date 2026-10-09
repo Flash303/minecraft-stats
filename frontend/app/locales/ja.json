@@ -141,6 +141,7 @@
     "interval5m": "5分",
     "interval30m": "30分",
     "interval1h": "1時間",
+    "offlineMotdNotice": "このサーバーは現在オフラインのため、最後に保存されたステータスを表示しています",
     "sidebar": {
       "socials": "ソーシャルネットワーク",
       "labyEmpty": "このサーバーはLabyModに登録されていますが、情報はまだ入力されていません。",

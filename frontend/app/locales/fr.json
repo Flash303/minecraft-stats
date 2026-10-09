@@ -141,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 heure",
+    "offlineMotdNotice": "Le serveur est actuellement hors ligne, il s'agit du dernier statut enregistré",
     "sidebar": {
       "socials": "Réseaux Sociaux",
       "labyEmpty": "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations.",

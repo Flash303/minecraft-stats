@@ -141,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 hora",
+    "offlineMotdNotice": "Este servidor está fuera de línea, se muestra el último estado registrado",
     "sidebar": {
       "socials": "Redes sociales",
       "labyEmpty": "Este servidor está registrado en LabyMod pero aún no ha completado su información.",

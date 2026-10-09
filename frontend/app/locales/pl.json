@@ -141,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 godzina",
+    "offlineMotdNotice": "Ten serwer jest obecnie offline, wyświetlono ostatni zapisany status",
     "sidebar": {
       "socials": "Media społecznościowe",
       "labyEmpty": "Ten serwer jest zarejestrowany w LabyMod, ale nie uzupełnił jeszcze swoich informacji.",

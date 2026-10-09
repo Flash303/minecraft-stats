@@ -141,6 +141,7 @@
     "interval5m": "5 分钟",
     "interval30m": "30 分钟",
     "interval1h": "1 小时",
+    "offlineMotdNotice": "该服务器当前离线，显示的是最后保存的状态",
     "sidebar": {
       "socials": "社交网络",
       "labyEmpty": "该服务器已在 LabyMod 上注册，但尚未填写信息。",

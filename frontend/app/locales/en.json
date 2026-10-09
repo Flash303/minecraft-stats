@@ -141,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 hour",
+    "offlineMotdNotice": "This server is currently offline, showing the last saved status",
     "sidebar": {
       "socials": "Social Networks",
       "labyEmpty": "This server is registered on LabyMod but hasn't filled in its information yet.",

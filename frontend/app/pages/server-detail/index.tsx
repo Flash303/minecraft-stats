@@ -14,7 +14,7 @@ import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeInter
 import { StatsSection } from "@/pages/server-detail/components/StatsSection"
 import { AlertsSection } from "@/pages/server-detail/components/AlertsSection"
 import { Button } from "@/ui/components/button"
-import { BarChart } from "lucide-react"
+import { BarChart, WifiOff } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
@@ -264,7 +264,13 @@ export default function ServerDetail() {
                 </div>
 
                 <div className="flex w-full flex-col gap-8">
-                    <div className="mt-[-1rem] hidden w-full justify-center md:flex">
+                    <div className="mt-[-1rem] hidden w-full flex-col items-center gap-2 md:flex">
+                        {server.last_status === "offline" && (
+                            <div className="flex items-center gap-1.5 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-1.5 text-xs italic text-muted-foreground">
+                                <WifiOff className="h-3.5 w-3.5 shrink-0 text-destructive" />
+                                <span>{t("serverDetail.offlineMotdNotice")}</span>
+                            </div>
+                        )}
                         <div className="w-fit overflow-hidden rounded-md shadow-xl">
                             <MinecraftMotd
                                 motd={server.last_motd}
