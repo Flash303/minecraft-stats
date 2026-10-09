@@ -20,13 +20,20 @@ import { Hero3D } from "@/pages/home/components/Hero3D"
 import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
-import { APP_URL } from "@/core/lib/config"
+import { translate } from "@/core/lib/i18n"
+import { resolveMetaLanguage, staticPageMeta } from "@/core/lib/seo-meta"
 
 // La home est la seule page avec des variantes filtrées/paginées (?tab=&page=...) :
 // le canonical pointe toujours vers l'URL clean pour consolider l'indexation.
-export const meta: MetaFunction = () => [
-    { tagName: "link", rel: "canonical", href: `${APP_URL}/` }
-]
+// Jeu de tags complet : le meta() feuille remplace celui du root.
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
+    return staticPageMeta({
+        title: translate(lang, "seo.homeTitle"),
+        description: translate(lang, "seo.homeDescription"),
+        path: "/",
+    })
+}
 
 // Réduit chaque serveur à ce dont la home a réellement besoin avant sérialisation
 // dans le HTML SSR (~90% du payload brut est inutilisé : client_infos complets, motd...).

@@ -113,8 +113,11 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { title },
         { name: "description", content: description },
         { tagName: "link", rel: "canonical", href: `${APP_URL}/server/${server.id}` },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "Minecraft-Stats" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:url", content: `${APP_URL}/server/${server.id}` },
         {
             property: "og:image",
             content: getServerIconUrl(server.id)

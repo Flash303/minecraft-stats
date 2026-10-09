@@ -32,7 +32,9 @@ export function canonicalLink(path: string) {
     return { tagName: "link", rel: "canonical", href: `${APP_URL}${path}` } as const;
 }
 
-/** Balises title/description + Open Graph + Twitter pour une page statique. */
+/** Balises title/description + Open Graph + Twitter pour une page statique.
+ * Jeu complet et autosuffisant : le meta() de la route feuille remplace celui
+ * du root, donc chaque page doit déclarer tous ses tags elle-même. */
 export function staticPageMeta(opts: { title: string; description: string; path: string }) {
     const url = `${APP_URL}${opts.path}`;
     const image = `${APP_URL}/opengraph.webp`;
@@ -40,10 +42,14 @@ export function staticPageMeta(opts: { title: string; description: string; path:
         { title: opts.title },
         { name: "description", content: opts.description },
         canonicalLink(opts.path),
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "Minecraft-Stats" },
         { property: "og:title", content: opts.title },
         { property: "og:description", content: opts.description },
         { property: "og:url", content: url },
         { property: "og:image", content: image },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         { property: "twitter:card", content: "summary_large_image" },
         { property: "twitter:title", content: opts.title },
         { property: "twitter:description", content: opts.description },
