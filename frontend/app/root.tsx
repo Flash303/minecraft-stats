@@ -112,6 +112,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <link rel="icon" type="image/webp" href="/logo.webp" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f5" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b" />
         <link rel="describedby" href="/llms.txt" type="text/plain" />
         {/* Plus Jakarta Sans est auto-hébergée (voir index.css) -> plus de stylesheet
             render-blocking Google Fonts ni de requêtes hors-domaine. */}
