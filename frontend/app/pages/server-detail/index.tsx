@@ -1,4 +1,4 @@
-import { useEffect, useMemo, lazy, Suspense } from "react"
+import { useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
@@ -148,34 +148,33 @@ export default function ServerDetail() {
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
 
-
-    useEffect(() => {
-        if (!server) return
-        const script = document.createElement("script")
-        script.type = "application/ld+json"
-        script.id = "schema-server-detail"
-
-        const schema = {
+    // Données structurées rendues dans le JSX (donc présentes dans le HTML SSR),
+    // à partir des données du loader pour que SSR et client soient identiques.
+    // Remplace l'ancienne injection via useEffect, invisible aux crawlers sans JS.
+    const schemaData = useMemo(() => {
+        if (!initialServer) return null
+        const url = `${APP_URL}/server/${initialServer.id}`
+        return {
             "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: server.name,
-            applicationCategory: "GameApplication",
-            operatingSystem: server.type === "java" ? "Java" : "Bedrock",
-            url: window.location.href,
-            image: getServerIconUrl(server.id)
+            "@graph": [
+                {
+                    "@type": "SoftwareApplication",
+                    name: initialServer.name,
+                    applicationCategory: "GameApplication",
+                    operatingSystem: initialServer.type === "java" ? "Java" : "Bedrock",
+                    url,
+                    image: getServerIconUrl(initialServer.id)
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: t("footer.home"), item: APP_URL },
+                        { "@type": "ListItem", position: 2, name: initialServer.name, item: url }
+                    ]
+                }
+            ]
         }
-
-        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
-        script.textContent = JSON.stringify(schema).replace(/</g, "\\u003c")
-        document.head.appendChild(script)
-
-        return () => {
-            const existingScript = document.getElementById(
-                "schema-server-detail"
-            )
-            if (existingScript) existingScript.remove()
-        }
-    }, [server])
+    }, [initialServer, t])
 
     const stats = useMemo(() => {
         if (records.length === 0) return null
@@ -243,6 +242,15 @@ export default function ServerDetail() {
 
     return (
         <>
+            {schemaData && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+                        __html: JSON.stringify(schemaData).replace(/</g, "\\u003c")
+                    }}
+                />
+            )}
             {labyBackground && (
                 <div 
                     className="absolute inset-x-0 top-0 h-[50vh] pointer-events-none opacity-30 dark:opacity-20 z-0"

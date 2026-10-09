@@ -125,15 +125,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": "Minecraft-Stats",
-              "url": APP_URL,
-              "description": "Advanced Minecraft server analytics and player tracking.",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": `${APP_URL}/?search={search_term_string}`,
-                "query-input": "required name=search_term_string"
-              }
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": `${APP_URL}/#website`,
+                  "name": "Minecraft-Stats",
+                  "url": APP_URL,
+                  "description": translate(lang, "seo.homeDescription"),
+                  "publisher": { "@id": `${APP_URL}/#organization` },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": `${APP_URL}/?search={search_term_string}`,
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "Organization",
+                  "@id": `${APP_URL}/#organization`,
+                  "name": "Minecraft-Stats",
+                  "url": APP_URL,
+                  "logo": `${APP_URL}/logo.webp`
+                }
+              ]
             })
           }}
         />
