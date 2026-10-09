@@ -24,8 +24,7 @@ export type MotdComponent =
       }
 
 export interface MinecraftMotdProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    motd: MotdComponent | MotdComponent[] | any
+    motd: MotdInputNode
     className?: string
     serverName?: string
     currentPlayers?: number | string
@@ -34,4 +33,37 @@ export interface MinecraftMotdProps {
     pingTime?: number | null
     lastSample?: string | null
     backgroundUrl?: string | null
+}
+
+/** Arbitrary server-provided MOTD JSON (recursive text/extra/description nodes). */
+export type MotdInputNode = string | MotdInputObject | MotdInputNode[]
+
+export interface MotdInputObject {
+    text?: string | MotdInputNode
+    extra?: MotdInputNode[]
+    description?: MotdInputNode
+    color?: string
+    font?: string
+    shadow_color?: unknown
+    bold?: boolean
+    italic?: boolean
+    underlined?: boolean
+    strikethrough?: boolean
+    obfuscated?: boolean
+    sprite?: string
+    atlas?: string
+    hat?: boolean
+    player?: string | { name?: string; properties?: Array<{ name: string; value?: string }> }
+}
+
+/** Formatting inherited from ancestor nodes while flattening. */
+export interface MotdInheritedStyle {
+    color?: string
+    font?: string
+    shadow_color?: unknown
+    bold?: boolean
+    italic?: boolean
+    underlined?: boolean
+    strikethrough?: boolean
+    obfuscated?: boolean
 }

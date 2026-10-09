@@ -1,6 +1,6 @@
 import React from "react";
 
-export function PlayerHead({ base64, playerName, hat, shadow }: { base64?: string, playerName?: string, hat: boolean, shadow?: string | null }) {
+export function PlayerHead({ base64, playerName, hat }: { base64?: string, playerName?: string, hat: boolean }) {
     let url = "";
     if (playerName) {
         url = `https://minotar.net/skin/${playerName}`;
@@ -9,7 +9,7 @@ export function PlayerHead({ base64, playerName, hat, shadow }: { base64?: strin
             const decoded = atob(base64);
             const parsed = JSON.parse(decoded);
             url = parsed.textures.SKIN.url;
-        } catch (e) {
+        } catch {
             return null;
         }
     }
