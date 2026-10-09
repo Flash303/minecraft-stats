@@ -15,6 +15,7 @@ import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeInter
 import { StatsSection } from "@/pages/server-detail/components/StatsSection"
 import { AlertsSection } from "@/pages/server-detail/components/AlertsSection"
 import { Button } from "@/ui/components/button"
+import { ChartLoadingOverlay, ChartLoadingSpinner } from "@/ui/components/ChartLoadingOverlay"
 import { BarChart, WifiOff } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
@@ -321,20 +322,15 @@ export default function ServerDetail() {
                                 isLoading={loadingRecords || isPending}
                                 overlay={
                                     (loadingRecords || isPending) && (
-                                        <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
+                                        <ChartLoadingOverlay>
                                             {isCustomRangeIncomplete ? (
                                                 <p className="text-muted-foreground text-sm font-medium">
                                                     {t("serverDetail.selectCustomRange")}
                                                 </p>
                                             ) : (
-                                                <>
-                                                    <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
-                                                    <p className="text-muted-foreground animate-pulse text-sm font-medium">
-                                                        {t("serverDetail.chartLoading")}
-                                                    </p>
-                                                </>
+                                                <ChartLoadingSpinner label={t("serverDetail.chartLoading")} />
                                             )}
-                                        </div>
+                                        </ChartLoadingOverlay>
                                     )
                                 }
                                 data={records}

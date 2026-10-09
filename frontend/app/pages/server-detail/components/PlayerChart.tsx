@@ -17,7 +17,7 @@ import {
     makeXScaleRange,
     sizeChartToContainer,
     useEnsureOneSeriesVisiblePlugin,
-} from "@/core/hooks/useChartPlugins"
+} from "@/core/hooks/charts"
 import { cn } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
@@ -43,22 +43,19 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    // Ajustement de la taille responsive
     useChartResize(chartRef, containerRef, [data])
 
     const timeRangeRef = useRef(timeRange)
     timeRangeRef.current = timeRange
 
-    // Transformation des données : Tri + Injection de NULL pour casser les lignes
     const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
 
-    // Configuration du Plugin Tooltip
     const tooltipPlugin = useTooltipPlugin({
         language,
         t,
         tooltipWidth: 180,
         deps: [],
-        renderRowsHtml: (u, idx, locale) => {
+        renderRowsHtml: (u, idx) => {
             const yVal = u.data[1][idx]
             if (yVal == null) return ""
 
@@ -80,7 +77,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
 
     const touchInteractPlugin = useTouchInteractPlugin()
 
-    // Zoom : plugin de suivi, reset et effets partagés avec MultiServerChart
     const { isZoomed, scaleHookPlugin, resetZoom: handleResetZoom } = useChartZoomControls({
         chartRef,
         timeRange,
@@ -90,7 +86,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     })
 
     const hasData = data.length > 0
-    // Configuration globale du graphique
     const options = useMemo(() => {
         const isDark = theme === "dark"
         const strokeColor = resolveToken("--info")
@@ -233,7 +228,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                             data={chartData}
                             onCreate={(chart) => {
                                 chartRef.current = chart
-                                // Force resize to container width after creation
                                 sizeChartToContainer(chart, containerRef.current)
                             }}
                         />

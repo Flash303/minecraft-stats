@@ -6,19 +6,18 @@ import { useTheme } from "@/core/contexts/ThemeContext"
 import { Button } from "@/ui/components/button"
 import { BarChart3 } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
 import {
     useChartResize,
     useTouchInteractPlugin,
     useTooltipPlugin,
     useChartZoomControls,
-    makeXScaleRange,
     sizeChartToContainer,
     useEnsureOneSeriesVisiblePlugin,
-} from "@/core/hooks/useChartPlugins"
+} from "@/core/hooks/charts"
 import { cn, escapeHtml, formatNumber } from "@/core/lib/utils"
-import { chartPalette, resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { chartPalette } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
+import { buildMultiServerChartOptions } from "@/pages/compare/multiServerChartOptions"
 
 interface MultiServerChartProps {
     data: uPlot.AlignedData
@@ -58,7 +57,7 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
         t,
         tooltipWidth: 220,
         deps: [serverNames, seriesColors],
-        renderRowsHtml: (u, idx, locale) => {
+        renderRowsHtml: (u, idx) => {
             let rowsHtml = ""
             for (let i = 1; i < u.data.length; i++) {
                 const yVal = u.data[i][idx]
@@ -83,77 +82,19 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
     const touchInteractPlugin = useTouchInteractPlugin()
     const ensureOneSeriesVisiblePlugin = useEnsureOneSeriesVisiblePlugin()
 
-    const options = useMemo(() => {
-        const gridColor = resolveToken("--chart-grid")
-        const textColor = resolveToken("--chart-axis-text")
-        const locale = language === "fr" ? "fr-FR" : "en-US"
-
-        const series: uPlot.Series[] = [
-            {
-                label: t("common.date"),
-                value: (_u: uPlot, val: number) => {
-                    if (val == null) return ""
-                    return formatTooltipDateTime(val, language, locale, t("common.time"))
-                }
-            }
-        ]
-
-        for (let i = 0; i < serverNames.length; i++) {
-            const color = seriesColors[i % seriesColors.length]
-            series.push({
-                label: serverNames[i],
-                stroke: color,
-                fill: withAlpha(color, 0.1),
-                width: 2,
-                spanGaps: false, // Match PlayerChart - show gaps for server offline status
-                value: (_u: uPlot, val: number) => {
-                    if (val == null) return ""
-                    return formatNumber(language, Math.round(val))
-                }
-            })
-        }
-
-        return {
-            width: 800,
-            height: (typeof window !== "undefined" && window.innerWidth < 640) ? 300 : 450,
-            plugins: [tooltipPlugin, touchInteractPlugin, ensureOneSeriesVisiblePlugin, scaleHookPlugin],
-            padding: [20, 15, 10, 10],
-            cursor: {
-                y: false,
-                drag: { 
-                    x: typeof window !== "undefined" ? window.innerWidth >= 640 : true, 
-                    y: false, 
-                    setScale: typeof window !== "undefined" ? window.innerWidth >= 640 : true 
-                }
-            },
-            scales: {
-                x: {
-                    time: true,
-                    auto: false,
-                    min: timeRange.from,
-                    max: timeRange.to,
-                    range: makeXScaleRange({
-                        countNonNullValues: true,
-                        getTimeRange: () => timeRange
-                    })
-                },
-                y: { auto: true }
-            },
-            axes: [
-                {
-                    stroke: textColor,
-                    grid: { stroke: gridColor },
-                    values: (_u: uPlot, vals: number[]) => vals.map(v => formatAxisTick(v, language, locale))
-                },
-                {
-                    stroke: textColor,
-                    grid: { stroke: gridColor },
-                }
-            ],
-            series: series
-        } as uPlot.Options
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [serverNames, theme, tooltipPlugin, touchInteractPlugin, ensureOneSeriesVisiblePlugin, timeRange, language, t])
+    const options = useMemo(() => buildMultiServerChartOptions({
+        serverNames,
+        seriesColors,
+        timeRange,
+        language,
+        t,
+        plugins: {
+            tooltip: tooltipPlugin,
+            touchInteract: touchInteractPlugin,
+            legendGuard: ensureOneSeriesVisiblePlugin,
+            zoom: scaleHookPlugin,
+        },
+    }), [serverNames, seriesColors, timeRange, language, t, tooltipPlugin, touchInteractPlugin, ensureOneSeriesVisiblePlugin, scaleHookPlugin])
 
     return (
         <div className="w-full space-y-4">
@@ -164,9 +105,9 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                 </h2>
                 <div className="flex flex-col xl:flex-row items-start xl:items-center gap-4 w-full lg:w-auto justify-between lg:justify-end">
                     {isZoomed && (
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={handleResetZoom}
                             className="bg-background/95 backdrop-blur-sm"
                         >
@@ -196,7 +137,6 @@ export function MultiServerChart({ data, serverNames, timeRange, zoomResetId, on
                                 data={data}
                                 onCreate={(chart) => {
                                     chartRef.current = chart
-                                    // Force resize to container width after creation
                                     sizeChartToContainer(chart, containerRef.current)
                                 }}
                             />
