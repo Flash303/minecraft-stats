@@ -1,4 +1,5 @@
 import { Users, TrendingUp, TrendingDown } from "lucide-react"
+import { formatNumber } from "@/core/lib/utils"
 
 interface StatsSectionProps {
     stats: {
@@ -6,11 +7,11 @@ interface StatsSectionProps {
         min: number
         avg: number
     }
-    locale: string
+    language: string | null | undefined
     t: (key: string) => string
 }
 
-export function StatsSection({ stats, locale, t }: StatsSectionProps) {
+export function StatsSection({ stats, language, t }: StatsSectionProps) {
     return (
         <div className="flex flex-col gap-4">
             <h3 className="text-base font-semibold text-muted-foreground flex items-center gap-2">
@@ -21,21 +22,21 @@ export function StatsSection({ stats, locale, t }: StatsSectionProps) {
                 <div className="bg-card/50 border border-border/80 rounded-xl p-5 flex flex-col gap-1 shadow-sm backdrop-blur-sm hover:shadow-md transition-all duration-300">
                     <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("common.stats.average")}</span>
                     <div className="flex items-center justify-between mt-1">
-                        <span className="text-3xl font-extrabold text-foreground">{new Intl.NumberFormat(locale).format(stats.avg)}</span>
+                        <span className="text-3xl font-extrabold text-foreground">{formatNumber(language, stats.avg)}</span>
                         <TrendingUp className="h-5 w-5 text-primary/80 opacity-80" />
                     </div>
                 </div>
                 <div className="bg-card/50 border border-border/80 rounded-xl p-5 flex flex-col gap-1 shadow-sm backdrop-blur-sm hover:shadow-md transition-all duration-300 text-success">
                     <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("common.stats.max")}</span>
                     <div className="flex items-center justify-between mt-1">
-                        <span className="text-3xl font-extrabold">{new Intl.NumberFormat(locale).format(stats.max)}</span>
+                        <span className="text-3xl font-extrabold">{formatNumber(language, stats.max)}</span>
                         <TrendingUp className="h-5 w-5 opacity-80" />
                     </div>
                 </div>
                 <div className="bg-card/50 border border-border/80 rounded-xl p-5 flex flex-col gap-1 shadow-sm backdrop-blur-sm hover:shadow-md transition-all duration-300 text-destructive">
                     <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("common.stats.min")}</span>
                     <div className="flex items-center justify-between mt-1">
-                        <span className="text-3xl font-extrabold">{new Intl.NumberFormat(locale).format(stats.min)}</span>
+                        <span className="text-3xl font-extrabold">{formatNumber(language, stats.min)}</span>
                         <TrendingDown className="h-5 w-5 opacity-80" />
                     </div>
                 </div>

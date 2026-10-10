@@ -1,10 +1,13 @@
 use axum::extract::{Path, State};
 use axum::http::header::{CACHE_CONTROL, CONTENT_TYPE};
-use axum::response::{IntoResponse, Redirect};
+use axum::response::IntoResponse;
 use base64::Engine;
 use base64::prelude::BASE64_STANDARD;
 use crate::error::AppError;
 use crate::state::AppState;
+
+const DEFAULT_ICON: &[u8] = include_bytes!("../../../assets/default_favicon.webp");
+const DEFAULT_ICON_CACHE: &str = "public, max-age=31536000, immutable";
 
 pub(super) async fn get_server_icon(
     State(state): State<AppState>,
@@ -22,5 +25,8 @@ pub(super) async fn get_server_icon(
         }
     }
 
-    Ok(Redirect::temporary("https://wd40.theking90000.be/files/ee292f4a-dfff-4c5f-b65e-1beca56ec24f").into_response())
+    Ok((
+        [(CONTENT_TYPE, "image/webp"), (CACHE_CONTROL, DEFAULT_ICON_CACHE)],
+        DEFAULT_ICON
+    ).into_response())
 }

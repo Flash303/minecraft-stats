@@ -4,7 +4,7 @@ import type { MetaFunction } from "react-router"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useAdmin } from "@/core/contexts/AdminContext"
-import { useToast } from "@/core/contexts/ToastContext"
+import { useToast } from "@/core/hooks/useToast"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
@@ -320,6 +320,7 @@ export default function AdminDashboard() {
                             users={users}
                             servers={servers}
                             t={t}
+                            language={language}
                         />
                     )}
 

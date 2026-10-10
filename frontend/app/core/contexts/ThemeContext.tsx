@@ -1,6 +1,5 @@
 import {
     createContext,
-    useContext,
     useEffect,
     useState,
     type ReactNode
@@ -14,6 +13,8 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+
+export { ThemeContext }
 
 export function ThemeProvider({ children, serverTheme }: { children: ReactNode, serverTheme?: Theme | null }) {
     // Le cookie SSR est la source de vérité ; sans cookie (première visite),
@@ -43,10 +44,4 @@ export function ThemeProvider({ children, serverTheme }: { children: ReactNode, 
             {children}
         </ThemeContext.Provider>
     )
-}
-
-export function useTheme() {
-    const ctx = useContext(ThemeContext)
-    if (!ctx) throw new Error("useTheme must be used within ThemeProvider")
-    return ctx
 }

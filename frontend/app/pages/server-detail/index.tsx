@@ -1,8 +1,9 @@
-import { useEffect, useMemo, lazy, Suspense } from "react"
+import { useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
-import { translate } from "@/core/lib/i18n"
+import { APP_URL } from "@/core/lib/config"
+import { translate, type Language } from "@/core/lib/i18n"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -10,15 +11,16 @@ const PlayerChart = lazy(() =>
     }))
 )
 import { ServerDetailHeader } from "@/pages/server-detail/components/ServerDetailHeader"
-import { TimeIntervalSelector } from "@/pages/server-detail/components/TimeIntervalSelector"
+import { TimeIntervalSelector } from "@/ui/components/TimeIntervalSelector"
 import { StatsSection } from "@/pages/server-detail/components/StatsSection"
 import { AlertsSection } from "@/pages/server-detail/components/AlertsSection"
 import { Button } from "@/ui/components/button"
-import { BarChart } from "lucide-react"
+import { ChartLoadingOverlay, ChartLoadingSpinner } from "@/ui/components/ChartLoadingOverlay"
+import { BarChart, WifiOff } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
-import { cn, formatMinecraftVersion } from "@/core/lib/utils"
+import { formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
@@ -53,7 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 }
 
-export async function clientLoader({ params }: any) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
     if (!params.id)
         return {
             initialServer: null,
@@ -80,28 +82,28 @@ export async function clientLoader({ params }: any) {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { loaderData: data } = args as any
+    const { loaderData: data } = args
 
     // Langue résolue par le loader root (cookie ou Accept-Language)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rootData: any = args.matches?.find((m: any) => m.id === "root")?.data
-    const lang: "fr" | "en" = rootData?.serverLanguage ?? "fr"
+    const rootData = args.matches?.find((m) => m.id === "root")?.data as
+        | { serverLanguage?: Language }
+        | undefined
+    const lang: Language = rootData?.serverLanguage ?? "fr"
     const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
-    const locale = lang === "fr" ? "fr-FR" : "en-US"
 
     if (!data || !data.initialServer) {
         return [
             { title: L("seo.notFoundTitle") },
-            { name: "description", content: L("seo.notFoundDescription") }
+            { name: "description", content: L("seo.notFoundDescription") },
+            { name: "robots", content: "noindex" }
         ]
     }
     const server = data.initialServer
     const title = `${server.name} - ${L("seo.serverTitleSuffix")}`
     const isOnline = server.last_status === "online"
     const players = isOnline
-        ? new Intl.NumberFormat(locale).format(server.last_connected ?? 0)
-        : 0
+        ? formatNumber(lang, server.last_connected ?? 0)
+        : "0"
     const playersText = isOnline
         ? ` ${L("seo.statusOnline", { count: players })}`
         : server.last_status === "offline"
@@ -111,8 +113,12 @@ export const meta: MetaFunction<typeof loader> = (args) => {
     return [
         { title },
         { name: "description", content: description },
+        { tagName: "link", rel: "canonical", href: `${APP_URL}/server/${server.id}` },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "Minecraft-Stats" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:url", content: `${APP_URL}/server/${server.id}` },
         {
             property: "og:image",
             content: getServerIconUrl(server.id)
@@ -146,34 +152,33 @@ export default function ServerDetail() {
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
 
-
-    useEffect(() => {
-        if (!server) return
-        const script = document.createElement("script")
-        script.type = "application/ld+json"
-        script.id = "schema-server-detail"
-
-        const schema = {
+    // Données structurées rendues dans le JSX (donc présentes dans le HTML SSR),
+    // à partir des données du loader pour que SSR et client soient identiques.
+    // Remplace l'ancienne injection via useEffect, invisible aux crawlers sans JS.
+    const schemaData = useMemo(() => {
+        if (!initialServer) return null
+        const url = `${APP_URL}/server/${initialServer.id}`
+        return {
             "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            name: server.name,
-            applicationCategory: "GameApplication",
-            operatingSystem: server.type === "java" ? "Java" : "Bedrock",
-            url: window.location.href,
-            image: getServerIconUrl(server.id)
+            "@graph": [
+                {
+                    "@type": "SoftwareApplication",
+                    name: initialServer.name,
+                    applicationCategory: "GameApplication",
+                    operatingSystem: initialServer.type === "java" ? "Java" : "Bedrock",
+                    url,
+                    image: getServerIconUrl(initialServer.id)
+                },
+                {
+                    "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: t("footer.home"), item: APP_URL },
+                        { "@type": "ListItem", position: 2, name: initialServer.name, item: url }
+                    ]
+                }
+            ]
         }
-
-        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
-        script.textContent = JSON.stringify(schema).replace(/</g, "\\u003c")
-        document.head.appendChild(script)
-
-        return () => {
-            const existingScript = document.getElementById(
-                "schema-server-detail"
-            )
-            if (existingScript) existingScript.remove()
-        }
-    }, [server])
+    }, [initialServer, t])
 
     const stats = useMemo(() => {
         if (records.length === 0) return null
@@ -227,7 +232,6 @@ export default function ServerDetail() {
     }
 
     const isOnline = server.last_status === "online"
-    const locale = language === "fr" ? "fr-FR" : "en-US"
 
     const isCustomRangeIncomplete =
         selectedRange === -1 && (!customRange?.from || !customRange?.to)
@@ -242,6 +246,15 @@ export default function ServerDetail() {
 
     return (
         <>
+            {schemaData && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+                        __html: JSON.stringify(schemaData).replace(/</g, "\\u003c")
+                    }}
+                />
+            )}
             {labyBackground && (
                 <div 
                     className="absolute inset-x-0 top-0 h-[50vh] pointer-events-none opacity-30 dark:opacity-20 z-0"
@@ -260,13 +273,19 @@ export default function ServerDetail() {
                         <ServerDetailHeader
                             server={server}
                             t={t}
-                            locale={locale}
+                            language={language}
                         />
                     </div>
                 </div>
 
                 <div className="flex w-full flex-col gap-8">
-                    <div className="mt-[-1rem] hidden w-full justify-center md:flex">
+                    <div className="mt-[-1rem] hidden w-full flex-col items-center gap-2 md:flex">
+                        {server.last_status === "offline" && (
+                            <div className="flex items-center gap-1.5 rounded-md border border-destructive/20 bg-destructive/10 px-3 py-1.5 text-xs italic text-muted-foreground">
+                                <WifiOff className="h-3.5 w-3.5 shrink-0 text-destructive" />
+                                <span>{t("serverDetail.offlineMotdNotice")}</span>
+                            </div>
+                        )}
                         <div className="w-fit overflow-hidden rounded-md shadow-xl">
                             <MinecraftMotd
                                 motd={server.last_motd}
@@ -303,20 +322,15 @@ export default function ServerDetail() {
                                 isLoading={loadingRecords || isPending}
                                 overlay={
                                     (loadingRecords || isPending) && (
-                                        <div className="bg-background/60 absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl backdrop-blur-[2px] transition-all duration-200">
+                                        <ChartLoadingOverlay>
                                             {isCustomRangeIncomplete ? (
                                                 <p className="text-muted-foreground text-sm font-medium">
                                                     {t("serverDetail.selectCustomRange")}
                                                 </p>
                                             ) : (
-                                                <>
-                                                    <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
-                                                    <p className="text-muted-foreground animate-pulse text-sm font-medium">
-                                                        {t("serverDetail.chartLoading")}
-                                                    </p>
-                                                </>
+                                                <ChartLoadingSpinner label={t("serverDetail.chartLoading")} />
                                             )}
-                                        </div>
+                                        </ChartLoadingOverlay>
                                     )
                                 }
                                 data={records}
@@ -359,12 +373,7 @@ export default function ServerDetail() {
                                             {isOnline && (
                                                 <span className="text-muted-foreground text-sm font-normal sm:whitespace-nowrap">
                                                     (
-                                                    {new Intl.NumberFormat(
-                                                        locale
-                                                    ).format(
-                                                        server.last_connected ??
-                                                            0
-                                                    )}{" "}
+                                                    {formatNumber(language, server.last_connected ?? 0)}{" "}
                                                     {t("common.currentPlayers")}
                                                     )
                                                 </span>
@@ -380,7 +389,7 @@ export default function ServerDetail() {
                             {stats && (
                                 <StatsSection
                                     stats={stats}
-                                    locale={locale}
+                                    language={language}
                                     t={t}
                                 />
                             )}

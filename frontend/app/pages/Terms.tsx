@@ -1,5 +1,20 @@
 
+import type { MetaFunction } from "react-router"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { legalReplacements } from "@/core/lib/legal-info"
+import { translate } from "@/core/lib/i18n"
+import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription } from "@/core/lib/seo-meta"
+
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
+    return staticPageMeta({
+        title: siteTitle(lang, "legal.terms.title"),
+        description: truncateDescription(translate(lang, "legal.terms.p1")),
+        path: "/terms",
+    })
+}
+
+const SECTIONS = [1, 2, 3, 4, 5, 6, 7] as const
 
 export default function Terms() {
     const { t } = useLanguage()
@@ -11,7 +26,7 @@ export default function Terms() {
                     {t("legal.terms.title")}
                 </h1>
                 <p className="text-sm text-muted-foreground mb-8">
-                    {t("legal.terms.lastUpdated", { date: "15 June 2026" })}
+                    {t("legal.terms.lastUpdated", legalReplacements)}
                 </p>
 
                 <div className="prose prose-slate dark:prose-invert max-w-none">
@@ -19,7 +34,7 @@ export default function Terms() {
                         {t("legal.terms.p1")}
                     </p>
 
-                    {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                    {SECTIONS.map((num) => (
                         <div key={num}>
                             <h2 className="text-xl font-semibold mt-8 mb-4">
                                 {t(`legal.terms.s${num}Title`)}

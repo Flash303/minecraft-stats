@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { createContext, useCallback, useEffect, useRef, useState } from "react"
 import { AlertTriangle, CheckCircle2, X, XCircle } from "lucide-react"
 import { cn } from "@/core/lib/utils"
 import { useLanguage } from "./LanguageContext"
@@ -11,11 +11,13 @@ interface ToastItem {
     text: string
 }
 
-interface ToastContextValue {
+export interface ToastContextValue {
     showToast: (type: ToastType, text: string) => void
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null)
+
+export { ToastContext }
 
 const TOAST_DURATION_MS = 5000
 const MAX_VISIBLE_TOASTS = 3
@@ -92,12 +94,4 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             </div>
         </ToastContext.Provider>
     )
-}
-
-export function useToast(): ToastContextValue {
-    const ctx = useContext(ToastContext)
-    if (!ctx) {
-        throw new Error("useToast must be used within a ToastProvider")
-    }
-    return ctx
 }

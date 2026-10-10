@@ -6,35 +6,25 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteLoaderData,
-  useLocation,
 } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
-import { ThemeProvider } from "./core/contexts/ThemeContext";
-import { SearchProvider } from "./core/contexts/SearchContext";
-import { LanguageProvider } from "./core/contexts/LanguageContext";
-import { ToastProvider } from "./core/contexts/ToastContext";
+import { ThemeProvider } from "@/core/contexts/ThemeContext";
+import { SearchProvider } from "@/core/contexts/SearchContext";
+import { LanguageProvider } from "@/core/contexts/LanguageContext";
+import { ToastProvider } from "@/core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AdminProvider } from "./core/contexts/AdminContext";
-
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
-
-if (typeof window !== "undefined") {
-  posthog.init(import.meta.env.VITE_POSTHOG_KEY || "phc_placeholder", {
-    api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
-    person_profiles: "identified_only",
-  });
-}
-
+import { AdminProvider } from "@/core/contexts/AdminContext";
 
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
-import { GlobalLoading } from "./ui/components/global-loading";
-import { APP_URL } from "./core/lib/config";
-import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
-import { translate } from "./core/lib/i18n";
+import { GlobalLoading } from "@/ui/components/global-loading";
+import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
+import { LabyLogoSprite } from "@/ui/components/LabyLogo";
+import { APP_URL } from "@/core/lib/config";
+import { parseLanguageCookie, resolveLanguageFromHeader } from "@/core/lib/accept-language";
+import { translate, type Language } from "@/core/lib/i18n";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -71,7 +61,7 @@ export function shouldRevalidate() {
   return false;
 }
 
-export function meta({ data }: { data?: { serverLanguage?: "fr" | "en" } }) {
+export function meta({ data }: { data?: { serverLanguage?: Language } }) {
   const lang = data?.serverLanguage ?? "fr"
   const L = (path: string) => translate(lang, path)
 
@@ -122,13 +112,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         <link rel="icon" type="image/webp" href="/logo.webp" />
-        {/* Google Fonts : preconnect + stylesheet en <link> (l'@import CSS était render-blocking) */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap"
-        />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f5" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b" />
+        <link rel="describedby" href="/llms.txt" type="text/plain" />
+        {/* Plus Jakarta Sans est auto-hébergée (voir index.css) -> plus de stylesheet
+            render-blocking Google Fonts ni de requêtes hors-domaine. */}
+        <link rel="preload" href="/fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         {/* Umami Analytics */}
         <script defer src="https://cloud.umami.is/script.js" data-website-id="367e7c31-118f-4c1d-91df-4d264facff62"></script>
         <Meta />
@@ -138,35 +129,42 @@ export function Layout({ children }: { children: React.ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": "Minecraft-Stats",
-              "url": APP_URL,
-              "description": "Advanced Minecraft server analytics and player tracking.",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": `${APP_URL}/?search={search_term_string}`,
-                "query-input": "required name=search_term_string"
-              }
+              "@graph": [
+                {
+                  "@type": "WebSite",
+                  "@id": `${APP_URL}/#website`,
+                  "name": "Minecraft-Stats",
+                  "url": APP_URL,
+                  "description": translate(lang, "seo.homeDescription"),
+                  "publisher": { "@id": `${APP_URL}/#organization` },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": `${APP_URL}/?search={search_term_string}`,
+                    "query-input": "required name=search_term_string"
+                  }
+                },
+                {
+                  "@type": "Organization",
+                  "@id": `${APP_URL}/#organization`,
+                  "name": "Minecraft-Stats",
+                  "url": APP_URL,
+                  "logo": `${APP_URL}/logo.webp`
+                }
+              ]
             })
           }}
         />
       </head>
       <body>
         <GlobalLoading />
+        <BedrockLogoSprite />
+        <LabyLogoSprite />
         {children}
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
-}
-
-function PostHogPageView() {
-  const location = useLocation();
-  useEffect(() => {
-    posthog.capture("$pageview");
-  }, [location]);
-  return null;
 }
 
 export default function App() {
@@ -178,25 +176,22 @@ export default function App() {
   }
 
   return (
-    <PostHogProvider client={posthog}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-        <QueryClientProvider client={queryClient}>
-          <AdminProvider>
-          <ThemeProvider serverTheme={serverTheme}>
-            <LanguageProvider serverLanguage={serverLanguage}>
-              <ToastProvider>
-                  <SearchProvider>
-                    <TooltipProvider>
-                      <PostHogPageView />
-                      <Outlet />
-                    </TooltipProvider>
-                  </SearchProvider>
-              </ToastProvider>
-            </LanguageProvider>
-          </ThemeProvider>
-          </AdminProvider>
-        </QueryClientProvider>
-      </ClerkProvider>
-    </PostHogProvider>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <QueryClientProvider client={queryClient}>
+        <AdminProvider>
+        <ThemeProvider serverTheme={serverTheme}>
+          <LanguageProvider serverLanguage={serverLanguage}>
+            <ToastProvider>
+                <SearchProvider>
+                  <TooltipProvider>
+                    <Outlet />
+                  </TooltipProvider>
+                </SearchProvider>
+            </ToastProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+        </AdminProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }

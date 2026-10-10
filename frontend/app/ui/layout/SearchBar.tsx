@@ -11,7 +11,8 @@ import { cn } from "@/core/lib/utils"
 import { useNavigate } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { useSearch } from "@/core/contexts/SearchContext"
+import { useSearch } from "@/core/hooks/useSearch"
+import { MINUTE_MS } from "@/core/lib/time"
 
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
@@ -68,7 +69,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
             return fetchServers(token ?? undefined, false)
         },
         enabled: isLoaded && isFocused,
-        staleTime: 60000,
+        staleTime: MINUTE_MS,
     })
 
     const filteredSuggestions = useMemo(() => {

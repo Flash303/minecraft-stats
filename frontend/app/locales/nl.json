@@ -42,7 +42,22 @@
       "previous": "Vorige",
       "next": "Volgende",
       "page": "Pagina {{current}} van {{total}}"
-    }
+    },
+    "dateFormat": "{{day}} {{month}} {{year}}",
+    "months": [
+      "januari",
+      "februari",
+      "maart",
+      "april",
+      "mei",
+      "juni",
+      "juli",
+      "augustus",
+      "september",
+      "oktober",
+      "november",
+      "december"
+    ]
   },
   "header": {
     "title": "Minecraft Stats",
@@ -126,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 uur",
+    "offlineMotdNotice": "Deze server is momenteel offline, de laatst opgeslagen status wordt weergegeven",
     "sidebar": {
       "socials": "Sociale netwerken",
       "labyEmpty": "Deze server is geregistreerd op LabyMod maar heeft zijn informatie nog niet ingevuld.",
@@ -155,6 +171,19 @@
     "noSelectionDesc": "Gebruik de zoekbalk hierboven om meerdere servers te vergelijken.",
     "loadingData": "Vergelijkende gegevens laden...",
     "resetZoom": "Zoom resetten"
+  },
+  "faq": {
+    "title": "Veelgestelde vragen",
+    "q1": "Welke Minecraft-server is momenteel het populairst?",
+    "a1": "De ranglijst op deze pagina sorteert servers op realtime verbonden spelers: de eerste is momenteel het populairst. Gebruik de Java- en Bedrock-filters, of de vergelijkingspagina, om trends te volgen.",
+    "q2": "Hoe vaak worden de statistieken bijgewerkt?",
+    "a2": "Elke server wordt ongeveer elke 8 seconden opgevraagd, zowel Java- als Bedrock-edities. De grafieken tonen de geschiedenis van spelersaantallen, online-status en versies.",
+    "q3": "Hoe voeg ik mijn Minecraft-server toe?",
+    "a3": "Maak een gratis account aan, open het tabblad Servers van je account en voeg het IP-adres en de poort toe. De server wordt automatisch geverifieerd en daarna continu gevolgd.",
+    "q4": "Hoe werken waarschuwingen?",
+    "a4": "Stel op een serverpagina een waarschuwing in: offline gaan, weer online komen of spelersdrempels. Je ontvangt een melding zodra aan de voorwaarde is voldaan.",
+    "q5": "Is Minecraft Stats gratis?",
+    "a5": "Ja. Servertracking, grafieken, vergelijking en waarschuwingen zijn gratis. Een account is voldoende om een server toe te voegen of waarschuwingen te ontvangen."
   },
   "admin": {
     "title": "Beheerdersconsole",
@@ -371,13 +400,14 @@
     "madeWith": "Gemaakt met",
     "forCommunity": "voor de Minecraft-gemeenschap",
     "terms": "Servicevoorwaarden",
-    "privacy": "Privacybeleid"
+    "privacy": "Privacybeleid",
+    "legal": "Juridische kennisgeving"
   },
   "legal": {
     "terms": {
       "title": "Servicevoorwaarden",
       "lastUpdated": "Laatst bijgewerkt: {{date}}",
-      "p1": "Deze Servicevoorwaarden (\"Voorwaarden\") regelen uw gebruik van het Minecraft Stats-platform. Door toegang te krijgen tot of gebruik te maken van onze diensten, gaat u akkoord met deze Voorwaarden en ons Privacybeleid.",
+      "p1": "Deze Gebruiksvoorwaarden regelen uw toegang tot en het gebruik van Minecraft Stats, een gratis dienst die als persoonlijk project wordt aangeboden. Door onze diensten te gebruiken, gaat u akkoord met deze Voorwaarden en ons Privacybeleid.",
       "s1Title": "1. Beschrijving van de Dienst",
       "s1Content": "Minecraft Stats biedt een analyse- en trackingplatform voor openbare Minecraft-servers. We verzamelen, aggregeren en tonen statistieken (zoals spelersaantallen en serverstatus) voor informatieve doeleinden.",
       "s2Title": "2. Accountregistratie en Beveiliging",
@@ -396,21 +426,40 @@
     "privacy": {
       "title": "Privacybeleid",
       "lastUpdated": "Laatst bijgewerkt: {{date}}",
-      "p1": "Dit Privacybeleid legt uit hoe Minecraft Stats (\"wij\", \"onze\" of \"ons\") informatie over u verzamelt, gebruikt en deelt wanneer u toegang krijgt tot of gebruikmaakt van onze website.",
+      "p1": "Dit Privacybeleid legt uit hoe Minecraft Stats (wij) informatie over u verzamelt, gebruikt en beschermt wanneer u onze website gebruikt. De verantwoordelijke voor de gegevensverwerking is {{ownerName}}, bereikbaar via {{contactEmail}}.",
       "s1Title": "1. Informatieverzameling en Gebruik",
       "s1Content": "We verzamelen informatie die u rechtstreeks aan ons verstrekt, bijvoorbeeld wanneer u een account aanmaakt, uw profiel bijwerkt of met ons communiceert. Aangezien we Clerk gebruiken voor ons authenticatiesysteem, worden uw registratiegegevens (zoals e-mailadres, gebruikersnaam en wachtwoord) veilig verwerkt en beheerd door Clerk.",
       "s2Title": "2. Automatisch Verzamelde Informatie",
-      "s2Content": "Wanneer u toegang krijgt tot onze diensten, verzamelen we automatisch bepaalde informatie over uw apparaat en hoe u met ons platform communiceert. Dit kan uw IP-adres, browsertype, besturingssysteem en loggegevens omvatten. We gebruiken deze informatie om trends te analyseren en de veiligheid van ons platform te waarborgen.",
+      "s2Content": "Bij het gebruik van de dienst verwerken we automatisch technische gegevens die strikt noodzakelijk zijn voor de werking: IP-adres, browsertype en serverlogs. Deze gegevens worden uitsluitend gebruikt om de site veilig en beschikbaar te houden en misbruik te voorkomen. Daarnaast gebruiken we Umami, een privacyvriendelijke analysetool: het plaatst geen cookies, identificeert geen personen en voert geen cross-site tracking uit.",
       "s3Title": "3. Cookies en Trackingtechnologieën",
-      "s3Content": "We gebruiken cookies en vergelijkbare trackingtechnologieën om uw ervaring te verbeteren, uw voorkeuren te onthouden en te begrijpen hoe u door onze site navigeert. U kunt cookie-instellingen beheren via uw browser, maar het uitschakelen ervan kan sommige functionaliteiten van onze dienst beperken.",
+      "s3Content": "De site plaatst geen advertentiecookies en gebruikt voor commerciële doeleinden geen trackingdiensten van derden. Er zijn alleen cookies die strikt noodzakelijk zijn voor de dienst: een cookie voor themavoorkeur (licht/donker) en een taalcookie, beide onmisbaar voor de werking en 1 jaar bewaard. U kunt ze op elk moment verwijderen via de instellingen van uw browser zonder functionaliteit te verliezen. De Umami-analyse werkt zonder cookies.",
       "s4Title": "4. Gegevens Delen en Derden",
-      "s4Content": "Wij verkopen uw persoonlijke gegevens niet. We kunnen informatie delen met vertrouwde externe dienstverleners (zoals Clerk voor authenticatie en hostingproviders) uitsluitend om onze diensten te beheren en te verbeteren. Deze partners zijn gebonden aan strikte geheimhoudingsverplichtingen.",
+      "s4Content": "Wij verkopen of verhuren uw persoonsgegevens niet. Alleen technische partijen die noodzakelijk zijn voor de dienst krijgen toegang: Clerk (authenticatie), Umami (anonieme analyse) en onze host {{hostName}}. Deze partijen zijn contractueel gebonden aan geheimhouding en gebruiken de gegevens uitsluitend om de dienst te laten werken.",
       "s5Title": "5. Gegevensbeveiliging",
       "s5Content": "We nemen redelijke maatregelen om uw persoonlijke gegevens te beschermen tegen verlies, diefstal, misbruik, ongeautoriseerde toegang, openbaarmaking, wijziging en vernietiging. Begrijp echter dat geen enkele internettransmissie 100% veilig is.",
       "s6Title": "6. Uw Rechten",
-      "s6Content": "Afhankelijk van uw jurisdictie (zoals onder de AVG of CCPA), heeft u mogelijk het recht om toegang te vragen tot, correctie van, verwijdering van of beperking van de verwerking van uw persoonlijke gegevens. U kunt uw accountinstellingen rechtstreeks beheren of contact met ons opnemen om deze rechten uit te oefenen.",
+      "s6Content": "Krachtens de Algemene verordening gegevensbescherming (AVG) heeft u rechten op inzage, rectificatie, verwijdering, beperking, bezwaar en overdraagbaarheid van uw gegevens. Om deze uit te oefenen, neemt u contact met ons op via {{contactEmail}}. U kunt ook een klacht indienen bij de toezichthoudende autoriteit.",
       "s7Title": "7. Wijzigingen in dit Beleid",
       "s7Content": "We kunnen dit Privacybeleid van tijd tot tijd bijwerken. Als we materiële wijzigingen aanbrengen, zullen we u hiervan op de hoogte stellen door de datum bovenaan dit beleid bij te werken en, in sommige gevallen, door een aanvullende kennisgeving te verstrekken."
+    },
+    "notice": {
+      "title": "Juridische Kennisgeving",
+      "lastUpdated": "Laatst bijgewerkt: {{date}}",
+      "p1": "Overeenkomstig de Franse wet nr. 2004-575 van 21 juni 2004 betreffende vertrouwen in de digitale economie (LCEN) identificeren onderstaande gegevens de uitgever en de hostingprovider van de site {{siteName}}.",
+      "s1Title": "1. Uitgever van de site",
+      "s1Content": "De site {{siteName}} wordt uitgegeven door {{ownerName}}, als persoonlijk en gratis project. Vragen kunnen worden gestuurd naar: {{contactEmail}}.",
+      "s2Title": "2. Hosting",
+      "s2Content": "De site wordt gehost door {{hostName}}, bereikbaar op het postadres {{hostAddress}}. Telefoon: {{hostPhone}}. Website: {{hostWebsite}}.",
+      "s3Title": "3. Intellectueel eigendom",
+      "s3Content": "Alle elementen van de site {{siteName}} (teksten, afbeeldingen, logo, structuur) worden beschermd door het auteursrecht. Elke reproductie zonder schriftelijke toestemming is verboden. Minecraft is een handelsmerk van Mojang Synergies AB; deze site is niet gelieerd aan of goedgekeurd door Mojang.",
+      "s4Title": "4. Persoonsgegevens",
+      "s4Content": "De verantwoordelijke voor de gegevensverwerking is {{ownerName}}. De verwerking staat beschreven in ons Privacybeleid: er wordt geen advertentiecookie gebruikt. Krachtens de AVG heeft u rechten op inzage, rectificatie en verwijdering, die u kunt uitoefenen door te schrijven naar {{contactEmail}}.",
+      "s5Title": "5. Externe links",
+      "s5Content": "De site {{siteName}} kan links bevatten naar externe sites. Wij voeren geen controle uit over hun inhoud en wijzen elke aansprakelijkheid daarvoor van de hand.",
+      "s6Title": "6. Aansprakelijkheid",
+      "s6Content": "De weergegeven statistieken komen uit openbare bronnen van derden en worden uitsluitend ter informatie verstrekt. Wij streven naar een werkende dienst, maar kunnen geen permanente beschikbaarheid garanderen.",
+      "s7Title": "7. Toepasselijk recht",
+      "s7Content": "Deze juridische kennisgeving valt onder Frans recht. Bij gebrek aan een minnelijke oplossing zijn uitsluitend de Franse rechtbanken bevoegd."
     }
   },
   "alt": {

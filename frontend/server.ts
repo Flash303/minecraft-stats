@@ -125,7 +125,10 @@ serve({
         console.log(`[Cache HIT] ${url.pathname}${url.search} (theme: ${theme}, lang: ${lang})`);
         return new Response(cached.html, {
           headers: applySecurityHeaders(
-            new Headers({ "Content-Type": "text/html; charset=utf-8" })
+            new Headers({
+              "Content-Type": "text/html; charset=utf-8",
+              "Link": '</llms.txt>; rel="describedby"',
+            })
           ),
         });
       }

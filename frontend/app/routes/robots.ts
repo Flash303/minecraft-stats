@@ -8,6 +8,32 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /account
 
+# AI search crawlers (retrieval for citations and answers, not training):
+# explicitly allowed on public pages, same private-path exclusions as everyone.
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /account
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /account
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /account
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /account
+
 Sitemap: ${APP_URL}/sitemap.xml
 `;
 

@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { fetchVapidKey, subscribeDevice, unsubscribeDevice } from "@/core/lib/api";
-import { useToast } from "@/core/contexts/ToastContext";
+import { useToast } from "@/core/hooks/useToast";
 import { useLanguage } from "@/core/contexts/LanguageContext";
 
 function urlBase64ToUint8Array(base64String: string) {

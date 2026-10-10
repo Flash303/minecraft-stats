@@ -4,10 +4,11 @@ import { useMemo, useRef } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
-import { useTheme } from "@/core/contexts/ThemeContext"
+import { useTheme } from "@/core/hooks/useTheme"
 import { Button } from "@/ui/components/button"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData, formatAxisTick, formatTooltipDateTime } from "@/core/lib/chartUtils"
+import { formatNumber } from "@/core/lib/utils"
 import {
     useChartResize,
     useTouchInteractPlugin,
@@ -15,7 +16,8 @@ import {
     useChartZoomControls,
     makeXScaleRange,
     sizeChartToContainer,
-} from "@/core/hooks/useChartPlugins"
+    useEnsureOneSeriesVisiblePlugin,
+} from "@/core/hooks/charts"
 import { cn } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
@@ -41,22 +43,19 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    // Ajustement de la taille responsive
     useChartResize(chartRef, containerRef, [data])
 
     const timeRangeRef = useRef(timeRange)
     timeRangeRef.current = timeRange
 
-    // Transformation des données : Tri + Injection de NULL pour casser les lignes
     const chartData = useMemo(() => prepareSingleChartData(data, interval), [data, interval])
 
-    // Configuration du Plugin Tooltip
     const tooltipPlugin = useTooltipPlugin({
         language,
         t,
         tooltipWidth: 180,
         deps: [],
-        renderRowsHtml: (u, idx, locale) => {
+        renderRowsHtml: (u, idx) => {
             const yVal = u.data[1][idx]
             if (yVal == null) return ""
 
@@ -66,7 +65,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                 <div class="flex items-center gap-2 py-0.5">
                     <div class="w-2.5 h-2.5 rounded-full shadow-sm shrink-0" style="background-color: ${strokeColor}"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="font-bold text-white">${new Intl.NumberFormat(locale).format(Math.round(yVal))}</span>
+                        <span class="font-bold text-white">${formatNumber(language, Math.round(yVal))}</span>
                         <span class="text-muted-foreground text-2xs uppercase">${t("common.players")}</span>
                     </div>
                 </div>
@@ -74,22 +73,10 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
         }
     })
 
-    const disableLegendClickPlugin = useMemo<uPlot.Plugin>(() => {
-        return {
-            hooks: {
-                ready: (u: uPlot) => {
-                    const legend = u.root.querySelector('.u-legend') as HTMLElement
-                    if (legend) {
-                        legend.style.pointerEvents = 'none'
-                    }
-                }
-            }
-        }
-    }, [])
+    const ensureOneSeriesVisiblePlugin = useEnsureOneSeriesVisiblePlugin()
 
     const touchInteractPlugin = useTouchInteractPlugin()
 
-    // Zoom : plugin de suivi, reset et effets partagés avec MultiServerChart
     const { isZoomed, scaleHookPlugin, resetZoom: handleResetZoom } = useChartZoomControls({
         chartRef,
         timeRange,
@@ -99,7 +86,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
     })
 
     const hasData = data.length > 0
-    // Configuration globale du graphique
     const options = useMemo(() => {
         const isDark = theme === "dark"
         const strokeColor = resolveToken("--info")
@@ -113,7 +99,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
             height: (typeof window !== "undefined" && window.innerWidth < 640) ? 300 : 450,
             title: `${t("common.players_on")} ${serverName}`,
             padding: [20, 15, 10, 10],
-            plugins: [tooltipPlugin, scaleHookPlugin, disableLegendClickPlugin, touchInteractPlugin],
+            plugins: [tooltipPlugin, scaleHookPlugin, ensureOneSeriesVisiblePlugin, touchInteractPlugin],
             cursor: {
                 y: false,
                 drag: { 
@@ -163,7 +149,7 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                     spanGaps: false,
                     value: (_u: uPlot, val: number) => {
                         if (val == null) return ""
-                        return new Intl.NumberFormat(locale).format(Math.round(val)) + ` ${t("common.players")}`
+                        return formatNumber(language, Math.round(val)) + ` ${t("common.players")}`
                     }
                 }
             ]
@@ -242,7 +228,6 @@ export function PlayerChart({ data, serverName, interval, timeRange, onVisibleRa
                             data={chartData}
                             onCreate={(chart) => {
                                 chartRef.current = chart
-                                // Force resize to container width after creation
                                 sizeChartToContainer(chart, containerRef.current)
                             }}
                         />

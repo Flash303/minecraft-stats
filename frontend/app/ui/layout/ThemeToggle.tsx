@@ -1,4 +1,4 @@
-import { useTheme } from "@/core/contexts/ThemeContext"
+import { useTheme } from "@/core/hooks/useTheme"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { Sun, Moon } from "lucide-react"
 import { Button } from "@/ui/components/button"

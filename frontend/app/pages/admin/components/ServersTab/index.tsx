@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
     Search,
     ArrowUp,
@@ -89,10 +89,14 @@ export function ServersTab({
 
     const ITEMS_PER_PAGE = 20;
     const [currentPage, setCurrentPage] = useState(1);
+    const [prevFilterKey, setPrevFilterKey] = useState("");
 
-    useEffect(() => {
+    // Back to page 1 whenever filters change (render-adjust, no effect needed).
+    const filterKey = `${serverSearchQuery}|${serverStatusFilter}|${sortField}|${sortDirection}`;
+    if (prevFilterKey !== filterKey) {
+        setPrevFilterKey(filterKey);
         setCurrentPage(1);
-    }, [serverSearchQuery, serverStatusFilter, sortField, sortDirection]);
+    }
 
     const totalPages = Math.max(1, Math.ceil(sortedServers.length / ITEMS_PER_PAGE));
     const paginatedServers = useMemo(() => {

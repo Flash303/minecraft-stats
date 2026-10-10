@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react"
+import { useEffect, useCallback, useMemo, Suspense } from "react"
 import {
     useSearchParams,
     useLoaderData,
@@ -13,22 +13,63 @@ import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
 import { ServerListFilters } from "@/pages/home/components/ServerListFilters"
 import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
-import { useSearch } from "@/core/contexts/SearchContext"
+import { useSearch } from "@/core/hooks/useSearch"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 
 import { Hero3D } from "@/pages/home/components/Hero3D"
+import { FaqSection } from "@/pages/home/components/FaqSection"
 import { Pagination } from "@/ui/components/pagination"
 
-import type { LoaderFunctionArgs } from "react-router"
+import type { LoaderFunctionArgs, MetaFunction } from "react-router"
+import { translate } from "@/core/lib/i18n"
+import { resolveMetaLanguage, staticPageMeta } from "@/core/lib/seo-meta"
+
+// La home est la seule page avec des variantes filtrées/paginées (?tab=&page=...) :
+// le canonical pointe toujours vers l'URL clean pour consolider l'indexation.
+// Jeu de tags complet : le meta() feuille remplace celui du root.
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
+    return staticPageMeta({
+        title: translate(lang, "seo.homeTitle"),
+        description: translate(lang, "seo.homeDescription"),
+        path: "/",
+    })
+}
+
+// Réduit chaque serveur à ce dont la home a réellement besoin avant sérialisation
+// dans le HTML SSR (~90% du payload brut est inutilisé : client_infos complets, motd...).
+// Le client refait ensuite son fetch complet avec `include_stats=true`, donc aucun
+// champ présent ici ne doit manquer au rendu initial des cartes.
+function toServerCardSummary(server: Server): Server {
+    return {
+        id: server.id,
+        name: server.name,
+        ip: server.ip,
+        port: server.port,
+        user_id: server.user_id,
+        type: server.type,
+        hidden: server.hidden,
+        last_status: server.last_status,
+        last_connected: server.last_connected,
+        last_version: server.last_version,
+        last_sample: server.last_sample,
+        client_infos: {
+            ...(server.client_infos?.lunar ? { lunar: { partner: server.client_infos.lunar.partner } } : {}),
+            ...(server.client_infos?.laby ? { laby: { partner: server.client_infos.laby.partner } } : {}),
+        },
+    }
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     // On désactive les stats pour le SSR afin d'éviter une payload de 4.6MB dans le HTML.
     // React Query ira chercher les stats en arrière-plan sur le client.
-    const serversPromise = fetchServers(undefined, false, forwardedFor).catch((e) => {
-        console.error("SSR Error:", e)
-        return []
-    })
+    const serversPromise = fetchServers(undefined, false, forwardedFor)
+        .then((servers) => servers.map(toServerCardSummary))
+        .catch((e) => {
+            console.error("SSR Error:", e)
+            return []
+        })
     return { initialServersPromise: serversPromise }
 }
 
@@ -122,22 +163,15 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const pageParam = searchParams.get("page")
     const currentPage = pageParam && !isNaN(Number(pageParam)) ? Math.max(1, Number(pageParam)) : 1
 
-    const handlePageChange = useCallback(
+    const buildPageHref = useCallback(
         (page: number) => {
-            setSearchParams(
-                (prev) => {
-                    const next = new URLSearchParams(prev)
-                    if (page === 1) next.delete("page")
-                    else next.set("page", page.toString())
-                    return next
-                },
-                {
-                    replace: true,
-                    preventScrollReset: true
-                }
-            )
+            const next = new URLSearchParams(searchParams)
+            if (page <= 1) next.delete("page")
+            else next.set("page", page.toString())
+            const qs = next.toString()
+            return qs ? `/?${qs}` : "/"
         },
-        [setSearchParams]
+        [searchParams]
     )
 
     const updateFilter = useCallback((key: string, value: string, defaultValue: string) => {
@@ -341,7 +375,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                                     <Pagination
                                         currentPage={safeCurrentPage}
                                         totalPages={totalPages}
-                                        onPageChange={handlePageChange}
+                                        buildPageHref={buildPageHref}
                                         className="mt-12 mb-8"
                                     />
                                 )}
@@ -363,6 +397,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     </>
                 )}
             </div>
+            <FaqSection />
         </>
     )
 }

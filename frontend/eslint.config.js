@@ -23,7 +23,7 @@ export default defineConfig([
         'warn',
         { 
           allowConstantExport: true,
-          allowExportNames: ['meta', 'links', 'headers', 'loader', 'action']
+          allowExportNames: ['meta', 'links', 'headers', 'loader', 'clientLoader', 'action', 'shouldRevalidate']
         }
       ]
     }

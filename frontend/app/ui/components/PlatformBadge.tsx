@@ -38,11 +38,3 @@ export function PlatformBadge({ type, size = "sm", className }: PlatformBadgePro
         </span>
     )
 }
-
-export function JavaBadge({ size = "sm", className }: Omit<PlatformBadgeProps, "type">) {
-    return <PlatformBadge type="java" size={size} className={className} />
-}
-
-export function BedrockBadge({ size = "sm", className }: Omit<PlatformBadgeProps, "type">) {
-    return <PlatformBadge type="bedrock" size={size} className={className} />
-}

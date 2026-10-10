@@ -42,7 +42,22 @@
       "previous": "Précédent",
       "next": "Suivant",
       "page": "Page {{current}} sur {{total}}"
-    }
+    },
+    "dateFormat": "{{day}} {{month}} {{year}}",
+    "months": [
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre"
+    ]
   },
   "header": {
     "title": "Minecraft Stats",
@@ -126,6 +141,7 @@
     "interval5m": "5 min",
     "interval30m": "30 min",
     "interval1h": "1 heure",
+    "offlineMotdNotice": "Le serveur est actuellement hors ligne, il s'agit du dernier statut enregistré",
     "sidebar": {
       "socials": "Réseaux Sociaux",
       "labyEmpty": "Ce serveur est référencé sur LabyMod mais n'a pas encore renseigné ses informations.",
@@ -155,6 +171,19 @@
     "noSelectionDesc": "Utilisez la recherche ci-dessus pour comparer plusieurs serveurs.",
     "loadingData": "Chargement des données comparatives...",
     "resetZoom": "Réinitialiser le zoom"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "q1": "Quel est le serveur Minecraft le plus populaire ?",
+    "a1": "Le classement de cette page trie les serveurs par joueurs connectés en temps réel : le premier est le plus populaire du moment. Utilisez les filtres Java et Bedrock, ou la page Comparer, pour suivre les tendances.",
+    "q2": "À quelle fréquence les statistiques sont-elles mises à jour ?",
+    "a2": "Chaque serveur est interrogé environ toutes les 8 secondes, en éditions Java comme Bedrock. Les graphiques affichent l'historique du nombre de joueurs, du statut en ligne et des versions.",
+    "q3": "Comment ajouter mon serveur Minecraft ?",
+    "a3": "Créez un compte gratuit, ouvrez l'onglet Serveurs de votre compte, puis ajoutez l'adresse IP et le port. Le serveur est vérifié automatiquement, puis suivi en continu.",
+    "q4": "Comment fonctionnent les alertes ?",
+    "a4": "Sur la page d'un serveur, configurez une alerte : passage hors ligne, retour en ligne, ou seuils de joueurs. Vous recevez une notification dès que la condition se déclenche.",
+    "q5": "Minecraft Stats est-il gratuit ?",
+    "a5": "Oui. Le suivi des serveurs, les graphiques, la comparaison et les alertes sont gratuits. Un compte suffit pour ajouter un serveur ou recevoir des alertes."
   },
   "admin": {
     "title": "Console Admin",
@@ -371,13 +400,14 @@
     "madeWith": "Fait avec",
     "forCommunity": "pour la communauté Minecraft",
     "terms": "Conditions d'utilisation",
-    "privacy": "Politique de confidentialité"
+    "privacy": "Politique de confidentialité",
+    "legal": "Mentions légales"
   },
   "legal": {
     "terms": {
       "title": "Conditions Générales d'Utilisation (CGU)",
       "lastUpdated": "Dernière mise à jour : {{date}}",
-      "p1": "Les présentes Conditions Générales d'Utilisation (\"CGU\") régissent votre accès et votre utilisation de Minecraft Stats. En utilisant nos services, vous acceptez d'être lié par ces CGU et notre Politique de Confidentialité.",
+      "p1": "Les présentes Conditions Générales d'Utilisation (CGU) régissent votre accès et votre utilisation de Minecraft Stats, service gratuit proposé à titre de projet personnel. En utilisant nos services, vous acceptez d'être lié par ces CGU et notre Politique de Confidentialité.",
       "s1Title": "1. Description du Service",
       "s1Content": "Minecraft Stats est une plateforme d'analyse et de suivi de serveurs Minecraft publics. Nous récoltons, agrégeons et affichons des statistiques (joueurs, statut) à titre informatif.",
       "s2Title": "2. Inscription et Sécurité du Compte",
@@ -396,21 +426,40 @@
     "privacy": {
       "title": "Politique de Confidentialité",
       "lastUpdated": "Dernière mise à jour : {{date}}",
-      "p1": "Cette Politique de Confidentialité explique comment Minecraft Stats (\"nous\", \"notre\" ou \"nos\") collecte, utilise et partage les informations vous concernant lorsque vous utilisez notre site web.",
+      "p1": "Cette Politique de Confidentialité explique comment Minecraft Stats (nous, notre ou nos) collecte, utilise et protège les informations vous concernant lorsque vous utilisez notre site web. Le responsable du traitement des données est {{ownerName}}, joignable à l'adresse {{contactEmail}}.",
       "s1Title": "1. Collecte et utilisation des informations",
       "s1Content": "Nous collectons les informations que vous nous fournissez directement, par exemple lors de la création d'un compte. Étant donné que nous utilisons Clerk pour notre système d'authentification, vos informations d'inscription (comme l'adresse e-mail et le nom d'utilisateur) sont traitées et gérées de manière sécurisée par Clerk.",
       "s2Title": "2. Informations collectées automatiquement",
-      "s2Content": "Lors de votre accès à nos services, nous collectons automatiquement certaines données relatives à votre appareil et à votre navigation, incluant votre adresse IP, type de navigateur et données de journal. Cela nous aide à analyser les tendances et sécuriser la plateforme.",
+      "s2Content": "Lors de votre accès au service, nous traitons automatiquement des données techniques strictement nécessaires à son fonctionnement : adresse IP, type de navigateur et journaux serveur. Ces données servent uniquement à assurer la sécurité, la disponibilité du site et la prévention des abus. Nous utilisons également Umami, un outil de mesure d'audience respectueux de la vie privée : il ne dépose aucun cookie, n'identifie aucune personne et ne réalise aucun suivi entre sites.",
       "s3Title": "3. Cookies et technologies de suivi",
-      "s3Content": "Nous utilisons des cookies pour améliorer votre expérience et mémoriser vos préférences. Vous pouvez gérer ces cookies via votre navigateur, bien que leur désactivation puisse limiter l'accès à certaines fonctionnalités.",
+      "s3Content": "Le site ne dépose aucun cookie publicitaire et n'utilise aucun traceur tiers à des fins commerciales. Seuls des cookies strictement nécessaires au service sont présents : un cookie de préférence de thème (clair/sombre) et un cookie de langue, indispensables au bon fonctionnement et conservés pendant 1 an. Ils peuvent être supprimés à tout moment depuis les réglages de votre navigateur, sans perte de fonctionnalité. La mesure d'audience Umami fonctionne sans cookie.",
       "s4Title": "4. Partage de données et Tiers",
-      "s4Content": "Nous ne vendons pas vos données personnelles. Nous pouvons partager certaines informations avec des prestataires de services de confiance (comme Clerk pour l'authentification) uniquement dans le but de faire fonctionner et d'améliorer nos services, sous de strictes obligations de confidentialité.",
+      "s4Content": "Nous ne vendons ni ne louons vos données personnelles. Seuls les prestataires techniques indispensables au service y accèdent : Clerk (authentification), Umami (mesure d'audience anonyme) et notre hébergeur {{hostName}}. Ces prestataires sont liés par des obligations contractuelles de confidentialité et n'utilisent ces données que pour le fonctionnement du service.",
       "s5Title": "5. Sécurité des données",
       "s5Content": "Nous prenons des mesures raisonnables pour protéger vos données contre la perte, le vol et l'accès non autorisé. Néanmoins, aucune transmission sur Internet n'est totalement sécurisée à 100 %.",
       "s6Title": "6. Vos Droits",
-      "s6Content": "Selon votre juridiction (ex: RGPD), vous pouvez disposer de droits d'accès, de rectification, de suppression ou de limitation du traitement de vos données. Vous pouvez exercer ces droits depuis vos paramètres de compte ou en nous contactant.",
+      "s6Content": "Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité de vos données. Pour les exercer, contactez-nous à l'adresse {{contactEmail}}. Vous pouvez également introduire une réclamation auprès de la CNIL (www.cnil.fr).",
       "s7Title": "7. Modifications de cette politique",
       "s7Content": "Nous pouvons mettre à jour cette politique périodiquement. En cas de changement majeur, nous mettrons à jour la date en haut du document et pourrons vous fournir une notification supplémentaire."
+    },
+    "notice": {
+      "title": "Mentions Légales",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "p1": "Conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN), les informations ci-dessous identifient l'éditeur et l'hébergeur du site {{siteName}}.",
+      "s1Title": "1. Éditeur du site",
+      "s1Content": "Le site {{siteName}} est édité par {{ownerName}}, à titre de projet personnel et gratuit. Toute question peut être adressée à l'adresse : {{contactEmail}}.",
+      "s2Title": "2. Hébergeur",
+      "s2Content": "Le site est hébergé par {{hostName}}, joignable à l'adresse postale {{hostAddress}}. Téléphone : {{hostPhone}}. Site web : {{hostWebsite}}.",
+      "s3Title": "3. Propriété intellectuelle",
+      "s3Content": "L'ensemble des éléments du site {{siteName}} (textes, graphismes, logo, structure) est protégé par le droit d'auteur. Toute reproduction sans autorisation écrite est interdite. Minecraft est une marque de Mojang Synergies AB ; ce site n'est ni affilié ni approuvé par Mojang.",
+      "s4Title": "4. Données personnelles",
+      "s4Content": "Le responsable du traitement des données est {{ownerName}}. Le traitement est décrit dans notre Politique de Confidentialité : aucun cookie publicitaire n'est utilisé. Conformément au RGPD, vous disposez de droits d'accès, de rectification et de suppression, exerçables à l'adresse {{contactEmail}}.",
+      "s5Title": "5. Liens hypertextes",
+      "s5Content": "Le site {{siteName}} peut contenir des liens vers des sites externes. Nous n'exerçons aucun contrôle sur leur contenu et déclinons toute responsabilité à leur égard.",
+      "s6Title": "6. Responsabilité",
+      "s6Content": "Les statistiques affichées proviennent de sources tierces publiques et sont fournies à titre informatif. Nous nous efforçons d'assurer le bon fonctionnement du service sans pouvoir en garantir la disponibilité permanente.",
+      "s7Title": "7. Droit applicable",
+      "s7Content": "Les présentes mentions légales sont régies par le droit français. À défaut de résolution amiable, tout litige relève de la compétence des tribunaux français."
     }
   },
   "alt": {

@@ -13,8 +13,6 @@ pub struct ServerStateChange {
     pub id: u32,
     pub name: String,
 
-    pub last_favicon: Option<String>,
-
     pub old_status: Option<ServerStatus>,
     pub old_players: Option<u32>,
 
@@ -35,8 +33,6 @@ impl From<&Server> for ServerStateChange {
             id: server.id,
             name: server.name.clone(),
 
-            last_favicon: server.last_favicon.clone(),
-
             old_status: server.last_status.clone(),
             old_players: server.last_connected.clone(),
 
@@ -55,7 +51,6 @@ pub struct TriggeredAlertNotification {
     pub alert: Alert,
 
     pub server_name: String,
-    pub last_favicon: Option<String>,
 
     pub _old_status: Option<ServerStatus>,
     pub _old_players: Option<u32>,
@@ -66,10 +61,8 @@ pub struct TriggeredAlertNotification {
 
 impl TriggeredAlertNotification {
     pub fn get_logo(&self) -> String {
-        if self.last_favicon.is_some() {
-            if let Ok(api_base) = std::env::var("API_BASE_URL") {
-                return format!("{}/servers/{}/icon", api_base.trim_end_matches('/'), self.alert.server_id);
-            }
+        if let Ok(api_base) = std::env::var("API_BASE_URL") {
+            return format!("{}/servers/{}/icon", api_base.trim_end_matches('/'), self.alert.server_id);
         }
         MC_DEFAULT_ICON.to_string()
     }
@@ -79,7 +72,6 @@ impl TriggeredAlertNotification {
             alert,
 
             server_name: state.name.clone(),
-            last_favicon: state.last_favicon.clone(),
 
             _old_status: state.old_status.clone(),
             _old_players: state.old_players,
