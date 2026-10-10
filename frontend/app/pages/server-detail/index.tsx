@@ -20,7 +20,7 @@ import { BarChart, WifiOff } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
-import { cn, formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
+import { formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
@@ -55,7 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 }
 
-export async function clientLoader({ params }: any) {
+export async function clientLoader({ params }: LoaderFunctionArgs) {
     if (!params.id)
         return {
             initialServer: null,
@@ -82,12 +82,12 @@ export async function clientLoader({ params }: any) {
 }
 
 export const meta: MetaFunction<typeof loader> = (args) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { loaderData: data } = args as any
+    const { loaderData: data } = args
 
     // Langue résolue par le loader root (cookie ou Accept-Language)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rootData: any = args.matches?.find((m: any) => m.id === "root")?.data
+    const rootData = args.matches?.find((m) => m.id === "root")?.data as
+        | { serverLanguage?: Language }
+        | undefined
     const lang: Language = rootData?.serverLanguage ?? "fr"
     const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
 

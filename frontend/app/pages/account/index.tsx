@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router"
 import type { MetaFunction } from "react-router"
 
 import { useWebPush } from "@/core/hooks/useWebPush"
-import { useToast } from "@/core/contexts/ToastContext"
+import { useToast } from "@/core/hooks/useToast"
 import { AccountServersTab } from "./components/AccountServersTab"
 import { AccountAlertsTab } from "./components/AccountAlertsTab"
 import { AccountProfileTab } from "./components/AccountProfileTab"

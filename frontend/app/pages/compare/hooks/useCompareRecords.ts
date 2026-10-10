@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react"
+import { useState, useMemo, useRef, useCallback } from "react"
 import { useQueryClient, useQueries } from "@tanstack/react-query"
 import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
@@ -47,9 +47,22 @@ export function useCompareRecords(): UseCompareRecordsResult {
     const timeRanges = useMemo(() => getTimeRanges(t), [t])
     const intervals = useMemo(() => getIntervals(t), [t])
 
-    const [selectedRange, setSelectedRange] = useState(DEFAULT_RANGE_MS)
+    const [selectedRange, setSelectedRangeInner] = useState(DEFAULT_RANGE_MS)
     const [selectedInterval, setSelectedInterval] = useState(DEFAULT_INTERVAL_MS)
-    const [customRange, setCustomRange] = useState<DateRange | undefined>()
+    const [customRange, setCustomRangeInner] = useState<DateRange | undefined>()
+    const [nowSec, setNowSec] = useState(() => Math.floor(Date.now() / 1000))
+
+    // The requested window ends at "now", captured when the range inputs
+    // change (never during render).
+    const setSelectedRange = useCallback((value: number) => {
+        setSelectedRangeInner(value)
+        setNowSec(Math.floor(Date.now() / 1000))
+    }, [])
+
+    const setCustomRange = useCallback((value: DateRange | undefined) => {
+        setCustomRangeInner(value)
+        setNowSec(Math.floor(Date.now() / 1000))
+    }, [])
 
     const requestedWindow = useMemo((): CompareTimeRange => {
         if (selectedRange === -1) {
@@ -59,9 +72,8 @@ export function useCompareRecords(): UseCompareRecordsResult {
                 to: Math.floor(customRange.to.getTime() / 1000) + 86399,
             }
         }
-        const nowSec = Math.floor(Date.now() / 1000)
         return { from: nowSec - Math.floor(selectedRange / 1000), to: nowSec }
-    }, [selectedRange, customRange])
+    }, [selectedRange, customRange, nowSec])
 
     const from = requestedWindow.from
     const rangeReady = selectedRange !== -1 || (!!customRange?.from && !!customRange?.to)

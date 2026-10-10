@@ -7,7 +7,7 @@ import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
 import { fetchAlerts, createAlert, deleteAlert, type Alert } from "@/core/lib/api"
 import { useWebPush } from "@/core/hooks/useWebPush"
-import { useToast } from "@/core/contexts/ToastContext"
+import { useToast } from "@/core/hooks/useToast"
 
 interface AlertsSectionProps {
     serverId: number

@@ -11,7 +11,7 @@ import { cn } from "@/core/lib/utils"
 import { useNavigate } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { useSearch } from "@/core/contexts/SearchContext"
+import { useSearch } from "@/core/hooks/useSearch"
 import { MINUTE_MS } from "@/core/lib/time"
 
 import { LunarLogo } from "@/ui/components/LunarLogo"

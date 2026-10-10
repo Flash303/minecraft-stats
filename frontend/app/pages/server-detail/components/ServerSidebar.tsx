@@ -9,8 +9,8 @@ import { cn } from "@/core/lib/utils"
 import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
+import type { ClientInfos, LabyManifest } from "@/pages/server-detail/types"
 
-// Import icons mapping for social links
 const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string }> = {
     web: { icon: Globe, colorClass: "text-blue-500" },
     web_shop: { icon: ShoppingCart, colorClass: "text-emerald-500" },
@@ -26,9 +26,8 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
 }
 
 interface ServerSidebarProps {
-    client_infos?: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    labyManifest?: any;
+    client_infos?: ClientInfos;
+    labyManifest?: LabyManifest;
 }
 
 export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps) {
@@ -37,7 +36,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
     const [searchQuery, setSearchQuery] = useState("");
     const [showAllGamemodes, setShowAllGamemodes] = useState(false);
     const [showAllLunarGamemodes, setShowAllLunarGamemodes] = useState(false);
-    const { t, language } = useLanguage();
+    const { t } = useLanguage();
 
     const social = labyServerInfo?.social || {};
     const gamemodes = labyServerInfo?.gamemodes || {};
