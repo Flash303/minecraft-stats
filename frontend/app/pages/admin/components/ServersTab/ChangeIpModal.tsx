@@ -15,6 +15,7 @@ import {
     DialogTitle,
 } from "@/ui/components/dialog"
 import { MinecraftMotd } from "@/ui/motd"
+import type { MotdInputNode } from "@/ui/motd/types"
 
 interface ChangeIpModalProps {
     server: Server
@@ -25,6 +26,15 @@ interface ChangeIpModalProps {
     onOpenChange: (open: boolean) => void
 }
 
+interface PingResult {
+    is_reachable: boolean
+    motd?: MotdInputNode
+    version?: string
+    favicon?: string
+    current_players?: number
+    max_players?: number
+}
+
 export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpenChange }: ChangeIpModalProps) {
     const { getToken } = useAuth()
     const [confirmText, setConfirmText] = useState("")
@@ -32,7 +42,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpen
     const [port, setPort] = useState(server.port.toString())
 
     const [loadingPing, setLoadingPing] = useState(false)
-    const [pingResult, setPingResult] = useState<{ is_reachable: boolean, motd?: any, version?: string, favicon?: string, current_players?: number, max_players?: number } | null>(null)
+    const [pingResult, setPingResult] = useState<PingResult | null>(null)
     const [loading, setLoading] = useState(false)
 
     const handleOpenChange = (v: boolean) => {
@@ -54,7 +64,7 @@ export function ChangeIpModal({ server, onSuccess, triggerToast, t, open, onOpen
             if (token) {
                 const res = await pingServerIp(server.id, ip, parseInt(port), token)
                 if (res.success && res.data) {
-                    setPingResult(res.data)
+                    setPingResult(res.data as PingResult)
                 } else {
                     if (triggerToast) triggerToast("error", t("admin.servers.pingError"))
                 }

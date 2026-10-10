@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ArrowDown } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { useTheme } from "@/core/contexts/ThemeContext"
+import { useTheme } from "@/core/hooks/useTheme"
 import type { Server as ServerType } from "@/core/lib/api"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 
@@ -26,14 +26,17 @@ const points = defaultYValues.map((y, idx) => {
 
 // Animated counter hook (module-level to comply with React rules of hooks)
 function useAnimatedCount(target: number, duration = 1200) {
-    const [count, setCount] = useState(0)
+    const [prefersReducedMotion] = useState(
+        () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    )
+    const [prevTarget, setPrevTarget] = useState(target)
+    const [count, setCount] = useState(() => (prefersReducedMotion ? target : 0))
+    if (prevTarget !== target) {
+        setPrevTarget(target)
+        setCount(prefersReducedMotion ? target : 0)
+    }
     useEffect(() => {
-        // prefers-reduced-motion : pas d'animation, valeur finale directe
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            setCount(target)
-            return
-        }
-        if (target === 0) { setCount(0); return }
+        if (prefersReducedMotion || target === 0) return
         let start = 0
         const step = target / (duration / 16)
         const timer = setInterval(() => {
@@ -46,7 +49,7 @@ function useAnimatedCount(target: number, duration = 1200) {
             }
         }, 16)
         return () => clearInterval(timer)
-    }, [target, duration])
+    }, [target, duration, prefersReducedMotion])
     return count
 }
 

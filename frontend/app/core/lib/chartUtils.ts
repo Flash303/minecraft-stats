@@ -1,5 +1,18 @@
 import type uPlot from "uplot"
 import type { Server } from "./api"
+import {
+    RANGE_1H_MS,
+    RANGE_6H_MS,
+    RANGE_24H_MS,
+    RANGE_7D_MS,
+    RANGE_30D_MS,
+    RANGE_60D_MS,
+    INTERVAL_10S_MS,
+    INTERVAL_1M_MS,
+    INTERVAL_5M_MS,
+    INTERVAL_30M_MS,
+    INTERVAL_1H_MS,
+} from "./time"
 
 interface PlayerDataPoint {
     date: number
@@ -139,12 +152,12 @@ export function formatTooltipDateTime(val: number, language: string, locale: str
  */
 export function getTimeRanges(t: (key: string) => string) {
     return [
-        { label: t("serverDetail.lastHour"), value: 3600000 },
-        { label: t("serverDetail.last6Hours"), value: 21600000 },
-        { label: t("serverDetail.last24Hours"), value: 86400000 },
-        { label: t("serverDetail.last7Days"), value: 604800000 },
-        { label: t("serverDetail.last30Days"), value: 2592000000 },
-        { label: t("serverDetail.last60Days"), value: 5184000000 }
+        { label: t("serverDetail.lastHour"), value: RANGE_1H_MS },
+        { label: t("serverDetail.last6Hours"), value: RANGE_6H_MS },
+        { label: t("serverDetail.last24Hours"), value: RANGE_24H_MS },
+        { label: t("serverDetail.last7Days"), value: RANGE_7D_MS },
+        { label: t("serverDetail.last30Days"), value: RANGE_30D_MS },
+        { label: t("serverDetail.last60Days"), value: RANGE_60D_MS }
     ]
 }
 
@@ -153,10 +166,10 @@ export function getTimeRanges(t: (key: string) => string) {
  */
 export function getIntervals(t: (key: string) => string) {
     return [
-        { label: t("serverDetail.interval10s"), value: 10000 },
-        { label: t("serverDetail.interval1m"), value: 60000 },
-        { label: t("serverDetail.interval5m"), value: 300000 },
-        { label: t("serverDetail.interval30m"), value: 1800000 },
-        { label: t("serverDetail.interval1h"), value: 3600000 }
+        { label: t("serverDetail.interval10s"), value: INTERVAL_10S_MS },
+        { label: t("serverDetail.interval1m"), value: INTERVAL_1M_MS },
+        { label: t("serverDetail.interval5m"), value: INTERVAL_5M_MS },
+        { label: t("serverDetail.interval30m"), value: INTERVAL_30M_MS },
+        { label: t("serverDetail.interval1h"), value: INTERVAL_1H_MS }
     ]
 }

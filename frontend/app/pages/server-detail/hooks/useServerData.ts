@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router"
 import { useAuth } from "@clerk/react"
 import { fetchRecords, fetchServer } from "@/core/lib/api"
-import type { Server } from "@/core/lib/api"
+import type { Server, ServerRecord } from "@/core/lib/api"
+import type { LabyManifest, LabyRawInfo } from "@/pages/server-detail/types"
+import { DEFAULT_INTERVAL_MS, DEFAULT_RANGE_MS } from "@/core/lib/time"
 
 
 export type DateRange = {
@@ -10,7 +12,7 @@ export type DateRange = {
     to?: Date | undefined
 }
 
-export function useServerData(initialServer: Server | null, initialRecords: any[], initialFrom: number) {
+export function useServerData(initialServer: Server | null, initialRecords: ServerRecord[], initialFrom: number) {
     const { id } = useParams<{ id: string }>()
     const { getToken, isSignedIn, isLoaded } = useAuth()
 
@@ -31,10 +33,10 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         refreshCount?: number
     }>({ refreshCount: 0 })
 
-    const [selectedRange, setSelectedRange] = useState(86400000)
-    const [selectedInterval, setSelectedInterval] = useState(60000)
-    const [appliedRange, setAppliedRange] = useState(86400000)
-    const [appliedInterval, setAppliedInterval] = useState(60000)
+    const [selectedRange, setSelectedRange] = useState(DEFAULT_RANGE_MS)
+    const [selectedInterval, setSelectedInterval] = useState(DEFAULT_INTERVAL_MS)
+    const [appliedRange, setAppliedRange] = useState(DEFAULT_RANGE_MS)
+    const [appliedInterval, setAppliedInterval] = useState(DEFAULT_INTERVAL_MS)
     const [customRange, setCustomRange] = useState<DateRange | undefined>()
     const [appliedCustomRange, setAppliedCustomRange] = useState<DateRange | undefined>()
     
@@ -44,7 +46,7 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
     const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     
-    const [labyManifest, setLabyManifest] = useState<any | undefined>()
+    const [labyManifest, setLabyManifest] = useState<LabyManifest | undefined>()
 
     const labyBackground = server?.client_infos?.laby?.background
     const lunarBackground = server?.client_infos?.lunar?.background
@@ -56,9 +58,9 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
         setLabyManifest(undefined)
 
         if (server?.client_infos?.laby?.raw) {
-            const info = server.client_infos.laby.raw;
-            const manifestAttachment = info.attachments?.find((a: any) => a.file_name === 'manifest.json')
-            if (manifestAttachment) {
+            const info: LabyRawInfo | undefined = server.client_infos.laby.raw;
+            const manifestAttachment = info?.attachments?.find((a) => a.file_name === 'manifest.json')
+            if (manifestAttachment?.url) {
                 const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
                 fetch(proxyUrl)
                     .then(res => {
@@ -141,8 +143,8 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                     const data = await fetchServer(Number(id), token ?? undefined)
                     if (isStale()) return
                     if (data) setServer(data)
-                } catch (error: any) {
-                    if (error?.message === "RATE_LIMIT") setIsRateLimited(true)
+                } catch (error: unknown) {
+                    if (error instanceof Error && error.message === "RATE_LIMIT") setIsRateLimited(true)
                 } finally {
                     if (!isBackground && !server && !isStale()) setLoading(false)
                 }
@@ -166,8 +168,8 @@ export function useServerData(initialServer: Server | null, initialRecords: any[
                     setRawRecords(data)
                     setLoadedFrom(from)
                     setTimeLimits((prev) => prev.from === from && prev.to === now ? prev : { from, to: now })
-                } catch (error: any) {
-                    if (error.message === "RATE_LIMIT") {
+                } catch (error: unknown) {
+                    if (error instanceof Error && error.message === "RATE_LIMIT") {
                         setIsRateLimited(true)
                     }
                     if (rawRecords.length === 0 && !(isBackground && isChartZoomed.current)) {

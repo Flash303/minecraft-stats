@@ -9,22 +9,22 @@ import {
 } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import "./index.css";
-import { ThemeProvider } from "./core/contexts/ThemeContext";
-import { SearchProvider } from "./core/contexts/SearchContext";
-import { LanguageProvider } from "./core/contexts/LanguageContext";
-import { ToastProvider } from "./core/contexts/ToastContext";
+import { ThemeProvider } from "@/core/contexts/ThemeContext";
+import { SearchProvider } from "@/core/contexts/SearchContext";
+import { LanguageProvider } from "@/core/contexts/LanguageContext";
+import { ToastProvider } from "@/core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AdminProvider } from "./core/contexts/AdminContext";
+import { AdminProvider } from "@/core/contexts/AdminContext";
 
 import { TooltipProvider } from "@/ui/components/tooltip";
 import { useEffect } from "react";
-import { GlobalLoading } from "./ui/components/global-loading";
-import { BedrockLogoSprite } from "./ui/components/BedrockLogo";
-import { LabyLogoSprite } from "./ui/components/LabyLogo";
-import { APP_URL } from "./core/lib/config";
-import { parseLanguageCookie, resolveLanguageFromHeader } from "./core/lib/accept-language";
-import { translate, type Language } from "./core/lib/i18n";
+import { GlobalLoading } from "@/ui/components/global-loading";
+import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
+import { LabyLogoSprite } from "@/ui/components/LabyLogo";
+import { APP_URL } from "@/core/lib/config";
+import { parseLanguageCookie, resolveLanguageFromHeader } from "@/core/lib/accept-language";
+import { translate, type Language } from "@/core/lib/i18n";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 

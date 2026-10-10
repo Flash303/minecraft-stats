@@ -1,8 +1,7 @@
 import { MINECRAFT_COLORS, OBFUSCATION_CHARS, ENABLE_CUSTOM_HEADS } from "./constants";
+import type { MotdInputNode, MotdInheritedStyle } from "./types";
 
- 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function flattenMotd(node: any, inherited: any = {}): string {
+export function flattenMotd(node: MotdInputNode, inherited: MotdInheritedStyle = {}): string {
     if (typeof node === "string") return node;
     if (Array.isArray(node)) return node.map(n => flattenMotd(n, inherited)).join("");
     if (!node || typeof node !== "object") return "";
@@ -66,8 +65,7 @@ export function flattenMotd(node: any, inherited: any = {}): string {
         if (typeof node.player === 'string') {
             res += `&head{name:${node.player}|${node.hat ? 'true' : 'false'}};`;
         } else if (node.player.properties) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const textureProp = node.player.properties.find((p: any) => p.name === 'textures');
+            const textureProp = node.player.properties.find((p) => p.name === 'textures');
             if (textureProp && textureProp.value) {
                 res += `&head{${textureProp.value}|${node.hat ? 'true' : 'false'}};`;
             }

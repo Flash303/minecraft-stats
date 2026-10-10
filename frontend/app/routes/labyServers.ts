@@ -1,6 +1,4 @@
-import type { LoaderFunctionArgs } from "react-router";
-
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader() {
     try {
         const res = await fetch("https://laby.net/api/v3/publicServers", {
             headers: {

@@ -8,7 +8,7 @@ interface ExtendedAlert extends Alert {
 }
 
 interface AccountAlertsTabProps {
-    t: (key: string, options?: any) => string;
+    t: (key: string, options?: Record<string, string>) => string;
     isPushSupported: boolean;
     checkingSubscription: boolean;
     isSubscribed: boolean;

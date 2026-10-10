@@ -27,7 +27,7 @@ const FALLBACKS: Record<string, { light: string; dark: string }> = {
   "--chart-axis-text": { light: "#374151", dark: "#d1d5db" },
 };
 
-export function isDarkTheme(): boolean {
+function isDarkTheme(): boolean {
   if (typeof document === "undefined") return true;
   return document.documentElement.classList.contains("dark");
 }

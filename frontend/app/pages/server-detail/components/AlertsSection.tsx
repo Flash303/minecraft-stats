@@ -7,12 +7,14 @@ import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
 import { fetchAlerts, createAlert, deleteAlert, type Alert } from "@/core/lib/api"
 import { useWebPush } from "@/core/hooks/useWebPush"
-import { useToast } from "@/core/contexts/ToastContext"
+import { useToast } from "@/core/hooks/useToast"
 
 interface AlertsSectionProps {
     serverId: number
     t: (key: string) => string
 }
+
+type AlertType = "status_to_offline" | "status_to_online" | "player_above" | "player_below"
 
 export function AlertsSection({ serverId, t }: AlertsSectionProps) {
     const { getToken, isSignedIn, isLoaded } = useAuth()
@@ -30,7 +32,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
     const [loading, setLoading] = useState(true)
 
     // Form State
-    const [alertType, setAlertType] = useState<"status_to_offline" | "status_to_online" | "player_above" | "player_below">("status_to_offline")
+    const [alertType, setAlertType] = useState<AlertType>("status_to_offline")
     const [threshold, setThreshold] = useState<string>("")
 
     const loadAlerts = useCallback(async () => {
@@ -168,8 +170,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                     <form onSubmit={handleAddAlert} className="flex flex-col gap-4">
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="alert-type" className="text-xs text-muted-foreground">{t("alerts.typeLabel")}</Label>
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                            <Select value={alertType} onValueChange={(v) => setAlertType(v as any)}>
+                            <Select value={alertType} onValueChange={(v: string) => setAlertType(v as AlertType)}>
                                 <SelectTrigger id="alert-type" className="h-9 w-full">
                                     <SelectValue placeholder={t("alerts.typeLabel")} />
                                 </SelectTrigger>

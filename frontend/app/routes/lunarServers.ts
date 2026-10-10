@@ -1,6 +1,4 @@
-import type { LoaderFunctionArgs } from "react-router";
-
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader() {
     try {
         const uuid = crypto.randomUUID();
         const res = await fetch(`https://api.lunarclientprod.com/launcher/servers?installation_id=${uuid}&os=win32&os_release=10.0&arch=x64&launcher_version=3.0.0`, {

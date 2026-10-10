@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react"
+import { useEffect, useCallback, useMemo, Suspense } from "react"
 import {
     useSearchParams,
     useLoaderData,
@@ -13,7 +13,7 @@ import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
 import { ServerListFilters } from "@/pages/home/components/ServerListFilters"
 import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
-import { useSearch } from "@/core/contexts/SearchContext"
+import { useSearch } from "@/core/hooks/useSearch"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 
 import { Hero3D } from "@/pages/home/components/Hero3D"

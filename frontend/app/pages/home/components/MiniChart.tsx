@@ -2,9 +2,10 @@ import { useMemo, useRef, useEffect } from "react"
 import uPlot from "uplot"
 import UplotReact from "uplot-react"
 import "uplot/dist/uPlot.min.css"
-import { useTheme } from "@/core/contexts/ThemeContext"
+import { useTheme } from "@/core/hooks/useTheme"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { prepareSingleChartData } from "@/core/lib/chartUtils"
+import { INTERVAL_5M_MS } from "@/core/lib/time"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 import { ClientOnly } from "@/ui/components/ClientOnly"
 import { MiniChartSkeleton } from "./MiniChartSkeleton"
@@ -24,7 +25,7 @@ export function MiniChart({ data }: MiniChartProps) {
     const chartRef = useRef<uPlot | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
-    const chartData = useMemo(() => prepareSingleChartData(data || [], 300000), [data])
+    const chartData = useMemo(() => prepareSingleChartData(data || [], INTERVAL_5M_MS), [data])
 
     const options = useMemo(() => {
         const isDark = theme === "dark"

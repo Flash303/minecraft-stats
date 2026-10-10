@@ -1,19 +1,14 @@
-import { useState, useEffect } from "react"
+import { useSyncExternalStore } from "react"
 
+/** Live media-query match (SSR-safe: always false on the server). */
 export function useMediaQuery(query: string) {
-    const [value, setValue] = useState(false)
-
-    useEffect(() => {
-        function onChange(event: MediaQueryListEvent) {
-            setValue(event.matches)
-        }
-
-        const result = matchMedia(query)
-        result.addEventListener("change", onChange)
-        setValue(result.matches)
-
-        return () => result.removeEventListener("change", onChange)
-    }, [query])
-
-    return value
+    return useSyncExternalStore(
+        (onChange) => {
+            const result = matchMedia(query)
+            result.addEventListener("change", onChange)
+            return () => result.removeEventListener("change", onChange)
+        },
+        () => matchMedia(query).matches,
+        () => false,
+    )
 }
