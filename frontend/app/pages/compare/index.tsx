@@ -8,13 +8,12 @@ import { TimeIntervalSelector } from "@/ui/components/TimeIntervalSelector"
 import { SelectedServersTags } from "@/pages/compare/components/SelectedServersTags"
 import { useCompareRecords } from "@/pages/compare/hooks/useCompareRecords"
 import type { MetaFunction } from "react-router"
-import { translate } from "@/core/lib/i18n"
-import { resolveMetaLanguage, siteTitle, staticPageMeta } from "@/core/lib/seo-meta"
+import { resolveMetaLanguage, siteTitle, staticPageMeta, translateMeta } from "@/core/lib/seo-meta"
 
 export const meta: MetaFunction = ({ matches }) => {
     const lang = resolveMetaLanguage(matches)
     const title = siteTitle(lang, "comparison.title")
-    const description = translate(lang, "comparison.noSelectionDesc")
+    const description = translateMeta(lang, "comparison.noSelectionDesc")
     return staticPageMeta({ title, description, path: "/compare" })
 }
 

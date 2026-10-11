@@ -3,7 +3,7 @@ import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
-import { translate, type Language } from "@/core/lib/i18n"
+import { translateMeta, type Language } from "@/core/lib/seo-meta"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -84,12 +84,13 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 export const meta: MetaFunction<typeof loader> = (args) => {
     const { loaderData: data } = args
 
-    // Langue résolue par le loader root (cookie ou Accept-Language)
-    const rootData = args.matches?.find((m) => m.id === "root")?.data as
+    // Langue résolue par le loader root (cookie ou Accept-Language).
+    // Les matches React Router exposent les données sous `loaderData` (pas `data`).
+    const rootData = args.matches?.find((m) => m.id === "root")?.loaderData as
         | { serverLanguage?: Language }
         | undefined
     const lang: Language = rootData?.serverLanguage ?? "fr"
-    const L = (path: string, vars?: Record<string, string>) => translate(lang, path, vars)
+    const L = (path: string, vars?: Record<string, string>) => translateMeta(lang, path, vars)
 
     if (!data || !data.initialServer) {
         return [
