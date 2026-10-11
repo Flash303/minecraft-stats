@@ -2,14 +2,13 @@
 import type { MetaFunction } from "react-router"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { legalReplacements } from "@/core/lib/legal-info"
-import { translate } from "@/core/lib/i18n"
-import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription } from "@/core/lib/seo-meta"
+import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription, translateMeta } from "@/core/lib/seo-meta"
 
 export const meta: MetaFunction = ({ matches }) => {
     const lang = resolveMetaLanguage(matches)
     return staticPageMeta({
         title: siteTitle(lang, "legal.terms.title"),
-        description: truncateDescription(translate(lang, "legal.terms.p1")),
+        description: truncateDescription(translateMeta(lang, "legal.terms.p1")),
         path: "/terms",
     })
 }

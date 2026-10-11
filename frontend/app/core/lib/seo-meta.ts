@@ -1,22 +1,57 @@
 import { translate, type Language } from "@/core/lib/i18n";
 import { APP_URL } from "@/core/lib/config";
 
+export const DEFAULT_LANGUAGE: Language = "fr";
+
+const SUPPORTED_LANGUAGES: ReadonlySet<string> = new Set([
+    "fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh-CN", "ja", "ko", "nl",
+]);
+
+function isSupportedLanguage(lang: unknown): lang is Language {
+    return typeof lang === "string" && SUPPORTED_LANGUAGES.has(lang);
+}
+
 /**
  * Langue résolue côté serveur par le loader root (cookie puis Accept-Language).
  * Utilisée par les meta() SSR pour rendre title/description dans la bonne langue.
+ *
+ * Attention : dans les meta(), les matches React Router exposent les données
+ * sous `loaderData` (pas `data`). Lire `.data` renvoie toujours `undefined` et
+ * force le fallback français — puis des clés i18n brutes côté client quand le
+ * dictionnaire français n'y est pas chargé.
  */
 export function resolveMetaLanguage(
-    matches: Array<{ id?: string; data?: unknown }> | undefined
+    matches: Array<{ id?: string; loaderData?: unknown }> | undefined
 ): Language {
-    const rootData = matches?.find((m) => m.id === "root")?.data as
-        | { serverLanguage?: Language }
+    const rootData = matches?.find((m) => m.id === "root")?.loaderData as
+        | { serverLanguage?: unknown }
         | undefined;
-    return rootData?.serverLanguage ?? "fr";
+    const lang = rootData?.serverLanguage ?? DEFAULT_LANGUAGE;
+    return isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
+}
+
+/**
+ * Traduction sûre pour les balises SEO : ne renvoie JAMAIS la clé brute.
+ * Chaîne de fallback : langue demandée → langue par défaut → chaîne vide.
+ * Une clé i18n dans un <title> serait indexée telle quelle par Google.
+ */
+export function translateMeta(
+    lang: Language,
+    path: string,
+    replacements?: Record<string, string>
+): string {
+    const hit = translate(lang, path, replacements);
+    if (hit !== path) return hit;
+    if (lang !== DEFAULT_LANGUAGE) {
+        const fallback = translate(DEFAULT_LANGUAGE, path, replacements);
+        if (fallback !== path) return fallback;
+    }
+    return "";
 }
 
 /** Titre suffixé du nom du site, ex. "Comparaison de serveurs | Minecraft-Stats". */
 export function siteTitle(lang: Language, titleKey: string): string {
-    return `${translate(lang, titleKey)} | Minecraft-Stats`;
+    return `${translateMeta(lang, titleKey)} | Minecraft-Stats`;
 }
 
 /** Tronque une description au-delà de `max` caractères, sans couper en plein mot. */

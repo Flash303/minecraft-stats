@@ -21,8 +21,7 @@ import { FaqSection } from "@/pages/home/components/FaqSection"
 import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
-import { translate } from "@/core/lib/i18n"
-import { resolveMetaLanguage, staticPageMeta } from "@/core/lib/seo-meta"
+import { resolveMetaLanguage, staticPageMeta, translateMeta } from "@/core/lib/seo-meta"
 
 // La home est la seule page avec des variantes filtrées/paginées (?tab=&page=...) :
 // le canonical pointe toujours vers l'URL clean pour consolider l'indexation.
@@ -30,8 +29,8 @@ import { resolveMetaLanguage, staticPageMeta } from "@/core/lib/seo-meta"
 export const meta: MetaFunction = ({ matches }) => {
     const lang = resolveMetaLanguage(matches)
     return staticPageMeta({
-        title: translate(lang, "seo.homeTitle"),
-        description: translate(lang, "seo.homeDescription"),
+        title: translateMeta(lang, "seo.homeTitle"),
+        description: translateMeta(lang, "seo.homeDescription"),
         path: "/",
     })
 }

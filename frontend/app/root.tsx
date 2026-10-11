@@ -24,7 +24,8 @@ import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
 import { LabyLogoSprite } from "@/ui/components/LabyLogo";
 import { APP_URL } from "@/core/lib/config";
 import { parseLanguageCookie, resolveLanguageFromHeader } from "@/core/lib/accept-language";
-import { translate, type Language } from "@/core/lib/i18n";
+import { type Language } from "@/core/lib/i18n";
+import { translateMeta } from "@/core/lib/seo-meta";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -63,7 +64,7 @@ export function shouldRevalidate() {
 
 export function meta({ data }: { data?: { serverLanguage?: Language } }) {
   const lang = data?.serverLanguage ?? "fr"
-  const L = (path: string) => translate(lang, path)
+  const L = (path: string) => translateMeta(lang, path)
 
   return [
     { title: L("seo.homeTitle") },
@@ -135,7 +136,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   "@id": `${APP_URL}/#website`,
                   "name": "Minecraft-Stats",
                   "url": APP_URL,
-                  "description": translate(lang, "seo.homeDescription"),
+                  "description": translateMeta(lang, "seo.homeDescription"),
                   "publisher": { "@id": `${APP_URL}/#organization` },
                   "potentialAction": {
                     "@type": "SearchAction",
