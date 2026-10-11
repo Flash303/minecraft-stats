@@ -1,16 +1,24 @@
 
 import type { MetaFunction } from "react-router"
+import type { Language } from "@/core/lib/i18n"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { legalReplacements } from "@/core/lib/legal-info"
-import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription, translateMeta } from "@/core/lib/seo-meta"
+import { resolveMetaLanguage, siteTitle, staticPageMeta, truncateDescription, translateMeta, type DocumentMeta, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
 export const meta: MetaFunction = ({ matches }) => {
     const lang = resolveMetaLanguage(matches)
-    return staticPageMeta({
+    return staticPageMeta({ ...privacyMetaStrings(lang), path: "/privacy" })
+}
+
+function privacyMetaStrings(lang: Language): DocumentMeta {
+    return {
         title: siteTitle(lang, "legal.privacy.title"),
         description: truncateDescription(translateMeta(lang, "legal.privacy.p1", legalReplacements)),
-        path: "/privacy",
-    })
+    }
+}
+
+export const handle: RouteMetaHandle = {
+    getDocumentMeta: (_data: unknown, lang: Language) => privacyMetaStrings(lang),
 }
 
 const SECTIONS = [1, 2, 3, 4, 5, 6, 7] as const

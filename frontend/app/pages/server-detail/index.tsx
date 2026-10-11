@@ -2,8 +2,9 @@ import { useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
+import type { Server } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
-import { translateMeta, type Language } from "@/core/lib/seo-meta"
+import { translateMeta, type DocumentMeta, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -81,25 +82,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     }
 }
 
-export const meta: MetaFunction<typeof loader> = (args) => {
-    const { loaderData: data } = args
-
-    // Langue résolue par le loader root (cookie ou Accept-Language).
-    // Les matches React Router exposent les données sous `loaderData` (pas `data`).
-    const rootData = args.matches?.find((m) => m.id === "root")?.loaderData as
-        | { serverLanguage?: Language }
-        | undefined
-    const lang: Language = rootData?.serverLanguage ?? "fr"
+function getServerDocumentMeta(server: Server | null, lang: Language): DocumentMeta {
     const L = (path: string, vars?: Record<string, string>) => translateMeta(lang, path, vars)
-
-    if (!data || !data.initialServer) {
-        return [
-            { title: L("seo.notFoundTitle") },
-            { name: "description", content: L("seo.notFoundDescription") },
-            { name: "robots", content: "noindex" }
-        ]
+    if (!server) {
+        return {
+            title: L("seo.notFoundTitle"),
+            description: L("seo.notFoundDescription"),
+        }
     }
-    const server = data.initialServer
     const title = `${server.name} - ${L("seo.serverTitleSuffix")}`
     const isOnline = server.last_status === "online"
     const players = isOnline
@@ -111,6 +101,27 @@ export const meta: MetaFunction<typeof loader> = (args) => {
           ? ` ${L("seo.statusOffline")}`
           : ""
     const description = `${L("seo.serverDescription", { name: server.name, ip: server.ip })}${playersText}`
+    return { title, description }
+}
+
+export const meta: MetaFunction<typeof loader> = (args) => {
+    const { loaderData: data } = args
+
+    const rootData = args.matches?.find((m) => m.id === "root")?.loaderData as
+        | { serverLanguage?: Language }
+        | undefined
+    const lang: Language = rootData?.serverLanguage ?? "fr"
+
+    if (!data || !data.initialServer) {
+        const { title, description } = getServerDocumentMeta(null, lang)
+        return [
+            { title },
+            { name: "description", content: description },
+            { name: "robots", content: "noindex" }
+        ]
+    }
+    const server = data.initialServer
+    const { title, description } = getServerDocumentMeta(server, lang)
     return [
         { title },
         { name: "description", content: description },
@@ -132,6 +143,14 @@ export const meta: MetaFunction<typeof loader> = (args) => {
             content: getServerIconUrl(server.id)
         }
     ]
+}
+
+export const handle: RouteMetaHandle = {
+    getDocumentMeta: (data: unknown, lang: Language) => {
+        const server =
+            (data as { initialServer?: Server | null } | undefined)?.initialServer ?? null
+        return getServerDocumentMeta(server, lang)
+    },
 }
 
 export default function ServerDetail() {
