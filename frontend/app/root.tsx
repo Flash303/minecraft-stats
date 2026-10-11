@@ -24,7 +24,7 @@ import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
 import { LabyLogoSprite } from "@/ui/components/LabyLogo";
 import { APP_URL } from "@/core/lib/config";
 import { parseLanguageCookie, resolveLanguageFromHeader } from "@/core/lib/accept-language";
-import { translate, type Language } from "@/core/lib/i18n";
+import { type Language } from "@/core/lib/i18n";
 import { translateMeta } from "@/core/lib/seo-meta";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
