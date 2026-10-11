@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { Outlet } from "react-router"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
+import { DocumentMetaSync } from "./DocumentMetaSync"
 import { LayoutContext } from "./LayoutContext"
 
 export default function Layout() {
@@ -10,6 +11,7 @@ export default function Layout() {
 
     return (
         <LayoutContext.Provider value={{ setLeftContent }}>
+            <DocumentMetaSync />
             <div className="flex min-h-screen flex-col">
                 <Header leftContent={leftContent} />
                 <main className="container mx-auto flex-1 px-4 py-6">

@@ -11,15 +11,6 @@ function isSupportedLanguage(lang: unknown): lang is Language {
     return typeof lang === "string" && SUPPORTED_LANGUAGES.has(lang);
 }
 
-/**
- * Langue résolue côté serveur par le loader root (cookie puis Accept-Language).
- * Utilisée par les meta() SSR pour rendre title/description dans la bonne langue.
- *
- * Attention : dans les meta(), les matches React Router exposent les données
- * sous `loaderData` (pas `data`). Lire `.data` renvoie toujours `undefined` et
- * force le fallback français — puis des clés i18n brutes côté client quand le
- * dictionnaire français n'y est pas chargé.
- */
 export function resolveMetaLanguage(
     matches: Array<{ id?: string; loaderData?: unknown }> | undefined
 ): Language {
@@ -30,11 +21,6 @@ export function resolveMetaLanguage(
     return isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
 }
 
-/**
- * Traduction sûre pour les balises SEO : ne renvoie JAMAIS la clé brute.
- * Chaîne de fallback : langue demandée → langue par défaut → chaîne vide.
- * Une clé i18n dans un <title> serait indexée telle quelle par Google.
- */
 export function translateMeta(
     lang: Language,
     path: string,
@@ -49,12 +35,28 @@ export function translateMeta(
     return "";
 }
 
-/** Titre suffixé du nom du site, ex. "Comparaison de serveurs | Minecraft-Stats". */
 export function siteTitle(lang: Language, titleKey: string): string {
     return `${translateMeta(lang, titleKey)} | Minecraft-Stats`;
 }
 
-/** Tronque une description au-delà de `max` caractères, sans couper en plein mot. */
+export interface DocumentMeta {
+    title: string;
+    description: string;
+}
+
+export interface RouteMetaHandle {
+    getDocumentMeta?: (data: unknown, lang: Language) => DocumentMeta | null;
+}
+
+export function applyDocumentMeta(meta: DocumentMeta): void {
+    document.title = meta.title;
+    document.head.querySelector('meta[name="description"]')?.setAttribute("content", meta.description);
+    document.head.querySelector('meta[property="og:title"]')?.setAttribute("content", meta.title);
+    document.head.querySelector('meta[property="og:description"]')?.setAttribute("content", meta.description);
+    document.head.querySelector('meta[name="twitter:title"]')?.setAttribute("content", meta.title);
+    document.head.querySelector('meta[name="twitter:description"]')?.setAttribute("content", meta.description);
+}
+
 export function truncateDescription(text: string, max = 157): string {
     if (text.length <= max) return text;
     const cut = text.slice(0, max);
@@ -62,14 +64,10 @@ export function truncateDescription(text: string, max = 157): string {
     return `${(lastSpace > 100 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
-/** Balise canonical vers l'URL officielle de la page (lutte contre le duplicate content). */
 export function canonicalLink(path: string) {
     return { tagName: "link", rel: "canonical", href: `${APP_URL}${path}` } as const;
 }
 
-/** Balises title/description + Open Graph + Twitter pour une page statique.
- * Jeu complet et autosuffisant : le meta() de la route feuille remplace celui
- * du root, donc chaque page doit déclarer tous ses tags elle-même. */
 export function staticPageMeta(opts: { title: string; description: string; path: string }) {
     const url = `${APP_URL}${opts.path}`;
     const image = `${APP_URL}/opengraph.webp`;

@@ -21,18 +21,23 @@ import { FaqSection } from "@/pages/home/components/FaqSection"
 import { Pagination } from "@/ui/components/pagination"
 
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
-import { resolveMetaLanguage, staticPageMeta, translateMeta } from "@/core/lib/seo-meta"
+import type { Language } from "@/core/lib/i18n"
+import { resolveMetaLanguage, staticPageMeta, translateMeta, type DocumentMeta, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
-// La home est la seule page avec des variantes filtrées/paginées (?tab=&page=...) :
-// le canonical pointe toujours vers l'URL clean pour consolider l'indexation.
-// Jeu de tags complet : le meta() feuille remplace celui du root.
 export const meta: MetaFunction = ({ matches }) => {
     const lang = resolveMetaLanguage(matches)
-    return staticPageMeta({
+    return staticPageMeta({ ...homeMetaStrings(lang), path: "/" })
+}
+
+function homeMetaStrings(lang: Language): DocumentMeta {
+    return {
         title: translateMeta(lang, "seo.homeTitle"),
         description: translateMeta(lang, "seo.homeDescription"),
-        path: "/",
-    })
+    }
+}
+
+export const handle: RouteMetaHandle = {
+    getDocumentMeta: (_data: unknown, lang: Language) => homeMetaStrings(lang),
 }
 
 // Réduit chaque serveur à ce dont la home a réellement besoin avant sérialisation
