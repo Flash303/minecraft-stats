@@ -1,10 +1,10 @@
-import { useMemo, lazy, Suspense } from "react"
+import { useEffect, useMemo, lazy, Suspense } from "react"
 import { Link, useLoaderData, useRouteError } from "react-router"
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
-import { translateMeta, type DocumentMeta, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
+import { applyDocumentMeta, getServerDocumentMeta, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -82,28 +82,6 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
     }
 }
 
-function getServerDocumentMeta(server: Server | null, lang: Language): DocumentMeta {
-    const L = (path: string, vars?: Record<string, string>) => translateMeta(lang, path, vars)
-    if (!server) {
-        return {
-            title: L("seo.notFoundTitle"),
-            description: L("seo.notFoundDescription"),
-        }
-    }
-    const title = `${server.name} - ${L("seo.serverTitleSuffix")}`
-    const isOnline = server.last_status === "online"
-    const players = isOnline
-        ? formatNumber(lang, server.last_connected ?? 0)
-        : "0"
-    const playersText = isOnline
-        ? ` ${L("seo.statusOnline", { count: players })}`
-        : server.last_status === "offline"
-          ? ` ${L("seo.statusOffline")}`
-          : ""
-    const description = `${L("seo.serverDescription", { name: server.name, ip: server.ip })}${playersText}`
-    return { title, description }
-}
-
 export const meta: MetaFunction<typeof loader> = (args) => {
     const { loaderData: data } = args
 
@@ -146,6 +124,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
 }
 
 export const handle: RouteMetaHandle = {
+    syncLiveTitle: true,
     getDocumentMeta: (data: unknown, lang: Language) => {
         const server =
             (data as { initialServer?: Server | null } | undefined)?.initialServer ?? null
@@ -171,6 +150,10 @@ export default function ServerDetail() {
     } = useServerData(initialServer, initialRecords, initialFrom);
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
     const INTERVALS = useMemo(() => getIntervals(t), [t])
+
+    useEffect(() => {
+        if (server) applyDocumentMeta(getServerDocumentMeta(server, language))
+    }, [server, language])
 
     // Données structurées rendues dans le JSX (donc présentes dans le HTML SSR),
     // à partir des données du loader pour que SSR et client soient identiques.

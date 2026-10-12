@@ -16,7 +16,9 @@ export function DocumentMetaSync() {
                     "function"
             )
         if (!leaf) return
-        const meta = (leaf.handle as RouteMetaHandle).getDocumentMeta?.(leaf.data, language)
+        const handle = leaf.handle as RouteMetaHandle
+        if (handle.syncLiveTitle) return
+        const meta = handle.getDocumentMeta?.(leaf.data, language)
         if (meta) applyDocumentMeta(meta)
     }, [language, matches])
 

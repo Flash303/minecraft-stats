@@ -1,5 +1,7 @@
 import { translate, type Language } from "@/core/lib/i18n";
 import { APP_URL } from "@/core/lib/config";
+import { formatNumber } from "./utils";
+import type { Server } from "@/core/lib/api";
 
 export const DEFAULT_LANGUAGE: Language = "fr";
 
@@ -46,6 +48,7 @@ export interface DocumentMeta {
 
 export interface RouteMetaHandle {
     getDocumentMeta?: (data: unknown, lang: Language) => DocumentMeta | null;
+    syncLiveTitle?: boolean;
 }
 
 export function applyDocumentMeta(meta: DocumentMeta): void {
@@ -55,6 +58,25 @@ export function applyDocumentMeta(meta: DocumentMeta): void {
     document.head.querySelector('meta[property="og:description"]')?.setAttribute("content", meta.description);
     document.head.querySelector('meta[name="twitter:title"]')?.setAttribute("content", meta.title);
     document.head.querySelector('meta[name="twitter:description"]')?.setAttribute("content", meta.description);
+}
+
+export function getServerDocumentMeta(server: Server | null, lang: Language): DocumentMeta {
+    if (!server) {
+        return {
+            title: translateMeta(lang, "seo.notFoundTitle"),
+            description: translateMeta(lang, "seo.notFoundDescription"),
+        };
+    }
+    const title = `${server.name} - ${translateMeta(lang, "seo.serverTitleSuffix")}`;
+    const isOnline = server.last_status === "online";
+    const players = isOnline ? formatNumber(lang, server.last_connected ?? 0) : "0";
+    const playersText = isOnline
+        ? ` ${translateMeta(lang, "seo.statusOnline", { count: players })}`
+        : server.last_status === "offline"
+          ? ` ${translateMeta(lang, "seo.statusOffline")}`
+          : "";
+    const description = `${translateMeta(lang, "seo.serverDescription", { name: server.name, ip: server.ip })}${playersText}`;
+    return { title, description };
 }
 
 export function truncateDescription(text: string, max = 157): string {
