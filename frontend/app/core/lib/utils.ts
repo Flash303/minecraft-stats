@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { resolveProtocolVersion } from "./minecraft-protocols"
 import { translate, type Language } from "./i18n"
 
 /** Normalise une langue libre en une `Language` du registre i18n (défaut: fr). */
@@ -97,19 +98,36 @@ export function parseMinecraftVersionRange(versionName: string): [string, string
     return [first, last];
 }
 
-export function formatMinecraftVersion(versionName: string | null | undefined, stripColors = true): string | null {
+export function formatMinecraftVersion(versionName: string | null | undefined): string | null {
     if (!versionName) return null;
     const range = parseMinecraftVersionRange(versionName);
+    // Pas de motif `X.Y(.Z)` : nom de version custom (ex. "Online: 12136") —
+    // on ne renvoie JAMAIS la chaîne brute pour éviter d'afficher du texte
+    // arbitraire contrôlé par l'opérateur du serveur dans les badges.
     if (!range) {
-        // Fallback to original if parsing fails
-        if (stripColors) {
-            return versionName.replace(/(§x(?:§[0-9a-fA-F]){6}|§[0-9a-fk-orA-FK-OR]|&#[0-9a-fA-F]{6}|&f{[^}]+};|&s{[^}]+};|&h{[^}]*};)/g, '');
-        }
-        return versionName;
+        return null;
     }
     if (range[0] === range[1]) {
         return range[0];
     }
-    
+
     return `${range[0]} - ${range[1]}`;
+}
+
+/**
+ * Version affichable d'un serveur : d'abord la version déclarée (`last_version`
+ * nettoyée par `formatMinecraftVersion`), puis — si c'est un nom custom sans
+ * motif de version — le numéro de protocole réseau (`last_protocol_version`,
+ * fiable car envoyé par le handshake, pas customisable en texte libre).
+ *
+ * @returns `null` quand rien d'affichable (protocole sentinelle <= 0 comme en
+ * maintenance, protocole inconnu, ou serveur Bedrock sans version lisible) :
+ * les appelants doivent alors masquer le badge / afficher "Version inconnue".
+ */
+export function resolveServerVersion(
+    versionName: string | null | undefined,
+    protocolVersion: number | null | undefined,
+    serverType?: string | null,
+): string | null {
+    return formatMinecraftVersion(versionName) ?? resolveProtocolVersion(protocolVersion, serverType);
 }

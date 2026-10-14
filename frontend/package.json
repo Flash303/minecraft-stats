@@ -8,6 +8,7 @@
     "build": "react-router build",
     "lint": "eslint .",
     "test": "vitest run",
+    "update:protocols": "node scripts/update-minecraft-protocols.mjs",
     "start": "bun run server.ts",
     "typecheck": "react-router typegen && tsc",
     "preview": "bun run build && bun run start"

@@ -21,7 +21,7 @@ import { BarChart, WifiOff } from "lucide-react"
 
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { getTimeRanges, getIntervals } from "@/core/lib/chartUtils"
-import { formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
+import { formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
@@ -296,10 +296,10 @@ export default function ServerDetail() {
                                 currentPlayers={
                                     server.last_protocol_version != null &&
                                     server.last_protocol_version <= 0
-                                        ? formatMinecraftVersion(
-                                              server.last_version,
-                                              false
-                                          ) || "Version"
+                                        // Protocole sentinelle (maintenance...) : le client Minecraft
+                                        // affiche le texte brut du serveur dans la colonne joueurs.
+                                        // On reproduit fidèlement ce comportement ici (pas de badge).
+                                        ? (server.last_version?.trim() || "Version")
                                         : (server.last_connected ?? 0)
                                 }
                                 maxPlayers={
