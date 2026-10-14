@@ -60,8 +60,12 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
         queryKey: ["servers-search", refreshCounter],
         queryFn: async () => {
             // Optimisation : Si la homepage a déjà chargé les serveurs (via SSR ou client), on les réutilise
+            // SAUF si un refresh a été demandé (ajout de serveur) : le cache ["servers"]
+            // est alors invalidé et on doit refetcher pour que le nouveau serveur
+            // apparaisse dans le Ctrl+K.
             const cachedServers = queryClient.getQueryData<Server[]>(["servers"])
-            if (cachedServers && cachedServers.length > 0) {
+            const serversState = queryClient.getQueryState(["servers"])
+            if (cachedServers && cachedServers.length > 0 && !serversState?.isInvalidated) {
                 return cachedServers
             }
             
