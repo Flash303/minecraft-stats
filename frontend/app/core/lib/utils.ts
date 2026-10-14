@@ -68,13 +68,18 @@ export function formatNumber(language: string | undefined | null, value: number)
  * navigateur (noms de mois, ordre) et peut casser l'hydratation (#418).
  * Les noms de mois et le gabarit de format viennent des fichiers de
  * traduction (common.months / common.dateFormat).
+ *
+ * La date est lue en UTC : `getDate()`/`getMonth()` utilisent le fuseau local,
+ * qui diffère entre le serveur SSR (UTC) et le navigateur (ex. Europe/Paris),
+ * ce qui faisait diverger le HTML SSR et le rendu client pour les timestamps
+ * proches de minuit (erreur d'hydratation #418 sur la page serveur).
  */
 export function formatDate(timestamp: number, language: string | undefined | null): string {
     const lang = acceptableLanguage(language)
     const d = new Date(timestamp)
-    const day = d.getDate()
-    const year = d.getFullYear()
-    const month = translate(lang, `common.months.${d.getMonth()}`)
+    const day = d.getUTCDate()
+    const year = d.getUTCFullYear()
+    const month = translate(lang, `common.months.${d.getUTCMonth()}`)
     const template = translate(lang, "common.dateFormat")
     return template
         .replaceAll("{{day}}", String(day))

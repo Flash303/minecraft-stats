@@ -3,6 +3,7 @@ import { ArrowDown } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useTheme } from "@/core/hooks/useTheme"
 import type { Server as ServerType } from "@/core/lib/api"
+import { formatNumber } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
 
 // Predefined heights for the graph nodes (representing server player count stats)
@@ -24,19 +25,26 @@ const points = defaultYValues.map((y, idx) => {
     }
 })
 
-// Animated counter hook (module-level to comply with React rules of hooks)
+// Animated counter hook (module-level to comply with React rules of hooks).
+// SSR-safe : le compteur démarre toujours à 0 (comme le HTML serveur) et la
+// préférence `prefers-reduced-motion` n'est lue que dans l'effet, sinon le
+// premier rendu client diverge du SSR -> erreur d'hydratation #418.
 function useAnimatedCount(target: number, duration = 1200) {
-    const [prefersReducedMotion] = useState(
-        () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    )
     const [prevTarget, setPrevTarget] = useState(target)
-    const [count, setCount] = useState(() => (prefersReducedMotion ? target : 0))
+    const [count, setCount] = useState(0)
     if (prevTarget !== target) {
         setPrevTarget(target)
-        setCount(prefersReducedMotion ? target : 0)
+        setCount(0)
     }
     useEffect(() => {
-        if (prefersReducedMotion || target === 0) return
+        if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            // Synchro au montage (pas de rendu serveur divergent : SSR et
+            // premier rendu client partent de 0).
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setCount(target)
+            return
+        }
+        if (target === 0) return
         let start = 0
         const step = target / (duration / 16)
         const timer = setInterval(() => {
@@ -49,12 +57,12 @@ function useAnimatedCount(target: number, duration = 1200) {
             }
         }, 16)
         return () => clearInterval(timer)
-    }, [target, duration, prefersReducedMotion])
+    }, [target, duration])
     return count
 }
 
 export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const { theme } = useTheme()
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const containerRef = useRef<HTMLDivElement | null>(null)
@@ -429,7 +437,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                         <div className="flex items-center justify-center lg:justify-start gap-5 sm:gap-8">
                             <div className="flex flex-col items-center">
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums flex items-baseline">
-                                    {animatedTotal.toLocaleString()}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
+                                    {formatNumber(language, animatedTotal)}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
                                 </p>
                                 <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.servers")}
@@ -440,7 +448,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                             
                             <div className="flex flex-col items-center">
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
-                                    {animatedOnline.toLocaleString()}
+                                    {formatNumber(language, animatedOnline)}
                                 </p>
                                 <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.online")}
@@ -451,7 +459,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
                             
                             <div className="flex flex-col items-center">
                                 <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
-                                    {animatedPlayers.toLocaleString()}
+                                    {formatNumber(language, animatedPlayers)}
                                 </p>
                                 <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
                                     {t("hero.stats.players")}
