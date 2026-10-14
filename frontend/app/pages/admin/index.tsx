@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useToast } from "@/core/hooks/useToast"
+import { useInvalidateServers } from "@/core/hooks/useInvalidateServers"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
     const [togglingServerId, setTogglingServerId] = useState<number | null>(null)
 
     const { showToast: triggerToast } = useToast()
+    const invalidateServers = useInvalidateServers()
 
     const loadData = useCallback(async () => {
         if (!isAdmin) return
@@ -104,6 +106,14 @@ export default function AdminDashboard() {
         }
     }, [isAdmin, getToken, t, triggerToast])
 
+    // Après une mutation (delete/rename/IP/favicon/visibilité) : on recharge le
+    // tableau admin ET on invalide le cache global pour que la home et le
+    // Ctrl+K reflètent le changement sans attendre l'expiration du staleTime.
+    const refreshAfterMutation = useCallback(() => {
+        loadData()
+        invalidateServers()
+    }, [loadData, invalidateServers])
+
     useEffect(() => {
         if (isLoaded && isAdmin) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -124,6 +134,7 @@ export default function AdminDashboard() {
 
             if (result.success) {
                 setServers(prev => prev.map(s => s.id === serverId ? { ...s, hidden: !currentHidden } : s))
+                invalidateServers()
                 triggerToast("success", t("admin.toast.visibilitySuccess", { name: serverName }))
             } else {
                 triggerToast("error", result.message_key ? t(result.message_key) : result.message || t("common.error"))
@@ -345,7 +356,7 @@ export default function AdminDashboard() {
                             handleToggleServer={handleToggleServer}
                             getUserDisplayName={getUserDisplayName}
                             t={t}
-                            onRefresh={loadData}
+                            onRefresh={refreshAfterMutation}
                             triggerToast={triggerToast}
                         />
                     )}

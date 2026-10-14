@@ -15,6 +15,7 @@ import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useSearch } from "@/core/hooks/useSearch"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { SERVERS_QUERY_KEY } from "@/core/lib/query-keys"
 
 import { Hero3D } from "@/pages/home/components/Hero3D"
 import { FaqSection } from "@/pages/home/components/FaqSection"
@@ -130,7 +131,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     // données SSR. Remplace l'ancien doublon load()/handleRefresh(), les
     // caches module-level et le refetch manuel au montage.
     const { data: servers = initialServers || [], isPending, isFetching, error, refetch } = useQuery({
-        queryKey: ["servers"],
+        queryKey: SERVERS_QUERY_KEY,
         queryFn: async () => {
             const token = isLoaded && isSignedIn ? await getToken() : undefined
             return fetchServers(token ?? undefined, true)

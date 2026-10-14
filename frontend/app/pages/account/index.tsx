@@ -9,6 +9,7 @@ import type { MetaFunction } from "react-router"
 
 import { useWebPush } from "@/core/hooks/useWebPush"
 import { useToast } from "@/core/hooks/useToast"
+import { useInvalidateServers } from "@/core/hooks/useInvalidateServers"
 import { AccountServersTab } from "./components/AccountServersTab"
 import { AccountAlertsTab } from "./components/AccountAlertsTab"
 import { AccountProfileTab } from "./components/AccountProfileTab"
@@ -46,6 +47,7 @@ export default function Account() {
     const [servers, setServers] = useState<Server[]>([])
     const [allAlerts, setAllAlerts] = useState<ExtendedAlert[]>([])
     const [loading, setLoading] = useState(true)
+    const invalidateServers = useInvalidateServers()
 
     // Web Push State from Custom Hook
     const { 
@@ -87,6 +89,13 @@ export default function Account() {
             setLoading(false)
         }
     }, [getToken, isLoaded, isSignedIn])
+
+    // Après un renommage : on recharge "mes serveurs" ET on invalide le cache
+    // global pour que la home et le Ctrl+K affichent le nouveau nom.
+    const handleServersMutated = useCallback(() => {
+        loadData()
+        invalidateServers()
+    }, [loadData, invalidateServers])
 
     useEffect(() => {
         if (isLoaded) {
@@ -216,7 +225,7 @@ export default function Account() {
                             t={t} 
                             loading={loading} 
                             servers={servers} 
-                            loadData={loadData} 
+                            loadData={handleServersMutated} 
                         />
                     )}
 
