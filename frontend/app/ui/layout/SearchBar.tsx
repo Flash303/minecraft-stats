@@ -12,6 +12,7 @@ import { useNavigate } from "react-router"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useSearch } from "@/core/hooks/useSearch"
+import { SERVERS_QUERY_KEY, SERVERS_SEARCH_QUERY_KEY } from "@/core/lib/query-keys"
 import { MINUTE_MS } from "@/core/lib/time"
 
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -57,11 +58,15 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
 
     const queryClient = useQueryClient()
     const { data: allServers = [] } = useQuery({
-        queryKey: ["servers-search", refreshCounter],
+        queryKey: [...SERVERS_SEARCH_QUERY_KEY, refreshCounter],
         queryFn: async () => {
             // Optimisation : Si la homepage a déjà chargé les serveurs (via SSR ou client), on les réutilise
-            const cachedServers = queryClient.getQueryData<Server[]>(["servers"])
-            if (cachedServers && cachedServers.length > 0) {
+            // SAUF si un refresh a été demandé (ajout de serveur) : le cache ["servers"]
+            // est alors invalidé et on doit refetcher pour que le nouveau serveur
+            // apparaisse dans le Ctrl+K.
+            const cachedServers = queryClient.getQueryData<Server[]>(SERVERS_QUERY_KEY)
+            const serversState = queryClient.getQueryState(SERVERS_QUERY_KEY)
+            if (cachedServers && cachedServers.length > 0 && !serversState?.isInvalidated) {
                 return cachedServers
             }
             
