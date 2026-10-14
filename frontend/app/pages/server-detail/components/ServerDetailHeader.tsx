@@ -4,7 +4,7 @@ import type { Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
-import { cn, getServerIp, copyServerIp, formatMinecraftVersion, formatDate } from "@/core/lib/utils"
+import { cn, getServerIp, copyServerIp, resolveServerVersion, formatDate } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -30,6 +30,9 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
 
     const isOnline = server.last_status === "online"
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
+    // Nom custom sans motif de version -> fallback protocole ; `null` (maintenance,
+    // protocole sentinelle <= 0, Bedrock illisible...) -> badge masqué.
+    const displayVersion = resolveServerVersion(server.last_version, server.last_protocol_version, server.type)
 
     const handleCopy = () => {
         copyServerIp(server.ip, server.port, server.type)
@@ -102,9 +105,9 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                                 <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 group-focus-visible/copy:opacity-100 transition-opacity flex-shrink-0" />
                             )}
                         </button>
-                        {server.last_version && (
+                        {displayVersion && (
                             <Badge variant="secondary" className="font-mono text-xs whitespace-nowrap">
-                                v{formatMinecraftVersion(server.last_version)}
+                                v{displayVersion}
                             </Badge>
                         )}
                         {server.user && (

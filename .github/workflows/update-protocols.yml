@@ -1,0 +1,42 @@
+name: Update Minecraft protocols
+
+# Régénère le mapping protocole -> version depuis l'upstream PrismarineJS
+# (branche `master`, auto-mise à jour par bot) et ouvre une PR si ça change.
+# La PR passe par la CI normale (typecheck/lint/test/build) avant merge :
+# l'automatisation propose, l'humain dispose.
+on:
+  schedule:
+    # Chaque lundi à 06:00 UTC (les releases Minecraft sortent le mardi,
+    # le mapping est donc à jour pour la semaine).
+    - cron: "0 6 * * 1"
+  workflow_dispatch: # déclenchement manuel depuis l'onglet Actions
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate protocol mapping
+        working-directory: frontend
+        run: node scripts/update-minecraft-protocols.mjs
+
+      - name: Open PR if mapping changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: update Minecraft protocol mapping"
+          title: "chore: update Minecraft protocol mapping"
+          body: |
+            Mapping `JAVA_RELEASE_PROTOCOL_VERSIONS` régénéré depuis l'upstream
+            [PrismarineJS/minecraft-data](https://github.com/PrismarineJS/minecraft-data/blob/master/data/pc/common/protocolVersions.json).
+
+            Généré par `bun run update:protocols` (voir `frontend/scripts/update-minecraft-protocols.mjs`).
+            La CI (typecheck/lint/test/build) doit être verte avant merge.
+          branch: chore/update-minecraft-protocols
+          base: dev
+          delete-branch: true
+          add-paths: frontend/app/core/lib/minecraft-protocols.ts

@@ -18,7 +18,7 @@ import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { Link } from "react-router"
 import { Pagination } from "@/ui/components/pagination"
-import { formatMinecraftVersion } from "@/core/lib/utils"
+import { resolveServerVersion } from "@/core/lib/utils"
 import type { Server, User } from "@/core/lib/api"
 
 interface ServersTabProps {
@@ -294,7 +294,7 @@ export function ServersTab({
                                                             </Badge>
                                                         )}
                                                     </span>
-                                                    <span className="text-2xs text-muted-foreground mt-0.5 font-normal">v{formatMinecraftVersion(server.last_version) || "unknown"}</span>
+                                                    <span className="text-2xs text-muted-foreground mt-0.5 font-normal">v{resolveServerVersion(server.last_version, server.last_protocol_version, server.type) || "unknown"}</span>
                                                 </div>
                                             </div>
                                         </td>

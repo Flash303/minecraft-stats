@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { MiniChartSkeleton } from "./MiniChartSkeleton"
-import { cn, getServerIp, copyServerIp, formatMinecraftVersion, formatNumber } from "@/core/lib/utils"
+import { cn, getServerIp, copyServerIp, resolveServerVersion, formatNumber } from "@/core/lib/utils"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
@@ -36,6 +36,8 @@ export function ServerCard({ server, to }: ServerCardProps) {
     const isOffline = server.last_status === "offline"
 
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
+
+    const displayVersion = resolveServerVersion(server.last_version, server.last_protocol_version, server.type)
     
     const labyInfo = server.client_infos?.laby;
     const lunarInfo = server.client_infos?.lunar;
@@ -160,9 +162,9 @@ export function ServerCard({ server, to }: ServerCardProps) {
             <div className="flex flex-row items-center justify-between gap-2 w-full pt-2 border-t border-border/30">
                 <div className="flex flex-row items-center gap-1.5 truncate">
                     {server.type && <PlatformBadge type={server.type} />}
-                    {server.last_version ? (
+                    {displayVersion ? (
                         <span className="inline-flex items-center rounded-lg border border-border/50 px-2 py-0.5 text-2xs font-semibold bg-muted/50 text-muted-foreground shadow-xs whitespace-nowrap">
-                            {t("common.version", { version: formatMinecraftVersion(server.last_version) })}
+                            {t("common.version", { version: displayVersion })}
                         </span>
                     ) : (
                         <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-2xs font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
