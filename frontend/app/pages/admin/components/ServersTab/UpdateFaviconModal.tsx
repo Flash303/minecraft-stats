@@ -3,7 +3,7 @@ import type { Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
 import { ImageIcon } from "lucide-react"
 import { useAuth } from "@clerk/react"
-import { updateFavicon } from "@/core/lib/api"
+import { getServerIconUrl, updateFavicon } from "@/core/lib/api"
 import {
     Dialog,
     DialogContent,
@@ -12,6 +12,10 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/ui/components/dialog"
+
+// The icon endpoint is cached with max-age=86400, so bump a module-level version
+// after every successful write to avoid previewing a stale image.
+let faviconCacheVersion = 0
 
 interface UpdateFaviconModalProps {
     server: Server
@@ -24,9 +28,21 @@ interface UpdateFaviconModalProps {
 
 export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, onOpenChange }: UpdateFaviconModalProps) {
     const { getToken } = useAuth()
-    const [favicon, setFavicon] = useState(server.last_favicon || "")
+    // `last_favicon` is not part of the list payload (the backend nulls it out), so the
+    // forced flag is the only reliable source of truth for the current state.
+    const hasOverride = server.forced_favicon === true
+    const [pendingFavicon, setPendingFavicon] = useState<string | null>(null)
+    const [pendingRemoval, setPendingRemoval] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    const preview = pendingFavicon
+        ?? (!pendingRemoval && hasOverride
+            ? `${getServerIconUrl(server.id)}?v=${faviconCacheVersion}`
+            : null)
+
+    const hasChanges = pendingFavicon !== null || (pendingRemoval && hasOverride)
+    const canReset = !pendingRemoval && (hasOverride || pendingFavicon !== null)
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -43,7 +59,8 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
                 if (ctx) {
                     ctx.drawImage(img, 0, 0, 64, 64);
                     const dataUrl = canvas.toDataURL("image/png");
-                    setFavicon(dataUrl);
+                    setPendingFavicon(dataUrl);
+                    setPendingRemoval(false);
                 }
             };
             img.src = event.target?.result as string;
@@ -55,14 +72,20 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
         e.preventDefault()
         setError(null)
 
+        if (!hasChanges) {
+            onOpenChange(false)
+            return
+        }
+
         setLoading(true)
         try {
             const token = await getToken()
             if (!token) return
-            // Pass null if empty to remove the override
-            const payload = favicon.trim() ? favicon.trim() : null
+            // Pass null when removing the override, so the backend clears it
+            const payload = pendingFavicon ? pendingFavicon.trim() : null
             const res = await updateFavicon(server.id, payload, token)
             if (res.success) {
+                faviconCacheVersion++
                 onOpenChange(false)
                 onSuccess()
             } else {
@@ -89,8 +112,8 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
                     </DialogHeader>
                     <div className="grid gap-6 py-6">
                         <div className="flex flex-col items-center gap-4">
-                            {favicon ? (
-                                <img src={favicon} alt="Preview" loading="lazy" decoding="async" className="w-16 h-16 object-contain rounded shadow border bg-muted" />
+                            {preview ? (
+                                <img src={preview} alt="Preview" loading="lazy" decoding="async" className="w-16 h-16 object-contain rounded shadow border bg-muted" />
                             ) : (
                                 <div className="w-16 h-16 rounded shadow border border-dashed flex items-center justify-center text-muted-foreground bg-muted">
                                     <ImageIcon className="h-6 w-6 opacity-50" />
@@ -106,13 +129,16 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
                                         onChange={handleImageUpload}
                                     />
                                 </Button>
-                                {favicon && (
-                                    <Button type="button" variant="destructive" size="sm" onClick={() => setFavicon("")}>
+                                {canReset && (
+                                    <Button type="button" variant="destructive" size="sm" onClick={() => {
+                                        setPendingFavicon(null);
+                                        setPendingRemoval(true);
+                                    }}>
                                         {t("adminFavicon.reset")}
                                     </Button>
                                 )}
                             </div>
-                            {!favicon && (
+                            {!preview && (
                                 <p className="text-xs text-muted-foreground text-center">
                                     {t("adminFavicon.empty")}
                                 </p>
@@ -121,7 +147,7 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
                     </div>
                     {error && <div className="px-6 pb-4"><p className="text-sm font-medium text-destructive">{error}</p></div>}
                     <DialogFooter>
-                        <Button type="submit" disabled={loading}>
+                        <Button type="submit" disabled={loading || !hasChanges}>
                             {loading ? t("admin.servers.renameSaving") : t("admin.servers.renameSave")}
                         </Button>
                     </DialogFooter>
