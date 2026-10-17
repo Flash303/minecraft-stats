@@ -71,7 +71,7 @@ export function lunarLogoClass(partnered: boolean | undefined): string {
   return partnered ? BRAND_COLORS.lunarPartnered : BRAND_COLORS.lunarDefault;
 }
 
-/** Reusable class pair for the LabyMod logo across cards/search/tags. */
+/** Reusable class pair for the LabyClient logo across cards/search/tags. */
 export function labyLogoClass(partnered: boolean | undefined): string {
   return partnered ? BRAND_COLORS.labyPartnered : "text-foreground";
 }

@@ -104,11 +104,12 @@
       "launcher": "런처",
       "allLaunchers": "모든 런처",
       "lunar": "Lunar Client",
-      "labymod": "LabyMod",
+      "labymod": "LabyClient",
       "filterSort": "필터 및 정렬",
       "reset": "초기화",
       "sortAscTitle": "오름차순",
-      "sortDescTitle": "내림차순"
+      "sortDescTitle": "내림차순",
+      "laby": "LabyClient"
     }
   },
   "hero": {
@@ -144,14 +145,14 @@
     "offlineMotdNotice": "이 서버는 현재 오프라인 상태이므로 마지막으로 저장된 상태를 표시합니다",
     "sidebar": {
       "socials": "소셜 네트워크",
-      "labyEmpty": "이 서버는 LabyMod에 등록되어 있지만 아직 정보가 입력되지 않았습니다.",
+      "labyEmpty": "이 서버는 LabyClient에 등록되어 있지만 아직 정보가 입력되지 않았습니다.",
       "lunarEmpty": "이 서버는 Lunar Client에 등록되어 있지만 아직 정보가 입력되지 않았습니다.",
-      "labyPartner": "공식 LabyMod 파트너",
+      "labyPartner": "공식 LabyClient 파트너",
       "lunarPartner": "공식 Lunar 파트너",
       "playerStats": "플레이어 통계",
       "searchPlayer": "플레이어 검색...",
       "gamemodes": "게임 모드",
-      "labymodInfo": "LabyMod 정보",
+      "labymodInfo": "LabyClient 정보",
       "lunarInfo": "Lunar Client 정보",
       "website": "웹사이트",
       "web": "웹사이트",
@@ -160,7 +161,9 @@
       "minecraftVersions": "마인크래프트 버전",
       "trailer": "트레일러 영상",
       "showMore": "{count}개 더 보기",
-      "showLess": "간략히 보기"
+      "showLess": "간략히 보기",
+      "labyInfo": "LabyClient 정보",
+      "labyServerList": "LabyClient 서버 목록"
     }
   },
   "comparison": {

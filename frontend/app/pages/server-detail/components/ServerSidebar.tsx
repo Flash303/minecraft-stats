@@ -148,7 +148,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                     ) : (
                         <LunarLogo className={cn("w-5 h-5", lunarLogoClass(client_infos?.lunar?.partner))} />
                     )}
-                    {isLaby ? t("serverDetail.sidebar.labymodInfo") : t("serverDetail.sidebar.lunarInfo")}
+                    {isLaby ? t("serverDetail.sidebar.labyInfo") : t("serverDetail.sidebar.lunarInfo")}
                 </h3>
                 {canSwitch && (
                     <div className="flex items-center gap-1 z-10">
@@ -162,7 +162,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                         >
                             {isAutoSwitching ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                         </button>
-                        <button type="button" onClick={() => handleSwitch(true)} disabled={isTransitioning} aria-label={t("serverDetail.sidebar.labymodInfo")} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
+                        <button type="button" onClick={() => handleSwitch(true)} disabled={isTransitioning} aria-label={t("serverDetail.sidebar.labyInfo")} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                         <button type="button" onClick={() => handleSwitch(true)} disabled={isTransitioning} aria-label={t("serverDetail.sidebar.lunarInfo")} className="p-1 hover:bg-muted/50 rounded-md transition-colors disabled:opacity-50 text-muted-foreground">
@@ -203,7 +203,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                         className="text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 text-xs transition-colors"
                     >
                         <ExternalLink className="h-3 w-3" />
-                        LabyMod Server List
+                        {t("serverDetail.sidebar.labyServerList")}
                     </a>
                 </div>
             )

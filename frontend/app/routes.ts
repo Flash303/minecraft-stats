@@ -16,8 +16,6 @@ export default [
   route("dashboard/:subview", "pages/admin/index.tsx", { id: "dashboard-subview" }),
   route("sitemap.xml", "routes/sitemap.ts"),
   route("api/favicon/:id", "routes/favicon.ts"),
-  route("api/labymod/manifest", "routes/labymodManifest.ts"),
-  route("api/laby/servers", "routes/labyServers.ts"),
-  route("api/lunar/servers", "routes/lunarServers.ts"),
+  route("api/laby/manifest", "routes/labyManifest.ts"),
   route("robots.txt", "routes/robots.ts"),
 ] satisfies RouteConfig;
