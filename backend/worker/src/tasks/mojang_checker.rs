@@ -48,7 +48,7 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
         .build()
         .unwrap();
 
-    let mut consecutive_failures = 0;
+    let mut consecutive_failures: u32 = 0;
     loop {
         let count_time = Instant::now();
 
@@ -88,7 +88,7 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
             consecutive_failures = 0;
         }
 
-        let is_confirmed_down = consecutive_failures >= REQUIRED_FAILURES;
+        let is_confirmed_down = consecutive_failures >= u32::from(REQUIRED_FAILURES);
 
         match repository.get_mojang_api_status().await {
             Ok(db_is_down) => {
