@@ -18,7 +18,7 @@ Minecraft Stats is a web platform that allows users to visualize the evolution o
 
 *   **Precision Tracking:** High-performance, ultra-smooth player count charts using [uPlot](https://github.com/leeoniya/uPlot).
 *   **Custom Alerts:** Configure personalized notifications (e.g., when a server goes offline or player counts exceed/drop below a threshold).
-*   **Lunar & LabyMod Integration:** Automatically detects and displays **Lunar Client** and **LabyMod** servers, including their custom backgrounds, icons, and specific manifest information directly on the server details page.
+*   **Lunar & LabyClient Integration:** Automatically detects and displays **Lunar Client** and **LabyClient** servers, including their custom backgrounds, icons, and specific manifest information directly on the server details page.
 *   **MOTD Preview:** Full support for rendering Minecraft Server MOTDs with their original colors and formatting.
 
 ## 🚀 Tech Stack

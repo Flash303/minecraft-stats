@@ -163,7 +163,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const sortDirection = dirParam === "asc" ? "asc" : "desc"
 
     const launcherParam = searchParams.get("launcher")
-    const activeLauncher = (launcherParam === "lunar" || launcherParam === "labymod") ? launcherParam : "all"
+    const activeLauncher = (launcherParam === "lunar" || launcherParam === "laby") ? launcherParam : (launcherParam === "labymod" ? "laby" : "all")
 
     const pageParam = searchParams.get("page")
     const currentPage = pageParam && !isNaN(Number(pageParam)) ? Math.max(1, Number(pageParam)) : 1
@@ -199,7 +199,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const setActivePlatform = useCallback((platform: "all" | "java" | "bedrock") => updateFilter("platform", platform, "all"), [updateFilter])
     const setActiveSort = useCallback((sort: "popularity" | "name" | "recent") => updateFilter("sort", sort, "popularity"), [updateFilter])
     const setSortDirection = useCallback((dir: "desc" | "asc") => updateFilter("dir", dir, "desc"), [updateFilter])
-    const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "labymod") => updateFilter("launcher", launcher, "all"), [updateFilter])
+    const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "laby") => updateFilter("launcher", launcher, "all"), [updateFilter])
 
     // Un seul appel à setSearchParams : la forme fonctionnelle de setSearchParams
     // ne cumule pas les appels faits dans le même tick (pas de queue comme setState).
@@ -247,7 +247,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         // Filtrage par launcher
         if (activeLauncher === "lunar") {
             list = list.filter(s => s.client_infos?.lunar)
-        } else if (activeLauncher === "labymod") {
+        } else if (activeLauncher === "laby") {
             list = list.filter(s => s.client_infos?.laby)
         }
 

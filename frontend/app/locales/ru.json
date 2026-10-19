@@ -104,11 +104,12 @@
       "launcher": "Лаунчер",
       "allLaunchers": "Все лаунчеры",
       "lunar": "Lunar Client",
-      "labymod": "LabyMod",
+      "labymod": "LabyClient",
       "filterSort": "Фильтр и сортировка",
       "reset": "Сбросить",
       "sortAscTitle": "Порядок возрастания",
-      "sortDescTitle": "Порядок убывания"
+      "sortDescTitle": "Порядок убывания",
+      "laby": "LabyClient"
     }
   },
   "hero": {
@@ -144,14 +145,14 @@
     "offlineMotdNotice": "Этот сервер сейчас офлайн, показан последний сохранённый статус",
     "sidebar": {
       "socials": "Социальные сети",
-      "labyEmpty": "Этот сервер зарегистрирован в LabyMod, но пока не заполнил свою информацию.",
+      "labyEmpty": "Этот сервер зарегистрирован в LabyClient, но пока не заполнил свою информацию.",
       "lunarEmpty": "Этот сервер зарегистрирован в Lunar Client, но пока не заполнил свою информацию.",
-      "labyPartner": "Официальный партнер LabyMod",
+      "labyPartner": "Официальный партнер LabyClient",
       "lunarPartner": "Официальный партнер Lunar",
       "playerStats": "Статистика игроков",
       "searchPlayer": "Поиск игрока...",
       "gamemodes": "Режимы игры",
-      "labymodInfo": "Информация LabyMod",
+      "labymodInfo": "Информация LabyClient",
       "lunarInfo": "Информация Lunar Client",
       "website": "Веб-сайт",
       "web": "Сайт",
@@ -160,7 +161,9 @@
       "minecraftVersions": "Версии Minecraft",
       "trailer": "Трейлер",
       "showMore": "Показать еще {count}",
-      "showLess": "Свернуть"
+      "showLess": "Свернуть",
+      "labyInfo": "Информация LabyClient",
+      "labyServerList": "Список серверов LabyClient"
     }
   },
   "comparison": {

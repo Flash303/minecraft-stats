@@ -104,11 +104,12 @@
       "launcher": "启动器",
       "allLaunchers": "所有启动器",
       "lunar": "Lunar Client",
-      "labymod": "LabyMod",
+      "labymod": "LabyClient",
       "filterSort": "筛选与排序",
       "reset": "重置",
       "sortAscTitle": "升序排列",
-      "sortDescTitle": "降序排列"
+      "sortDescTitle": "降序排列",
+      "laby": "LabyClient"
     }
   },
   "hero": {
@@ -144,14 +145,14 @@
     "offlineMotdNotice": "该服务器当前离线，显示的是最后保存的状态",
     "sidebar": {
       "socials": "社交网络",
-      "labyEmpty": "该服务器已在 LabyMod 上注册，但尚未填写信息。",
+      "labyEmpty": "该服务器已在 LabyClient 上注册，但尚未填写信息。",
       "lunarEmpty": "该服务器已在 Lunar Client 上注册，但尚未填写信息。",
-      "labyPartner": "官方 LabyMod 合作伙伴",
+      "labyPartner": "官方 LabyClient 合作伙伴",
       "lunarPartner": "官方 Lunar 合作伙伴",
       "playerStats": "玩家统计信息",
       "searchPlayer": "搜索玩家...",
       "gamemodes": "游戏模式",
-      "labymodInfo": "LabyMod 信息",
+      "labymodInfo": "LabyClient 信息",
       "lunarInfo": "Lunar Client 信息",
       "website": "网站",
       "web": "网站",
@@ -160,7 +161,9 @@
       "minecraftVersions": "Minecraft 版本",
       "trailer": "宣传视频",
       "showMore": "显示更多 {count} 项",
-      "showLess": "收起"
+      "showLess": "收起",
+      "labyInfo": "LabyClient 信息",
+      "labyServerList": "LabyClient 服务器列表"
     }
   },
   "comparison": {

@@ -61,7 +61,7 @@ export function useServerData(initialServer: Server | null, initialRecords: Serv
             const info: LabyRawInfo | undefined = server.client_infos.laby.raw;
             const manifestAttachment = info?.attachments?.find((a) => a.file_name === 'manifest.json')
             if (manifestAttachment?.url) {
-                const proxyUrl = `/api/labymod/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
+                const proxyUrl = `/api/laby/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
                 fetch(proxyUrl)
                     .then(res => {
                         if (!res.ok) throw new Error("Failed to fetch manifest")

@@ -42,12 +42,15 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         />
                         <span className="font-bold">{s.name}</span>
                         {s.client_infos?.lunar && (
-                            <LunarLogo className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(s.client_infos.lunar.partner))} />
+                            <LunarLogo
+                                className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(s.client_infos.lunar.partner))}
+                                title={t("serverList.filters.lunar")}
+                            />
                         )}
                         {s.client_infos?.laby && (
                             <LabyLogo
                                 className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(s.client_infos.laby.partner))}
-                                title="LabyMod"
+                                title={t("serverList.filters.laby")}
                             />
                         )}
                     </Link>

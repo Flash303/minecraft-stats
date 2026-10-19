@@ -46,8 +46,8 @@ interface ServerListFiltersProps {
     setActiveSort: (sort: "popularity" | "name" | "recent") => void
     sortDirection: "asc" | "desc"
     setSortDirection: (dir: "asc" | "desc") => void
-    activeLauncher: "all" | "lunar" | "labymod"
-    setActiveLauncher: (launcher: "all" | "lunar" | "labymod") => void
+    activeLauncher: "all" | "lunar" | "laby"
+    setActiveLauncher: (launcher: "all" | "lunar" | "laby") => void
     onResetFilters: () => void
     onRefresh?: () => void
     isRefreshing?: boolean
@@ -335,12 +335,12 @@ export function ServerListFilters({
                             },
                             {
                                 value: "lunar",
-                                label: "Lunar",
+                                label: t("serverList.filters.lunar"),
                                 icon: <LunarLogo className="w-3.5 h-3.5 text-sky-500" />,
                             },
                             {
-                                value: "labymod",
-                                label: "LabyMod",
+                                value: "laby",
+                                label: t("serverList.filters.laby"),
                                 icon: <LabyLogo className="w-3.5 h-3.5 text-foreground" />,
                             },
                         ]}

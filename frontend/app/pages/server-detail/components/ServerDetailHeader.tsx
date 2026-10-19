@@ -74,10 +74,10 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                             {server.name}
                         </h1>
                         {server.client_infos?.lunar && (
-                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarLogoClass(server.client_infos.lunar.partner))} title="Lunar Client" />
+                            <LunarLogo className={cn("w-4 h-4 shrink-0", lunarLogoClass(server.client_infos.lunar.partner))} title={t("serverList.filters.lunar")} />
                         )}
                         {server.client_infos?.laby && (
-                            <LabyLogo className={cn("w-4 h-4 shrink-0", server.client_infos.laby.partner ? "text-cyan-500" : "text-foreground")} title="LabyMod" />
+                            <LabyLogo className={cn("w-4 h-4 shrink-0", server.client_infos.laby.partner ? "text-cyan-500" : "text-foreground")} title={t("serverList.filters.laby")} />
                         )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">

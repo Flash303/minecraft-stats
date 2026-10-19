@@ -1,4 +1,4 @@
-/** LabyMod server-media payload (subset actually rendered). */
+/** LabyClient server-media payload (subset actually rendered). */
 export interface LabyGamemode {
     name?: string
     command?: string
@@ -41,7 +41,7 @@ export interface ClientInfos {
     }
 }
 
-/** LabyMod manifest.json attachment (subset actually rendered). */
+/** LabyClient manifest.json attachment (subset actually rendered). */
 export interface LabyManifest {
     supported_languages?: string[]
     yt_trailer?: string

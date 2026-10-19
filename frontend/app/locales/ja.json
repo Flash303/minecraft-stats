@@ -104,11 +104,12 @@
       "launcher": "ランチャー",
       "allLaunchers": "すべてのランチャー",
       "lunar": "Lunar Client",
-      "labymod": "LabyMod",
+      "labymod": "LabyClient",
       "filterSort": "フィルター＆並び替え",
       "reset": "リセット",
       "sortAscTitle": "昇順",
-      "sortDescTitle": "降順"
+      "sortDescTitle": "降順",
+      "laby": "LabyClient"
     }
   },
   "hero": {
@@ -144,14 +145,14 @@
     "offlineMotdNotice": "このサーバーは現在オフラインのため、最後に保存されたステータスを表示しています",
     "sidebar": {
       "socials": "ソーシャルネットワーク",
-      "labyEmpty": "このサーバーはLabyModに登録されていますが、情報はまだ入力されていません。",
+      "labyEmpty": "このサーバーはLabyClientに登録されていますが、情報はまだ入力されていません。",
       "lunarEmpty": "このサーバーはLunar Clientに登録されていますが、情報はまだ入力されていません。",
-      "labyPartner": "LabyMod公式パートナー",
+      "labyPartner": "LabyClient公式パートナー",
       "lunarPartner": "Lunar公式パートナー",
       "playerStats": "プレイヤー統計",
       "searchPlayer": "プレイヤーを検索...",
       "gamemodes": "ゲームモード",
-      "labymodInfo": "LabyMod情報",
+      "labymodInfo": "LabyClient情報",
       "lunarInfo": "Lunar Client情報",
       "website": "ウェブサイト",
       "web": "ウェブサイト",
@@ -160,7 +161,9 @@
       "minecraftVersions": "Minecraftバージョン",
       "trailer": "トレイラー動画",
       "showMore": "さらに {count} 件表示",
-      "showLess": "表示を減らす"
+      "showLess": "表示を減らす",
+      "labyInfo": "LabyClient情報",
+      "labyServerList": "LabyClient サーバーリスト"
     }
   },
   "comparison": {
