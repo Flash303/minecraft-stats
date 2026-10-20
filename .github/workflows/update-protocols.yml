@@ -1,15 +1,9 @@
 name: Update Minecraft protocols
 
-# Régénère le mapping protocole -> version depuis l'upstream PrismarineJS
-# (branche `master`, auto-mise à jour par bot) et ouvre une PR si ça change.
-# La PR passe par la CI normale (typecheck/lint/test/build) avant merge :
-# l'automatisation propose, l'humain dispose.
 on:
   schedule:
-    # Chaque lundi à 06:00 UTC (les releases Minecraft sortent le mardi,
-    # le mapping est donc à jour pour la semaine).
-    - cron: "0 6 * * 1"
-  workflow_dispatch: # déclenchement manuel depuis l'onglet Actions
+    - cron: "0 3 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
