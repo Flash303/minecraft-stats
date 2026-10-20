@@ -1,17 +1,17 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use log::error;
 use crate::services::clients::BaseClientInfo;
-use serde::{Deserialize, Serialize};
+use crate::state::AppState;
+use log::error;
 use regex::Regex;
 use repository::models::server::Server;
-use crate::state::AppState;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Serialize)]
 pub struct LabyClientInfo {
     #[serde(flatten)]
     base: BaseClientInfo,
-    raw: Arc<RawLabyServer>
+    raw: Arc<RawLabyServer>,
 }
 
 impl RawLabyServer {
@@ -34,15 +34,16 @@ impl RawLabyServer {
 
 fn construct_laby_info(state: &AppState, server: Arc<RawLabyServer>) -> LabyClientInfo {
     let srv_part = state.laby_partner_cache.get(&server.direct_ip);
-    let is_partner = srv_part.map(|t| *t.value())
-        .unwrap_or(false);
+    let is_partner = srv_part.map(|t| *t.value()).unwrap_or(false);
 
     let base = BaseClientInfo {
         partner: is_partner,
-        background: server.attachments.iter()
+        background: server
+            .attachments
+            .iter()
             .filter(|a| a.file_name.eq("background.webp") || a.file_name.eq("background.webp"))
             .map(|a| a.url.clone())
-            .next()
+            .next(),
     };
 
     LabyClientInfo {
@@ -62,14 +63,15 @@ pub async fn get_laby_infos(state: &AppState, current_server: &Server) -> Option
     None
 }
 
-
 #[derive(Deserialize)]
 struct LabyServersResponses {
     server_groups: HashMap<String, RawLabyServer>,
 }
 
 pub async fn refresh_laby_infos(state: &AppState) {
-    let rs = state.http_client.get("https://laby.net/api/v3/serverGroups")
+    let rs = state
+        .http_client
+        .get("https://laby.net/api/v3/serverGroups")
         .send()
         .await;
 
@@ -85,11 +87,16 @@ pub async fn refresh_laby_infos(state: &AppState) {
     }
 
     let mut guard = state.laby_servers_cache.write().await;
-    *guard = json.unwrap().server_groups.into_values()
+    *guard = json
+        .unwrap()
+        .server_groups
+        .into_values()
         .map(|mut server| {
             for wildcard in &server.wildcards {
                 let mut regex_str = wildcard.replace(".", "\\.");
-                regex_str = regex_str.replace("%\\.", "(.*\\.)?").replace("*\\.", "(.*\\.)?");
+                regex_str = regex_str
+                    .replace("%\\.", "(.*\\.)?")
+                    .replace("*\\.", "(.*\\.)?");
                 regex_str = regex_str.replace("%", ".*").replace("*", ".*");
 
                 let final_regex = format!("(?i)^{}$", regex_str);
@@ -113,7 +120,9 @@ pub struct ServerInfo {
 }
 
 pub async fn refresh_laby_partner_infos(state: &AppState) {
-    let rs = state.http_client.get("https://laby.net/api/v3/publicServers")
+    let rs = state
+        .http_client
+        .get("https://laby.net/api/v3/publicServers")
         .send()
         .await;
 

@@ -1,10 +1,12 @@
 use crate::tasks::communication::{ServerStateChange, WorkerToVerifier};
 use crate::{DELAY_BETWEEN_EACH_PING, MAX_CONCURRENT_PING, MAX_PING_RESPONSE_TIME, PING_TRY_COUNT};
-use futures::{stream, StreamExt};
-use minecraft_pinger::config::PingConfig;
-use minecraft_pinger::bedrock::model::BedrockPing;
-use minecraft_pinger::java::model::JavaPing;
+use futures::{StreamExt, stream};
+use log::info;
 use minecraft_pinger::MinecraftPinger;
+use minecraft_pinger::bedrock::model::BedrockPing;
+use minecraft_pinger::config::PingConfig;
+use minecraft_pinger::java::config::JavaPingConfig;
+use minecraft_pinger::java::model::JavaPing;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::models::record::Record;
 use repository::models::server::{Server, ServerStatus, ServerType};
@@ -12,15 +14,13 @@ use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use log::info;
-use minecraft_pinger::java::config::JavaPingConfig;
 use time::OffsetDateTime;
 use tokio::sync::mpsc::Sender;
 use tokio::time::sleep;
 
 enum PingResultType {
     Java(JavaPing),
-    Bedrock(BedrockPing)
+    Bedrock(BedrockPing),
 }
 
 async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
@@ -35,10 +35,13 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
 
             if let Some(players) = ping.players.sample {
                 if !players.is_empty() {
-                    server.last_sample = Some(players.iter()
-                      .map(|p| p.name.as_str())
-                      .collect::<Vec<_>>()
-                      .join("\n"));
+                    server.last_sample = Some(
+                        players
+                            .iter()
+                            .map(|p| p.name.as_str())
+                            .collect::<Vec<_>>()
+                            .join("\n"),
+                    );
                 } else {
                     server.last_sample = None;
                 }
@@ -52,14 +55,17 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             }
 
             if !server.forced_favicon && server.last_favicon != ping.favicon {
-                server.favicon_hash = DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
+                server.favicon_hash =
+                    DuplicateDetectionService::hash_favicon(ping.favicon.as_deref());
                 server.last_favicon = ping.favicon;
             }
 
             if let Some(addr) = ping.connected_addr {
                 server.resolved_endpoint = Some(addr.to_string());
             } else if server.resolved_endpoint.is_none() {
-                server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+                server.resolved_endpoint =
+                    DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port)
+                        .await;
             }
         }
         PingResultType::Bedrock(ping) => {
@@ -85,7 +91,9 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             if let Some(addr) = ping.connected_addr {
                 server.resolved_endpoint = Some(addr.to_string());
             } else if server.resolved_endpoint.is_none() {
-                server.resolved_endpoint = DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+                server.resolved_endpoint =
+                    DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port)
+                        .await;
             }
         }
     }
@@ -99,10 +107,12 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
     }
 
     let pinger = pinger.unwrap();
-    let pinger_config = Arc::new(PingConfig::builder()
-        .set_timeout(MAX_PING_RESPONSE_TIME)
-        .deny_non_public_ips()
-        .build());
+    let pinger_config = Arc::new(
+        PingConfig::builder()
+            .set_timeout(MAX_PING_RESPONSE_TIME)
+            .deny_non_public_ips()
+            .build(),
+    );
 
     let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config.to_builder()).build());
 
@@ -135,30 +145,50 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
                             match server.server_type {
                                 ServerType::Java => {
-                                    let ping_rs = pinger.ping_java_server(server.ip.as_str(), server.port, java_pinger_config.as_ref()).await;
+                                    let ping_rs = pinger
+                                        .ping_java_server(
+                                            server.ip.as_str(),
+                                            server.port,
+                                            java_pinger_config.as_ref(),
+                                        )
+                                        .await;
                                     match ping_rs {
                                         Ok(ping) => {
                                             players_online = ping.players.online;
 
-                                            update_server_from_ping(&mut server, PingResultType::Java(ping)).await;
+                                            update_server_from_ping(
+                                                &mut server,
+                                                PingResultType::Java(ping),
+                                            )
+                                            .await;
 
                                             is_ok = true;
-                                        },
+                                        }
                                         Err(e) => {
                                             err_msg = Some(format!("{}", e));
                                         }
                                     }
-                                },
+                                }
                                 ServerType::Bedrock => {
-                                    let ping_rs = pinger.ping_bedrock_server(server.ip.as_str(), server.port, pinger_config.as_ref()).await;
+                                    let ping_rs = pinger
+                                        .ping_bedrock_server(
+                                            server.ip.as_str(),
+                                            server.port,
+                                            pinger_config.as_ref(),
+                                        )
+                                        .await;
                                     match ping_rs {
                                         Ok(ping) => {
                                             players_online = ping.current_players;
 
-                                            update_server_from_ping(&mut server, PingResultType::Bedrock(ping)).await;
+                                            update_server_from_ping(
+                                                &mut server,
+                                                PingResultType::Bedrock(ping),
+                                            )
+                                            .await;
 
                                             is_ok = true;
-                                        },
+                                        }
                                         Err(e) => {
                                             err_msg = Some(format!("{}", e));
                                         }
@@ -169,7 +199,9 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                             if is_ok {
                                 // Send the server update to the other thread
                                 state.edit_new_status(&server);
-                                let _ = state_updater.send(WorkerToVerifier::ServerStatusUpdated(state)).await;
+                                let _ = state_updater
+                                    .send(WorkerToVerifier::ServerStatusUpdated(state))
+                                    .await;
 
                                 let record = Record {
                                     server_id: server.id,
@@ -178,14 +210,16 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                 };
 
                                 return (server, Some(record));
-                            } else if i == PING_TRY_COUNT-1 {
+                            } else if i == PING_TRY_COUNT - 1 {
                                 info!("Error in ping the server {} : {:?}", server.name, err_msg);
                                 server.last_status = Some(ServerStatus::Offline);
                                 server.last_connected = None;
 
                                 // Send offline state
                                 state.edit_new_status(&server);
-                                let _ = state_updater.send(WorkerToVerifier::ServerStatusUpdated(state.clone())).await;
+                                let _ = state_updater
+                                    .send(WorkerToVerifier::ServerStatusUpdated(state.clone()))
+                                    .await;
                             }
                         }
 
@@ -213,7 +247,10 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                 info!("Error on ping saving: {:?}", e);
             }
         } else {
-            info!("Failed to retrieve possible servers: {:?}", possible_servers.err());
+            info!(
+                "Failed to retrieve possible servers: {:?}",
+                possible_servers.err()
+            );
         }
 
         info!("Ping duration : {:?}ms", count_time.elapsed().as_millis());

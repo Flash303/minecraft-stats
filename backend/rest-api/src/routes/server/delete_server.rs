@@ -1,10 +1,10 @@
-use axum::Extension;
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use axum::Extension;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
 
 pub(super) async fn delete_alert(
     State(state): State<AppState>,
@@ -13,7 +13,10 @@ pub(super) async fn delete_alert(
 ) -> Result<ResponseFormat<()>, AppError> {
     let account = account.ok_or(AppError::Authentication)?;
 
-    state.repository.delete_alert(alert_id, account.sub.clone()).await?;
+    state
+        .repository
+        .delete_alert(alert_id, account.sub.clone())
+        .await?;
 
     Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
 }

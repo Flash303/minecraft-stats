@@ -1,12 +1,12 @@
-use sha2::{Sha256, Digest};
-use hickory_resolver::TokioResolver;
-use std::net::IpAddr;
-use hickory_proto::rr::RData;
-use serde_json::Value;
-use std::sync::LazyLock;
 use crate::error::RepositoryError;
 use crate::models::server::Server;
 use crate::repository::Repository;
+use hickory_proto::rr::RData;
+use hickory_resolver::TokioResolver;
+use serde_json::Value;
+use sha2::{Digest, Sha256};
+use std::net::IpAddr;
+use std::sync::LazyLock;
 
 const SIGNAL_WEIGHTS_FAVICON: u32 = 50;
 const SIGNAL_WEIGHTS_ENDPOINT: u32 = 40;
@@ -16,9 +16,8 @@ const SIGNAL_WEIGHTS_VERSION: u32 = 8;
 const DUPLICATE_THRESHOLD: u32 = 75;
 const SHARED_ENDPOINT_LIMIT: u32 = 2;
 
-static DNS_RESOLVER: LazyLock<Option<TokioResolver>> = LazyLock::new(|| {
-    TokioResolver::builder_tokio().ok()?.build().ok()
-});
+static DNS_RESOLVER: LazyLock<Option<TokioResolver>> =
+    LazyLock::new(|| TokioResolver::builder_tokio().ok()?.build().ok());
 
 #[derive(Debug, Clone)]
 pub struct ServerFingerprint {
@@ -44,7 +43,9 @@ impl DuplicateDetectionService {
             Some(idx) => favicon[idx + 1..].trim(),
             None => favicon.trim(),
         };
-        if base64.is_empty() { return None; }
+        if base64.is_empty() {
+            return None;
+        }
 
         let mut hasher = Sha256::new();
         hasher.update(base64.as_bytes());
@@ -98,7 +99,9 @@ impl DuplicateDetectionService {
             normalized.push_str(word);
         }
 
-        if normalized.chars().count() < 4 { return None; }
+        if normalized.chars().count() < 4 {
+            return None;
+        }
 
         let mut hasher = Sha256::new();
         hasher.update(normalized.as_bytes());
@@ -118,13 +121,17 @@ impl DuplicateDetectionService {
         let mut target_port = port;
 
         if let Ok(srv) = resolver.srv_lookup(&srv_name).await {
-            let best_srv = srv.answers().iter().filter_map(|record| {
-                if let RData::SRV(srv) = &record.data {
-                    Some(srv)
-                } else {
-                    None
-                }
-            }).min_by_key(|r| r.priority);
+            let best_srv = srv
+                .answers()
+                .iter()
+                .filter_map(|record| {
+                    if let RData::SRV(srv) = &record.data {
+                        Some(srv)
+                    } else {
+                        None
+                    }
+                })
+                .min_by_key(|r| r.priority);
 
             if let Some(best) = best_srv {
                 target_host = best.target.to_utf8().trim_end_matches('.').to_string();
@@ -162,7 +169,9 @@ impl DuplicateDetectionService {
 
         let mut endpoint_trusted = false;
         if let Some(endpoint) = resolved_endpoint {
-            let count = repository.count_resolved_endpoints(endpoint, exclude_id).await?;
+            let count = repository
+                .count_resolved_endpoints(endpoint, exclude_id)
+                .await?;
             endpoint_trusted = count < SHARED_ENDPOINT_LIMIT;
         }
 
@@ -174,11 +183,17 @@ impl DuplicateDetectionService {
             return Ok(None);
         }
 
-        let candidates = repository.find_servers(
-            favicon_hash.as_deref(),
-            if endpoint_trusted { resolved_endpoint.as_deref() } else { None },
-            motd_hash.as_deref(),
-        ).await?;
+        let candidates = repository
+            .find_servers(
+                favicon_hash.as_deref(),
+                if endpoint_trusted {
+                    resolved_endpoint.as_deref()
+                } else {
+                    None
+                },
+                motd_hash.as_deref(),
+            )
+            .await?;
 
         let mut best: Option<DuplicateMatch> = None;
 

@@ -2,10 +2,11 @@ use repository::models::alert::Alert;
 use repository::models::server::ServerStatus::Offline;
 use repository::models::server::{Server, ServerStatus};
 
-pub const MC_DEFAULT_ICON: &str = "https://wd40.theking90000.be/files/ee292f4a-dfff-4c5f-b65e-1beca56ec24f";
+pub const MC_DEFAULT_ICON: &str =
+    "https://wd40.theking90000.be/files/ee292f4a-dfff-4c5f-b65e-1beca56ec24f";
 
 pub enum WorkerToVerifier {
-    ServerStatusUpdated(ServerStateChange)
+    ServerStatusUpdated(ServerStateChange),
 }
 
 #[derive(Clone)]
@@ -14,10 +15,10 @@ pub struct ServerStateChange {
     pub name: String,
 
     pub old_status: Option<ServerStatus>,
-    pub old_players: Option<u32>,
+    pub old_players: Option<i32>,
 
     pub new_status: ServerStatus,
-    pub new_players: Option<u32>,
+    pub new_players: Option<i32>,
 }
 
 impl ServerStateChange {
@@ -38,7 +39,7 @@ impl From<&Server> for ServerStateChange {
 
             // Two values changed before server update
             new_status: Offline,
-            new_players: None
+            new_players: None,
         }
     }
 }
@@ -53,16 +54,20 @@ pub struct TriggeredAlertNotification {
     pub server_name: String,
 
     pub _old_status: Option<ServerStatus>,
-    pub _old_players: Option<u32>,
+    pub _old_players: Option<i32>,
 
     pub _new_status: ServerStatus,
-    pub new_players: Option<u32>,
+    pub new_players: Option<i32>,
 }
 
 impl TriggeredAlertNotification {
     pub fn get_logo(&self) -> String {
         if let Ok(api_base) = std::env::var("API_BASE_URL") {
-            return format!("{}/servers/{}/icon", api_base.trim_end_matches('/'), self.alert.server_id);
+            return format!(
+                "{}/servers/{}/icon",
+                api_base.trim_end_matches('/'),
+                self.alert.server_id
+            );
         }
         MC_DEFAULT_ICON.to_string()
     }

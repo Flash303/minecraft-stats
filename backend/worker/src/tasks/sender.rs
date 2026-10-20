@@ -1,4 +1,5 @@
 use crate::tasks::communication::VerifierToSender;
+use log::info;
 use repository::models::alert::AlertType;
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
@@ -6,14 +7,10 @@ use serde_json::json;
 use std::collections::HashMap;
 use std::env;
 use std::io::Cursor;
-use log::info;
 use tokio::sync::mpsc::Receiver;
 use web_push::*;
 
-pub async fn sender_worker(
-    repository: PostgresRepository,
-    mut rx: Receiver<VerifierToSender>,
-) {
+pub async fn sender_worker(repository: PostgresRepository, mut rx: Receiver<VerifierToSender>) {
     info!("Sender task started");
 
     let private_key_pem = env::var("VAPID_PRIVATE_KEY").ok();
@@ -84,7 +81,10 @@ pub async fn sender_worker(
         // Group subscriptions by user_id
         let mut subs_by_user = HashMap::new();
         for sub in subscriptions {
-            subs_by_user.entry(sub.user_id.clone()).or_insert_with(Vec::new).push(sub);
+            subs_by_user
+                .entry(sub.user_id.clone())
+                .or_insert_with(Vec::new)
+                .push(sub);
         }
 
         for notification in notifications {
@@ -94,17 +94,29 @@ pub async fn sender_worker(
 
             let message_title = format!("Alerte Serveur: {}", notification.server_name);
             let message_body = match notification.alert.alert_type {
-                AlertType::StatusToOffline => format!("Le serveur {} vient de passer HORS-LIGNE !", notification.server_name),
-                AlertType::StatusToOnline => format!("Le serveur {} est de nouveau EN LIGNE !", notification.server_name),
+                AlertType::StatusToOffline => format!(
+                    "Le serveur {} vient de passer HORS-LIGNE !",
+                    notification.server_name
+                ),
+                AlertType::StatusToOnline => format!(
+                    "Le serveur {} est de nouveau EN LIGNE !",
+                    notification.server_name
+                ),
                 AlertType::PlayerAbove => {
                     let current = notification.new_players.unwrap_or(0);
                     let threshold = notification.alert.player_threshold.unwrap_or(0);
-                    format!("Le nombre de joueurs sur {} a dépassé {} (Actuel : {}) !", notification.server_name, threshold, current)
+                    format!(
+                        "Le nombre de joueurs sur {} a dépassé {} (Actuel : {}) !",
+                        notification.server_name, threshold, current
+                    )
                 }
                 AlertType::PlayerBelow => {
                     let current = notification.new_players.unwrap_or(0);
                     let threshold = notification.alert.player_threshold.unwrap_or(0);
-                    format!("Le nombre de joueurs sur {} est descendu en-dessous de {} (Actuel : {}) !", notification.server_name, threshold, current)
+                    format!(
+                        "Le nombre de joueurs sur {} est descendu en-dessous de {} (Actuel : {}) !",
+                        notification.server_name, threshold, current
+                    )
                 }
             };
 
@@ -120,23 +132,28 @@ pub async fn sender_worker(
             for sub in subs {
                 let repository_clone = repository.clone();
                 let client_clone = client.clone();
-                
+
                 let payload_clone = payload_string.clone();
                 let mailto_clone = mailto.clone();
                 let sub_clone = sub.clone();
-                
+
                 // Clone the pre-parsed partial builder
                 let pb_clone = pb.clone();
 
                 tokio::spawn(async move {
-                    let clean_p256dh = sub_clone.p256dh.replace('+', "-").replace('/', "_").replace('=', "");
-                    let clean_auth = sub_clone.auth.replace('+', "-").replace('/', "_").replace('=', "");
+                    let clean_p256dh = sub_clone
+                        .p256dh
+                        .replace('+', "-")
+                        .replace('/', "_")
+                        .replace('=', "");
+                    let clean_auth = sub_clone
+                        .auth
+                        .replace('+', "-")
+                        .replace('/', "_")
+                        .replace('=', "");
 
-                    let subscription_info = SubscriptionInfo::new(
-                        sub_clone.endpoint.clone(),
-                        clean_p256dh,
-                        clean_auth,
-                    );
+                    let subscription_info =
+                        SubscriptionInfo::new(sub_clone.endpoint.clone(), clean_p256dh, clean_auth);
 
                     let mut sig_builder = pb_clone.add_sub_info(&subscription_info);
                     sig_builder.add_claim("sub", mailto_clone.as_str());
@@ -144,7 +161,10 @@ pub async fn sender_worker(
                     let signature = match sig_builder.build() {
                         Ok(sig) => sig,
                         Err(e) => {
-                            info!("Sender error signing VAPID claims for device ID {}: {:?}", sub_clone.id, e);
+                            info!(
+                                "Sender error signing VAPID claims for device ID {}: {:?}",
+                                sub_clone.id, e
+                            );
                             return;
                         }
                     };
@@ -156,21 +176,36 @@ pub async fn sender_worker(
                     let message = match builder.build() {
                         Ok(msg) => msg,
                         Err(e) => {
-                            info!("Sender error building push message for device ID {}: {:?}", sub_clone.id, e);
+                            info!(
+                                "Sender error building push message for device ID {}: {:?}",
+                                sub_clone.id, e
+                            );
                             return;
                         }
                     };
 
                     match client_clone.send(message).await {
                         Ok(_) => {
-                            info!("Push notification sent successfully to device ID {}", sub_clone.id);
+                            info!(
+                                "Push notification sent successfully to device ID {}",
+                                sub_clone.id
+                            );
                         }
-                        Err(WebPushError::EndpointNotValid(_)) | Err(WebPushError::EndpointNotFound(_)) => {
-                            info!("Device subscription expired or invalid (404/410), deleting endpoint: {}", sub_clone.endpoint);
-                            let _ = repository_clone.delete_stale_subscription(&sub_clone.endpoint).await;
+                        Err(WebPushError::EndpointNotValid(_))
+                        | Err(WebPushError::EndpointNotFound(_)) => {
+                            info!(
+                                "Device subscription expired or invalid (404/410), deleting endpoint: {}",
+                                sub_clone.endpoint
+                            );
+                            let _ = repository_clone
+                                .delete_stale_subscription(&sub_clone.endpoint)
+                                .await;
                         }
                         Err(e) => {
-                            info!("Failed to send Web Push to device ID {}: {:?}", sub_clone.id, e);
+                            info!(
+                                "Failed to send Web Push to device ID {}: {:?}",
+                                sub_clone.id, e
+                            );
                         }
                     }
                 });

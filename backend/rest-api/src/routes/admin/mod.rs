@@ -1,3 +1,3 @@
-pub mod users;
-pub mod server;
 pub mod routes;
+pub mod server;
+pub mod users;

@@ -1,6 +1,6 @@
+use serde::Serialize;
 use std::collections::HashMap;
 use std::env;
-use serde::Serialize;
 use time::OffsetDateTime;
 
 #[derive(Serialize)]
@@ -14,13 +14,16 @@ struct LokiStream {
     values: Vec<[String; 2]>, // [Timestamp_Nano, Log_Message]
 }
 
-pub async fn send_to_loki(route: &str,
-                          method: &str,
-                          status: u16,
-                          duration: u128,
-                          request_size: u64,
-                          reponse_size: u64,
-                          ip: &str, user_id: Option<String>) {
+pub async fn send_to_loki(
+    route: &str,
+    method: &str,
+    status: u16,
+    duration: u128,
+    request_size: u64,
+    reponse_size: u64,
+    ip: &str,
+    user_id: Option<String>,
+) {
     let result = env::var("LOKI_URL");
     if let Ok(result) = result {
         let log_content = serde_json::json!({
@@ -32,7 +35,8 @@ pub async fn send_to_loki(route: &str,
             "duration_ms": duration,
             "ip": ip,
             "user_id": user_id
-        }).to_string();
+        })
+        .to_string();
 
         let nanoseconds = OffsetDateTime::now_utc().unix_timestamp_nanos().to_string();
 
@@ -48,10 +52,7 @@ pub async fn send_to_loki(route: &str,
 
         tokio::spawn(async move {
             let client = reqwest::Client::new();
-            let _ = client.post(result)
-                .json(&payload)
-                .send()
-                .await;
+            let _ = client.post(result).json(&payload).send().await;
         });
     }
 }

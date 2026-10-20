@@ -1,10 +1,10 @@
-use axum::routing::get;
-use axum::Router;
-use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::GovernorLayer;
+use super::status;
 use crate::state::AppState;
 use crate::utils::rate_limit::ClientIpKeyExtractor;
-use super::status;
+use axum::Router;
+use axum::routing::get;
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
 
 pub fn router() -> Router<AppState> {
     let rate_limit_config = GovernorConfigBuilder::default()
@@ -14,6 +14,8 @@ pub fn router() -> Router<AppState> {
         .finish()
         .unwrap();
 
-    Router::new()
-        .route("/status", get(status::get_status).route_layer(GovernorLayer::new(rate_limit_config)))
+    Router::new().route(
+        "/status",
+        get(status::get_status).route_layer(GovernorLayer::new(rate_limit_config)),
+    )
 }

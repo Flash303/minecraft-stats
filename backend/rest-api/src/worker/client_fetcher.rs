@@ -1,8 +1,8 @@
+use crate::services::clients::laby::{refresh_laby_infos, refresh_laby_partner_infos};
 use crate::services::clients::lunar::{refresh_lunar_infos, refresh_lunar_partner_infos};
 use crate::state::AppState;
 use std::time::Duration;
 use tokio::time::sleep;
-use crate::services::clients::laby::{refresh_laby_infos, refresh_laby_partner_infos};
 
 const FETCH_DELAY: Duration = Duration::from_hours(1);
 

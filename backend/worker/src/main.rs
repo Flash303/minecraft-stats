@@ -1,13 +1,13 @@
-use std::env;
-use repository::postgres::PostgresRepository;
-use std::time::Duration;
-use log::info;
-use tokio::sync::mpsc;
-use crate::tasks::communication::{WorkerToVerifier, VerifierToSender};
-use crate::tasks::pinger::ping_worker;
-use crate::tasks::verifier::verifier_worker;
-use crate::tasks::sender::sender_worker;
+use crate::tasks::communication::{VerifierToSender, WorkerToVerifier};
 use crate::tasks::mojang_checker::mojang_checker_worker;
+use crate::tasks::pinger::ping_worker;
+use crate::tasks::sender::sender_worker;
+use crate::tasks::verifier::verifier_worker;
+use log::info;
+use repository::postgres::PostgresRepository;
+use std::env;
+use std::time::Duration;
+use tokio::sync::mpsc;
 
 mod tasks;
 
@@ -22,8 +22,9 @@ async fn main() {
 
     info!("Starting server");
 
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://anuser:password@localhost:5432/minecraft-stats".to_string());
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
+        "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
+    });
 
     let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
@@ -36,7 +37,7 @@ async fn main() {
     // Spawn Pinger
     let repository_worker = repository.clone();
     tokio::spawn(async move {
-        ping_worker(repository_worker, tx_verifier).await;   
+        ping_worker(repository_worker, tx_verifier).await;
     });
 
     // Spawn Verifier

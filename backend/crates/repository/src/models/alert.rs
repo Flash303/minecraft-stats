@@ -18,11 +18,11 @@ pub struct Alert {
     pub id: u32,
     pub user_id: String,
     pub server_id: u32,
-    
+
     pub alert_type: AlertType,
     pub player_threshold: Option<u32>,
     pub is_active: bool,
-    
+
     pub created_at: OffsetDateTime,
 }
 
@@ -31,11 +31,11 @@ pub struct AlertRow {
     pub id: i32,
     pub user_id: String,
     pub server_id: i32,
-    
+
     pub alert_type: AlertType,
     pub player_threshold: Option<i32>,
     pub is_active: bool,
-    
+
     pub created_at: OffsetDateTime,
 }
 
@@ -57,7 +57,7 @@ impl From<AlertRow> for Alert {
 pub struct DraftAlert {
     pub user_id: String,
     pub server_id: u32,
-    
+
     pub alert_type: AlertType,
     pub player_threshold: Option<u32>,
     pub is_active: bool,

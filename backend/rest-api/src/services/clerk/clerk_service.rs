@@ -1,13 +1,16 @@
-use std::{sync::Arc, time::Duration};
+use crate::services::clerk::model::ClerkUser;
+use crate::{error::AppError, state::AppState};
 use reqwest::Method;
 use serde_json::Value;
-use crate::{error::AppError, state::AppState};
-use crate::services::clerk::model::ClerkUser;
+use std::{sync::Arc, time::Duration};
 
 const USER_CACHE_TTL: Duration = Duration::from_hours(2);
 const MAX_USERS_PER_PAGE: u64 = 500;
 
-pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
+pub async fn get_clerk_user_with_cache(
+    state: &AppState,
+    user_id: &String,
+) -> Result<Arc<ClerkUser>, AppError> {
     let cached_user = state.user_cache.get(&user_id).await;
     if let Some(user) = cached_user {
         return Ok(user.clone());
@@ -16,10 +19,21 @@ pub async fn get_clerk_user_with_cache(state: &AppState, user_id: &String) -> Re
     get_clerk_user(state, user_id).await
 }
 
-pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<ClerkUser>, AppError> {
-    let token = state.clerk_secret_key.as_deref().ok_or(AppError::FeatureDisabled)?;
+pub async fn get_clerk_user(
+    state: &AppState,
+    user_id: &String,
+) -> Result<Arc<ClerkUser>, AppError> {
+    let token = state
+        .clerk_secret_key
+        .as_deref()
+        .ok_or(AppError::FeatureDisabled)?;
 
-    let user = state.http_client.request(Method::GET, format!("https://api.clerk.com/v1/users/{user_id}"))
+    let user = state
+        .http_client
+        .request(
+            Method::GET,
+            format!("https://api.clerk.com/v1/users/{user_id}"),
+        )
         .bearer_auth(token)
         .send()
         .await?
@@ -27,23 +41,33 @@ pub async fn get_clerk_user(state: &AppState, user_id: &String) -> Result<Arc<Cl
         .await?;
 
     let cached_user = Arc::new(user);
-    state.user_cache.insert(user_id.clone(), cached_user.clone(), USER_CACHE_TTL).await;
+    state
+        .user_cache
+        .insert(user_id.clone(), cached_user.clone(), USER_CACHE_TTL)
+        .await;
 
     Ok(cached_user)
 }
 
 pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, AppError> {
-    let token = state.clerk_secret_key.as_deref().ok_or(AppError::FeatureDisabled)?;
+    let token = state
+        .clerk_secret_key
+        .as_deref()
+        .ok_or(AppError::FeatureDisabled)?;
 
-    let user_count = state.http_client.request(Method::GET, "https://api.clerk.com/v1/users/count")
+    let user_count = state
+        .http_client
+        .request(Method::GET, "https://api.clerk.com/v1/users/count")
         .bearer_auth(token)
         .send()
         .await?
         .json::<Value>()
         .await?;
 
-    let user_count = user_count.get("total_count")
-        .ok_or(AppError::ClerkApiProblem("total_count not found".into()))?.as_u64()
+    let user_count = user_count
+        .get("total_count")
+        .ok_or(AppError::ClerkApiProblem("total_count not found".into()))?
+        .as_u64()
         .ok_or(AppError::ClerkApiProblem("total_count not u64".into()))?;
 
     let mut users: Vec<ClerkUser> = Vec::with_capacity(user_count as usize);
@@ -53,7 +77,15 @@ pub async fn get_all_clerk_users(state: &AppState) -> Result<Vec<ClerkUser>, App
         let limit = &MAX_USERS_PER_PAGE;
         let offset = i * MAX_USERS_PER_PAGE;
 
-        let fetched_users = state.http_client.request(Method::GET,format!("https://api.clerk.com/v1/users?limit={}&offset={}", limit, offset))
+        let fetched_users = state
+            .http_client
+            .request(
+                Method::GET,
+                format!(
+                    "https://api.clerk.com/v1/users?limit={}&offset={}",
+                    limit, offset
+                ),
+            )
             .bearer_auth(token)
             .send()
             .await?

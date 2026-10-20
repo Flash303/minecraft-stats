@@ -1,10 +1,10 @@
 use crate::DELAY_BETWEEN_EACH_PING;
+use log::{error, info, warn};
+use openssl::rand::rand_bytes;
+use openssl::sha::Sha1;
 use repository::repository::Repository;
 use std::time::{Duration, Instant};
-use log::{info, error, warn};
 use time::OffsetDateTime;
-use openssl::sha::Sha1;
-use openssl::rand::rand_bytes;
 use tokio::time::sleep;
 
 const REQUIRED_FAILURES: u8 = 3;
@@ -17,7 +17,7 @@ fn generate_minecraft_hash(server_id: &str, shared_secret: &[u8], public_key: &[
     let digest = hasher.finish();
 
     let is_negative = (digest[0] & 0x80) != 0;
-    
+
     let hex_str = if is_negative {
         let mut carry = true;
         let mut inverted = [0u8; 20];
@@ -34,7 +34,7 @@ fn generate_minecraft_hash(server_id: &str, shared_secret: &[u8], public_key: &[
     } else {
         hex::encode(digest).trim_start_matches('0').to_string()
     };
-    
+
     if hex_str.is_empty() || hex_str == "-" {
         "0".to_string()
     } else {
@@ -75,7 +75,7 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
                     warn!("Mojang API returned server error: {}", status);
                     is_currently_down = true;
                 }
-            },
+            }
             Err(e) => {
                 warn!("Failed to reach Mojang API: {}", e);
                 is_currently_down = true;
@@ -93,13 +93,20 @@ pub async fn mojang_checker_worker(repository: impl Repository + Clone) {
         match repository.get_mojang_api_status().await {
             Ok(db_is_down) => {
                 if is_confirmed_down && !db_is_down {
-                    info!("Mojang Session API went DOWN ({} consecutive failures)", consecutive_failures);
+                    info!(
+                        "Mojang Session API went DOWN ({} consecutive failures)",
+                        consecutive_failures
+                    );
                     let _ = repository.set_mojang_api_status(true).await;
-                    let _ = repository.start_mojang_api_downtime(OffsetDateTime::now_utc()).await;
+                    let _ = repository
+                        .start_mojang_api_downtime(OffsetDateTime::now_utc())
+                        .await;
                 } else if !is_currently_down && db_is_down {
                     info!("Mojang Session API is back UP");
                     let _ = repository.set_mojang_api_status(false).await;
-                    let _ = repository.end_mojang_api_downtime(OffsetDateTime::now_utc()).await;
+                    let _ = repository
+                        .end_mojang_api_downtime(OffsetDateTime::now_utc())
+                        .await;
                 }
             }
             Err(e) => error!("Failed to get Mojang API status from DB: {}", e),

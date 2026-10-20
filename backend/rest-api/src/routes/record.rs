@@ -1,21 +1,21 @@
-use crate::services::clerk::model::ClerkClaims;
 use crate::error::AppError;
+use crate::response::ResponseFormat;
+use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
-use axum::extract::{Path, Query, State};
+use crate::utils::rate_limit::ClientIpKeyExtractor;
 use axum::extract::rejection::{PathRejection, QueryRejection};
-use axum::http::{StatusCode};
+use axum::extract::{Path, Query, State};
+use axum::http::StatusCode;
+use axum::http::header::CONTENT_TYPE;
+use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Extension, Router};
-use axum::http::header::{CONTENT_TYPE};
-use axum::response::IntoResponse;
 use log::info;
-use serde::{Deserialize};
-use time::{ OffsetDateTime};
+use serde::Deserialize;
+use time::OffsetDateTime;
 use tokio::time::Instant;
 use tower_governor::GovernorLayer;
 use tower_governor::governor::GovernorConfigBuilder;
-use crate::utils::rate_limit::ClientIpKeyExtractor;
-use crate::response::ResponseFormat;
 
 pub fn router() -> Router<AppState> {
     let rate_limit_config = GovernorConfigBuilder::default()
@@ -25,8 +25,10 @@ pub fn router() -> Router<AppState> {
         .finish()
         .unwrap();
 
-    Router::new()
-        .route("/{id}", get(fetch_records).route_layer(GovernorLayer::new(rate_limit_config)))
+    Router::new().route(
+        "/{id}",
+        get(fetch_records).route_layer(GovernorLayer::new(rate_limit_config)),
+    )
 }
 
 #[derive(Deserialize)]
@@ -38,15 +40,20 @@ struct GetParam {
     pub json: Option<bool>,
 }
 
-async fn fetch_records(State(state): State<AppState>,
-                    Extension(account): Extension<Option<ClerkClaims>>,
-                    id: Result<Path<u32>, PathRejection>,
-                    query: Result<Query<GetParam>, QueryRejection>) -> Result<impl IntoResponse, AppError> {
+async fn fetch_records(
+    State(state): State<AppState>,
+    Extension(account): Extension<Option<ClerkClaims>>,
+    id: Result<Path<u32>, PathRejection>,
+    query: Result<Query<GetParam>, QueryRejection>,
+) -> Result<impl IntoResponse, AppError> {
     let id = *id?;
     let query = query?;
 
     let instant = Instant::now();
-    let server = state.repository.get_server(id).await?
+    let server = state
+        .repository
+        .get_server(id)
+        .await?
         .ok_or(AppError::ServerNotFound)?;
 
     let is_admin = account.is_some_and(|u| u.is_admin());
@@ -55,14 +62,18 @@ async fn fetch_records(State(state): State<AppState>,
     }
 
     let data = state.repository.get_pings(id, query.from, query.to).await?;
-    info!("Time to request all database data {}ms", instant.elapsed().as_millis());
+    info!(
+        "Time to request all database data {}ms",
+        instant.elapsed().as_millis()
+    );
 
     if !query.json.unwrap_or(false) {
         Ok((
             StatusCode::OK,
             [(CONTENT_TYPE, "application/octet-stream")],
-            data.into_binary()
-        ).into_response())
+            data.into_binary(),
+        )
+            .into_response())
     } else {
         Ok(ResponseFormat::success(data, StatusCode::OK).into_response())
     }

@@ -8,7 +8,7 @@ pub enum RepositoryError {
     SQL(#[from] Error),
 
     #[error("SQLx migration error : {0}")]
-    Migration(#[from] MigrateError)
+    Migration(#[from] MigrateError),
 }
 
 impl RepositoryError {

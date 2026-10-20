@@ -1,12 +1,12 @@
-use axum::{Extension, Json};
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use serde::Deserialize;
-use repository::models::alert::{Alert, AlertType, DraftAlert};
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::{Extension, Json};
+use repository::models::alert::{Alert, AlertType, DraftAlert};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub(super) struct CreateAlertPayload {
@@ -24,7 +24,11 @@ pub(super) async fn create_alert(
     let account = account.ok_or(AppError::Authentication)?;
 
     // Verify server exists
-    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFound)?;
+    state
+        .repository
+        .get_server(server_id)
+        .await?
+        .ok_or(AppError::ServerNotFound)?;
 
     let draft = DraftAlert {
         user_id: account.sub.clone(),
