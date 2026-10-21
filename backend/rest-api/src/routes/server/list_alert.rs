@@ -1,11 +1,11 @@
-use axum::Extension;
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use repository::models::alert::Alert;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use axum::Extension;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use repository::models::alert::Alert;
 
 pub(super) async fn list_alerts(
     State(state): State<AppState>,
@@ -15,7 +15,11 @@ pub(super) async fn list_alerts(
     let account = account.ok_or(AppError::Authentication)?;
 
     // Verify server exists
-    state.repository.get_server(server_id).await?.ok_or(AppError::ServerNotFound)?;
+    state
+        .repository
+        .get_server(server_id)
+        .await?
+        .ok_or(AppError::ServerNotFound)?;
 
     let alerts = state.repository.list_alerts_for_server(server_id).await?;
 

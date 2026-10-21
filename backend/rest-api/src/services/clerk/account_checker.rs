@@ -1,8 +1,8 @@
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use rsa::{pkcs1v15::Pkcs1v15Sign, BoxedUint, RsaPublicKey};
+use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+use rsa::{BoxedUint, RsaPublicKey, pkcs1v15::Pkcs1v15Sign};
 use sha2::{Digest, Sha256};
 
 use crate::services::clerk::model::ClerkClaims;
@@ -72,7 +72,8 @@ impl JwksStore {
         slot.fetched_at = Instant::now();
         slot.keys = fresh;
 
-        find_jwk(&slot.keys, kid).cloned()
+        find_jwk(&slot.keys, kid)
+            .cloned()
             .ok_or_else(|| "Pubkey not found".to_string())
     }
 }
@@ -81,12 +82,15 @@ fn find_jwk<'a>(jwks: &'a serde_json::Value, kid: &'a str) -> Option<&'a serde_j
     jwks.as_object()
         .and_then(|jwks| jwks.get("keys"))
         .and_then(|keys| keys.as_array())
-        .and_then(|keys| keys.iter().find(|key| {
-            key.get("kid").and_then(|k| k.as_str()) == Some(kid)
-        }))
+        .and_then(|keys| {
+            keys.iter()
+                .find(|key| key.get("kid").and_then(|k| k.as_str()) == Some(kid))
+        })
 }
 
-pub async fn fetch_clerk_jwks(jwks_url: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+pub async fn fetch_clerk_jwks(
+    jwks_url: &str,
+) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     let response = reqwest::get(jwks_url)
         .await?
         .error_for_status()?
@@ -101,21 +105,27 @@ pub async fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkCl
     if parts.len() != 3 {
         return Err("Invalid token format".to_string());
     }
-    
+
     let header_b64 = parts[0];
     let claims_b64 = parts[1];
     let signature_b64 = parts[2];
-    
-    let kid = serde_json::from_slice::<serde_json::Value>(&URL_SAFE_NO_PAD.decode(header_b64).map_err(|e| e.to_string())?)
-        .map_err(|e| e.to_string())?
-        .get("kid").and_then(|k| k.as_str()).map(|s| s.to_string())
-        .ok_or_else(|| "KID not found".to_string())?;
+
+    let kid = serde_json::from_slice::<serde_json::Value>(
+        &URL_SAFE_NO_PAD
+            .decode(header_b64)
+            .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?
+    .get("kid")
+    .and_then(|k| k.as_str())
+    .map(|s| s.to_string())
+    .ok_or_else(|| "KID not found".to_string())?;
 
     let jwk = state.jwks.resolve_jwk(&kid).await?;
 
     let n = jwk.get("n").and_then(|v| v.as_str()).ok_or("Missing n")?;
     let e = jwk.get("e").and_then(|v| v.as_str()).ok_or("Missing e")?;
-    
+
     let n_bytes = URL_SAFE_NO_PAD.decode(n).map_err(|e| e.to_string())?;
     let e_bytes = URL_SAFE_NO_PAD.decode(e).map_err(|e| e.to_string())?;
 
@@ -127,22 +137,28 @@ pub async fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkCl
     let e_big = BoxedUint::from_be_slice(&e_bytes, e_bits)
         .map_err(|e| format!("Parsing E error: {}", e))?;
 
-    let rsa_key = RsaPublicKey::new(n_big, e_big)
-        .map_err(|e| format!("Key error: {}", e))?;
+    let rsa_key = RsaPublicKey::new(n_big, e_big).map_err(|e| format!("Key error: {}", e))?;
 
     // Verify signature
     let signed_content = format!("{}.{}", header_b64, claims_b64);
-    let signature_bytes = URL_SAFE_NO_PAD.decode(signature_b64).map_err(|e| e.to_string())?;
-    
+    let signature_bytes = URL_SAFE_NO_PAD
+        .decode(signature_b64)
+        .map_err(|e| e.to_string())?;
+
     let hashed_content = Sha256::digest(signed_content.as_bytes());
-    
+
     let verifier = Pkcs1v15Sign::new::<Sha256>();
-    rsa_key.verify(verifier, &hashed_content, &signature_bytes)
+    rsa_key
+        .verify(verifier, &hashed_content, &signature_bytes)
         .map_err(|e| format!("Verification error: {}", e))?;
 
     // Deserialize claims
-    let claims: ClerkClaims = serde_json::from_slice(&URL_SAFE_NO_PAD.decode(claims_b64).map_err(|e| e.to_string())?)
-        .map_err(|e| format!("Claims deserialization error: {}", e))?;
+    let claims: ClerkClaims = serde_json::from_slice(
+        &URL_SAFE_NO_PAD
+            .decode(claims_b64)
+            .map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| format!("Claims deserialization error: {}", e))?;
 
     validate_claims_time_window(&claims)?;
 

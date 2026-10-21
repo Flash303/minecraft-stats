@@ -1,5 +1,5 @@
-pub mod pinger;
 pub mod communication;
-pub mod verifier;
+pub mod mojang_checker;
+pub mod pinger;
 pub mod sender;
-pub mod mojang_checker;
+pub mod verifier;

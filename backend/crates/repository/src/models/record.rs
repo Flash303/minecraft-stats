@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
-use time::{OffsetDateTime};
+use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize)]
-pub struct RecordData(pub Vec<i64>, pub Vec<u32>);
+pub struct RecordData(pub Vec<i64>, pub Vec<i32>);
 
 impl RecordData {
     pub fn into_binary(self) -> Vec<u8> {
@@ -10,7 +10,7 @@ impl RecordData {
         let len = timestamps.len() as u32;
 
         let mut bytes = Vec::with_capacity(4 + 8 + (len as usize * 8));
-        
+
         // Write the number of items
         bytes.extend_from_slice(&len.to_le_bytes());
 
@@ -46,5 +46,5 @@ pub struct Record {
 
     #[serde(with = "time::serde::timestamp")]
     pub date: OffsetDateTime,
-    pub value: u32
+    pub value: i32,
 }

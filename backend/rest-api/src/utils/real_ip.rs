@@ -32,6 +32,5 @@ pub fn get_client_ip(headers: &HeaderMap, fallback_addr: &SocketAddr) -> String 
         }
     }
 
-
     fallback_addr.ip().to_string()
 }

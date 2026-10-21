@@ -1,10 +1,14 @@
-use axum::{Router, middleware::from_fn_with_state};
-use tower_governor::governor::GovernorConfigBuilder;
-use tower_governor::GovernorLayer;
-use crate::{middleware::admin::admin_middleware, routes::admin::{server, users}, state::AppState};
 use crate::utils::rate_limit::ClientIpKeyExtractor;
+use crate::{
+    middleware::admin::admin_middleware,
+    routes::admin::{server, users},
+    state::AppState,
+};
+use axum::{Router, middleware::from_fn_with_state};
+use tower_governor::GovernorLayer;
+use tower_governor::governor::GovernorConfigBuilder;
 
-pub fn router(state: AppState) -> Router<AppState>{
+pub fn router(state: AppState) -> Router<AppState> {
     let admin_limit = GovernorConfigBuilder::default()
         .per_second(10)
         .burst_size(40)

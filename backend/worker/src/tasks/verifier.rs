@@ -1,7 +1,7 @@
+use crate::tasks::communication::{TriggeredAlertNotification, VerifierToSender, WorkerToVerifier};
 use log::info;
-use crate::tasks::communication::{WorkerToVerifier, VerifierToSender, TriggeredAlertNotification};
-use repository::models::server::ServerStatus::{Offline, Online};
 use repository::models::alert::AlertType;
+use repository::models::server::ServerStatus::{Offline, Online};
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use tokio::sync::mpsc::{Receiver, Sender};
@@ -17,8 +17,8 @@ pub async fn verifier_worker(
         let WorkerToVerifier::ServerStatusUpdated(state) = message;
 
         let status_changed = state.new_status != state.old_status.clone().unwrap_or(Offline);
-        let player_number_changer = state.new_status == Online &&
-            state.old_players.unwrap_or(0) != state.new_players.unwrap_or(0);
+        let player_number_changer = state.new_status == Online
+            && state.old_players.unwrap_or(0) != state.new_players.unwrap_or(0);
 
         // If nothing relevant changed, skip alert evaluation
         if !status_changed && !player_number_changer {
@@ -30,7 +30,10 @@ pub async fn verifier_worker(
         let active_alerts = match active_alerts_result {
             Ok(alerts) => alerts,
             Err(e) => {
-                info!("Verifier error fetching alerts for server {}: {:?}", state.id, e);
+                info!(
+                    "Verifier error fetching alerts for server {}: {:?}",
+                    state.id, e
+                );
                 continue;
             }
         };
@@ -49,14 +52,14 @@ pub async fn verifier_worker(
                 }
                 AlertType::PlayerAbove => {
                     if state.new_status == Online {
-                        let threshold = alert.player_threshold.unwrap_or(0);
+                        let threshold = alert.player_threshold.unwrap_or(0) as i32;
                         is_triggered = state.new_players.unwrap_or(0) > threshold
                             && state.old_players.unwrap_or(0) <= threshold;
                     }
                 }
                 AlertType::PlayerBelow => {
                     if state.new_status == Online {
-                        let threshold = alert.player_threshold.unwrap_or(0);
+                        let threshold = alert.player_threshold.unwrap_or(0) as i32;
                         is_triggered = state.new_players.unwrap_or(0) < threshold
                             && state.old_players.unwrap_or(0) >= threshold;
                     }
@@ -70,8 +73,16 @@ pub async fn verifier_worker(
         }
 
         if !triggered_notifications.is_empty() {
-            if let Err(e) = tx_sender.send(VerifierToSender::TriggerNotifications(triggered_notifications)).await {
-                info!("Verifier error sending batch notifications to Sender channel: {:?}", e);
+            if let Err(e) = tx_sender
+                .send(VerifierToSender::TriggerNotifications(
+                    triggered_notifications,
+                ))
+                .await
+            {
+                info!(
+                    "Verifier error sending batch notifications to Sender channel: {:?}",
+                    e
+                );
             }
         }
     }

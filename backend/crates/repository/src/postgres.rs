@@ -1,18 +1,20 @@
 use std::collections::HashMap;
 
-use async_trait::async_trait;
-use sqlx::{PgPool, QueryBuilder, Row};
-use sqlx::postgres::PgPoolOptions;
-use time::{Duration, OffsetDateTime};
-use crate::models::record::{Record, RecordData};
-use crate::models::server::{Server, ServerRow, DraftServer};
+use crate::error::RepositoryError;
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::mojang::MojangApiDowntime;
-use crate::models::web_push::{WebPushSubscription, WebPushSubscriptionRow, DraftWebPushSubscription};
+use crate::models::record::{Record, RecordData};
+use crate::models::server::{DraftServer, Server, ServerRow};
+use crate::models::web_push::{
+    DraftWebPushSubscription, WebPushSubscription, WebPushSubscriptionRow,
+};
 use crate::repository::Repository;
+use async_trait::async_trait;
 use futures::stream::StreamExt;
-use log::{info};
-use crate::error::RepositoryError;
+use log::info;
+use sqlx::postgres::PgPoolOptions;
+use sqlx::{PgPool, QueryBuilder, Row};
+use time::{Duration, OffsetDateTime};
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -34,9 +36,7 @@ impl PostgresRepository {
         info!("PostgreSQL connection success !");
 
         let repository = PostgresRepository::new(pool);
-        repository.initialize()
-            .await
-            .map_err(|e| e.to_string())?;
+        repository.initialize().await.map_err(|e| e.to_string())?;
         info!("Initialized successfully!");
 
         Ok(repository)
@@ -50,7 +50,8 @@ impl Repository for PostgresRepository {
             return Ok(());
         }
 
-        let mut query_builder = QueryBuilder::new("INSERT INTO ping_records (server_id, date, value) ");
+        let mut query_builder =
+            QueryBuilder::new("INSERT INTO ping_records (server_id, date, value) ");
 
         query_builder.push_values(records, |mut b, record| {
             b.push_bind(record.server_id as i32)
@@ -59,18 +60,21 @@ impl Repository for PostgresRepository {
         });
 
         let query = query_builder.build();
-        query.execute(&self.pool)
-            .await
-            .map_err(|e| e.to_string())?;
+        query.execute(&self.pool).await.map_err(|e| e.to_string())?;
 
         Ok(())
     }
 
-    async fn get_pings(&self, server_id: u32, from: OffsetDateTime, to: Option<OffsetDateTime>) -> Result<RecordData, RepositoryError> {
+    async fn get_pings(
+        &self,
+        server_id: u32,
+        from: OffsetDateTime,
+        to: Option<OffsetDateTime>,
+    ) -> Result<RecordData, RepositoryError> {
         let mut query_builder = QueryBuilder::new(
             "SELECT date, value
             FROM ping_records
-            WHERE server_id = "
+            WHERE server_id = ",
         );
         query_builder.push_bind(server_id as i32);
         query_builder.push(" AND date >= ").push_bind(from);
@@ -94,16 +98,19 @@ impl Repository for PostgresRepository {
             let value_i32: i32 = row.get("value");
 
             dates.push(date.unix_timestamp());
-            values.push(value_i32 as u32);
+            values.push(value_i32);
         }
 
         Ok(RecordData(dates, values))
     }
 
-    async fn get_last_pings_for_servers(&self, server_ids: &[u32]) -> Result<HashMap<u32, RecordData>, RepositoryError> {
+    async fn get_last_pings_for_servers(
+        &self,
+        server_ids: &[u32],
+    ) -> Result<HashMap<u32, RecordData>, RepositoryError> {
         let ids: Vec<i32> = server_ids.iter().map(|&id| id as i32).collect();
         let from = OffsetDateTime::now_utc() - Duration::days(1);
-    
+
         let records = sqlx::query(
             "SELECT 
                 server_id,
@@ -111,7 +118,7 @@ impl Repository for PostgresRepository {
                 agg_value
             FROM ping_records_5m_agg
             WHERE server_id = ANY($1) AND time_bucket >= $2
-            ORDER BY server_id, time_bucket ASC"
+            ORDER BY server_id, time_bucket ASC",
         )
         .bind(&ids)
         .bind(from)
@@ -119,20 +126,20 @@ impl Repository for PostgresRepository {
         .await?;
 
         let mut map: HashMap<u32, RecordData> = HashMap::with_capacity(ids.len());
-    
+
         for row in records {
             let server_id: u32 = row.get::<i32, _>("server_id") as u32;
             let date: OffsetDateTime = row.get("time_bucket");
-            let value: u32 = row.get::<i32, _>("agg_value") as u32;
-    
+            let value = row.get::<i32, _>("agg_value");
+
             let uplot_data = map
                 .entry(server_id)
                 .or_insert_with(|| RecordData(Vec::new(), Vec::new()));
-            
+
             uplot_data.0.push(date.unix_timestamp());
             uplot_data.1.push(value);
         }
-    
+
         Ok(map)
     }
 
@@ -156,7 +163,8 @@ impl Repository for PostgresRepository {
     }
 
     async fn update_server(&self, server: &Server) -> Result<(), RepositoryError> {
-        sqlx::query("UPDATE servers SET
+        sqlx::query(
+            "UPDATE servers SET
                    last_favicon = $1,
                    last_status = $2,
                    last_connected = $3,
@@ -175,32 +183,33 @@ impl Repository for PostgresRepository {
                    last_protocol_version = $15,
                    ip = $16,
                    port = $17
-               WHERE id = $18")
-            .bind(server.last_favicon.clone())
-            .bind(server.last_status.clone())
-            .bind(server.last_connected.map(|v| v as i32))
-            .bind(server.last_version.clone())
-            .bind(server.last_max_players.clone())
-            .bind(server.last_motd.clone())
-            .bind(server.favicon_hash.clone())
-            .bind(server.motd_hash.clone())
-            .bind(server.resolved_endpoint.clone())
-            .bind(server.hidden)
-            .bind(server.name.clone())
-            .bind(server.last_ping_time.map(|v| v as i32))
-            .bind(server.last_sample.clone())
-            .bind(server.forced_favicon)
-            .bind(server.last_protocol_version)
-            .bind(server.ip.clone())
-            .bind(server.port as i32)
-            .bind(server.id as i32)
-            .execute(&self.pool)
-            .await?;
+               WHERE id = $18",
+        )
+        .bind(server.last_favicon.clone())
+        .bind(server.last_status.clone())
+        .bind(server.last_connected.map(|v| v as i32))
+        .bind(server.last_version.clone())
+        .bind(server.last_max_players.clone())
+        .bind(server.last_motd.clone())
+        .bind(server.favicon_hash.clone())
+        .bind(server.motd_hash.clone())
+        .bind(server.resolved_endpoint.clone())
+        .bind(server.hidden)
+        .bind(server.name.clone())
+        .bind(server.last_ping_time.map(|v| v as i32))
+        .bind(server.last_sample.clone())
+        .bind(server.forced_favicon)
+        .bind(server.last_protocol_version)
+        .bind(server.ip.clone())
+        .bind(server.port as i32)
+        .bind(server.id as i32)
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }
 
-      async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), RepositoryError> {
+    async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), RepositoryError> {
         if servers.is_empty() {
             return Ok(());
         }
@@ -319,17 +328,21 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
-    async fn get_server_without_favicon(&self, server_id: u32) -> Result<Option<Server>, RepositoryError> {
+    async fn get_server_without_favicon(
+        &self,
+        server_id: u32,
+    ) -> Result<Option<Server>, RepositoryError> {
         let result: Option<ServerRow> = sqlx::query_as(
             "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
                     NULL::text AS last_favicon,
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
                     favicon_hash, motd_hash, resolved_endpoint
-             FROM servers WHERE id = $1")
-            .bind(server_id as i32)
-            .fetch_optional(&self.pool)
-            .await?;
+             FROM servers WHERE id = $1",
+        )
+        .bind(server_id as i32)
+        .fetch_optional(&self.pool)
+        .await?;
 
         Ok(result.map(|r| r.into()))
     }
@@ -341,9 +354,10 @@ impl Repository for PostgresRepository {
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
                     favicon_hash, motd_hash, resolved_endpoint
-             FROM servers")
-            .fetch_all(&self.pool)
-            .await?;
+             FROM servers",
+        )
+        .fetch_all(&self.pool)
+        .await?;
 
         let mut rs: Vec<Server> = Vec::new();
         for row in rows {
@@ -353,17 +367,21 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
-    async fn get_servers_of_user_without_favicon(&self, user_id: String) -> Result<Vec<Server>, RepositoryError> {
+    async fn get_servers_of_user_without_favicon(
+        &self,
+        user_id: String,
+    ) -> Result<Vec<Server>, RepositoryError> {
         let rows: Vec<ServerRow> = sqlx::query_as(
             "SELECT id, name, user_id, ip, port, type, hidden, registered_date, forced_favicon,
                     NULL::text AS last_favicon,
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
                     favicon_hash, motd_hash, resolved_endpoint
-             FROM servers WHERE user_id = $1")
-            .bind(user_id)
-            .fetch_all(&self.pool)
-            .await?;
+             FROM servers WHERE user_id = $1",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
 
         let mut rs: Vec<Server> = Vec::new();
         for row in rows {
@@ -373,7 +391,12 @@ impl Repository for PostgresRepository {
         Ok(rs)
     }
 
-    async fn find_servers(&self, favicon_hash: Option<&str>, resolved_endpoint: Option<&str>, motd_hash: Option<&str>) -> Result<Vec<Server>, RepositoryError> {
+    async fn find_servers(
+        &self,
+        favicon_hash: Option<&str>,
+        resolved_endpoint: Option<&str>,
+        motd_hash: Option<&str>,
+    ) -> Result<Vec<Server>, RepositoryError> {
         let mut query = QueryBuilder::new("SELECT * FROM servers WHERE 1=0");
 
         if let Some(h) = favicon_hash {
@@ -389,22 +412,26 @@ impl Repository for PostgresRepository {
             query.push_bind(h);
         }
 
-        let rows: Vec<ServerRow> = query.build_query_as()
-            .fetch_all(&self.pool)
-            .await?;
+        let rows: Vec<ServerRow> = query.build_query_as().fetch_all(&self.pool).await?;
 
         Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
-    async fn count_resolved_endpoints(&self, resolved_endpoint: &str, exclude_id: Option<u32>) -> Result<u32, RepositoryError> {
-        let mut query = QueryBuilder::new("SELECT COUNT(*) FROM servers WHERE resolved_endpoint = ");
+    async fn count_resolved_endpoints(
+        &self,
+        resolved_endpoint: &str,
+        exclude_id: Option<u32>,
+    ) -> Result<u32, RepositoryError> {
+        let mut query =
+            QueryBuilder::new("SELECT COUNT(*) FROM servers WHERE resolved_endpoint = ");
         query.push_bind(resolved_endpoint);
         if let Some(id) = exclude_id {
             query.push(" AND id != ");
             query.push_bind(id as i32);
         }
 
-        let row: (i64,) = query.build_query_as::<(i64,)>()
+        let row: (i64,) = query
+            .build_query_as::<(i64,)>()
             .fetch_one(&self.pool)
             .await?;
 
@@ -415,7 +442,7 @@ impl Repository for PostgresRepository {
         let row: AlertRow = sqlx::query_as(
             "INSERT INTO alerts (user_id, server_id, alert_type, player_threshold, is_active)
              VALUES ($1, $2, $3, $4, $5)
-             RETURNING *"
+             RETURNING *",
         )
         .bind(alert.user_id)
         .bind(alert.server_id as i32)
@@ -429,21 +456,17 @@ impl Repository for PostgresRepository {
     }
 
     async fn delete_alert(&self, alert_id: u32, user_id: String) -> Result<(), RepositoryError> {
-        sqlx::query(
-            "DELETE FROM alerts WHERE id = $1 AND user_id = $2"
-        )
-        .bind(alert_id as i32)
-        .bind(user_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("DELETE FROM alerts WHERE id = $1 AND user_id = $2")
+            .bind(alert_id as i32)
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }
 
     async fn list_alerts_for_user(&self, user_id: String) -> Result<Vec<Alert>, RepositoryError> {
-        let rows: Vec<AlertRow> = sqlx::query_as(
-            "SELECT * FROM alerts WHERE user_id = $1"
-        )
+        let rows: Vec<AlertRow> = sqlx::query_as("SELECT * FROM alerts WHERE user_id = $1")
             .bind(user_id)
             .fetch_all(&self.pool)
             .await?;
@@ -452,31 +475,32 @@ impl Repository for PostgresRepository {
     }
 
     async fn list_alerts_for_server(&self, server_id: u32) -> Result<Vec<Alert>, RepositoryError> {
-        let rows: Vec<AlertRow> = sqlx::query_as(
-            "SELECT * FROM alerts WHERE server_id = $1"
-        )
-        .bind(server_id as i32)
-        .fetch_all(&self.pool)
-        .await?;
+        let rows: Vec<AlertRow> = sqlx::query_as("SELECT * FROM alerts WHERE server_id = $1")
+            .bind(server_id as i32)
+            .fetch_all(&self.pool)
+            .await?;
 
         Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
-    async fn get_active_alerts_for_servers(&self, server_ids: &[u32]) -> Result<Vec<Alert>, RepositoryError> {
+    async fn get_active_alerts_for_servers(
+        &self,
+        server_ids: &[u32],
+    ) -> Result<Vec<Alert>, RepositoryError> {
         let ids: Vec<i32> = server_ids.iter().map(|&id| id as i32).collect();
-        let rows: Vec<AlertRow> = sqlx::query_as(
-            "SELECT * FROM alerts WHERE server_id = ANY($1) AND is_active = TRUE"
-        )
-        .bind(&ids)
-        .fetch_all(&self.pool)
-        .await?;
+        let rows: Vec<AlertRow> =
+            sqlx::query_as("SELECT * FROM alerts WHERE server_id = ANY($1) AND is_active = TRUE")
+                .bind(&ids)
+                .fetch_all(&self.pool)
+                .await?;
 
-        Ok(rows.into_iter()
-            .map(|r| r.into())
-            .collect())
+        Ok(rows.into_iter().map(|r| r.into()).collect())
     }
 
-    async fn create_subscription(&self, subscription: DraftWebPushSubscription) -> Result<WebPushSubscription, RepositoryError> {
+    async fn create_subscription(
+        &self,
+        subscription: DraftWebPushSubscription,
+    ) -> Result<WebPushSubscription, RepositoryError> {
         let row: WebPushSubscriptionRow = sqlx::query_as(
             "INSERT INTO web_push_subscriptions (user_id, endpoint, p256dh, auth)
              VALUES ($1, $2, $3, $4)
@@ -485,7 +509,7 @@ impl Repository for PostgresRepository {
                  p256dh = EXCLUDED.p256dh,
                  auth = EXCLUDED.auth,
                  created_at = NOW()
-             RETURNING *"
+             RETURNING *",
         )
         .bind(subscription.user_id)
         .bind(subscription.endpoint)
@@ -497,36 +521,38 @@ impl Repository for PostgresRepository {
         Ok(row.into())
     }
 
-    async fn delete_subscription(&self, endpoint: &str, user_id: &str) -> Result<(), RepositoryError> {
-        sqlx::query(
-            "DELETE FROM web_push_subscriptions WHERE endpoint = $1 AND user_id = $2"
-        )
-        .bind(endpoint)
-        .bind(user_id)
-        .execute(&self.pool)
-        .await?;
+    async fn delete_subscription(
+        &self,
+        endpoint: &str,
+        user_id: &str,
+    ) -> Result<(), RepositoryError> {
+        sqlx::query("DELETE FROM web_push_subscriptions WHERE endpoint = $1 AND user_id = $2")
+            .bind(endpoint)
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }
 
     async fn delete_stale_subscription(&self, endpoint: &str) -> Result<(), RepositoryError> {
-        sqlx::query(
-            "DELETE FROM web_push_subscriptions WHERE endpoint = $1"
-        )
-        .bind(endpoint)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("DELETE FROM web_push_subscriptions WHERE endpoint = $1")
+            .bind(endpoint)
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }
 
-    async fn get_subscriptions_for_users(&self, user_ids: &[String]) -> Result<Vec<WebPushSubscription>, RepositoryError> {
-        let rows: Vec<WebPushSubscriptionRow> = sqlx::query_as(
-            "SELECT * FROM web_push_subscriptions WHERE user_id = ANY($1)"
-        )
-        .bind(user_ids)
-        .fetch_all(&self.pool)
-        .await?;
+    async fn get_subscriptions_for_users(
+        &self,
+        user_ids: &[String],
+    ) -> Result<Vec<WebPushSubscription>, RepositoryError> {
+        let rows: Vec<WebPushSubscriptionRow> =
+            sqlx::query_as("SELECT * FROM web_push_subscriptions WHERE user_id = ANY($1)")
+                .bind(user_ids)
+                .fetch_all(&self.pool)
+                .await?;
 
         Ok(rows.into_iter().map(|r| r.into()).collect())
     }
@@ -569,7 +595,10 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
-    async fn start_mojang_api_downtime(&self, start_time: OffsetDateTime) -> Result<(), RepositoryError> {
+    async fn start_mojang_api_downtime(
+        &self,
+        start_time: OffsetDateTime,
+    ) -> Result<(), RepositoryError> {
         sqlx::query("INSERT INTO mojang_api_downtimes (start_time) VALUES ($1)")
             .bind(start_time)
             .execute(&self.pool)
@@ -577,7 +606,10 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
-    async fn end_mojang_api_downtime(&self, end_time: OffsetDateTime) -> Result<(), RepositoryError> {
+    async fn end_mojang_api_downtime(
+        &self,
+        end_time: OffsetDateTime,
+    ) -> Result<(), RepositoryError> {
         sqlx::query("UPDATE mojang_api_downtimes SET end_time = $1 WHERE end_time IS NULL")
             .bind(end_time)
             .execute(&self.pool)
@@ -585,7 +617,10 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
-    async fn get_mojang_api_downtimes(&self, limit: u32) -> Result<Vec<MojangApiDowntime>, RepositoryError> {
+    async fn get_mojang_api_downtimes(
+        &self,
+        limit: u32,
+    ) -> Result<Vec<MojangApiDowntime>, RepositoryError> {
         let downtimes = sqlx::query_as::<_, MojangApiDowntime>("SELECT id, start_time, end_time FROM mojang_api_downtimes ORDER BY start_time DESC LIMIT $1")
             .bind(limit as i64)
             .fetch_all(&self.pool)
@@ -594,9 +629,7 @@ impl Repository for PostgresRepository {
     }
 
     async fn initialize(&self) -> Result<(), RepositoryError> {
-        sqlx::migrate!("./migrations")
-            .run(&self.pool)
-            .await?;
+        sqlx::migrate!("./migrations").run(&self.pool).await?;
 
         Ok(())
     }

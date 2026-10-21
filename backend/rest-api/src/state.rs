@@ -15,7 +15,7 @@ use crate::utils::cache::TtlCache;
 pub struct AppState {
     pub repository: Arc<dyn Repository>,
     pub pinger: MinecraftPinger,
-    
+
     pub http_client: Client,
 
     pub jwks: JwksStore,

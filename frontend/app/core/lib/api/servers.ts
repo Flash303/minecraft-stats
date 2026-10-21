@@ -2,9 +2,11 @@ import { z } from "zod";
 import { PUBLIC_API_URL } from "@/core/lib/config";
 import { API_BASE, getHeaders } from "./client";
 import { ServerSchema, type Server, type ServerRecord } from "./schemas";
+
 export function getServerIconUrl(serverId: number | string): string {
-    return `${PUBLIC_API_URL}/servers/${serverId}/icon`
+    return `${PUBLIC_API_URL}/servers/${serverId}/icon?v=2`
 }
+
 export function normalizeServerData(server: unknown): Server {
     if (server && typeof server === 'object' && 'data' in server) {
         const s = server as { data?: unknown };

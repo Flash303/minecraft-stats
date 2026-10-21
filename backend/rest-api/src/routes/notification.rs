@@ -1,19 +1,19 @@
 use crate::error::AppError;
 use crate::response::ResponseFormat;
-use crate::state::AppState;
 use crate::services::clerk::model::ClerkClaims;
+use crate::state::AppState;
+use crate::utils::rate_limit::ClientIpKeyExtractor;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
-use repository::models::web_push::{WebPushSubscription, DraftWebPushSubscription};
+use repository::models::alert::Alert;
+use repository::models::web_push::{DraftWebPushSubscription, WebPushSubscription};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::time::Duration;
-use repository::models::alert::Alert;
-use tower_governor::governor::GovernorConfigBuilder;
 use tower_governor::GovernorLayer;
-use crate::utils::rate_limit::ClientIpKeyExtractor;
+use tower_governor::governor::GovernorConfigBuilder;
 
 pub fn router() -> Router<AppState> {
     let read_limit = GovernorConfigBuilder::default()
@@ -34,9 +34,18 @@ pub fn router() -> Router<AppState> {
     let write_layer = GovernorLayer::new(write_limit);
 
     Router::new()
-        .route("/vapid-key", get(get_vapid_key).route_layer(read_layer.clone()))
-        .route("/subscribe", post(subscribe_device).route_layer(write_layer.clone()))
-        .route("/unsubscribe", post(unsubscribe_device).route_layer(write_layer))
+        .route(
+            "/vapid-key",
+            get(get_vapid_key).route_layer(read_layer.clone()),
+        )
+        .route(
+            "/subscribe",
+            post(subscribe_device).route_layer(write_layer.clone()),
+        )
+        .route(
+            "/unsubscribe",
+            post(unsubscribe_device).route_layer(write_layer),
+        )
         .route("/list", get(list_alerts).route_layer(read_layer))
 }
 
@@ -46,7 +55,10 @@ async fn list_alerts(
 ) -> Result<ResponseFormat<Vec<Alert>>, AppError> {
     let account = account.ok_or(AppError::Authentication)?;
 
-    let alerts = state.repository.list_alerts_for_user(account.id().clone()).await?;
+    let alerts = state
+        .repository
+        .list_alerts_for_user(account.id().clone())
+        .await?;
 
     let user_alerts: Vec<Alert> = alerts
         .into_iter()
@@ -64,7 +76,10 @@ struct VapidKeyResponse {
 async fn get_vapid_key() -> Result<ResponseFormat<VapidKeyResponse>, AppError> {
     let public_key = env::var("VAPID_PUBLIC_KEY")
         .unwrap_or_else(|_| "Please set VAPID_PUBLIC_KEY in env".to_string());
-    Ok(ResponseFormat::success(VapidKeyResponse { public_key }, StatusCode::OK))
+    Ok(ResponseFormat::success(
+        VapidKeyResponse { public_key },
+        StatusCode::OK,
+    ))
 }
 
 #[derive(Deserialize)]
@@ -104,6 +119,9 @@ async fn unsubscribe_device(
 ) -> Result<ResponseFormat<()>, AppError> {
     let account = account.ok_or(AppError::Authentication)?;
 
-    state.repository.delete_subscription(&payload.endpoint, &account.sub).await?;
+    state
+        .repository
+        .delete_subscription(&payload.endpoint, &account.sub)
+        .await?;
     Ok(ResponseFormat::success((), StatusCode::NO_CONTENT))
 }

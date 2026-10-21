@@ -25,7 +25,7 @@ pub struct Server {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_favicon: Option<String>,
     pub last_status: Option<ServerStatus>,
-    pub last_connected: Option<u32>,
+    pub last_connected: Option<i32>,
     pub last_version: Option<String>,
     pub last_max_players: Option<i32>,
     pub last_motd: Option<Value>,
@@ -91,9 +91,11 @@ impl From<ServerRow> for Server {
 
             last_favicon: row.last_favicon,
             last_status: row.last_status,
-            last_connected: row.last_connected.map(|v| v as u32),
+            last_connected: row.last_connected,
             last_version: row.last_version.map(|v| v.to_string()),
-            last_motd: row.last_motd.as_deref()
+            last_motd: row
+                .last_motd
+                .as_deref()
                 .and_then(|s| serde_json::from_str(s).ok()),
             last_max_players: row.last_max_players,
             last_ping_time: row.last_ping_time.map(|v| v as u32),
@@ -122,7 +124,7 @@ pub enum ServerStatus {
 #[serde(rename_all = "lowercase")]
 pub enum ServerType {
     Java,
-    Bedrock
+    Bedrock,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

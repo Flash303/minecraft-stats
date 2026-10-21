@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use std::sync::Arc;
-use log::{error};
-use serde::{Deserialize, Serialize};
-use repository::models::server::Server;
 use crate::services::clients::BaseClientInfo;
 use crate::state::AppState;
+use log::error;
+use repository::models::server::Server;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Serialize)]
 pub struct LunarClientInfo {
@@ -16,26 +16,31 @@ pub struct LunarClientInfo {
 
 fn construct_lunar_info(state: &AppState, server: Arc<RawLunarServer>) -> LunarClientInfo {
     let srv_part = state.lunar_partner_cache.get(&server.id);
-    let is_partner = srv_part.as_ref()
+    let is_partner = srv_part
+        .as_ref()
         .and_then(|info| info.partnered)
         .unwrap_or(false);
 
     let base = BaseClientInfo {
         partner: is_partner,
-        background: server.images.background.clone()
+        background: server.images.background.clone(),
     };
 
     LunarClientInfo {
         base,
         raw: server.clone(),
-        raw_partner: srv_part.map(|info| info.value().clone())
+        raw_partner: srv_part.map(|info| info.value().clone()),
     }
 }
 
 pub async fn get_lunar_infos(state: &AppState, current_server: &Server) -> Option<LunarClientInfo> {
     let guard = state.lunar_servers_cache.read().await;
     for server in guard.iter() {
-        if server.addresses.contains(&current_server.ip) || server.primary_address.eq_ignore_ascii_case(current_server.ip.as_str()) {
+        if server.addresses.contains(&current_server.ip)
+            || server
+                .primary_address
+                .eq_ignore_ascii_case(current_server.ip.as_str())
+        {
             return Some(construct_lunar_info(state, server.clone()));
         }
     }
@@ -43,9 +48,10 @@ pub async fn get_lunar_infos(state: &AppState, current_server: &Server) -> Optio
     None
 }
 
-
 pub async fn refresh_lunar_infos(state: &AppState) {
-    let rs = state.http_client.get("https://servermappings.lunarclientcdn.com/servers.json")
+    let rs = state
+        .http_client
+        .get("https://servermappings.lunarclientcdn.com/servers.json")
         .send()
         .await;
 
@@ -61,9 +67,7 @@ pub async fn refresh_lunar_infos(state: &AppState) {
     }
 
     let mut guard = state.lunar_servers_cache.write().await;
-    *guard = json.unwrap().into_iter()
-        .map(Arc::new)
-        .collect();
+    *guard = json.unwrap().into_iter().map(Arc::new).collect();
 }
 
 #[derive(Deserialize)]
@@ -91,7 +95,6 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
         state.lunar_partner_cache.insert(server.id.clone(), server);
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

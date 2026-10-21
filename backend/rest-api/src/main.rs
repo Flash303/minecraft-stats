@@ -1,33 +1,33 @@
 pub mod error;
-pub mod state;
-pub mod routes;
-pub mod response;
 pub mod middleware;
+pub mod response;
+pub mod routes;
 pub mod services;
+pub mod state;
 pub mod utils;
 pub mod worker;
 
-use services::clerk::account_checker::{fetch_clerk_jwks, JwksStore};
 use crate::middleware::auth::auth_middleware;
 use crate::middleware::statistics::stats_middleware;
 use crate::routes::admin;
 use crate::state::AppState;
 use crate::utils::cache::TtlCache;
-use axum::{extract::DefaultBodyLimit, http::Method};
-use axum::middleware::{from_fn, from_fn_with_state};
 use axum::Router;
-use tower_http::compression::CompressionLayer;
-use std::env;
-use std::net::SocketAddr;
-use std::sync::Arc;
+use axum::middleware::{from_fn, from_fn_with_state};
+use axum::{extract::DefaultBodyLimit, http::Method};
 use dashmap::DashMap;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
+use repository::postgres::PostgresRepository;
 use reqwest::Client;
+use services::clerk::account_checker::{JwksStore, fetch_clerk_jwks};
+use std::env;
+use std::net::SocketAddr;
+use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::sync::RwLock;
+use tower_http::compression::CompressionLayer;
 use tower_http::cors::{Any, CorsLayer};
-use repository::postgres::PostgresRepository;
 
 const DEFAULT_PORT: u16 = 3000;
 
@@ -45,13 +45,11 @@ async fn main() {
             DEFAULT_PORT
         });
 
-
     // Init DB
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| {
-            info!("Please set the DATABASE_URL environment variable, using defaults.");
-            "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
-        });
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
+        info!("Please set the DATABASE_URL environment variable, using defaults.");
+        "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
+    });
 
     let result = PostgresRepository::from_url(database_url).await;
     if let Err(err) = result {
@@ -59,7 +57,6 @@ async fn main() {
         return;
     }
     let repository = result.unwrap();
-
 
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
@@ -69,7 +66,8 @@ async fn main() {
     }
     let clerk_instance = clerk_instance.unwrap();
 
-    let result = fetch_clerk_jwks(format!("{}/.well-known/jwks.json", clerk_instance).as_str()).await;
+    let result =
+        fetch_clerk_jwks(format!("{}/.well-known/jwks.json", clerk_instance).as_str()).await;
     if let Err(err) = result {
         info!("Error on clerk init: {}", err);
         return;
@@ -77,14 +75,14 @@ async fn main() {
     let keys = result.unwrap();
     let jwks_store = JwksStore::new(format!("{}/.well-known/jwks.json", clerk_instance), keys);
 
-
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
     if let Err(_) = clerk_secret_key {
-        info!("Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected.");
+        info!(
+            "Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected."
+        );
     }
     let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
-
 
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
@@ -94,11 +92,16 @@ async fn main() {
     }
     let pinger = pinger.unwrap();
 
-
     // Init the main rest api
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::DELETE,
+            Method::PATCH,
+        ])
         .allow_headers(Any);
 
     let body_limit = DefaultBodyLimit::max(1024 * 256);
@@ -137,8 +140,15 @@ async fn main() {
         .layer(CompressionLayer::new())
         .layer(body_limit);
 
-    let listener = TcpListener::bind(format!("0.0.0.0:{}", port)).await.unwrap();
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", port))
+        .await
+        .unwrap();
 
     info!("Listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app.into_make_service_with_connect_info::<SocketAddr>()).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    .unwrap();
 }

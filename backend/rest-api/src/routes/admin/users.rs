@@ -1,19 +1,16 @@
-use axum::{extract::State, http::StatusCode, routing::get, Router};
+use axum::{Router, extract::State, http::StatusCode, routing::get};
 
-use crate::{
-    error::AppError,
-    response::ResponseFormat,
-    state::AppState,
-};
 use crate::services::clerk::clerk_service;
 use crate::services::clerk::model::ClerkUser;
+use crate::{error::AppError, response::ResponseFormat, state::AppState};
 
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/users", get(list_users))
+    Router::new().route("/users", get(list_users))
 }
 
-async fn list_users(State(state): State<AppState>) -> Result<ResponseFormat<Vec<ClerkUser>>, AppError> {
+async fn list_users(
+    State(state): State<AppState>,
+) -> Result<ResponseFormat<Vec<ClerkUser>>, AppError> {
     let users = clerk_service::get_all_clerk_users(&state).await?;
     Ok(ResponseFormat::success(users, StatusCode::OK))
 }

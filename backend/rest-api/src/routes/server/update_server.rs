@@ -1,12 +1,12 @@
-use axum::{Extension, Json};
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use serde::Deserialize;
-use repository::models::server::Server;
 use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::{Extension, Json};
+use repository::models::server::Server;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub(super) struct UpdateServerPayload {
@@ -21,7 +21,11 @@ pub(super) async fn update_server_name(
 ) -> Result<ResponseFormat<Server>, AppError> {
     let account = account.ok_or(AppError::Authentication)?;
 
-    let mut server = state.repository.get_server(id).await?.ok_or(AppError::ServerNotFound)?;
+    let mut server = state
+        .repository
+        .get_server(id)
+        .await?
+        .ok_or(AppError::ServerNotFound)?;
 
     let is_owner = server.user_id == account.sub;
     if !is_owner && !account.is_admin() {

@@ -1,11 +1,11 @@
-use std::fmt::{Debug};
-use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use crate::response::ResponseFormat;
+use axum::extract::rejection::{JsonRejection, PathRejection, QueryRejection};
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
-use reqwest::Error;
-use thiserror::Error;
 use repository::error::RepositoryError;
+use reqwest::Error;
+use std::fmt::Debug;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ServerCreationError {
@@ -28,8 +28,9 @@ impl ServerCreationError {
             ServerCreationError::NotReachable => "error.server_creation.not_reachable",
             ServerCreationError::AlreadyExist => "error.server_creation.already_exist",
             ServerCreationError::DuplicationDetection(_) => "error.server_creation.duplicate",
-            ServerCreationError::Database => "error.server_creation.database_problem"
-        }.to_string()
+            ServerCreationError::Database => "error.server_creation.database_problem",
+        }
+        .to_string()
     }
 }
 
@@ -58,10 +59,10 @@ pub enum AppError {
 
     #[error("{0}")]
     InvalidParam(#[from] PathRejection),
-    
+
     #[error("{0}")]
     InvalidQuery(#[from] QueryRejection),
-    
+
     #[error("{0}")]
     InvalidJson(#[from] JsonRejection),
 
@@ -105,6 +106,11 @@ impl AppError {
 
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        ResponseFormat::<()>::error_translation(self.to_string(), self.translation_key(), self.status()).into_response()
+        ResponseFormat::<()>::error_translation(
+            self.to_string(),
+            self.translation_key(),
+            self.status(),
+        )
+        .into_response()
     }
 }

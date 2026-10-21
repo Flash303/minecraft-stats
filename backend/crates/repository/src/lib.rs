@@ -1,5 +1,5 @@
-pub mod models;
-pub mod repository;
 pub mod duplicate_detection;
-pub mod postgres;
 pub mod error;
+pub mod models;
+pub mod postgres;
+pub mod repository;

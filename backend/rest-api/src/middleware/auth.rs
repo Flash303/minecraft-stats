@@ -6,7 +6,7 @@ use axum::{
     extract::State,
     http::{Request, StatusCode},
     middleware::Next,
-    response::Response
+    response::Response,
 };
 
 pub async fn auth_middleware(
@@ -14,9 +14,12 @@ pub async fn auth_middleware(
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
-    let auth_user = match req.headers().get(AUTHORIZATION)
+    let auth_user = match req
+        .headers()
+        .get(AUTHORIZATION)
         .and_then(|value| value.to_str().ok())
-        .and_then(|token| token.strip_prefix("Bearer ")) {
+        .and_then(|token| token.strip_prefix("Bearer "))
+    {
         Some(token) => verify_clerk_token(&state, token).await.ok(),
         None => None,
     };
