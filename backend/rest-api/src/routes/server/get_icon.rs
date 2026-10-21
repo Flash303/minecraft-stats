@@ -7,7 +7,7 @@ use base64::Engine;
 use base64::prelude::BASE64_STANDARD;
 
 const DEFAULT_ICON: &[u8] = include_bytes!("../../../assets/default_favicon.webp");
-const DEFAULT_ICON_CACHE: &str = "public, max-age=31536000, immutable";
+const DEFAULT_ICON_CACHE: &str = "public, max-age=86400";
 
 pub(super) async fn get_server_icon(
     State(state): State<AppState>,
