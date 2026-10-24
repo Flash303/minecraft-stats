@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
-import { applyDocumentMeta, getServerDocumentMeta, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
+import { applyDocumentMeta, getServerDocumentMeta, serverFaviconLink, syncServerFavicon, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -105,6 +105,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { title },
         { name: "description", content: description },
         { tagName: "link", rel: "canonical", href: `${APP_URL}/server/${server.id}` },
+        serverFaviconLink(server.id),
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Minecraft-Stats" },
         { property: "og:title", content: title },
@@ -155,6 +156,15 @@ export default function ServerDetail() {
     useEffect(() => {
         if (server) applyDocumentMeta(getServerDocumentMeta(server, language))
     }, [server, language])
+
+    // Live favicon sync: covers client-side navigations and late server
+    // updates (loader data arriving after hydration). Restores the default
+    // icon on cleanup so no stale server icon leaks to other pages.
+    const serverId = server?.id
+    useEffect(() => {
+        if (serverId == null) return
+        return syncServerFavicon(serverId)
+    }, [serverId])
 
     // Structured data rendered in the JSX (so it is present in the SSR HTML),
     // from the loader data so SSR and client stay identical.

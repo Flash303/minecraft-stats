@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest"
 import { registerTranslations } from "./i18n"
 import {
     getServerDocumentMeta,
+    getServerFaviconUrl,
     resolveMetaLanguage,
+    serverFaviconLink,
     translateMeta,
 } from "./seo-meta"
 import type { Server } from "./api"
@@ -88,5 +90,19 @@ describe("getServerDocumentMeta", () => {
         const meta = getServerDocumentMeta(onlineServer, "ja")
         expect(meta.title).toBe("Hypixel - Statistiques | MS")
         expect(meta.title).not.toContain("seo.")
+    })
+})
+
+describe("server favicon", () => {
+    it("builds the same-origin favicon URL from the server id", () => {
+        expect(getServerFaviconUrl(42)).toBe("/api/favicon/42")
+    })
+
+    it("returns a link descriptor without a type (png or webp)", () => {
+        expect(serverFaviconLink(42)).toEqual({
+            tagName: "link",
+            rel: "icon",
+            href: "/api/favicon/42",
+        })
     })
 })
