@@ -16,7 +16,7 @@ let build;
 try {
   build = await import(serverBuildPath);
 } catch (e) {
-  console.error("Could not load React Router server build. Make sure to run `pnpm run build` first.", e);
+  console.error("Could not load React Router server build. Make sure to run `bun run build` first.", e);
   process.exit(1);
 }
 
