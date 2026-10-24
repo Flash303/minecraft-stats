@@ -31,8 +31,9 @@ export function AccountAlertsTab({
     handleDeleteAlert
 }: AccountAlertsTabProps) {
     return (
-        <div className="space-y-8 max-w-4xl">
-            {/* Push Settings */}
+        <div className="space-y-8">
+            {/* Push Settings — full page width, side space comes from the
+                page gutters (roomy on desktop, minimal on mobile). */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-5">
                 <div>
                     <h2 className="text-lg font-semibold text-foreground">{t("profile.alerts.pushTitle")}</h2>
@@ -81,8 +82,8 @@ export function AccountAlertsTab({
                 </div>
             </div>
 
-            {/* Configured Alerts List */}
-            <div>
+            {/* Configured Alerts List — constrained column for readability */}
+            <div className="max-w-4xl">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-medium text-foreground">{t("profile.alerts.configuredAlerts")}</h3>
                 </div>
