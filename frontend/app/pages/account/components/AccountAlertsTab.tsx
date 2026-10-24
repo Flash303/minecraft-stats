@@ -82,8 +82,8 @@ export function AccountAlertsTab({
                 </div>
             </div>
 
-            {/* Configured Alerts List — constrained column for readability */}
-            <div className="max-w-4xl">
+            {/* Configured Alerts List — same full-width rule as the push section */}
+            <div>
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-medium text-foreground">{t("profile.alerts.configuredAlerts")}</h3>
                 </div>
