@@ -123,7 +123,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                     <p className="text-sm text-muted-foreground mt-1">{t("alerts.description")}</p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     {!isPushSupported ? (
                         <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                             <ShieldAlert className="h-3.5 w-3.5" />
@@ -163,7 +163,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
                 {/* Alert Creation Form */}
                 <div className="flex flex-col gap-4">
                     <h4 className="text-sm font-medium text-foreground">{t("alerts.addRule")}</h4>
@@ -222,8 +222,8 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                     ) : (
                         <div className="flex flex-col gap-2.5">
                             {alerts.map((alert) => (
-                                <div key={alert.id} className="group flex items-center justify-between p-3.5 bg-muted/40 rounded-lg border border-border/80 transition-colors hover:bg-muted/60">
-                                    <div className="flex flex-col">
+                                <div key={alert.id} className="group flex items-center justify-between gap-3 p-3.5 bg-muted/40 rounded-lg border border-border/80 transition-colors hover:bg-muted/60">
+                                    <div className="flex min-w-0 flex-1 flex-col">
                                         <span className="text-sm font-medium text-foreground">
                                             {t(`alerts.types.${alert.alert_type}`)}
                                         </span>
@@ -236,7 +236,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                                        className="h-9 w-9 shrink-0 rounded-md text-muted-foreground opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                                         aria-label={`${t("alerts.delete")} ${alert.alert_type}`}
                                         onClick={() => handleDeleteAlert(alert.id)}
                                     >

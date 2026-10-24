@@ -25,14 +25,14 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
             {selectedServers.map((s) => (
                 <div
                     key={s.id}
-                    className="flex items-center rounded-xl border border-primary/20 bg-primary/10 shadow-xs hover:border-primary/30 transition-colors overflow-hidden"
+                    className="flex max-w-full min-w-0 items-center rounded-xl border border-primary/20 bg-primary/10 shadow-xs hover:border-primary/30 transition-colors overflow-hidden"
                 >
                     {/* Clickable link to the server detail page */}
                     <Link
                         to={`/server/${s.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 text-xs text-primary hover:text-primary/80 transition-colors"
+                        className="flex min-w-0 items-center gap-2 px-3 py-2 text-xs text-primary hover:text-primary/80 transition-colors"
                         title={t("common.viewServer", { name: s.name })}
                     >
                         <ServerIcon
@@ -40,7 +40,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                             className="h-5 w-5 rounded-md object-cover shadow-xs flex-shrink-0"
                             alt=""
                         />
-                        <span className="font-bold">{s.name}</span>
+                        <span className="min-w-0 truncate font-bold">{s.name}</span>
                         {s.client_infos?.lunar && (
                             <LunarLogo
                                 className={cn("w-3.5 h-3.5 shrink-0", lunarLogoClass(s.client_infos.lunar.partner))}
@@ -61,8 +61,9 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                     {/* Remove button */}
                     <button
                         onClick={() => removeServer(s.id)}
-                        className="flex items-center justify-center px-2.5 py-2 text-muted-foreground hover:text-destructive transition-colors cursor-pointer focus:outline-none"
+                        className="flex shrink-0 items-center justify-center px-3 py-2 text-muted-foreground hover:text-destructive transition-colors cursor-pointer focus:outline-none focus-visible:text-destructive"
                         title={t("common.remove")}
+                        aria-label={t("common.remove")}
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>

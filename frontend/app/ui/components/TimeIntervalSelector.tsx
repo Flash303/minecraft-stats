@@ -10,6 +10,7 @@ import { Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
 import { useLanguage } from "@/core/contexts/LanguageContext"
+import { useMediaQuery } from "@/core/hooks/useMediaQuery"
 
 export type DateRange = {
     from: Date | undefined;
@@ -52,6 +53,8 @@ export function TimeIntervalSelector({
 }: TimeIntervalSelectorProps) {
     const { language } = useLanguage()
     const locale = language === "fr" ? fr : enUS
+    // Two months side by side only when there is room; a single month otherwise.
+    const isDesktop = useMediaQuery("(min-width: 640px)")
 
     return (
         <div className={cn("flex flex-col md:flex-row items-stretch md:items-center gap-2", containerClassName)}>
@@ -104,13 +107,13 @@ export function TimeIntervalSelector({
                             )}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto max-w-[calc(100vw-2rem)] overflow-x-auto p-0" align="start">
                         <Calendar
                             mode="range"
                             defaultMonth={customRange?.from}
                             selected={customRange}
                             onSelect={setCustomRange}
-                            numberOfMonths={2}
+                            numberOfMonths={isDesktop ? 2 : 1}
                             disabled={(date) => date > new Date()}
                             locale={locale}
                         />
