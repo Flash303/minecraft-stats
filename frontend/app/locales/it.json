@@ -310,6 +310,7 @@
     "refresh": "Aggiorna",
     "updatedAt": "Aggiornato alle {{time}}",
     "close": "Chiudi",
+    "navLabel": "Sezioni della dashboard",
     "openMenu": "Apri menu"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "Nessun avviso configurato per questo server.",
     "typeLabel": "Tipo di Avviso",
     "thresholdLabel": "Soglia Giocatori (x)",
+    "thresholdPlaceholder": "Es.: 10",
     "addAlert": "Aggiungi Avviso",
     "delete": "Elimina",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Carica un'immagine per sovrascrivere la favicon del server. Sarà automaticamente ridimensionata a 64x64 e convertita.",
     "upload": "Carica un'immagine",
     "reset": "Reimposta",
-    "empty": "Nessuna immagine impostata. La favicon si aggiornerà automaticamente dal gioco."
+    "empty": "Nessuna immagine impostata. La favicon si aggiornerà automaticamente dal gioco.",
+    "previewAlt": "Anteprima"
   }
 }

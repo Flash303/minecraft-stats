@@ -310,6 +310,7 @@
     "refresh": "Vernieuwen",
     "updatedAt": "Bijgewerkt om {{time}}",
     "close": "Sluiten",
+    "navLabel": "Dashboardsecties",
     "openMenu": "Menu openen"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "Geen waarschuwingen geconfigureerd voor deze server.",
     "typeLabel": "Type waarschuwing",
     "thresholdLabel": "Spelerdrempel (x)",
+    "thresholdPlaceholder": "Bijv.: 10",
     "addAlert": "Waarschuwing toevoegen",
     "delete": "Verwijderen",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Upload een afbeelding om de server-favicon te overschrijven. Deze wordt automatisch vergroot/verkleind naar 64x64 en geconverteerd.",
     "upload": "Een afbeelding uploaden",
     "reset": "Resetten",
-    "empty": "Geen afbeelding ingesteld. De favicon wordt automatisch bijgewerkt vanuit de game."
+    "empty": "Geen afbeelding ingesteld. De favicon wordt automatisch bijgewerkt vanuit de game.",
+    "previewAlt": "Voorbeeld"
   }
 }

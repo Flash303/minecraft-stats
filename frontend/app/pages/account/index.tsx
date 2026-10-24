@@ -141,7 +141,7 @@ export default function Account() {
                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                         <div className="flex min-w-0 items-center gap-4 sm:gap-5">
                             {user?.imageUrl ? (
-                                <img src={user.imageUrl} alt="Avatar" loading="lazy" decoding="async" className="h-16 w-16 shrink-0 rounded-full border-4 border-background shadow-md sm:h-20 sm:w-20" />
+                                <img src={user.imageUrl} alt="" loading="lazy" decoding="async" className="h-16 w-16 shrink-0 rounded-full border-4 border-background shadow-md sm:h-20 sm:w-20" />
                             ) : (
                                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-background bg-primary/10 shadow-md sm:h-20 sm:w-20">
                                     <User className="h-8 w-8 text-primary" />

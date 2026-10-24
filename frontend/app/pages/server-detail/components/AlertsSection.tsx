@@ -192,7 +192,7 @@ export function AlertsSection({ serverId, t }: AlertsSectionProps) {
                                     min="0"
                                     value={threshold}
                                     onChange={(e) => setThreshold(e.target.value)}
-                                    placeholder="Ex: 10"
+                                    placeholder={t("alerts.thresholdPlaceholder")}
                                     className="h-9"
                                     required
                                 />

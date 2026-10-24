@@ -310,6 +310,7 @@
     "refresh": "Rafraîchir",
     "updatedAt": "Mis à jour à {{time}}",
     "close": "Fermer",
+    "navLabel": "Sections du tableau de bord",
     "openMenu": "Ouvrir le menu"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "Aucune alerte configurée pour ce serveur.",
     "typeLabel": "Type d'alerte",
     "thresholdLabel": "Seuil de joueurs (x)",
+    "thresholdPlaceholder": "Ex : 10",
     "addAlert": "Ajouter l'alerte",
     "delete": "Supprimer",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Uploadez une image pour forcer le favicon du serveur. Elle sera automatiquement redimensionnée en 64x64 et convertie.",
     "upload": "Uploader une image",
     "reset": "Réinitialiser",
-    "empty": "Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu."
+    "empty": "Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu.",
+    "previewAlt": "Aperçu"
   }
 }

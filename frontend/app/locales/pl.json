@@ -310,6 +310,7 @@
     "refresh": "Odśwież",
     "updatedAt": "Zaktualizowano o {{time}}",
     "close": "Zamknij",
+    "navLabel": "Sekcje panelu",
     "openMenu": "Otwórz menu"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "Brak skonfigurowanych alertów dla tego serwera.",
     "typeLabel": "Typ Alertu",
     "thresholdLabel": "Próg Graczy (x)",
+    "thresholdPlaceholder": "Np.: 10",
     "addAlert": "Dodaj Alert",
     "delete": "Usuń",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Prześlij obraz, aby nadpisać faviconę serwera. Zostanie automatycznie przeskalowany do 64x64 i przekonwertowany.",
     "upload": "Prześlij obraz",
     "reset": "Zresetuj",
-    "empty": "Brak ustawionego obrazu. Favicona zaktualizuje się automatycznie z gry."
+    "empty": "Brak ustawionego obrazu. Favicona zaktualizuje się automatycznie z gry.",
+    "previewAlt": "Podgląd"
   }
 }

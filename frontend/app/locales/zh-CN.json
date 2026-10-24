@@ -310,6 +310,7 @@
     "refresh": "刷新",
     "updatedAt": "更新于 {{time}}",
     "close": "关闭",
+    "navLabel": "仪表板版块",
     "openMenu": "打开菜单"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "未为此服务器配置任何警报。",
     "typeLabel": "警报类型",
     "thresholdLabel": "玩家阈值 (x)",
+    "thresholdPlaceholder": "例如：10",
     "addAlert": "添加警报",
     "delete": "删除",
     "types": {
@@ -507,6 +509,7 @@
     "description": "上传一张图片以覆盖服务器图标。它将自动调整为 64x64 并进行转换。",
     "upload": "上传图片",
     "reset": "重置",
-    "empty": "未设置图片。网站图标将自动从游戏中更新。"
+    "empty": "未设置图片。网站图标将自动从游戏中更新。",
+    "previewAlt": "预览"
   }
 }

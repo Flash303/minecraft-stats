@@ -310,6 +310,7 @@
     "refresh": "Refresh",
     "updatedAt": "Updated at {{time}}",
     "close": "Close",
+    "navLabel": "Dashboard sections",
     "openMenu": "Open menu"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "No alerts configured for this server.",
     "typeLabel": "Alert Type",
     "thresholdLabel": "Player Threshold (x)",
+    "thresholdPlaceholder": "E.g. 10",
     "addAlert": "Add Alert",
     "delete": "Delete",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Upload an image to override the server favicon. It will automatically be resized to 64x64 and converted.",
     "upload": "Upload an image",
     "reset": "Reset",
-    "empty": "No image set. The favicon will update automatically from the game."
+    "empty": "No image set. The favicon will update automatically from the game.",
+    "previewAlt": "Preview"
   }
 }

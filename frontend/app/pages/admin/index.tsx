@@ -7,6 +7,7 @@ import { useAdmin } from "@/core/contexts/AdminContext"
 import { useToast } from "@/core/hooks/useToast"
 import { useInvalidateServers } from "@/core/hooks/useInvalidateServers"
 import { useMediaQuery } from "@/core/hooks/useMediaQuery"
+import { resolveMetaLanguage, siteTitle } from "@/core/lib/seo-meta"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
@@ -37,12 +38,13 @@ import { ThemeToggle } from "@/ui/layout/ThemeToggle"
 
 type ActiveTab = "overview" | "users" | "servers"
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
     return [
-        { title: "Admin Dashboard | Minecraft-Stats" },
+        { title: siteTitle(lang, "admin.title") },
         { name: "robots", content: "noindex, nofollow" }
-    ];
-};
+    ]
+}
 
 export default function AdminDashboard() {
     const { t, language, setLanguage } = useLanguage()
@@ -52,7 +54,7 @@ export default function AdminDashboard() {
     const navigate = useNavigate()
 
     const getUserDisplayName = (user?: User | null) => {
-        if (!user) return "Unknown"
+        if (!user) return t("profile.defaultUser")
         if (user.first_name) {
             return user.last_name ? `${user.first_name} ${user.last_name}` : user.first_name
         }
@@ -230,9 +232,9 @@ export default function AdminDashboard() {
                 {/* Sidebar Header */}
                 <div className="h-14 border-b px-4 sm:px-6 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
-                        <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
+                        <img src={logo} alt="" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                         <span className="font-bold tracking-tight text-foreground text-sm">
-                            {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">Admin</span>
+                            {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">{t("header.admin")}</span>
                         </span>
                     </Link>
                     <button
@@ -246,7 +248,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Sidebar Navigation Items */}
-                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label="Dashboard sections">
+                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label={t("admin.navLabel")}>
                     <p className="px-3 pb-2 text-2xs font-bold uppercase tracking-widest text-muted-foreground/70">
                         {t("admin.title")}
                     </p>

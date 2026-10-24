@@ -310,6 +310,7 @@
     "refresh": "Aktualisieren",
     "updatedAt": "Aktualisiert um {{time}}",
     "close": "Schließen",
+    "navLabel": "Dashboard-Bereiche",
     "openMenu": "Menü öffnen"
   },
   "alerts": {
@@ -320,6 +321,7 @@
     "noAlerts": "Keine Warnungen für diesen Server konfiguriert.",
     "typeLabel": "Warnungstyp",
     "thresholdLabel": "Spieler-Grenzwert (x)",
+    "thresholdPlaceholder": "Z. B. 10",
     "addAlert": "Warnung hinzufügen",
     "delete": "Löschen",
     "types": {
@@ -507,6 +509,7 @@
     "description": "Laden Sie ein Bild hoch, um das Server-Favicon zu überschreiben. Es wird automatisch auf 64x64 skaliert und konvertiert.",
     "upload": "Ein Bild hochladen",
     "reset": "Zurücksetzen",
-    "empty": "Kein Bild festgelegt. Das Favicon wird automatisch aus dem Spiel aktualisiert."
+    "empty": "Kein Bild festgelegt. Das Favicon wird automatisch aus dem Spiel aktualisiert.",
+    "previewAlt": "Vorschau"
   }
 }
