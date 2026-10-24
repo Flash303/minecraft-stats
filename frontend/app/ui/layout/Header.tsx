@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Menu, Search as SearchIcon, X } from "lucide-react"
+import { ArrowLeftRight, House, LayoutDashboard, Menu, Search as SearchIcon, Server, X } from "lucide-react"
 import logo from "@/assets/logo.webp"
 import { ThemeToggle } from "./ThemeToggle"
 import { LanguageSelect } from "./LanguageSelect"
@@ -50,11 +50,13 @@ export function Header() {
 
     const navItems = useMemo<MobileNavItem[]>(() => {
         const items: MobileNavItem[] = [
-            { to: "/", label: t("common.home") },
-            { to: "/compare", label: t("common.compare") },
+            { to: "/", label: t("common.home"), icon: House },
+            { to: "/compare", label: t("common.compare"), icon: ArrowLeftRight },
         ]
-        if (isSignedIn) items.push({ to: "/account/servers", label: t("common.mySpace") })
-        if (isSignedIn && isAdmin) items.push({ to: "/dashboard", label: t("header.admin") })
+        if (isSignedIn)
+            items.push({ to: "/account/servers", label: t("common.mySpace"), icon: Server })
+        if (isSignedIn && isAdmin)
+            items.push({ to: "/dashboard", label: t("header.admin"), icon: LayoutDashboard })
         return items
     }, [isAdmin, isSignedIn, t])
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router"
-import { ChevronRight } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { VisuallyHidden } from "radix-ui"
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/ui/components/sheet"
 import { LanguageSelect } from "./LanguageSelect"
@@ -10,6 +10,8 @@ import { cn } from "@/core/lib/utils"
 export interface MobileNavItem {
     to: string
     label: string
+    /** Page icon shown on the left of the label (replaces the chevron). */
+    icon: LucideIcon
 }
 
 interface MobileMenuProps {
@@ -47,13 +49,14 @@ export function MobileMenu({ id, open, onOpenChange, items, activeRoute }: Mobil
                     <SheetDescription>{t("header.navigationDescription")}</SheetDescription>
                 </VisuallyHidden.Root>
 
-                <p className="mb-4 pr-10 text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                <p className="mb-4 pr-10 text-lg font-extrabold tracking-tight text-foreground">
                     {t("header.navigation")}
                 </p>
 
                 <nav aria-label={t("header.navigation")} className="flex flex-col gap-1">
                     {items.map((item) => {
                         const active = isItemActive(item, activeRoute)
+                        const ItemIcon = item.icon
                         return (
                             <Link
                                 key={item.to}
@@ -61,28 +64,28 @@ export function MobileMenu({ id, open, onOpenChange, items, activeRoute }: Mobil
                                 onClick={() => onOpenChange(false)}
                                 aria-current={active ? "page" : undefined}
                                 className={cn(
-                                    "flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 text-sm font-semibold transition-colors",
+                                    "flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors",
                                     active
                                         ? "bg-primary/10 text-primary dark:bg-primary/20"
                                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                 )}
                             >
+                                <ItemIcon aria-hidden="true" className="size-4 shrink-0" />
                                 <span className="truncate">{item.label}</span>
-                                <ChevronRight aria-hidden="true" className="size-4 shrink-0 opacity-50" />
                             </Link>
                         )
                     })}
                 </nav>
 
-                <div className="mt-auto space-y-3 border-t pt-4">
-                    <div className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border/70 px-3">
+                <div className="mt-auto space-y-1 border-t pt-4">
+                    <div className="flex min-h-11 items-center justify-between gap-3 px-3">
                         <span className="text-sm font-semibold text-foreground">
                             {t("header.language")}
                         </span>
                         <LanguageSelect variant="full" />
                     </div>
 
-                    <div className="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border/70 px-3">
+                    <div className="flex min-h-11 items-center justify-between gap-3 px-3">
                         <span className="text-sm font-semibold text-foreground">
                             {t("common.toggleTheme")}
                         </span>
