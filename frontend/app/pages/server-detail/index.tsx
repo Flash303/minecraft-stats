@@ -281,7 +281,7 @@ export default function ServerDetail() {
                     }}
                 />
             )}
-            <PageContainer className="relative z-10 flex flex-col gap-8 pt-6 pb-12">
+            <PageContainer size="full" className="relative z-10 flex flex-col gap-8 pt-6 pb-12">
                 <div className="flex flex-col gap-6 border-b pb-6">
                     <ServerDetailHeader
                         server={server}
