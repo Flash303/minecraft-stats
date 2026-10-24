@@ -108,7 +108,7 @@ function ServerListFallback() {
     return (
         <>
             <Hero3D servers={[]} />
-            <PageContainer className="scroll-mt-20 pt-8">
+            <PageContainer size="wide" className="scroll-mt-20 pt-8">
                 {/* Placeholder for the filters */}
                 <div className="mb-8 flex h-[72px] flex-col justify-between gap-4 border-b border-border/50 pb-4 sm:h-[56px] sm:flex-row sm:items-center"></div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -327,7 +327,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         <>
             {!searchQuery && <Hero3D servers={servers} />}
 
-            <PageContainer id="server-list-section" className="scroll-mt-20 pt-8">
+            <PageContainer size="wide" id="server-list-section" className="scroll-mt-20 pt-8">
                 <ServerListFilters
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}

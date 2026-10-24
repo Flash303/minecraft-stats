@@ -412,7 +412,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             {/* Ambient Background Grid Glows */}
             <div className="absolute top-1/4 left-1/4 -z-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
 
-            <PageContainer className="z-10 flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
+            <PageContainer size="wide" className="z-10 flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">

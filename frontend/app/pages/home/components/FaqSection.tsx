@@ -33,7 +33,7 @@ export function FaqSection() {
     )
 
     return (
-        <PageContainer>
+        <PageContainer size="wide">
             <section
                 id="faq"
                 className="py-12"
