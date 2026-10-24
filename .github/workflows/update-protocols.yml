@@ -13,14 +13,14 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Regenerate protocol mapping
         working-directory: frontend
         run: node scripts/update-minecraft-protocols.mjs
 
       - name: Open PR if mapping changed
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore: update Minecraft protocol mapping"
           title: "chore: update Minecraft protocol mapping"
