@@ -1,282 +1,221 @@
-import { useState } from "react"
-import { Languages, Search as SearchIcon, ArrowLeft, Menu } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Menu, Search as SearchIcon, X } from "lucide-react"
 import logo from "@/assets/logo.webp"
 import { ThemeToggle } from "./ThemeToggle"
+import { LanguageSelect } from "./LanguageSelect"
 import { Button } from "@/ui/components/button"
 import { Link, useLocation } from "react-router"
 import { SignInButton, UserButton, useAuth } from "@clerk/react"
 import { AddServerModal } from "./AddServerModal"
 import { SearchBar } from "./SearchBar"
+import { MobileMenu, type MobileNavItem } from "./MobileMenu"
 import { useSearch } from "@/core/hooks/useSearch"
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import type { Language } from "@/core/lib/i18n"
 import { useAdmin } from "@/core/contexts/AdminContext"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-} from "@/ui/components/select"
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/ui/components/sheet"
-import { VisuallyHidden } from "radix-ui"
+import { cn } from "@/core/lib/utils"
+
+/** `xl` is the inline-search breakpoint: below it search opens as an overlay. */
+const INLINE_SEARCH_QUERY = "(min-width: 1280px)"
+
+function navLinkClass(isActive: boolean) {
+    return cn(
+        "rounded-md px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors",
+        isActive
+            ? "bg-primary/10 text-primary dark:bg-primary/20"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+    )
+}
 
 export function Header() {
     const { isSignedIn, isLoaded } = useAuth()
     const { searchQuery, setSearchQuery, triggerRefresh } = useSearch()
-    const { language, setLanguage, t } = useLanguage()
+    const { t } = useLanguage()
     const { isAdmin } = useAdmin()
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const location = useLocation()
     const activeRoute = location.pathname
 
-    const getLinkClass = (path: string) => {
-        const isActive = path.startsWith("/account") 
-            ? activeRoute.startsWith("/account")
-            : activeRoute === path
-        
-        return `text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap px-2.5 py-1.5 rounded-md cursor-pointer ${
-            isActive 
-                ? "text-primary bg-primary/10 dark:bg-primary/20" 
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-        }`
+    // Close transient surfaces when the user navigates (render-adjust pattern:
+    // no effect, so nothing flashes on the first paint after a navigation).
+    const [pathForUiState, setPathForUiState] = useState(activeRoute)
+    if (pathForUiState !== activeRoute) {
+        setPathForUiState(activeRoute)
+        setIsSearchOpen(false)
+        setIsMobileMenuOpen(false)
     }
 
-    const getMobileLinkClass = (path: string) => {
-        const isActive = path.startsWith("/account") 
-            ? activeRoute.startsWith("/account")
-            : activeRoute === path
-            
-            return `text-sm font-semibold transition-all py-2 px-3 rounded-lg flex items-center justify-between cursor-pointer ${
-            isActive
-                ? "text-primary bg-primary/10 dark:bg-primary/20"
-                : "text-muted-foreground hover:text-primary hover:bg-muted"
-        }`
-    }
+    const isActive = (to: string) =>
+        to.startsWith("/account") ? activeRoute.startsWith("/account") : activeRoute === to
 
-    // Mobile Search Overlay Mode
-    if (isSearchOpen) {
-        return (
-            <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-40 w-full border-b backdrop-blur-md">
-                <div className="w-full flex h-14 items-center gap-3 px-4 sm:px-6 lg:px-8">
-                    <button
-                        onClick={() => {
-                            setIsSearchOpen(false)
-                            setSearchQuery("")
-                        }}
-                        aria-label="Close search"
-                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
-                    >
-                        <ArrowLeft aria-hidden="true" className="h-5 w-5" />
-                    </button>
-                    <div className="flex-1">
-                        <SearchBar 
-                            value={searchQuery} 
-                            onChange={setSearchQuery} 
-                            className="max-w-none"
-                        />
-                    </div>
-                </div>
-            </header>
-        )
-    }
+    const navItems = useMemo<MobileNavItem[]>(() => {
+        const items: MobileNavItem[] = [
+            { to: "/", label: t("common.home") },
+            { to: "/compare", label: t("common.compare") },
+        ]
+        if (isSignedIn) items.push({ to: "/account/servers", label: t("common.mySpace") })
+        if (isSignedIn && isAdmin) items.push({ to: "/dashboard", label: t("header.admin") })
+        return items
+    }, [isAdmin, isSignedIn, t])
+
+    const closeSearch = useCallback(() => {
+        setIsSearchOpen(false)
+        setSearchQuery("")
+    }, [setSearchQuery])
+
+    // Keyboard shortcut for the overlay search. When the inline search is
+    // visible, SearchBar owns Ctrl/Cmd+K (it focuses its own input).
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const isShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k"
+            if (!isShortcut) return
+            if (window.matchMedia(INLINE_SEARCH_QUERY).matches) return
+            event.preventDefault()
+            setIsSearchOpen(true)
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [])
+
+    // Escape closes the search overlay.
+    useEffect(() => {
+        if (!isSearchOpen) return
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") closeSearch()
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [isSearchOpen, closeSearch])
 
     return (
         <header className="bg-background/95 supports-[backdrop-filter]:bg-background/85 sticky top-0 z-40 w-full border-b backdrop-blur-md">
-            <div className="w-full flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 xl:px-12">
-                
-                {/* Left: Branding & Navigation */}
-                <div className="flex items-center gap-6 min-w-0">
-                    <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-                            <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
-                            <span className="font-bold tracking-tight hidden xs:inline-block text-foreground text-sm sm:text-base">
-                                {t("header.title")}
-                            </span>
+            <div className="flex h-16 w-full items-center gap-2 px-4 sm:gap-4 sm:px-6 lg:px-8 xl:px-12">
+                {/* Branding */}
+                <Link to="/" className="flex shrink-0 items-center gap-2" aria-label={t("header.title")}>
+                    <img
+                        src={logo}
+                        alt=""
+                        decoding="async"
+                        className="size-7 rounded-md object-contain"
+                    />
+                    <span className="xs:inline hidden text-sm font-bold tracking-tight whitespace-nowrap text-foreground sm:text-base">
+                        {t("header.title")}
+                    </span>
+                </Link>
+
+                {/* Primary navigation (desktop) */}
+                <nav aria-label={t("header.navigation")} className="hidden items-center gap-1 lg:flex">
+                    {navItems.map((item) => (
+                        <Link key={item.to} to={item.to} className={navLinkClass(isActive(item.to))}>
+                            {item.label}
                         </Link>
-                        
-                        {/* Desktop Nav Links */}
-                        <nav className="hidden md:flex items-center gap-2 lg:gap-3">
-                            <Link 
-                                to="/" 
-                                className={getLinkClass("/")}
-                            >
-                                {t("common.home")}
-                            </Link>
-                            <Link 
-                                to="/compare" 
-                                className={getLinkClass("/compare")}
-                            >
-                                {t("common.compare")}
-                            </Link>
-                            {isSignedIn && (
-                                <Link 
-                                    to="/account/servers" 
-                                    className={getLinkClass("/account/servers")}
-                                >
-                                    {t("common.mySpace")}
-                                </Link>
-                            )}
-                            {isSignedIn && isAdmin && (
-                                <Link 
-                                    to="/dashboard" 
-                                    className={getLinkClass("/dashboard")}
-                                >
-                                    {t("header.admin")}
-                                </Link>
-                            )}
-                        </nav>
-                    </div>
-                </div>
-                
-                {/* Middle: Desktop Search Bar (hidden on mobile) */}
-                <div className="hidden md:flex flex-1 justify-center max-w-sm mx-auto">
-                    <SearchBar value={searchQuery} onChange={setSearchQuery} />
+                    ))}
+                </nav>
+
+                {/* Inline search (large screens only, grows into the free space) */}
+                <div className="hidden min-w-0 flex-1 justify-center px-2 xl:flex">
+                    <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        className="max-w-sm"
+                    />
                 </div>
 
-                {/* Right: Actions, Language Select, ThemeToggle, Auth */}
-                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                    {/* Mobile Search Button (visible only on mobile) */}
+                {/* Spacer so the right-hand actions stay pinned on smaller screens */}
+                <div className="flex-1 xl:hidden" aria-hidden="true" />
+
+                {/* Actions */}
+                <div className="flex shrink-0 items-center gap-1 sm:gap-2">
                     <button
-                        onClick={() => setIsSearchOpen(true)}
-                        aria-label="Open search"
-                        className="h-8 w-8 flex md:hidden items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
+                        type="button"
+                        onClick={() => setIsSearchOpen((open) => !open)}
+                        aria-label={t("header.openSearch")}
+                        aria-expanded={isSearchOpen}
+                        className="flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none xl:hidden"
                     >
-                        <SearchIcon aria-hidden="true" className="h-4.5 w-4.5" />
+                        <SearchIcon aria-hidden="true" className="size-5" />
                     </button>
 
-                    {/* Desktop Language Switcher */}
-                    <div className="hidden md:flex items-center gap-1.5 sm:gap-2">
-                        <Select value={language} onValueChange={(v: string) => setLanguage(v as Language)}>
-                            <SelectTrigger aria-label="Select language" className="h-8 w-8 sm:w-11 px-0 border-none bg-transparent hover:bg-muted justify-center cursor-pointer">
-                                <Languages aria-hidden="true" className="h-4 w-4" />
-                            </SelectTrigger>
-                            <SelectContent align="end">
-                                <SelectItem value="fr">Français</SelectItem>
-                                <SelectItem value="en">English</SelectItem>
-                                <SelectItem value="es">Español</SelectItem>
-                                <SelectItem value="it">Italiano</SelectItem>
-                                <SelectItem value="de">Deutsch</SelectItem>
-                                <SelectItem value="pt">Português</SelectItem>
-                                <SelectItem value="ru">Русский</SelectItem>
-                                <SelectItem value="pl">Polski</SelectItem>
-                                <SelectItem value="zh-CN">简体中文</SelectItem>
-                                <SelectItem value="ja">日本語</SelectItem>
-                                <SelectItem value="ko">한국어</SelectItem>
-                                <SelectItem value="nl">Nederlands</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <LanguageSelect className="hidden lg:flex" />
 
                     <ThemeToggle />
 
-                    <div className="flex items-center gap-1.5 sm:gap-2 border-l pl-2.5 sm:pl-4 min-w-0 justify-center">
+                    <div className="flex items-center gap-1.5 border-l pl-2 sm:gap-2 sm:pl-3">
                         {!isLoaded ? (
-                            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+                            <div className="size-8 animate-pulse rounded-full bg-muted" />
                         ) : isSignedIn ? (
                             <>
                                 <AddServerModal onSuccess={triggerRefresh} />
-                                <div className="h-8 w-8 flex items-center justify-center flex-shrink-0">
+                                <div className="flex size-8 shrink-0 items-center justify-center">
                                     <UserButton userProfileMode="navigation" userProfileUrl="/account" />
                                 </div>
                             </>
                         ) : (
                             <SignInButton mode="modal">
-                                <Button size="sm">{t("header.signIn")}</Button>
+                                <Button size="sm" className="h-9 px-3">
+                                    {t("header.signIn")}
+                                </Button>
                             </SignInButton>
                         )}
                     </div>
 
-                    {/* Hamburger Button */}
                     <button
+                        type="button"
                         onClick={() => setIsMobileMenuOpen(true)}
-                        aria-label="Open menu"
-                        className="h-8 w-8 flex md:hidden items-center justify-center rounded-xl hover:bg-muted text-muted-foreground cursor-pointer"
+                        aria-label={t("header.openMenu")}
+                        aria-expanded={isMobileMenuOpen}
+                        aria-controls="mobile-navigation"
+                        className="flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none lg:hidden"
                     >
-                        <Menu aria-hidden="true" className="h-5 w-5" />
+                        <Menu aria-hidden="true" className="size-5" />
                     </button>
                 </div>
             </div>
 
-            {/* Mobile Menu via Sheet */}
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetContent side="top" className="md:hidden border-b bg-background/95 backdrop-blur-md px-4 py-6" aria-describedby="mobile-menu-description">
-                    <VisuallyHidden.Root>
-                        <SheetTitle>Menu Navigation</SheetTitle>
-                        <SheetDescription id="mobile-menu-description">
-                            Menu de navigation principal pour les appareils mobiles.
-                        </SheetDescription>
-                    </VisuallyHidden.Root>
-                    <div className="flex flex-col space-y-6 mt-2">
-                        <nav className="flex flex-col gap-1.5">
-                            <Link
-                                to="/"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/")}
+            {/* Search overlay: kept inside the header so the toolbar never
+                unmounts (no layout shift, focus stays predictable). */}
+            {isSearchOpen && (
+                <>
+                    <div
+                        className="fixed inset-0 top-16 z-30 bg-background/60 backdrop-blur-xs"
+                        onClick={closeSearch}
+                        aria-hidden="true"
+                    />
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={t("common.search")}
+                        className="absolute inset-x-0 top-full z-40 border-b bg-background/98 shadow-lg backdrop-blur-md"
+                    >
+                        <div className="flex w-full items-center gap-2 px-4 py-3 sm:px-6 lg:px-8 xl:px-12">
+                            <SearchBar
+                                value={searchQuery}
+                                onChange={setSearchQuery}
+                                autoFocus
+                                className="max-w-none flex-1"
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={closeSearch}
+                                aria-label={t("header.closeSearch")}
+                                className="size-10 shrink-0 rounded-xl"
                             >
-                                {t("common.home")}
-                            </Link>
-                            <Link 
-                                to="/compare" 
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={getMobileLinkClass("/compare")}
-                            >
-                                {t("common.compare")}
-                            </Link>
-                            {isSignedIn && (
-                                <Link 
-                                    to="/account/servers" 
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={getMobileLinkClass("/account/servers")}
-                                >
-                                    {t("common.mySpace")}
-                                </Link>
-                            )}
-                            {isSignedIn && isAdmin && (
-                                <Link 
-                                    to="/dashboard" 
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={getMobileLinkClass("/dashboard")}
-                                >
-                                    {t("header.admin")}
-                                </Link>
-                            )}
-                        </nav>
-
-                        <div className="border-t pt-4 flex flex-col gap-3">
-                            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/40">
-                                <span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">
-                                    <Languages aria-hidden="true" className="h-4 w-4" />
-                                    Language
-                                </span>
-                                <Select value={language} onValueChange={(v: string) => setLanguage(v as Language)}>
-                                    <SelectTrigger aria-label="Select language" className="h-8 w-auto px-2 border-none bg-transparent hover:bg-muted justify-center cursor-pointer text-xs font-semibold">
-                                        <div className="flex items-center gap-2">
-                                            <span>
-                                                {language === "fr" ? "Français" : language === "en" ? "English" : language === "es" ? "Español" : language === "it" ? "Italiano" : language === "de" ? "Deutsch" : language === "pt" ? "Português" : language === "ru" ? "Русский" : language === "pl" ? "Polski" : language === "zh-CN" ? "简体中文" : language === "ja" ? "日本語" : language === "ko" ? "한국어" : "Nederlands"}
-                                            </span>
-                                        </div>
-                                    </SelectTrigger>
-                                    <SelectContent align="end">
-                                        <SelectItem value="fr">Français</SelectItem>
-                                        <SelectItem value="en">English</SelectItem>
-                                        <SelectItem value="es">Español</SelectItem>
-                                        <SelectItem value="it">Italiano</SelectItem>
-                                        <SelectItem value="de">Deutsch</SelectItem>
-                                        <SelectItem value="pt">Português</SelectItem>
-                                        <SelectItem value="ru">Русский</SelectItem>
-                                        <SelectItem value="pl">Polski</SelectItem>
-                                        <SelectItem value="zh-CN">简体中文</SelectItem>
-                                        <SelectItem value="ja">日本語</SelectItem>
-                                        <SelectItem value="ko">한국어</SelectItem>
-                                        <SelectItem value="nl">Nederlands</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                                <X aria-hidden="true" className="size-5" />
+                            </Button>
                         </div>
                     </div>
-                </SheetContent>
-            </Sheet>
+                </>
+            )}
+
+            <MobileMenu
+                id="mobile-navigation"
+                open={isMobileMenuOpen}
+                onOpenChange={setIsMobileMenuOpen}
+                items={navItems}
+                activeRoute={activeRoute}
+            />
         </header>
     )
 }

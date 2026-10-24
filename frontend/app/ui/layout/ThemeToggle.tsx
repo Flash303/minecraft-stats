@@ -13,7 +13,7 @@ export function ThemeToggle() {
         // right after by the effect). This divergence is expected and benign,
         // so the hydration warning is suppressed (same approach as
         // `suppressHydrationWarning` on <html> in root.tsx).
-        <Button variant="outline" size="icon" onClick={toggleTheme} suppressHydrationWarning>
+        <Button variant="outline" size="icon" className="size-10" onClick={toggleTheme} suppressHydrationWarning>
             {theme === "light" ? (
                 <Moon className="h-4 w-4" />
             ) : (
