@@ -79,7 +79,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                         <button 
                             onClick={handleCopy}
                             aria-label={`Copier l'IP du serveur ${server.name}`}
-                            className="relative z-10 group/copy inline-flex min-w-0 flex-1 items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
+                            className="relative z-10 group/copy inline-flex min-w-0 flex-1 items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full sm:flex-none"
                         >
                             <span className="truncate">{displayIp}</span>
                             {copied ? (
