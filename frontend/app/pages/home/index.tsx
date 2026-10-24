@@ -111,7 +111,7 @@ function ServerListFallback() {
             <PageContainer size="wide" className="scroll-mt-20 pt-8">
                 {/* Placeholder for the filters */}
                 <div className="mb-8 flex h-[72px] flex-col justify-between gap-4 border-b border-border/50 pb-4 sm:h-[56px] sm:flex-row sm:items-center"></div>
-                <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <ServerCardSkeleton key={i} />
                     ))}
@@ -350,7 +350,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                 />
 
                 {(loading || (refreshing && servers.length === 0)) ? (
-                    <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                         {Array.from({ length: 6 }).map((_, i) => (
                             <ServerCardSkeleton key={i} />
                         ))}
@@ -365,7 +365,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     <>
                         {paginatedServers.length > 0 ? (
                             <>
-                                <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                                     {paginatedServers.map((s) => (
                                         <ServerCard
                                             key={s.id}
