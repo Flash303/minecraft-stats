@@ -109,6 +109,9 @@
       "reset": "초기화",
       "sortAscTitle": "오름차순",
       "sortDescTitle": "내림차순",
+      "sortToggleHint": "활성 옵션을 다시 클릭하면 순서가 반전됩니다",
+      "drawerTitle": "서버 필터",
+      "drawerDescription": "표시되는 서버 목록을 세분화하세요.",
       "laby": "LabyClient"
     }
   },

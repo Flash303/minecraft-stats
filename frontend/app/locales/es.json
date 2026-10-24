@@ -109,6 +109,9 @@
       "reset": "Restablecer",
       "sortAscTitle": "Orden ascendente",
       "sortDescTitle": "Orden descendente",
+      "sortToggleHint": "Vuelve a hacer clic en la opción activa para invertir el orden",
+      "drawerTitle": "Filtros de servidores",
+      "drawerDescription": "Refina la lista de servidores mostrados.",
       "laby": "LabyClient"
     }
   },

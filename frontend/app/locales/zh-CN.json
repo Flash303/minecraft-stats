@@ -109,6 +109,9 @@
       "reset": "重置",
       "sortAscTitle": "升序排列",
       "sortDescTitle": "降序排列",
+      "sortToggleHint": "再次点击当前选项可反转顺序",
+      "drawerTitle": "服务器筛选",
+      "drawerDescription": "优化显示的服务器列表。",
       "laby": "LabyClient"
     }
   },

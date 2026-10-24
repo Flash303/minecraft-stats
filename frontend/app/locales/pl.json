@@ -109,6 +109,9 @@
       "reset": "Zresetuj",
       "sortAscTitle": "Kolejność rosnąca",
       "sortDescTitle": "Kolejność malejąca",
+      "sortToggleHint": "Kliknij ponownie aktywną opcję, aby odwrócić kolejność",
+      "drawerTitle": "Filtry serwerów",
+      "drawerDescription": "Zawęź listę wyświetlanych serwerów.",
       "laby": "LabyClient"
     }
   },
