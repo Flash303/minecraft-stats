@@ -74,8 +74,7 @@ struct VapidKeyResponse {
 }
 
 async fn get_vapid_key() -> Result<ResponseFormat<VapidKeyResponse>, AppError> {
-    let public_key = env::var("VAPID_PUBLIC_KEY")
-        .unwrap_or_else(|_| "Please set VAPID_PUBLIC_KEY in env".to_string());
+    let public_key = env::var("VAPID_PUBLIC_KEY").map_err(|_| AppError::FeatureDisabled)?;
     Ok(ResponseFormat::success(
         VapidKeyResponse { public_key },
         StatusCode::OK,

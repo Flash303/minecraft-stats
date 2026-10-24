@@ -64,7 +64,7 @@ impl TriggeredAlertNotification {
     pub fn get_logo(&self) -> String {
         if let Ok(api_base) = std::env::var("API_BASE_URL") {
             return format!(
-                "{}/servers/{}/icon",
+                "{}/servers/{}/icon?v=2",
                 api_base.trim_end_matches('/'),
                 self.alert.server_id
             );

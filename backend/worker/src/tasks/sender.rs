@@ -124,7 +124,7 @@ pub async fn sender_worker(repository: PostgresRepository, mut rx: Receiver<Veri
                 "title": message_title,
                 "body": message_body,
                 "icon": notification.get_logo(),
-                "url": format!("/servers/{}", notification.alert.server_id)
+                "url": format!("/server/{}", notification.alert.server_id)
             });
 
             let payload_string = payload.to_string();

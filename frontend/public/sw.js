@@ -27,7 +27,10 @@ self.addEventListener('push', function(event) {
       event.waitUntil(
         self.registration.showNotification(DEFAULT_TITLE, {
           body: text,
-          icon: '/logo.webp'
+          icon: '/logo.webp',
+          data: {
+            url: '/'
+          }
         })
       );
     }
@@ -37,20 +40,25 @@ self.addEventListener('push', function(event) {
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
   
-  const targetUrl = event.notification.data?.url || '/';
+  const target = new URL(event.notification.data?.url || '/', self.location.origin);
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      // Focus if window already open
+      // Focus if the exact page is already open
       for (let i = 0; i < clientList.length; i++) {
         const client = clientList[i];
-        if (client.url.includes(targetUrl) && 'focus' in client) {
+        const clientUrl = new URL(client.url);
+        if (
+          clientUrl.origin === target.origin &&
+          clientUrl.pathname === target.pathname &&
+          'focus' in client
+        ) {
           return client.focus();
         }
       }
       // Otherwise open new window
       if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
+        return clients.openWindow(target.href);
       }
     })
   );
