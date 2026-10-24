@@ -6,6 +6,8 @@ const WIDTHS = {
     content: "max-w-6xl",
     /** Airier container for the home page (hero, list, FAQ). */
     wide: "max-w-7xl",
+    /** Full container width (old `main.container` ceiling, 1536px). */
+    full: "max-w-[96rem]",
     /** Long-form content (legal pages, articles). */
     prose: "max-w-4xl",
 } as const

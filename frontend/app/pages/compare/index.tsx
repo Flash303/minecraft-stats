@@ -54,7 +54,7 @@ export default function ServerComparison() {
 
     return (
         <>
-            <PageContainer className="flex flex-col gap-8 pt-6 pb-12">
+            <PageContainer size="full" className="flex flex-col gap-8 pt-6 pb-12">
                 <div className="flex flex-col gap-6 border-b pb-6">
                     <div className="flex flex-col md:flex-row justify-between gap-4 md:items-center">
                         <div className="flex min-w-0 items-center gap-2 text-info">
