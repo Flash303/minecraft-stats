@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router"
 import type { Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { ArrowLeft, Copy, Check, User as UserIcon, Calendar } from "lucide-react"
-import { cn, getServerIp, copyServerIp, resolveServerVersion, formatDate } from "@/core/lib/utils"
+import { cn, getServerIp, resolveServerVersion, formatDate } from "@/core/lib/utils"
+import { useCopyServerIp } from "@/core/hooks/useCopyServerIp"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -17,34 +17,23 @@ interface ServerDetailHeaderProps {
     language?: string | null
 }
 export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderProps) {
-    const [copied, setCopied] = useState(false)
-    const copiedTimerRef = useRef<number | null>(null)
+    const { copied, copy } = useCopyServerIp(server.ip, server.port, server.type)
     const navigate = useNavigate()
-
-    // Nettoie le timer de feedback "copié" au démontage
-    useEffect(() => {
-        return () => {
-            if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        }
-    }, [])
 
     const isOnline = server.last_status === "online"
     const { displayIp } = getServerIp(server.ip, server.port, server.type)
-    // Nom custom sans motif de version -> fallback protocole ; `null` (maintenance,
-    // protocole sentinelle <= 0, Bedrock illisible...) -> badge masqué.
+    // Custom name without a version pattern -> protocol fallback; `null`
+    // (maintenance, sentinel protocol <= 0, unreadable Bedrock...) -> badge hidden.
     const displayVersion = resolveServerVersion(server.last_version, server.last_protocol_version, server.type)
 
     const handleCopy = () => {
-        copyServerIp(server.ip, server.port, server.type)
-        setCopied(true)
-        if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000)
+        copy()
     }
 
     const handleBackClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        // Ctrl/Cmd+Click et clic molette → laisser le navigateur gérer nativement (nouvel onglet en arrière-plan)
+        // Ctrl/Cmd+Click and middle click → let the browser handle it natively (new background tab)
         if (e.ctrlKey || e.metaKey || e.button === 1) return
-        // Clic normal → navigate(-1) au lieu de naviguer vers "/"
+        // Normal click → navigate(-1) instead of navigating to "/"
         e.preventDefault()
         if (window.history.length > 2 || (window.history.state && window.history.state.idx > 0)) {
             navigate(-1)
@@ -68,7 +57,7 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                     loading="eager"
                 />
                 <div className="flex flex-col min-w-0">
-                    {/* Nom + icônes launcher */}
+                    {/* Name + launcher icons */}
                     <div className="flex items-center gap-2 mb-1 min-w-0">
                         <h1 className="font-bold text-xl leading-none line-clamp-1 min-w-0">
                             {server.name}

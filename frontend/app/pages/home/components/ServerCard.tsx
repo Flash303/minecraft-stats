@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, lazy, Suspense } from "react"
+import { lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { MiniChartSkeleton } from "./MiniChartSkeleton"
-import { cn, getServerIp, copyServerIp, resolveServerVersion, formatNumber } from "@/core/lib/utils"
+import { cn, getServerIp, resolveServerVersion, formatNumber } from "@/core/lib/utils"
+import { useCopyServerIp } from "@/core/hooks/useCopyServerIp"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
@@ -22,15 +23,7 @@ interface ServerCardProps {
 
 export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
-    const [copied, setCopied] = useState(false)
-    const copiedTimerRef = useRef<number | null>(null)
-
-    // Nettoie le timer de feedback "copié" au démontage
-    useEffect(() => {
-        return () => {
-            if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        }
-    }, [])
+    const { copied, copy } = useCopyServerIp(server.ip, server.port, server.type)
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
@@ -45,10 +38,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        copyServerIp(server.ip, server.port, server.type).then()
-        setCopied(true)
-        if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000)
+        copy()
     }
 
     return (
