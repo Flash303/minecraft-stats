@@ -63,8 +63,64 @@ updates:
         update-types:
           - "version-update:semver-major"
 
-  # Images Docker (Dockerfiles + docker-compose)
+  # Images de base des Dockerfiles.
+  # La découverte n'est PAS récursive : un `directory` par Dockerfile.
   - package-ecosystem: "docker"
+    directory: "/deploy/frontend"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "docker"
+    directory: "/deploy/rest-api"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+      # Le tag `rust` doit rester aligné sur dtolnay/rust-toolchain dans
+      # ci.yml : montée manuelle, les deux fichiers en même temps.
+      - dependency-name: "rust"
+
+  - package-ecosystem: "docker"
+    directory: "/deploy/worker"
+    target-branch: "dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+      # Idem rest-api : aligné sur ci.yml.
+      - dependency-name: "rust"
+
+  # Images référencées dans docker-compose.yml.
+  # Écosystème distinct de `docker` : `docker` ne lit que les Dockerfiles.
+  - package-ecosystem: "docker-compose"
     directory: "/deploy"
     target-branch: "dev"
     schedule:
@@ -72,11 +128,11 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Paris"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     commit-message:
       prefix: "chore(deps)"
     groups:
-      docker-images:
+      compose-images:
         applies-to: "version-updates"
         patterns:
           - "*"
@@ -84,7 +140,7 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # Les montées majeures (PostgreSQL/TimescaleDB, Grafana, Rust) sont
+      # Les montées majeures (PostgreSQL/TimescaleDB, Grafana, Loki) sont
       # volontairement manuelles : elles demandent une validation en staging.
       - dependency-name: "*"
         update-types:
