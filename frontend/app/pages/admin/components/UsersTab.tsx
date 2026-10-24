@@ -73,7 +73,7 @@ export function UsersTab({
                     <Users className="h-4.5 w-4.5 text-primary" />
                     {t("admin.usersList")} ({filteredUsers.length})
                 </h2>
-                <div className="relative max-w-sm">
+                <div className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                         id="users-search-grid"
@@ -86,7 +86,7 @@ export function UsersTab({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2">
+            <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
                 {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => {
                         const userServers = servers.filter(s => s.user_id === user.id)
@@ -155,21 +155,21 @@ export function UsersTab({
             <Dialog open={isInspectOpen} onOpenChange={setIsInspectOpen}>
                 <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3">
+                        <DialogTitle className="flex min-w-0 items-center gap-3">
                             {selectedUser?.image_url ? (
                                 <img
                                     src={selectedUser.image_url}
-                                    className="h-10 w-10 rounded-full object-cover border"
+                                    className="h-10 w-10 shrink-0 rounded-full object-cover border"
                                     alt={t("alt.userAvatar", { name: selectedUser.username || t("profile.defaultUser") })}
                                     loading="lazy"
                                     decoding="async"
                                 />
                             ) : (
-                                <UserIcon className="h-10 w-10 text-muted-foreground bg-muted p-2 rounded-full border" />
+                                <UserIcon className="h-10 w-10 shrink-0 text-muted-foreground bg-muted p-2 rounded-full border" />
                             )}
-                            <div className="flex flex-col text-left">
-                                <span className="text-base font-bold text-foreground">{getUserDisplayName(selectedUser)}</span>
-                                <span className="text-xs text-muted-foreground font-normal">@{selectedUser?.username || selectedUser?.id}</span>
+                            <div className="flex min-w-0 flex-col text-left">
+                                <span className="truncate text-base font-bold text-foreground">{getUserDisplayName(selectedUser)}</span>
+                                <span className="truncate text-xs text-muted-foreground font-normal">@{selectedUser?.username || selectedUser?.id}</span>
                             </div>
                         </DialogTitle>
                         <DialogDescription className="font-mono text-2xs mt-1 truncate text-left">
@@ -213,18 +213,19 @@ export function UsersTab({
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex shrink-0 items-center gap-2">
                                                 <Link to={`/server/${server.id}`} target="_blank" rel="noopener noreferrer">
-                                                    <Button variant="outline" size="icon">
+                                                    <Button variant="outline" size="icon" className="h-9 w-9" aria-label={t("common.viewServer", { name: server.name })}>
                                                         <ExternalLink className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </Link>
                                                 <Button
                                                     variant={isHidden ? "default" : "destructive"}
                                                     size="icon"
-                                                    className="h-7 w-7 cursor-pointer"
+                                                    className="h-9 w-9 cursor-pointer"
                                                     disabled={togglingServerId === server.id}
                                                     onClick={() => handleToggleServer(server.id, isHidden)}
+                                                    aria-label={isHidden ? t("admin.showServer") : t("admin.hideServer")}
                                                 >
                                                     {isHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                                                 </Button>

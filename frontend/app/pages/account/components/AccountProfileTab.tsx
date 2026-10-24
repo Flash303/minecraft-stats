@@ -2,7 +2,7 @@ import { UserProfile } from "@clerk/react";
 
 export function AccountProfileTab() {
     return (
-        <div className="flex justify-center w-full min-h-[600px]">
+        <div className="flex justify-center w-full min-h-[400px] sm:min-h-[600px]">
             {/* We just render UserProfile. Clerk handles the width, we give it full width container. */}
             <UserProfile 
                 routing="hash" 

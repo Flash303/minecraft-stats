@@ -13,6 +13,7 @@ import { useInvalidateServers } from "@/core/hooks/useInvalidateServers"
 import { AccountServersTab } from "./components/AccountServersTab"
 import { AccountAlertsTab } from "./components/AccountAlertsTab"
 import { AccountProfileTab } from "./components/AccountProfileTab"
+import { PageContainer } from "@/ui/layout/PageContainer"
 
 export interface ExtendedAlert extends Alert {
     serverId: number
@@ -134,47 +135,47 @@ export default function Account() {
             {/* Header section with gradient background */}
             <div className="relative overflow-hidden bg-card border-b border-border">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 opacity-50" />
-                <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12 relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-5">
+                <PageContainer className="relative z-10 pt-8 pb-10 sm:pt-10 sm:pb-12">
+                    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                        <div className="flex min-w-0 items-center gap-4 sm:gap-5">
                             {user?.imageUrl ? (
-                                <img src={user.imageUrl} alt="Avatar" loading="lazy" decoding="async" className="w-20 h-20 rounded-full border-4 border-background shadow-md" />
+                                <img src={user.imageUrl} alt="Avatar" loading="lazy" decoding="async" className="h-16 w-16 shrink-0 rounded-full border-4 border-background shadow-md sm:h-20 sm:w-20" />
                             ) : (
-                                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border-4 border-background shadow-md">
+                                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 border-background bg-primary/10 shadow-md sm:h-20 sm:w-20">
                                     <User className="h-8 w-8 text-primary" />
                                 </div>
                             )}
-                            <div>
-                                <h1 className="text-3xl font-bold text-foreground tracking-tight">
+                            <div className="min-w-0">
+                                <h1 className="text-2xl font-bold tracking-tight text-foreground break-words sm:text-3xl">
                                     {t("profile.hello", { name: user?.firstName || user?.username || t("profile.defaultUser") })}
                                 </h1>
-                                <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                                    <span className="inline-block w-2 h-2 rounded-full bg-success" />
-                                    {t("profile.loggedInAs", { email: user?.primaryEmailAddress?.emailAddress || "" })}
+                                <p className="mt-1 flex items-start gap-2 text-sm text-muted-foreground break-words">
+                                    <span className="mt-1.5 inline-block h-2 w-2 shrink-0 rounded-full bg-success" />
+                                    <span className="min-w-0">{t("profile.loggedInAs", { email: user?.primaryEmailAddress?.emailAddress || "" })}</span>
                                 </p>
                             </div>
                         </div>
                         
-                        <div className="flex gap-4">
-                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm min-w-[120px]">
-                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.servers")}</span>
+                        <div className="grid grid-cols-2 gap-3 sm:flex sm:gap-4">
+                            <div className="flex min-w-0 flex-col rounded-xl border border-border/60 bg-background/80 p-3 shadow-sm backdrop-blur-sm sm:min-w-[120px]">
+                                <span className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.tabs.servers")}</span>
                                 <span className="text-2xl font-bold text-primary">{servers.length}</span>
                             </div>
-                            <div className="flex flex-col p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm min-w-[120px]">
-                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("profile.tabs.alerts")}</span>
+                            <div className="flex min-w-0 flex-col rounded-xl border border-border/60 bg-background/80 p-3 shadow-sm backdrop-blur-sm sm:min-w-[120px]">
+                                <span className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("profile.tabs.alerts")}</span>
                                 <span className="text-2xl font-bold text-primary">{allAlerts.length}</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </PageContainer>
             </div>
 
-            <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <PageContainer className="py-8">
                 {/* Minimalist Tabs */}
-                <div className="flex flex-wrap items-center gap-6 border-b border-border mb-8 px-1">
+                <div className="mb-8 flex items-center gap-4 overflow-x-auto border-b border-border px-1 sm:gap-6">
                     <button
                         onClick={() => handleTabChange('servers')}
-                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
+                        className={`relative flex shrink-0 items-center gap-2.5 whitespace-nowrap pb-3.5 text-sm font-medium transition-all cursor-pointer ${
                             activeTab === 'servers'
                                 ? "text-foreground"
                                 : "text-muted-foreground hover:text-foreground"
@@ -189,7 +190,7 @@ export default function Account() {
                     
                     <button
                         onClick={() => handleTabChange('alerts')}
-                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
+                        className={`relative flex shrink-0 items-center gap-2.5 whitespace-nowrap pb-3.5 text-sm font-medium transition-all cursor-pointer ${
                             activeTab === 'alerts'
                                 ? "text-foreground"
                                 : "text-muted-foreground hover:text-foreground"
@@ -204,7 +205,7 @@ export default function Account() {
                     
                     <button
                         onClick={() => handleTabChange('profile')}
-                        className={`flex items-center gap-2.5 pb-3.5 text-sm font-medium transition-all relative cursor-pointer ${
+                        className={`relative flex shrink-0 items-center gap-2.5 whitespace-nowrap pb-3.5 text-sm font-medium transition-all cursor-pointer ${
                             activeTab === 'profile'
                                 ? "text-foreground"
                                 : "text-muted-foreground hover:text-foreground"
@@ -245,7 +246,7 @@ export default function Account() {
 
                     {activeTab === 'profile' && <AccountProfileTab />}
                 </div>
-            </div>
+            </PageContainer>
         </>
     )
 }

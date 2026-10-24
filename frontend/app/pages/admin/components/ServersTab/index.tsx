@@ -142,7 +142,7 @@ export function ServersTab({
         <div className="flex flex-col gap-6">
             {/* Search Filters panel */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
-                <div className="relative flex-1 max-w-sm">
+                <div className="relative w-full max-w-sm flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                         id="servers-search"
@@ -154,7 +154,7 @@ export function ServersTab({
                     />
                 </div>
                 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <button
                         type="button"
                         aria-pressed={serverStatusFilter === "all"}
@@ -209,7 +209,7 @@ export function ServersTab({
             </div>
 
             {selectedIds.length > 0 && (
-                <div className="flex items-center gap-3 bg-muted/30 border border-border rounded-xl p-3 shadow-xs">
+                <div className="flex flex-wrap items-center gap-3 bg-muted/30 border border-border rounded-xl p-3 shadow-xs">
                     <span className="text-sm font-semibold text-foreground">
                         {t("admin.servers.selectedCount", { count: selectedIds.length.toString() })}
                     </span>
@@ -239,7 +239,7 @@ export function ServersTab({
 
             {/* Servers Data Table */}
             <div className="border rounded-xl bg-card overflow-x-auto shadow-xs border-border/60">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full min-w-[760px] text-left border-collapse text-xs">
                     <thead>
                         <tr className="border-b bg-muted/40 text-muted-foreground font-semibold">
                             <th className="p-4 w-10 text-center rounded-tl-xl">
