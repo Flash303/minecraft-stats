@@ -1,9 +1,14 @@
 version: 2
 
+# Dependabot ne lit ce fichier que sur la branche par défaut (main) :
+# toute modification doit être mergée dans main pour prendre effet.
+# Les PR ciblent `dev`, comme celles de update-protocols.yml.
+
 updates:
   # Frontend — Bun (package.json + bun.lock)
   - package-ecosystem: "bun"
     directory: "/frontend"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -13,10 +18,6 @@ updates:
     versioning-strategy: "increase"
     commit-message:
       prefix: "chore(deps)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "frontend"
     groups:
       # Les mises à jour mineures/patchs sont regroupées pour limiter le bruit.
       frontend-minor-patch:
@@ -35,6 +36,7 @@ updates:
   # Backend — Rust (workspace Cargo)
   - package-ecosystem: "cargo"
     directory: "/backend"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -43,10 +45,6 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "backend"
     groups:
       backend-patch:
         applies-to: "version-updates"
@@ -68,6 +66,7 @@ updates:
   # Images Docker (Dockerfiles + docker-compose)
   - package-ecosystem: "docker"
     directory: "/deploy"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -75,11 +74,7 @@ updates:
       timezone: "Europe/Paris"
     open-pull-requests-limit: 5
     commit-message:
-      prefix: "chore(docker)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "docker"
+      prefix: "chore(deps)"
     groups:
       docker-images:
         applies-to: "version-updates"
@@ -89,7 +84,7 @@ updates:
           - "minor"
           - "patch"
     ignore:
-      # Les montées majeures (Postgres/TimescaleDB, Grafana, Loki, Rust) sont
+      # Les montées majeures (PostgreSQL/TimescaleDB, Grafana, Rust) sont
       # volontairement manuelles : elles demandent une validation en staging.
       - dependency-name: "*"
         update-types:
@@ -98,6 +93,7 @@ updates:
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -105,13 +101,21 @@ updates:
       timezone: "Europe/Paris"
     open-pull-requests-limit: 5
     commit-message:
-      prefix: "chore(ci)"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "ci"
+      prefix: "chore(deps)"
     groups:
+      # Minor/patch groupés ; les majeures arrivent une par une pour être
+      # relues (changement de runtime Node, breaking changes du runner).
       github-actions:
         applies-to: "version-updates"
         patterns:
           - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Le tag de dtolnay/rust-toolchain doit rester aligné sur les images
+      # `rust:1.98.1-alpine3.24` de deploy/. Dependabot propose 1.120.0 alors
+      # que la dernière release stable est 1.99.1 : montée manuelle, avec les
+      # Dockerfiles, pour éviter que la CI compile avec un autre compilateur
+      # que celui qui produit l'image.
+      - dependency-name: "dtolnay/rust-toolchain"
