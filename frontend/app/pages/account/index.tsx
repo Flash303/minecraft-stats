@@ -6,6 +6,7 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { User, Server as ServerIcon, Bell, Settings } from "lucide-react"
 import { useLocation, useNavigate } from "react-router"
 import type { MetaFunction } from "react-router"
+import { resolveMetaLanguage, siteTitle } from "@/core/lib/seo-meta"
 
 import { useWebPush } from "@/core/hooks/useWebPush"
 import { useToast } from "@/core/hooks/useToast"
@@ -20,12 +21,13 @@ export interface ExtendedAlert extends Alert {
     serverName: string
 }
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
     return [
-        { title: "My Account | Minecraft-Stats" },
+        { title: siteTitle(lang, "common.mySpace") },
         { name: "robots", content: "noindex, nofollow" }
-    ];
-};
+    ]
+}
 
 export default function Account() {
     const { t } = useLanguage()
