@@ -38,20 +38,6 @@ export async function updateFavicon(
         return { success: false }
     }
 }
-export async function checkAdminStatus(token: string): Promise<boolean> {
-    try {
-        const res = await fetch(`${API_BASE}/admin`, {
-            headers: getHeaders(token)
-        })
-        if (!res.ok) return false
-        const json = await res.json()
-        return json.success === true
-    } catch (error: unknown) {
-        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
-        console.error("Failed to check admin status:", error)
-        return false
-    }
-}
 export async function fetchAdminUsers(token: string): Promise<User[]> {
     try {
         const res = await fetch(`${API_BASE}/admin/users`, {
