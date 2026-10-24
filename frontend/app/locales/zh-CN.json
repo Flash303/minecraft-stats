@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "登录",
-    "admin": "管理"
+    "admin": "管理",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "openSearch": "打开搜索",
+    "closeSearch": "关闭搜索",
+    "navigation": "导航",
+    "navigationDescription": "主导航菜单",
+    "selectLanguage": "选择语言",
+    "language": "语言"
   },
   "addServer": {
     "button": "添加服务器",

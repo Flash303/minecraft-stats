@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "로그인",
-    "admin": "관리자"
+    "admin": "관리자",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "openSearch": "검색 열기",
+    "closeSearch": "검색 닫기",
+    "navigation": "내비게이션",
+    "navigationDescription": "기본 내비게이션 메뉴",
+    "selectLanguage": "언어 선택",
+    "language": "언어"
   },
   "addServer": {
     "button": "서버 추가",
