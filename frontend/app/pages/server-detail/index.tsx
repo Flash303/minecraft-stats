@@ -25,6 +25,7 @@ import { formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
+import { PageContainer } from "@/ui/layout/PageContainer"
 import { useServerData } from "./hooks/useServerData"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -213,7 +214,7 @@ export default function ServerDetail() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center">
+            <div className="flex min-h-[60vh] items-center justify-center">
                 <p className="text-muted-foreground animate-pulse">
                     {t("serverDetail.loading")}
                 </p>
@@ -223,7 +224,7 @@ export default function ServerDetail() {
 
     if (!server) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
                 <p className="text-destructive font-semibold">
                     {t("serverDetail.notFound")}
                 </p>
@@ -270,15 +271,13 @@ export default function ServerDetail() {
                     }}
                 />
             )}
-            <div className="flex flex-col gap-8 pb-12 relative z-10">
+            <PageContainer className="relative z-10 flex flex-col gap-8 pt-6 pb-12">
                 <div className="flex flex-col gap-6 border-b pb-6">
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                        <ServerDetailHeader
-                            server={server}
-                            t={t}
-                            language={language}
-                        />
-                    </div>
+                    <ServerDetailHeader
+                        server={server}
+                        t={t}
+                        language={language}
+                    />
                 </div>
 
                 <div className="flex w-full flex-col gap-8">
@@ -406,7 +405,7 @@ export default function ServerDetail() {
                         />
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </>
     )
 }

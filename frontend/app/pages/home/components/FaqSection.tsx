@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import { BarChart3, ChevronDown, CircleHelp } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { Button } from "@/ui/components/button"
+import { PageContainer } from "@/ui/layout/PageContainer"
 
 const FAQ_COUNT = 5
 
@@ -32,10 +33,12 @@ export function FaqSection() {
     )
 
     return (
-        <section
-            className="mx-auto max-w-6xl px-2 py-12"
-            aria-labelledby="faq-heading"
-        >
+        <PageContainer size="wide">
+            <section
+                id="faq"
+                className="py-12"
+                aria-labelledby="faq-heading"
+            >
             <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
                 <div className="self-start lg:sticky lg:top-24">
                     <div className="flex items-center gap-2 text-primary">
@@ -79,6 +82,7 @@ export function FaqSection() {
                     __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
                 }}
             />
-        </section>
+            </section>
+        </PageContainer>
     )
 }

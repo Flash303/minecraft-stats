@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "Iniciar sesión",
-    "admin": "Admin"
+    "admin": "Admin",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "openSearch": "Abrir búsqueda",
+    "closeSearch": "Cerrar búsqueda",
+    "navigation": "Navegación",
+    "navigationDescription": "Menú de navegación principal",
+    "selectLanguage": "Seleccionar idioma",
+    "language": "Idioma"
   },
   "addServer": {
     "button": "Añadir servidor",

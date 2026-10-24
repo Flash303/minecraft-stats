@@ -24,9 +24,11 @@ interface SearchBarProps {
     onSelect?: (server: Server) => void
     placeholder?: string
     className?: string
+    /** Focus the input on mount (used by the compact header search overlay). */
+    autoFocus?: boolean
 }
 
-export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, placeholder: propPlaceholder, className }: SearchBarProps) {
+export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, placeholder: propPlaceholder, className, autoFocus }: SearchBarProps) {
     const navigate = useNavigate()
     const { t } = useLanguage()
     const { refreshCounter } = useSearch()
@@ -142,12 +144,13 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     }, [])
 
     return (
-        <div className={cn("relative w-full max-w-sm group", className)} ref={containerRef}>
+        <div className={cn("relative w-full max-w-sm group @container", className)} ref={containerRef}>
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors z-10">
                 <SearchIcon className="h-4.5 w-4.5" />
             </div>
             <Input
                 ref={inputRef}
+                autoFocus={autoFocus}
                 value={value}
                 onChange={(e) => {
                     onChange(e.target.value)
@@ -159,7 +162,13 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
-                className="pl-10 pr-14 h-10 bg-card border border-border focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-xs text-foreground"
+                aria-label={placeholder}
+                role="combobox"
+                aria-expanded={showSuggestions && filteredSuggestions.length > 0}
+                aria-autocomplete="list"
+                autoComplete="off"
+                enterKeyHint="search"
+                className="pl-10 pr-10 @min-[20rem]:pr-14 h-10 bg-card border border-border focus-visible:ring-2 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/10 rounded-xl transition-all shadow-sm font-medium text-base sm:text-xs text-foreground"
             />
             
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
@@ -167,13 +176,14 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-transparent text-muted-foreground hover:text-foreground"
+                        className="h-8 w-8 hover:bg-transparent text-muted-foreground hover:text-foreground"
                         onClick={() => onChange("")}
+                        aria-label={t("common.remove")}
                     >
                         <X className="h-3.5 w-3.5" />
                     </Button>
                 ) : !isMobile ? (
-                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-border bg-muted px-1.5 font-sans text-2xs font-medium text-muted-foreground shadow-xs sm:flex">
+                    <kbd className="pointer-events-none hidden h-5 select-none items-center justify-center rounded border border-border bg-muted px-1.5 font-sans text-2xs font-medium text-muted-foreground shadow-xs @min-[20rem]:flex">
                         {isMac ? '⌘K' : 'Ctrl+K'}
                     </kbd>
                 ) : null}

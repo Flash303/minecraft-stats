@@ -59,7 +59,7 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                 <div className="flex flex-col min-w-0">
                     {/* Name + launcher icons */}
                     <div className="flex items-center gap-2 mb-1 min-w-0">
-                        <h1 className="font-bold text-xl leading-none line-clamp-1 min-w-0">
+                        <h1 className="font-bold text-lg sm:text-xl leading-tight line-clamp-2 sm:line-clamp-1 break-words min-w-0">
                             {server.name}
                         </h1>
                         {server.client_infos?.lunar && (
@@ -85,7 +85,7 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                             type="button"
                             onClick={handleCopy}
                             aria-label={`${t("common.copy")} ${displayIp}`}
-                            className="flex items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[130px] sm:max-w-none cursor-pointer focus:outline-none focus-visible:text-primary"
+                            className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[160px] sm:max-w-none cursor-pointer focus:outline-none focus-visible:text-primary"
                         >
                             <span className="truncate">{displayIp}</span>
                             {copied ? (
@@ -100,8 +100,8 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                             </Badge>
                         )}
                         {server.user && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
-                                <span>{t("serverDetail.addedBy")}</span>
+                            <div className="flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                                <span className="shrink-0">{t("serverDetail.addedBy")}</span>
                                 {server.user.image_url ? (
                                     <img
                                         src={server.user.image_url}
@@ -113,7 +113,7 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                                 ) : (
                                     <UserIcon className="h-3 w-3" />
                                 )}
-                                <span className="font-medium text-foreground">
+                                <span className="min-w-0 truncate font-medium text-foreground">
                                     {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
                                 </span>
                             </div>

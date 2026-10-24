@@ -62,7 +62,15 @@
   "header": {
     "title": "Statistiche Minecraft",
     "signIn": "Accedi",
-    "admin": "Amministratore"
+    "admin": "Amministratore",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu",
+    "openSearch": "Apri ricerca",
+    "closeSearch": "Chiudi ricerca",
+    "navigation": "Navigazione",
+    "navigationDescription": "Menu di navigazione principale",
+    "selectLanguage": "Seleziona lingua",
+    "language": "Lingua"
   },
   "addServer": {
     "button": "Aggiungi server",

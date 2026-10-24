@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "サインイン",
-    "admin": "管理"
+    "admin": "管理",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "openSearch": "検索を開く",
+    "closeSearch": "検索を閉じる",
+    "navigation": "ナビゲーション",
+    "navigationDescription": "メインナビゲーション",
+    "selectLanguage": "言語を選択",
+    "language": "言語"
   },
   "addServer": {
     "button": "サーバーを追加",

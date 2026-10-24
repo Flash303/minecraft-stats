@@ -2,6 +2,7 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { legalReplacements } from "@/core/lib/legal-info"
 import { siteTitle, translateMeta, truncateDescription, type DocumentMeta } from "@/core/lib/seo-meta"
 import type { Language } from "@/core/lib/i18n"
+import { PageContainer } from "@/ui/layout/PageContainer"
 
 export type LegalNamespace = "terms" | "privacy" | "notice"
 
@@ -22,7 +23,7 @@ export function LegalPage({ namespace }: { namespace: LegalNamespace }) {
     const { t } = useLanguage()
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-12 select-text">
+        <PageContainer size="prose" className="select-text py-10 sm:py-12">
             <h1 className="text-3xl font-bold text-foreground mb-2">
                 {t(`legal.${namespace}.title`)}
             </h1>
@@ -46,6 +47,6 @@ export function LegalPage({ namespace }: { namespace: LegalNamespace }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </PageContainer>
     )
 }

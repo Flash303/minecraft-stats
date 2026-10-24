@@ -7,9 +7,13 @@ export default function Layout() {
     return (
         <>
             <DocumentMetaSync />
-            <div className="flex min-h-screen flex-col">
+            {/* `min-h-dvh` keeps the footer at the bottom on mobile browsers
+                whose toolbar changes the visible viewport height. */}
+            <div className="flex min-h-dvh flex-col">
                 <Header />
-                <main className="container mx-auto flex-1 px-4 py-6">
+                {/* Pages own their horizontal gutters (PageContainer) so that
+                    full-bleed sections (hero, banners) can span the viewport. */}
+                <main id="main-content" className="flex-1">
                     <Outlet />
                 </main>
                 <Footer />

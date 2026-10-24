@@ -44,7 +44,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
     return (
         <div
             className={cn(
-                "relative flex flex-col justify-between shadow-sm border border-border/80 bg-card/95 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group",
+                "relative flex w-full flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-5 shadow-sm backdrop-blur-sm min-h-[185px] h-full transition-all duration-300 ease-in-out group",
                 to ? "hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
             )}
         >
@@ -90,7 +90,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 </div>
 
                 {/* Player count / status indicator */}
-                <div className="flex-shrink-0 flex flex-col items-end gap-0.5 pt-0.5">
+                <div className="flex shrink-0 flex-col items-end gap-0.5 pt-0.5">
                     <div className="flex flex-row items-center gap-1.5">
                         {isOnline ? (
                             <>
@@ -149,22 +149,22 @@ export function ServerCard({ server, to }: ServerCardProps) {
             </div>
 
             {/* Bottom row: Version badge and stats info */}
-            <div className="flex flex-row items-center justify-between gap-2 w-full pt-2 border-t border-border/30">
-                <div className="flex flex-row items-center gap-1.5 truncate">
-                    {server.type && <PlatformBadge type={server.type} />}
+            <div className="flex w-full flex-row items-center justify-between gap-2 border-t border-border/30 pt-2">
+                <div className="flex min-w-0 flex-row items-center gap-1.5 overflow-hidden">
+                    {server.type && <PlatformBadge type={server.type} className="shrink-0" />}
                     {displayVersion ? (
-                        <span className="inline-flex items-center rounded-lg border border-border/50 px-2 py-0.5 text-2xs font-semibold bg-muted/50 text-muted-foreground shadow-xs whitespace-nowrap">
-                            {t("common.version", { version: displayVersion })}
+                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                            <span className="truncate">{t("common.version", { version: displayVersion })}</span>
                         </span>
                     ) : (
-                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-2xs font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
-                            {t("common.unknownVersion")}
+                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                            <span className="truncate">{t("common.unknownVersion")}</span>
                         </span>
                     )}
                 </div>
 
                 <div className={cn(
-                    "flex items-center gap-1 text-2xs font-medium",
+                    "flex shrink-0 items-center gap-1 text-2xs font-medium",
                     isOnline ? "text-success" : "text-destructive"
                 )}>
                     {isOnline ? <Wifi aria-hidden="true" className="h-3 w-3" /> : <WifiOff aria-hidden="true" className="h-3 w-3" />}

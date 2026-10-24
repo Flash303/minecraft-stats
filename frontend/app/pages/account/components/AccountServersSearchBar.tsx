@@ -30,7 +30,7 @@ export function AccountServersSearchBar({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="pl-9 pr-9 h-10 rounded-xl bg-background border-border/80 focus-visible:ring-primary/20 text-sm shadow-xs transition-all"
+                className="pl-9 pr-9 h-10 rounded-xl bg-background border-border/80 focus-visible:ring-primary/20 text-base sm:text-sm shadow-xs transition-all"
             />
             {value && (
                 <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-10">
@@ -38,7 +38,7 @@ export function AccountServersSearchBar({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
+                        className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
                         onClick={() => onChange("")}
                         aria-label={t("profile.servers.clearSearch")}
                     >
