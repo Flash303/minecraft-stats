@@ -14,7 +14,7 @@ import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 interface ServerCardProps {
     server: Server
@@ -23,6 +23,7 @@ interface ServerCardProps {
 
 export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
+    const navigate = useNavigate()
     const { copied, copy } = useCopyServerIp(server.ip, server.port, server.type)
 
     const isOnline = server.last_status === "online"
@@ -41,11 +42,38 @@ export function ServerCard({ server, to }: ServerCardProps) {
         copy()
     }
 
+    // Whole-card mouse navigation (the name link stays the keyboard /
+    // screen-reader path). Guards keep everyday interactions intact:
+    // - the copy button stops propagation before reaching here,
+    // - a text selection is never hijacked into a navigation,
+    // - modifier/middle clicks keep their "open in new tab" behavior.
+    const openTarget = (newTab: boolean) => {
+        if (!to) return
+        if (newTab) window.open(to, "_blank", "noopener")
+        else navigate(to)
+    }
+
+    const handleCardClick = (e: React.MouseEvent) => {
+        if (e.button !== 0) return
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+            openTarget(true)
+            return
+        }
+        if (window.getSelection()?.toString()) return
+        openTarget(false)
+    }
+
+    const handleCardAuxClick = (e: React.MouseEvent) => {
+        if (e.button === 1) openTarget(true)
+    }
+
     return (
         <div
+            onClick={to ? handleCardClick : undefined}
+            onAuxClick={to ? handleCardAuxClick : undefined}
             className={cn(
                 "relative flex w-full flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-5 shadow-sm backdrop-blur-sm min-h-[185px] h-full transition-all duration-300 ease-in-out group",
-                to ? "hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
+                to ? "cursor-pointer hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
             )}
         >
             {/* Top row: Favicon, Name, IP address, and Player/Status */}
@@ -63,7 +91,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
                     <div className="flex items-center gap-1.5 min-w-0">
                         {to ? (
-                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
+                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus-visible:underline focus-visible:outline-none">
                                 {server.name}
                             </Link>
                         ) : (
