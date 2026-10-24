@@ -41,10 +41,10 @@ export const handle: RouteMetaHandle = {
     getDocumentMeta: (_data: unknown, lang: Language) => homeMetaStrings(lang),
 }
 
-// Réduit chaque serveur à ce dont la home a réellement besoin avant sérialisation
-// dans le HTML SSR (~90% du payload brut est inutilisé : client_infos complets, motd...).
-// Le client refait ensuite son fetch complet avec `include_stats=true`, donc aucun
-// champ présent ici ne doit manquer au rendu initial des cartes.
+// Reduce each server to what the home page actually needs before serializing
+// it into the SSR HTML (~90% of the raw payload is unused: full client_infos,
+// motd...). The client then performs its full fetch with `include_stats=true`,
+// so no field listed here may be missing from the initial card render.
 function toServerCardSummary(server: Server): Server {
     return {
         id: server.id,
@@ -67,8 +67,8 @@ function toServerCardSummary(server: Server): Server {
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
-    // On désactive les stats pour le SSR afin d'éviter une payload de 4.6MB dans le HTML.
-    // React Query ira chercher les stats en arrière-plan sur le client.
+    // Disable stats for SSR to avoid a 4.6MB payload in the HTML.
+    // React Query fetches the stats in the background on the client.
     const serversPromise = fetchServers(undefined, false, forwardedFor)
         .then((servers) => servers.map(toServerCardSummary))
         .catch((e) => {
@@ -83,11 +83,11 @@ export function shouldRevalidate({
     nextUrl,
     defaultShouldRevalidate
 }: ShouldRevalidateFunctionArgs) {
-    // Si on navigue sur la même page (seuls les query params changent), on bloque le fetch
+    // Navigating within the same page (only query params changed): skip the fetch
     if (currentUrl.pathname === nextUrl.pathname) {
         return false
     }
-    // Sinon, on garde le comportement par défaut
+    // Otherwise keep the default behavior
     return defaultShouldRevalidate
 }
 
@@ -108,7 +108,7 @@ function ServerListFallback() {
         <>
             <Hero3D servers={[]} />
             <div className="mx-auto max-w-6xl scroll-mt-20 px-2 pt-8">
-                {/* Espace réservé pour les filtres */}
+                {/* Placeholder for the filters */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4 h-[72px]"></div>
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
@@ -127,9 +127,9 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const { searchQuery } = useSearch()
     const [searchParams, setSearchParams] = useSearchParams()
 
-    // Source unique de vérité : le cache TanStack Query, amorcé par les
-    // données SSR. Remplace l'ancien doublon load()/handleRefresh(), les
-    // caches module-level et le refetch manuel au montage.
+    // Single source of truth: the TanStack Query cache, seeded with the SSR
+    // data. It replaces the former duplicated load()/handleRefresh(), the
+    // module-level caches and the manual refetch on mount.
     const { data: servers = initialServers || [], isPending, isFetching, error, refetch } = useQuery({
         queryKey: SERVERS_QUERY_KEY,
         queryFn: async () => {
@@ -138,14 +138,14 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         },
         enabled: isLoaded,
         initialData: initialServers || [],
-        // Considéré comme périmé dès l'amorçage -> refetch d'arrière-plan au
-        // montage, équivalent de l'ancien load(background=true).
+        // Considered stale as soon as seeded -> background refetch on mount,
+        // equivalent to the former load(background=true).
         initialDataUpdatedAt: 0,
     })
 
-    // On ne montre le skeleton que si on n'a VRAIMENT pas de données (isPending)
-    // S'il y a initialData, isPending sera false, donc on ne montrera jamais le skeleton,
-    // ce qui évite le clignotement SSR.
+    // Only show the skeleton when we REALLY have no data (isPending).
+    // With initialData, isPending is false, so the skeleton never shows,
+    // which prevents the SSR flicker.
     const loading = isPending && servers.length === 0
     const refreshing = isFetching
 
@@ -201,8 +201,8 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const setSortDirection = useCallback((dir: "desc" | "asc") => updateFilter("dir", dir, "desc"), [updateFilter])
     const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "laby") => updateFilter("launcher", launcher, "all"), [updateFilter])
 
-    // Un seul appel à setSearchParams : la forme fonctionnelle de setSearchParams
-    // ne cumule pas les appels faits dans le même tick (pas de queue comme setState).
+    // A single setSearchParams call: its functional form does not queue
+    // updates made in the same tick (unlike setState).
     const resetFilters = useCallback(() => {
         setSearchParams(
             (prev) => {
@@ -234,7 +234,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         }
     }, [searchQuery, setSearchParams])
 
-    // Filtrage par plateforme
+    // Platform filtering
     const baseServersForCounts = useMemo(() => {
         let list = servers
 
@@ -244,14 +244,14 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
             list = list.filter(s => s.type === "bedrock")
         }
 
-        // Filtrage par launcher
+        // Launcher filtering
         if (activeLauncher === "lunar") {
             list = list.filter(s => s.client_infos?.lunar)
         } else if (activeLauncher === "laby") {
             list = list.filter(s => s.client_infos?.laby)
         }
 
-        // Filtrage par barre de recherche
+        // Search bar filtering
         const query = searchQuery.toLowerCase().trim()
         if (query) {
             list = list.filter(
@@ -267,14 +267,14 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const filteredServers = useMemo(() => {
         let list = baseServersForCounts
 
-        // Filtrage par visibilité (les masqués ne sont vus que dans leur onglet spécifique)
+        // Visibility filtering (hidden servers are only shown in their dedicated tab)
         if (activeTab === "hidden") {
             list = list.filter(s => s.hidden === true)
         } else {
             list = list.filter(s => s.hidden !== true)
         }
 
-        // Filtrage par onglet de statut
+        // Status tab filtering
         if (activeTab === "online") {
             list = list.filter(s => s.last_status === "online")
         } else if (activeTab === "offline") {

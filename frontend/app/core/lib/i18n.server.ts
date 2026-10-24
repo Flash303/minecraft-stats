@@ -12,10 +12,10 @@ import ja from "@/locales/ja.json"
 import ko from "@/locales/ko.json"
 import nl from "@/locales/nl.json"
 
-// Enregistre les 12 locales AVANT le render SSR, pour que les meta() et le HTML
-// soient rendus dans la langue résolue par cookie/Accept-Language.
-// Ce module n'est importé que côté serveur : les dictionnaires ne sont pas
-// embarqués dans le bundle client (la langue active y est chargée via loadLanguage).
+// Register all 12 locales BEFORE the SSR render so meta() and the HTML are
+// rendered in the language resolved from the cookie/Accept-Language header.
+// This module is server-only: dictionaries are not bundled into the client
+// (the active language is loaded there via loadLanguage).
 const all: Array<[Language, Record<string, unknown>]> = [
     ["fr", fr],
     ["en", en],

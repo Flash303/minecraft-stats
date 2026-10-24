@@ -19,8 +19,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
     const triggerRefresh = useCallback(() => {
         setRefreshCounter(prev => prev + 1)
-        // Le nouveau serveur doit apparaître dans le Ctrl+K (SearchBar) et dans
-        // la home : on invalide les deux caches pour forcer un refetch client.
+        // The new server must appear in Ctrl+K (SearchBar) and on the home page:
+        // invalidate both caches to force a client refetch.
         invalidateServers()
     }, [invalidateServers])
 

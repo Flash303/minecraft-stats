@@ -110,9 +110,9 @@ export function useServerData(initialServer: Server | null, initialRecords: Serv
         const paramsChanged = JSON.stringify(lastFetchParams.current) !== JSON.stringify(currentParams)
         if (!paramsChanged) return
 
-        // Garde anti-stale : seule la dernière exécution qui fetch réellement
-        // peut écrire dans l'état. L'incrément est APRÈS l'early-return ci-dessus
-        // pour ne pas invalider les requêtes en vol (ex: double invocation StrictMode).
+        // Stale guard: only the last execution that actually fetches may write
+        // state. The increment happens AFTER the early return above so in-flight
+        // requests are not invalidated (e.g. StrictMode double invocation).
         const generation = ++fetchGenerationRef.current
         const isStale = () => generation !== fetchGenerationRef.current
 
@@ -249,7 +249,7 @@ export function useServerData(initialServer: Server | null, initialRecords: Serv
     }, [rawRecords, selectedRange, selectedInterval, customRange])
 
     useEffect(() => {
-        // Dédoublonnage : visibilitychange et focus peuvent être déclenchés quasi simultanément
+        // Deduplication: visibilitychange and focus can fire almost simultaneously
         let lastRefreshAt = 0
         const handleVisibilityChange = () => {
             if (document.visibilityState !== "visible" || isChartZoomed.current) return

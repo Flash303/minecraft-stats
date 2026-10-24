@@ -27,7 +27,7 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                     key={s.id}
                     className="flex items-center rounded-xl border border-primary/20 bg-primary/10 shadow-xs hover:border-primary/30 transition-colors overflow-hidden"
                 >
-                    {/* Zone cliquable → page de détails */}
+                    {/* Clickable link to the server detail page */}
                     <Link
                         to={`/server/${s.id}`}
                         target="_blank"
@@ -55,10 +55,10 @@ export function SelectedServersTags({ selectedServers, removeServer }: SelectedS
                         )}
                     </Link>
 
-                    {/* Séparateur */}
+                    {/* Separator */}
                     <div className="w-px h-4 bg-primary/20 flex-shrink-0" />
 
-                    {/* Bouton retirer */}
+                    {/* Remove button */}
                     <button
                         onClick={() => removeServer(s.id)}
                         className="flex items-center justify-center px-2.5 py-2 text-muted-foreground hover:text-destructive transition-colors cursor-pointer focus:outline-none"

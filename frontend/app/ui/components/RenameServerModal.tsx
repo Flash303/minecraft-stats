@@ -21,9 +21,9 @@ export interface RenameServerTexts {
     label: string
     save: string
     saving: string
-    /** Optionnel : placeholder du champ */
+    /** Optional: input placeholder */
     placeholder?: string
-    /** Optionnel : message affiché en cas d'échec de l'API */
+    /** Optional: message shown when the API call fails */
     error?: string
 }
 
@@ -31,16 +31,16 @@ interface RenameServerModalProps {
     server: Server
     onSuccess: () => void
     texts: RenameServerTexts
-    /** Déclencheur cliquable ; optionnel si la modal est contrôlée via open/onOpenChange */
+    /** Clickable trigger; optional when the modal is controlled via open/onOpenChange */
     trigger?: React.ReactNode
-    /** Mode contrôlé : open + onOpenChange pilotés par l'appelant (ex. menu d'actions) */
+    /** Controlled mode: open + onOpenChange driven by the caller (e.g. actions menu) */
     open?: boolean
     onOpenChange?: (open: boolean) => void
 }
 
 /**
- * Modal de renommage de serveur, partagée entre la page compte et l'admin.
- * Les libellés sont fournis par l'appelant (les clés i18n diffèrent selon le contexte).
+ * Server rename modal shared between the account page and the admin console.
+ * Labels are provided by the caller (i18n keys differ per context).
  */
 export function RenameServerModal({ server, onSuccess, texts, trigger, open: controlledOpen, onOpenChange }: RenameServerModalProps) {
     const { getToken } = useAuth()

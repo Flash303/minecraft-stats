@@ -4,7 +4,7 @@ import { APP_URL } from "@/core/lib/config";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
-  // En cas d'indisponibilité de l'API, on sert un sitemap minimal plutôt qu'un 500
+  // If the API is unavailable, serve a minimal sitemap instead of a 500
   const servers = await fetchServers(undefined, false, forwardedFor).catch(() => []);
   
   const urls = servers.map(server => `

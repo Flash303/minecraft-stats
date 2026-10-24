@@ -26,9 +26,9 @@ const points = defaultYValues.map((y, idx) => {
 })
 
 // Animated counter hook (module-level to comply with React rules of hooks).
-// SSR-safe : le compteur démarre toujours à 0 (comme le HTML serveur) et la
-// préférence `prefers-reduced-motion` n'est lue que dans l'effet, sinon le
-// premier rendu client diverge du SSR -> erreur d'hydratation #418.
+// SSR-safe: the counter always starts at 0 (matching the server HTML) and the
+// `prefers-reduced-motion` preference is only read inside the effect; otherwise
+// the first client render diverges from SSR -> hydration error #418.
 function useAnimatedCount(target: number, duration = 1200) {
     const [prevTarget, setPrevTarget] = useState(target)
     const [count, setCount] = useState(0)
@@ -38,8 +38,8 @@ function useAnimatedCount(target: number, duration = 1200) {
     }
     useEffect(() => {
         if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            // Synchro au montage (pas de rendu serveur divergent : SSR et
-            // premier rendu client partent de 0).
+            // Sync on mount (no divergent server render: SSR and the first
+            // client render both start from 0).
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setCount(target)
             return
@@ -69,8 +69,8 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     const hoveredPointRef = useRef<number | null>(null)
     const isVisibleRef = useRef<boolean>(true)
 
-    // Mémoïsé : les compteurs animés provoquent ~60 re-renders/s pendant l'intro,
-    // il ne faut pas re-filtrer/réduire la liste à chaque frame.
+    // Memoized: the animated counters cause ~60 re-renders/s during the intro,
+    // so the list must not be re-filtered/reduced on every frame.
     const { totalServers, onlineServers, totalPlayers } = useMemo(() => {
         const visible = servers.filter(s => s.hidden !== true)
         const online = visible.filter(s => s.last_status === "online")
@@ -127,7 +127,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
         let animationFrameId: number
         let running = false
 
-        // Relance la boucle si elle s'est arrêtée (hero hors écran)
+        // Restart the loop if it stopped (hero off-screen)
         const startLoop = () => {
             if (!running) {
                 running = true
@@ -175,8 +175,8 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
         const render = () => {
             if (!isVisibleRef.current) {
-                // Hors écran : on arrête la boucle ; l'IntersectionObserver
-                // relancera le rendu quand le hero redeviendra visible.
+                // Off-screen: stop the loop; the IntersectionObserver will
+                // restart rendering once the hero becomes visible again.
                 running = false
                 return
             }
@@ -378,7 +378,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             animationFrameId = requestAnimationFrame(render)
         }
 
-        // Pause/reprend l'animation selon la visibilité du hero
+        // Pause/resume the animation based on hero visibility
         const observer = new IntersectionObserver(
             ([entry]) => {
                 isVisibleRef.current = entry.isIntersecting

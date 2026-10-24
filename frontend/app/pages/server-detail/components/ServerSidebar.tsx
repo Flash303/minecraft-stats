@@ -95,7 +95,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
 
     const switchTimerRef = useRef<number | null>(null);
 
-    // Nettoie le timer de transition au démontage
+    // Clear the transition timer on unmount
     useEffect(() => {
         return () => {
             if (switchTimerRef.current !== null) clearTimeout(switchTimerRef.current);

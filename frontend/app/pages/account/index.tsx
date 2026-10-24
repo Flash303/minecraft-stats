@@ -90,8 +90,8 @@ export default function Account() {
         }
     }, [getToken, isLoaded, isSignedIn])
 
-    // Après un renommage : on recharge "mes serveurs" ET on invalide le cache
-    // global pour que la home et le Ctrl+K affichent le nouveau nom.
+    // After a rename: reload "my servers" AND invalidate the global cache so
+    // the home page and Ctrl+K show the new name.
     const handleServersMutated = useCallback(() => {
         loadData()
         invalidateServers()

@@ -106,9 +106,9 @@ export default function AdminDashboard() {
         }
     }, [isAdmin, getToken, t, triggerToast])
 
-    // Après une mutation (delete/rename/IP/favicon/visibilité) : on recharge le
-    // tableau admin ET on invalide le cache global pour que la home et le
-    // Ctrl+K reflètent le changement sans attendre l'expiration du staleTime.
+    // After a mutation (delete/rename/IP/favicon/visibility): reload the admin
+    // table AND invalidate the global cache so the home page and Ctrl+K reflect
+    // the change without waiting for staleTime to expire.
     const refreshAfterMutation = useCallback(() => {
         loadData()
         invalidateServers()

@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { resolveProtocolVersion } from "./minecraft-protocols"
 import { translate, type Language } from "./i18n"
 
-/** Normalise une langue libre en une `Language` du registre i18n (défaut: fr). */
+/** Normalizes a free-form language string to an i18n `Language` (default: fr). */
 function acceptableLanguage(language: string | undefined | null): Language {
     const langs: Language[] = ["fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh-CN", "ja", "ko", "nl"]
     return (langs as string[]).includes(language ?? "") ? (language as Language) : "fr"
@@ -45,14 +45,13 @@ export function copyServerIp(ip: string, port: number, type?: string): Promise<v
 }
 
 /**
- * Formate un nombre (compteurs de joueurs, stats) de façon DÉTERMINISTE.
+ * Formats a number (player counters, stats) DETERMINISTICALLY.
  *
- * On n'utilise PAS `Intl.NumberFormat` ici : pour la locale fr-FR, l'ICU de
- * Node (serveur) et celui du navigateur sortent des caractères de séparation
- * des milliers différents (U+202F espace fine vs U+00A0 espace insécable),
- * ce qui provoque une erreur d'hydratation #418 entre le HTML SSR et le rendu
- * client. En imposant un séparateur unique par langue, les deux rendus
- * (serveur et client) sortent des chaînes strictement identiques.
+ * `Intl.NumberFormat` is intentionally NOT used here: for the fr-FR locale,
+ * Node (server) and browser ICU produce different thousands separators
+ * (U+202F narrow no-break space vs U+00A0 no-break space), causing hydration
+ * error #418 between the SSR HTML and the client render. By forcing a single
+ * separator per language, both renders produce strictly identical strings.
  */
 export function formatNumber(language: string | undefined | null, value: number): string {
     const separator = language === "fr" ? "\u202F" : ","
@@ -63,16 +62,16 @@ export function formatNumber(language: string | undefined | null, value: number)
 }
 
 /**
- * Date déterministe (SERVEUR + CLIENT identiques), contrairement à
- * `Date#toLocaleDateString(locale)` dont l'ICU diffère entre Node et le
- * navigateur (noms de mois, ordre) et peut casser l'hydratation (#418).
- * Les noms de mois et le gabarit de format viennent des fichiers de
- * traduction (common.months / common.dateFormat).
+ * Deterministic date formatting (SERVER + CLIENT produce identical output),
+ * unlike `Date#toLocaleDateString(locale)` whose ICU data differs between Node
+ * and the browser (month names, ordering) and can break hydration (#418).
+ * Month names and the format template come from the translation files
+ * (common.months / common.dateFormat).
  *
- * La date est lue en UTC : `getDate()`/`getMonth()` utilisent le fuseau local,
- * qui diffère entre le serveur SSR (UTC) et le navigateur (ex. Europe/Paris),
- * ce qui faisait diverger le HTML SSR et le rendu client pour les timestamps
- * proches de minuit (erreur d'hydratation #418 sur la page serveur).
+ * The date is read in UTC: `getDate()`/`getMonth()` use the local timezone,
+ * which differs between the SSR server (UTC) and the browser (e.g.
+ * Europe/Paris), making the SSR HTML and client render diverge for timestamps
+ * near midnight (hydration error #418 on the server page).
  */
 export function formatDate(timestamp: number, language: string | undefined | null): string {
     const lang = acceptableLanguage(language)
@@ -106,9 +105,9 @@ export function parseMinecraftVersionRange(versionName: string): [string, string
 export function formatMinecraftVersion(versionName: string | null | undefined): string | null {
     if (!versionName) return null;
     const range = parseMinecraftVersionRange(versionName);
-    // Pas de motif `X.Y(.Z)` : nom de version custom (ex. "Online: 12136") —
-    // on ne renvoie JAMAIS la chaîne brute pour éviter d'afficher du texte
-    // arbitraire contrôlé par l'opérateur du serveur dans les badges.
+    // No `X.Y(.Z)` pattern: a custom version name (e.g. "Online: 12136") —
+    // NEVER return the raw string, to avoid rendering arbitrary text
+    // controlled by the server operator in badges.
     if (!range) {
         return null;
     }
@@ -120,14 +119,15 @@ export function formatMinecraftVersion(versionName: string | null | undefined): 
 }
 
 /**
- * Version affichable d'un serveur : d'abord la version déclarée (`last_version`
- * nettoyée par `formatMinecraftVersion`), puis — si c'est un nom custom sans
- * motif de version — le numéro de protocole réseau (`last_protocol_version`,
- * fiable car envoyé par le handshake, pas customisable en texte libre).
+ * Displayable version for a server: first the declared version (`last_version`
+ * normalized by `formatMinecraftVersion`), then — when it is a custom name
+ * without a version pattern — the network protocol number
+ * (`last_protocol_version`, reliable because it comes from the handshake and
+ * cannot be customized as free text).
  *
- * @returns `null` quand rien d'affichable (protocole sentinelle <= 0 comme en
- * maintenance, protocole inconnu, ou serveur Bedrock sans version lisible) :
- * les appelants doivent alors masquer le badge / afficher "Version inconnue".
+ * @returns `null` when nothing is displayable (sentinel protocol <= 0 such as
+ * maintenance, unknown protocol, or Bedrock server without a readable
+ * version): callers must then hide the badge / show "Unknown version".
  */
 export function resolveServerVersion(
     versionName: string | null | undefined,

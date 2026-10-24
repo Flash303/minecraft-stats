@@ -60,10 +60,10 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
     const { data: allServers = [] } = useQuery({
         queryKey: [...SERVERS_SEARCH_QUERY_KEY, refreshCounter],
         queryFn: async () => {
-            // Optimisation : Si la homepage a déjà chargé les serveurs (via SSR ou client), on les réutilise
-            // SAUF si un refresh a été demandé (ajout de serveur) : le cache ["servers"]
-            // est alors invalidé et on doit refetcher pour que le nouveau serveur
-            // apparaisse dans le Ctrl+K.
+            // Optimization: if the homepage already loaded the servers (via SSR
+            // or client), reuse them UNLESS a refresh was requested (server
+            // added): the ["servers"] cache is then invalidated and we must
+            // refetch so the new server shows up in the Ctrl+K search.
             const cachedServers = queryClient.getQueryData<Server[]>(SERVERS_QUERY_KEY)
             const serversState = queryClient.getQueryState(SERVERS_QUERY_KEY)
             if (cachedServers && cachedServers.length > 0 && !serversState?.isInvalidated) {
@@ -117,7 +117,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
         }
     }
 
-    // Listener global pour Ctrl+K
+    // Global Ctrl+K listener
     useEffect(() => {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {

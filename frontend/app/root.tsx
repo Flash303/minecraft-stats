@@ -29,8 +29,8 @@ import { translateMeta } from "@/core/lib/seo-meta";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-// Singleton : les queries ne s'exécutent que côté client (post-hydratation),
-// pas besoin de client par requête SSR.
+// Singleton: queries only run client-side (after hydration), so there is no
+// need for a per-request client during SSR.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -45,8 +45,8 @@ export function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie") || "";
   const matchTheme = cookieHeader.match(/theme=(light|dark)/);
 
-  // Langue : cookie d'abord, sinon détection serveur via Accept-Language
-  // -> le SSR rend directement la bonne langue, aucun flash possible.
+  // Language: cookie first, otherwise server-side Accept-Language detection
+  // -> SSR renders the right language directly, with no flash.
   const serverLanguage = parseLanguageCookie(cookieHeader)
     ?? resolveLanguageFromHeader(request.headers.get("Accept-Language"));
 
@@ -57,8 +57,8 @@ export function loader({ request }: LoaderFunctionArgs) {
 }
 
 export function shouldRevalidate() {
-  // Le loader de root ne lit que les cookies (thème/langue).
-  // On n'a pas besoin de le re-fetcher à chaque navigation client.
+  // The root loader only reads cookies (theme/language), so it does not need
+  // to re-run on every client navigation.
   return false;
 }
 
@@ -87,8 +87,8 @@ export function meta({ data }: { data?: { serverLanguage?: Language } }) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const rootData = useRouteLoaderData<typeof loader>("root");
-  // Résolue côté serveur (cookie ou Accept-Language) -> attribut lang correct
-  // dès le HTML SSR, sans bascule client.
+  // Resolved server-side (cookie or Accept-Language) -> correct lang attribute
+  // in the SSR HTML, with no client-side switch.
   const lang = rootData?.serverLanguage || "fr";
 
   useEffect(() => {
@@ -99,9 +99,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // La classe de thème n'appartient PAS à React : le script anti-flash dans
-  // <head> la pose avant le premier paint, l'effet de ThemeContext la met à
-  // jour ensuite. Aucune divergence d'hydratation possible.
+  // The theme class is NOT owned by React: the anti-flash script in <head>
+  // sets it before first paint, then the ThemeContext effect keeps it in sync.
+  // No hydration mismatch is possible.
   return (
     <html lang={lang} suppressHydrationWarning>
       <head>
@@ -118,8 +118,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4f4f5" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b" />
         <link rel="describedby" href="/llms.txt" type="text/plain" />
-        {/* Plus Jakarta Sans est auto-hébergée (voir index.css) -> plus de stylesheet
-            render-blocking Google Fonts ni de requêtes hors-domaine. */}
+        {/* Plus Jakarta Sans is self-hosted (see index.css): no render-blocking
+            Google Fonts stylesheet and no third-party requests. */}
         <link rel="preload" href="/fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         {/* Umami Analytics */}
         <script defer src="https://cloud.umami.is/script.js" data-website-id="367e7c31-118f-4c1d-91df-4d264facff62"></script>

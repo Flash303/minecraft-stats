@@ -1,15 +1,15 @@
 /**
- * Security headers appliqués à toutes les réponses (HTML SSR, cache ISR et fichiers statiques).
+ * Security headers applied to every response (SSR HTML, ISR cache and static files).
  *
- * Note CSP : `script-src` inclut 'unsafe-inline' car React Router injecte des scripts
- * inline pour l'hydratation (sans système de nonce par requête). La politique bloque
- * malgré tout les scripts/iframes/objets tiers et le framing externe.
+ * CSP note: `script-src` includes 'unsafe-inline' because React Router injects
+ * inline hydration scripts (no per-request nonce system). The policy still
+ * blocks third-party scripts/iframes/objects and external framing.
  */
 export const SECURITY_HEADERS: Record<string, string> = {
     "Content-Security-Policy": [
         "default-src 'self'",
-        // Clerk charge clerk-js depuis son FAPI (*.clerk.accounts.dev en test,
-        // *.clerk.com / clerk.mc-stats.fr en production)
+        // Clerk loads clerk-js from its FAPI (*.clerk.accounts.dev in test,
+        // *.clerk.com / clerk.mc-stats.fr in production)
         "script-src 'self' 'unsafe-inline' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.mc-stats.fr https://cloud.umami.is",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",

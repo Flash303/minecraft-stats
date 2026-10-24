@@ -1,19 +1,19 @@
 /**
- * Régénère le bloc `JAVA_RELEASE_PROTOCOL_VERSIONS` de
- * `app/core/lib/minecraft-protocols.ts` depuis l'upstream PrismarineJS.
+ * Regenerates the `JAVA_RELEASE_PROTOCOL_VERSIONS` block of
+ * `app/core/lib/minecraft-protocols.ts` from the PrismarineJS upstream.
  *
- * Usage :  bun run update:protocols   (ou `node scripts/update-minecraft-protocols.mjs`)
+ * Usage:  bun run update:protocols   (or `node scripts/update-minecraft-protocols.mjs`)
  *
- * Source (URL stable, branche `master`, auto-mise à jour par bot à chaque sortie) :
+ * Source (stable URL, `master` branch, auto-updated by a bot on every release):
  *   https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/common/protocolVersions.json
  *
- * Règles de filtrage (doivent rester synchronisées avec l'en-tête du fichier cible) :
- * - `usesNetty === true` uniquement (exclut les protocoles pré-Netty qui réutilisent
- *   les mêmes numéros, ex. protocole 47 = 1.4.2 pré-Netty ET 1.8+ post-Netty),
- * - releases uniquement : `releaseType === "release"`, ou (anciennes entrées sans
- *   `releaseType`) `minecraftVersion` de la forme stricte `X.Y` / `X.Y.Z`,
- * - regroupe par numéro de protocole, tri sémantique ascendant :
- *   une seule version -> "1.21.4", plusieurs -> "1.21.7 - 1.21.8".
+ * Filtering rules (must stay in sync with the target file header):
+ * - `usesNetty === true` only (excludes pre-Netty protocols that reuse the
+ *   same numbers, e.g. protocol 47 = 1.4.2 pre-Netty AND 1.8+ post-Netty),
+ * - releases only: `releaseType === "release"`, or (old entries without
+ *   `releaseType`) a `minecraftVersion` strictly matching `X.Y` / `X.Y.Z`,
+ * - group by protocol number, ascending semantic sort:
+ *   a single version -> "1.21.4", several -> "1.21.7 - 1.21.8".
  */
 import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"

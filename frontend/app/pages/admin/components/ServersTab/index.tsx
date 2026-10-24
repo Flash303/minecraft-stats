@@ -38,7 +38,7 @@ import { useServersFilterSort } from "@/core/hooks/useServersFilterSort"
 
 type SortableField = "name" | "creator" | "ip" | "status" | "players"
 
-/** En-tête de colonne triable, accessible au clavier (bouton + aria-sort). */
+/** Sortable column header, keyboard accessible (button + aria-sort). */
 function SortableTh({ field, label, sortField, sortDirection, onSort }: {
     field: SortableField
     label: string

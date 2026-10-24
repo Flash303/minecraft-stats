@@ -1,19 +1,18 @@
 /**
- * Résolution de la langue partagée par le loader SSR (root.tsx) et le cache
- * ISR (server.ts) : cookie d'abord, sinon header Accept-Language.
+ * Language resolution shared by the SSR loader (root.tsx) and the ISR cache
+ * (server.ts): cookie first, then the Accept-Language header.
  */
 
 export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
 
-/** Lit le cookie depuis l'en-tête Cookie complet. */
+/** Reads the language cookie from the full Cookie header. */
 export function parseLanguageCookie(cookieHeader: string | null): Language | null {
     const match = cookieHeader?.match(/(?:^|; )language=(fr|en|es|it|de|pt|ru|pl|zh-CN|ja|ko|nl)(?:;|$)/)
     return (match?.[1] as Language) ?? null
 }
 
 /**
- * Premier tag trouvé par ordre de préférence du navigateur,
- * défaut "fr".
+ * First supported tag in the browser's preference order, defaulting to "fr".
  */
 export function resolveLanguageFromHeader(acceptLanguage: string | null): Language {
     if (!acceptLanguage) return "fr"

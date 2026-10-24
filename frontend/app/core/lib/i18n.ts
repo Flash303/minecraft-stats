@@ -1,14 +1,14 @@
 export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
 
 /**
- * Dictionnaires de traduction enregistrés à la demande.
+ * Translation dictionaries registered on demand.
  *
- * - Côté SSR : `i18n.server.ts` importe statiquement les 12 locales et les
- *   enregistre AVANT le render, pour que les meta() et le HTML soient rendus
- *   dans la langue résolue par cookie/Accept-Language.
- * - Côté client : seule la langue active est chargée dynamiquement (via
- *   `loadLanguage`), et de préférence AVANT l'hydratation (entry.client)
- *   pour éviter toute divergence d'hydratation.
+ * - SSR: `i18n.server.ts` statically imports all 12 locales and registers them
+ *   BEFORE rendering so meta() and the HTML use the language resolved from
+ *   the cookie/Accept-Language header.
+ * - Client: only the active language is loaded dynamically (via
+ *   `loadLanguage`), preferably BEFORE hydration (entry.client) to avoid any
+ *   hydration mismatch.
  */
 const dictionaries: Partial<Record<Language, Record<string, unknown>>> = {}
 
@@ -27,20 +27,20 @@ const loaders: Record<Language, () => Promise<{ default: Record<string, unknown>
     nl: () => import("@/locales/nl.json"),
 }
 
-// Promesses mises en cache : un même dictionnaire n'est importé qu'une fois.
+// Cached promises: a given dictionary is imported only once.
 const loading: Partial<Record<Language, Promise<void>>> = {}
 
 /**
- * Enregistre un dictionnaire de traduction dans le registre partagé.
- * Utilisé par i18n.server.ts (SSR) et par loadLanguage (client).
+ * Registers a translation dictionary in the shared registry.
+ * Used by i18n.server.ts (SSR) and by loadLanguage (client).
  */
 export function registerTranslations(language: Language, dict: Record<string, unknown>): void {
     dictionaries[language] = dict
 }
 
 /**
- * Charge un dictionnaire de manière asynchrone (import dynamique côté client).
- * No-op si la langue est déjà enregistrée ou en cours de chargement.
+ * Loads a dictionary asynchronously (dynamic import on the client).
+ * No-op if the language is already registered or being loaded.
  */
 export function loadLanguage(language: Language): Promise<void> {
     const existing = dictionaries[language] ?? loading[language]
@@ -55,10 +55,10 @@ export function loadLanguage(language: Language): Promise<void> {
 }
 
 /**
- * Recherche pure dans les dictionnaires de traduction, utilisable hors React
- * (meta SSR, service worker...) comme dans les composants via LanguageContext.
- * Retourne la clé si introuvable (dictionnaire non chargé ou clé absente),
- * comme le faisait l'ancien comportement.
+ * Pure dictionary lookup, usable outside React (SSR meta, service worker...)
+ * as well as from components through LanguageContext.
+ * Returns the key when it cannot be resolved (dictionary not loaded or missing
+ * key), matching the previous behavior.
  */
 export function translate(
     language: Language,

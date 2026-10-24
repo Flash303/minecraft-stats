@@ -65,7 +65,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
         }
     try {
         const id = Number(params.id)
-        // Fetch directement depuis le client, plus de requête _.data
+        // Fetch directly from the client; no more `_.data` request
         const server = await fetchServer(id)
 
         return {
@@ -155,9 +155,9 @@ export default function ServerDetail() {
         if (server) applyDocumentMeta(getServerDocumentMeta(server, language))
     }, [server, language])
 
-    // Données structurées rendues dans le JSX (donc présentes dans le HTML SSR),
-    // à partir des données du loader pour que SSR et client soient identiques.
-    // Remplace l'ancienne injection via useEffect, invisible aux crawlers sans JS.
+    // Structured data rendered in the JSX (so it is present in the SSR HTML),
+    // from the loader data so SSR and client stay identical.
+    // Replaces the former useEffect injection, invisible to crawlers without JS.
     const schemaData = useMemo(() => {
         if (!initialServer) return null
         const url = `${APP_URL}/server/${initialServer.id}`
@@ -253,7 +253,7 @@ export default function ServerDetail() {
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
-                        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+                        // Escape "<" to prevent breaking out of the script context (e.g. "</script>")
                         __html: JSON.stringify(schemaData).replace(/</g, "\\u003c")
                     }}
                 />
@@ -296,9 +296,9 @@ export default function ServerDetail() {
                                 currentPlayers={
                                     server.last_protocol_version != null &&
                                     server.last_protocol_version <= 0
-                                        // Protocole sentinelle (maintenance...) : le client Minecraft
-                                        // affiche le texte brut du serveur dans la colonne joueurs.
-                                        // On reproduit fidèlement ce comportement ici (pas de badge).
+                                        // Sentinel protocol (maintenance...): the Minecraft client
+                                        // shows the server's raw text in the player column.
+                                        // Reproduce that behavior faithfully here (no badge).
                                         ? (server.last_version?.trim() || "Version")
                                         : (server.last_connected ?? 0)
                                 }
@@ -415,7 +415,7 @@ export function ErrorBoundary() {
     const error = useRouteError()
     const { t } = useLanguage()
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
-    // La stack trace n'est jamais affichée à l'utilisateur (fuite d'information potentielle)
+    // The stack trace is never shown to the user (potential information leak)
     return (
         <div className="p-8 text-center text-destructive">
             <h1>{t("error.somethingWentWrong")} in ServerDetail</h1>

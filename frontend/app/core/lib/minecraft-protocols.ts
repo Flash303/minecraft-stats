@@ -1,30 +1,30 @@
 /**
- * Mapping protocole réseau Java <-> version Minecraft affichable.
+ * Java network protocol <-> displayable Minecraft version mapping.
  *
- * Source de vérité (upstream, maintenu par bot à chaque sortie) :
+ * Upstream source of truth (maintained by a bot on every release):
  *   https://github.com/PrismarineJS/minecraft-data/blob/master/data/pc/common/protocolVersions.json
- *   (URL stable sur la branche `master`, auto-mise à jour — voir l'historique
+ *   (stable URL on the `master` branch, auto-updated — see the history entry
  *   "Add 1.21.x to pc protocolVersions.json").
  *
- * Pourquoi une copie vendored plutôt qu'un fetch runtime ?
- * - Déterminisme SSR + client : la même table est utilisée des deux côtés, donc
- *   aucun risque de mismatch d'hydratation (#418) ni de dépendance réseau externe
- *   au rendu (cf. AGENTS.md : le data-fetching reste côté client, le rendu doit
- *   rester fluide et synchrone).
- * - Pas de latence / panne d'un CDN tiers sur le chemin critique d'affichage.
+ * Why a vendored copy instead of a runtime fetch?
+ * - SSR + client determinism: the same table is used on both sides, so there
+ *   is no hydration mismatch risk (#418) and no external network dependency
+ *   during render (see AGENTS.md: data fetching stays client-side, rendering
+ *   must stay fluid and synchronous).
+ * - No third-party CDN latency/failure on the critical rendering path.
  *
- * Mise à jour (à relancer à chaque version mineure de Minecraft, ou via CI) :
+ * Update (run for every Minecraft minor release, or via CI):
  *   bun run update:protocols
- * Le script `scripts/update-minecraft-protocols.mjs` régénère le bloc
- * `JAVA_RELEASE_PROTOCOL_VERSIONS` ci-dessous depuis l'URL upstream.
+ * The `scripts/update-minecraft-protocols.mjs` script regenerates the
+ * `JAVA_RELEASE_PROTOCOL_VERSIONS` block below from the upstream URL.
  *
- * Périmètre : releases Java uniquement (`usesNetty: true`, `releaseType: "release"`).
- * Les snapshots / pre-releases / RCs partagent le même espace de numéros avec des
- * valeurs sentinelles (>= 2^30) et ne sont pas affichés. Bedrock utilise une
- * numérotation différente : aucun fallback protocole pour `type: "bedrock"`.
+ * Scope: Java releases only (`usesNetty: true`, `releaseType: "release"`).
+ * Snapshots / pre-releases / RCs share the same number space with sentinel
+ * values (>= 2^30) and are not displayed. Bedrock uses a different numbering
+ * scheme: no protocol fallback for `type: "bedrock"`.
  */
 
-// <-- BEGIN GENERATED BLOCK (ne pas éditer à la main, voir `bun run update:protocols`) -->
+// <-- BEGIN GENERATED BLOCK (do not edit by hand, see `bun run update:protocols`) -->
 export const JAVA_RELEASE_PROTOCOL_VERSIONS: Record<number, string> = {
     4: "1.7.2 - 1.7.5",
     5: "1.7.6 - 1.7.10",
@@ -82,11 +82,12 @@ export const JAVA_RELEASE_PROTOCOL_VERSIONS: Record<number, string> = {
 // <-- END GENERATED BLOCK -->
 
 /**
- * Résout un numéro de protocole réseau en version Minecraft affichable.
+ * Resolves a network protocol number to a displayable Minecraft version.
  *
- * @returns la version (ex. "1.21.4", "1.21.7 - 1.21.8"), ou `null` si :
- * - le protocole est absent, inconnu ou sentinelle (<= 0 : maintenance, MOTD custom),
- * - le serveur est Bedrock (numérotation différente, non couverte).
+ * @returns the version (e.g. "1.21.4", "1.21.7 - 1.21.8"), or `null` if:
+ * - the protocol is missing, unknown or a sentinel value (<= 0: maintenance,
+ *   custom MOTD),
+ * - the server is Bedrock (different numbering, not covered).
  */
 export function resolveProtocolVersion(
     protocolVersion: number | null | undefined,

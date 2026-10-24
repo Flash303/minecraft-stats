@@ -3,11 +3,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import { SERVERS_QUERY_KEY, SERVERS_SEARCH_QUERY_KEY } from "@/core/lib/query-keys"
 
 /**
- * Retourne un callback qui invalide les caches globaux de la liste des
- * serveurs (home + recherche Ctrl+K) pour forcer un refetch client.
+ * Returns a callback that invalidates the global server list caches
+ * (home + Ctrl+K search) to force a client refetch.
  *
- * À appeler après toute mutation qui change la liste ou son contenu :
- * ajout, suppression, renommage, changement d'IP/favicon, visibilité.
+ * Call it after any mutation that changes the list or its content:
+ * add, delete, rename, IP/favicon change, visibility.
  */
 export function useInvalidateServers() {
     const queryClient = useQueryClient()
