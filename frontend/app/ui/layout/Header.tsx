@@ -20,11 +20,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/ui/components/sheet"
 import { VisuallyHidden } from "radix-ui"
 
-interface HeaderProps {
-    leftContent?: React.ReactNode
-}
-
-export function Header({ leftContent }: HeaderProps) {
+export function Header() {
     const { isSignedIn, isLoaded } = useAuth()
     const { searchQuery, setSearchQuery, triggerRefresh } = useSearch()
     const { language, setLanguage, t } = useLanguage()
@@ -91,48 +87,46 @@ export function Header({ leftContent }: HeaderProps) {
                 
                 {/* Left: Branding & Navigation */}
                 <div className="flex items-center gap-6 min-w-0">
-                    {leftContent || (
-                        <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                            <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-                                <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
-                                <span className="font-bold tracking-tight hidden xs:inline-block text-foreground text-sm sm:text-base">
-                                    {t("header.title")}
-                                </span>
+                    <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+                            <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
+                            <span className="font-bold tracking-tight hidden xs:inline-block text-foreground text-sm sm:text-base">
+                                {t("header.title")}
+                            </span>
+                        </Link>
+                        
+                        {/* Desktop Nav Links */}
+                        <nav className="hidden md:flex items-center gap-2 lg:gap-3">
+                            <Link 
+                                to="/" 
+                                className={getLinkClass("/")}
+                            >
+                                {t("common.home")}
                             </Link>
-                            
-                            {/* Desktop Nav Links */}
-                            <nav className="hidden md:flex items-center gap-2 lg:gap-3">
+                            <Link 
+                                to="/compare" 
+                                className={getLinkClass("/compare")}
+                            >
+                                {t("common.compare")}
+                            </Link>
+                            {isSignedIn && (
                                 <Link 
-                                    to="/" 
-                                    className={getLinkClass("/")}
+                                    to="/account/servers" 
+                                    className={getLinkClass("/account/servers")}
                                 >
-                                    {t("common.home")}
+                                    {t("common.mySpace")}
                                 </Link>
+                            )}
+                            {isSignedIn && isAdmin && (
                                 <Link 
-                                    to="/compare" 
-                                    className={getLinkClass("/compare")}
+                                    to="/dashboard" 
+                                    className={getLinkClass("/dashboard")}
                                 >
-                                    {t("common.compare")}
+                                    {t("header.admin")}
                                 </Link>
-                                {isSignedIn && (
-                                    <Link 
-                                        to="/account/servers" 
-                                        className={getLinkClass("/account/servers")}
-                                    >
-                                        {t("common.mySpace")}
-                                    </Link>
-                                )}
-                                {isSignedIn && isAdmin && (
-                                    <Link 
-                                        to="/dashboard" 
-                                        className={getLinkClass("/dashboard")}
-                                    >
-                                        {t("header.admin")}
-                                    </Link>
-                                )}
-                            </nav>
-                        </div>
-                    )}
+                            )}
+                        </nav>
+                    </div>
                 </div>
                 
                 {/* Middle: Desktop Search Bar (hidden on mobile) */}
