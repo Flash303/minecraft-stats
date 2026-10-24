@@ -83,7 +83,7 @@ function StatusTab({
         <button
             onClick={onClick}
             className={cn(
-                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer",
+                "flex min-h-9 items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer",
                 active
                     ? color
                         ? activeStyles[color]
@@ -186,7 +186,7 @@ function SortControl({
                                 }
                             }}
                             className={cn(
-                                "w-full flex items-center justify-center gap-1.5 text-xs py-2 px-1.5 rounded-lg font-medium transition-all whitespace-nowrap cursor-pointer",
+                                "flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg px-1.5 py-2 text-xs font-medium transition-all cursor-pointer",
                                 isActive
                                     ? "bg-card shadow-sm text-foreground font-semibold"
                                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -200,11 +200,11 @@ function SortControl({
                             }
                         >
                             {opt.icon && (
-                                <span className="shrink-0 flex items-center justify-center">
+                                <span className="flex shrink-0 items-center justify-center">
                                     {opt.icon}
                                 </span>
                             )}
-                            <span className="shrink-0">{opt.label}</span>
+                            <span className="min-w-0 truncate">{opt.label}</span>
                             {isActive && (
                                 direction === "asc" ? (
                                     <ArrowUp aria-hidden="true" className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />

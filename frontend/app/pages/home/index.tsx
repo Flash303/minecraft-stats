@@ -20,6 +20,7 @@ import { SERVERS_QUERY_KEY } from "@/core/lib/query-keys"
 import { Hero3D } from "@/pages/home/components/Hero3D"
 import { FaqSection } from "@/pages/home/components/FaqSection"
 import { Pagination } from "@/ui/components/pagination"
+import { PageContainer } from "@/ui/layout/PageContainer"
 
 import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import type { Language } from "@/core/lib/i18n"
@@ -107,15 +108,15 @@ function ServerListFallback() {
     return (
         <>
             <Hero3D servers={[]} />
-            <div className="mx-auto max-w-6xl scroll-mt-20 px-2 pt-8">
+            <PageContainer className="scroll-mt-20 pt-8">
                 {/* Placeholder for the filters */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4 h-[72px]"></div>
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3">
+                <div className="mb-8 flex h-[72px] flex-col justify-between gap-4 border-b border-border/50 pb-4 sm:h-[56px] sm:flex-row sm:items-center"></div>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <ServerCardSkeleton key={i} />
                     ))}
                 </div>
-            </div>
+            </PageContainer>
         </>
     )
 }
@@ -326,10 +327,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         <>
             {!searchQuery && <Hero3D servers={servers} />}
 
-            <div
-                id="server-list-section"
-                className="mx-auto max-w-6xl scroll-mt-20 px-2 pt-8"
-            >
+            <PageContainer id="server-list-section" className="scroll-mt-20 pt-8">
                 <ServerListFilters
                     activeTab={activeTab}
                     setActiveTab={setActiveTab}
@@ -401,7 +399,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                         )}
                     </>
                 )}
-            </div>
+            </PageContainer>
             <FaqSection />
         </>
     )
