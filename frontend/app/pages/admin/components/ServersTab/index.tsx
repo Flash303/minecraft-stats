@@ -18,7 +18,7 @@ import { Button } from "@/ui/components/button"
 import { Badge } from "@/ui/components/badge"
 import { Link } from "react-router"
 import { Pagination } from "@/ui/components/pagination"
-import { resolveServerVersion } from "@/core/lib/utils"
+import { getServerIp, resolveServerVersion } from "@/core/lib/utils"
 import type { Server, User } from "@/core/lib/api"
 
 interface ServersTabProps {
@@ -315,7 +315,7 @@ export function ServersTab({
                                             </div>
                                         </td>
                                         <td className="p-4 font-mono font-medium text-muted-foreground">
-                                            {server.ip}:{server.port}
+                                            {getServerIp(server.ip, server.port, server.type).displayIp}
                                         </td>
                                         <td className="p-4">
                                             <span className={`inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
