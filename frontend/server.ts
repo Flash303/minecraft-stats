@@ -60,10 +60,10 @@ function getContentType(filePath: string): string {
 
 function getCacheControl(urlPath: string): string {
   if (urlPath === "/sw.js") {
-    // Le service worker doit être revalidé pour permettre les mises à jour
+    // The service worker must be revalidated to allow updates
     return "no-cache";
   }
-  // Assets fingerprintés par le build -> cache immuable
+  // Build-fingerprinted assets -> immutable cache
   if (urlPath.startsWith("/assets/") || /\.[0-9a-f]{8,}\./i.test(path.basename(urlPath))) {
     return "public, max-age=31536000, immutable";
   }
@@ -93,7 +93,7 @@ serve({
     // 1. Serve static files from build/client
     if (url.pathname !== "/") {
       const staticFilePath = path.resolve(CLIENT_DIR, "." + url.pathname);
-      // Défense en profondeur : le chemin résolu doit rester sous build/client
+      // Defense in depth: the resolved path must stay under build/client
       if (staticFilePath.startsWith(CLIENT_DIR + path.sep)) {
         const staticResponse = serveStaticFile(staticFilePath, url.pathname);
         if (staticResponse) return staticResponse;
@@ -115,8 +115,8 @@ serve({
       const cookieHeader = req.headers.get("Cookie") || "";
 
       const theme = cookieHeader.match(/theme=(light|dark)/)?.[1] || "default";
-      // Langue résolue comme le loader SSR (cookie -> Accept-Language) :
-      // chaque langue obtient sa propre entrée de cache, sans croisement.
+      // Language resolved like the SSR loader (cookie -> Accept-Language):
+      // each language gets its own cache entry, with no cross-contamination.
       const lang = parseLanguageCookie(cookieHeader) ?? resolveLanguageFromHeader(req.headers.get("Accept-Language"));
       const cacheKey = `${url.pathname}${url.search}|theme:${theme}|lang:${lang}`;
       const cached = isrCache.get(cacheKey);
@@ -142,7 +142,7 @@ serve({
         const clonedResponse = response.clone();
         const html = await clonedResponse.text();
 
-        // Bornage mémoire : éviction FIFO si le cache dépasse la limite
+        // Memory bound: FIFO eviction when the cache exceeds the limit
         if (isrCache.size >= ISR_CACHE_MAX_ENTRIES && !isrCache.has(cacheKey)) {
           const oldestKey = isrCache.keys().next().value;
           if (oldestKey !== undefined) isrCache.delete(oldestKey);

@@ -10,8 +10,8 @@ describe("formatMinecraftVersion", () => {
     })
 
     it("never returns raw custom names (reported bug)", () => {
-        // Serveur avec un nom de version custom : aucun motif X.Y(.Z) -> null,
-        // jamais la chaîne brute ("Version ᴏɴʟɪɴᴇ: 12136 ...").
+        // Server with a custom version name: no X.Y(.Z) pattern -> null,
+        // never the raw string ("Version ᴏɴʟɪɴᴇ: 12136 ...").
         expect(formatMinecraftVersion("ᴏɴʟɪɴᴇ: 12136 ɢʀᴀᴄᴢʏ")).toBeNull()
         expect(formatMinecraftVersion("Online: 12136")).toBeNull()
         expect(formatMinecraftVersion("Maintenance")).toBeNull()
@@ -33,7 +33,7 @@ describe("resolveProtocolVersion", () => {
     it("returns null for missing or sentinel protocols", () => {
         expect(resolveProtocolVersion(null, "java")).toBeNull()
         expect(resolveProtocolVersion(undefined, "java")).toBeNull()
-        // Protocole sentinelle (maintenance / MOTD custom) -> badge masqué
+        // Sentinel protocol (maintenance / custom MOTD) -> badge hidden
         expect(resolveProtocolVersion(-1, "java")).toBeNull()
         expect(resolveProtocolVersion(0, "java")).toBeNull()
     })

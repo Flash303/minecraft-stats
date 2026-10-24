@@ -113,7 +113,7 @@ export function UpdateFaviconModal({ server, onSuccess, triggerToast, t, open, o
                     <div className="grid gap-6 py-6">
                         <div className="flex flex-col items-center gap-4">
                             {preview ? (
-                                <img src={preview} alt="Preview" loading="lazy" decoding="async" className="w-16 h-16 object-contain rounded shadow border bg-muted" />
+                                <img src={preview} alt={t("adminFavicon.previewAlt")} loading="lazy" decoding="async" className="w-16 h-16 object-contain rounded shadow border bg-muted" />
                             ) : (
                                 <div className="w-16 h-16 rounded shadow border border-dashed flex items-center justify-center text-muted-foreground bg-muted">
                                     <ImageIcon className="h-6 w-6 opacity-50" />

@@ -5,6 +5,7 @@ import { useTheme } from "@/core/hooks/useTheme"
 import type { Server as ServerType } from "@/core/lib/api"
 import { formatNumber } from "@/core/lib/utils"
 import { resolveToken, withAlpha } from "@/core/lib/theme-colors"
+import { PageContainer } from "@/ui/layout/PageContainer"
 
 // Predefined heights for the graph nodes (representing server player count stats)
 // Canvas is 460x320. Y-axis is inverted in canvas (0 is top, 320 is bottom).
@@ -26,9 +27,9 @@ const points = defaultYValues.map((y, idx) => {
 })
 
 // Animated counter hook (module-level to comply with React rules of hooks).
-// SSR-safe : le compteur démarre toujours à 0 (comme le HTML serveur) et la
-// préférence `prefers-reduced-motion` n'est lue que dans l'effet, sinon le
-// premier rendu client diverge du SSR -> erreur d'hydratation #418.
+// SSR-safe: the counter always starts at 0 (matching the server HTML) and the
+// `prefers-reduced-motion` preference is only read inside the effect; otherwise
+// the first client render diverges from SSR -> hydration error #418.
 function useAnimatedCount(target: number, duration = 1200) {
     const [prevTarget, setPrevTarget] = useState(target)
     const [count, setCount] = useState(0)
@@ -38,8 +39,8 @@ function useAnimatedCount(target: number, duration = 1200) {
     }
     useEffect(() => {
         if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-            // Synchro au montage (pas de rendu serveur divergent : SSR et
-            // premier rendu client partent de 0).
+            // Sync on mount (no divergent server render: SSR and the first
+            // client render both start from 0).
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setCount(target)
             return
@@ -69,8 +70,8 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     const hoveredPointRef = useRef<number | null>(null)
     const isVisibleRef = useRef<boolean>(true)
 
-    // Mémoïsé : les compteurs animés provoquent ~60 re-renders/s pendant l'intro,
-    // il ne faut pas re-filtrer/réduire la liste à chaque frame.
+    // Memoized: the animated counters cause ~60 re-renders/s during the intro,
+    // so the list must not be re-filtered/reduced on every frame.
     const { totalServers, onlineServers, totalPlayers } = useMemo(() => {
         const visible = servers.filter(s => s.hidden !== true)
         const online = visible.filter(s => s.last_status === "online")
@@ -127,7 +128,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
         let animationFrameId: number
         let running = false
 
-        // Relance la boucle si elle s'est arrêtée (hero hors écran)
+        // Restart the loop if it stopped (hero off-screen)
         const startLoop = () => {
             if (!running) {
                 running = true
@@ -175,8 +176,8 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
         const render = () => {
             if (!isVisibleRef.current) {
-                // Hors écran : on arrête la boucle ; l'IntersectionObserver
-                // relancera le rendu quand le hero redeviendra visible.
+                // Off-screen: stop the loop; the IntersectionObserver will
+                // restart rendering once the hero becomes visible again.
                 running = false
                 return
             }
@@ -378,7 +379,7 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
             animationFrameId = requestAnimationFrame(render)
         }
 
-        // Pause/reprend l'animation selon la visibilité du hero
+        // Pause/resume the animation based on hero visibility
         const observer = new IntersectionObserver(
             ([entry]) => {
                 isVisibleRef.current = entry.isIntersecting
@@ -407,11 +408,11 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
     }
 
     return (
-        <div className="relative min-h-[58vh] flex flex-col items-center justify-center overflow-hidden py-12 px-4 border-b border-border/40">
+        <div className="relative flex min-h-[58svh] flex-col items-center justify-center overflow-hidden border-b border-border/40 py-12">
             {/* Ambient Background Grid Glows */}
-            <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-primary/10 blur-3xl -z-10" />
-            
-            <div className="max-w-6xl w-full flex flex-col lg:flex-row items-center justify-between gap-16 z-10">
+            <div className="absolute top-1/4 left-1/4 -z-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+
+            <PageContainer size="wide" className="z-10 flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
                 {/* Hero Text */}
                 <div className="flex-1 text-center lg:text-left space-y-6 max-w-xl">
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
@@ -434,46 +435,46 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
                     {/* Stats Row */}
                     <div className="flex flex-col gap-4 pt-6 pb-2">
-                        <div className="flex items-center justify-center lg:justify-start gap-5 sm:gap-8">
-                            <div className="flex flex-col items-center">
-                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums flex items-baseline">
-                                    {formatNumber(language, animatedTotal)}<span className="text-info text-xl sm:text-2xl font-extrabold">+</span>
+                        <div className="flex items-center justify-center gap-4 sm:gap-8 lg:justify-start">
+                            <div className="flex min-w-0 flex-col items-center">
+                                <p className="flex items-baseline text-xl font-extrabold text-foreground tabular-nums xs:text-2xl sm:text-3xl">
+                                    {formatNumber(language, animatedTotal)}<span className="text-info text-lg font-extrabold xs:text-xl sm:text-2xl">+</span>
                                 </p>
-                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="mt-0.5 text-center text-xs font-medium text-muted-foreground">
                                     {t("hero.stats.servers")}
                                 </p>
                             </div>
-                            
-                            <div className="w-[1px] h-8 bg-border/60"></div>
-                            
-                            <div className="flex flex-col items-center">
-                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+
+                            <div className="h-8 w-px shrink-0 bg-border/60" aria-hidden="true" />
+
+                            <div className="flex min-w-0 flex-col items-center">
+                                <p className="text-xl font-extrabold text-foreground tabular-nums xs:text-2xl sm:text-3xl">
                                     {formatNumber(language, animatedOnline)}
                                 </p>
-                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="mt-0.5 text-center text-xs font-medium text-muted-foreground">
                                     {t("hero.stats.online")}
                                 </p>
                             </div>
 
-                            <div className="w-[1px] h-8 bg-border/60"></div>
-                            
-                            <div className="flex flex-col items-center">
-                                <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+                            <div className="h-8 w-px shrink-0 bg-border/60" aria-hidden="true" />
+
+                            <div className="flex min-w-0 flex-col items-center">
+                                <p className="text-xl font-extrabold text-foreground tabular-nums xs:text-2xl sm:text-3xl">
                                     {formatNumber(language, animatedPlayers)}
                                 </p>
-                                <p className="text-xs sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                                <p className="mt-0.5 text-center text-xs font-medium text-muted-foreground">
                                     {t("hero.stats.players")}
                                 </p>
                             </div>
                         </div>
-                        
-                        <div className="flex flex-col items-center lg:items-start pl-0 lg:pl-1 mt-1">
+
+                        <div className="mt-1 flex flex-col items-center pl-0 lg:items-start lg:pl-1">
                             <div className="flex items-center gap-2">
-                                <div className="relative flex h-2 w-2">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-info opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-info"></span>
+                                <div className="relative flex size-2">
+                                    <span className="absolute inline-flex h-full w-full rounded-full bg-info opacity-75 motion-safe:animate-ping"></span>
+                                    <span className="relative inline-flex size-2 rounded-full bg-info"></span>
                                 </div>
-                                <span className="text-foreground font-bold text-xs tracking-wide">Live</span>
+                                <span className="text-xs font-bold tracking-wide text-foreground">Live</span>
                             </div>
                         </div>
                     </div>
@@ -482,23 +483,23 @@ export function Hero3D({ servers = [] }: { servers?: ServerType[] }) {
 
 
                 {/* 2D Animated Chart Canvas Area */}
-            <div 
-                ref={containerRef}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
-                className="flex flex-shrink-0 w-full max-w-[460px] aspect-[460/320] items-center justify-center relative bg-card rounded-3xl border border-border/60 shadow-lg shadow-primary/5 dark:shadow-none overflow-hidden"
-            >
-                <canvas 
-                    ref={canvasRef} 
-                    aria-hidden="true"
-                    style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "block",
-                    }}
-                />
-            </div>
-            </div>
+                <div
+                    ref={containerRef}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                    className="relative flex aspect-[460/320] w-full max-w-[460px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-card shadow-lg shadow-primary/5 sm:rounded-3xl dark:shadow-none"
+                >
+                    <canvas
+                        ref={canvasRef}
+                        aria-hidden="true"
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "block",
+                        }}
+                    />
+                </div>
+            </PageContainer>
         </div>
     )
 }

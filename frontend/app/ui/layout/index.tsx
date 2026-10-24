@@ -1,25 +1,23 @@
-import { useState } from "react"
-import type { ReactNode } from "react"
 import { Outlet } from "react-router"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 import { DocumentMetaSync } from "./DocumentMetaSync"
-import { LayoutContext } from "./LayoutContext"
 
 export default function Layout() {
-    const [leftContent, setLeftContent] = useState<ReactNode | undefined>()
-
     return (
-        <LayoutContext.Provider value={{ setLeftContent }}>
+        <>
             <DocumentMetaSync />
-            <div className="flex min-h-screen flex-col">
-                <Header leftContent={leftContent} />
-                <main className="container mx-auto flex-1 px-4 py-6">
+            {/* `min-h-dvh` keeps the footer at the bottom on mobile browsers
+                whose toolbar changes the visible viewport height. */}
+            <div className="flex min-h-dvh flex-col">
+                <Header />
+                {/* Pages own their horizontal gutters (PageContainer) so that
+                    full-bleed sections (hero, banners) can span the viewport. */}
+                <main id="main-content" className="flex-1">
                     <Outlet />
                 </main>
                 <Footer />
             </div>
-        </LayoutContext.Provider>
+        </>
     )
 }
-export * from "./LayoutContext"

@@ -73,7 +73,7 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="gap-2">
+                <Button size="sm" className="h-10 w-10 gap-2 px-0 sm:h-8 sm:w-auto sm:px-3">
                     <Plus className="h-4 w-4" />
                     <span className="hidden sm:inline">{t("addServer.button")}</span>
                 </Button>

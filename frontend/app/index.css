@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Plus Jakarta Sans self-hosté (variable 300-800 / italique 400-600),
-   les sous-ensembles latin/latin-ext/cyrillic-ext couvrent les locales du site. */
+/* Self-hosted Plus Jakarta Sans (variable 300-800 / italic 400-600);
+   latin/latin-ext/cyrillic-ext subsets cover the site locales. */
 @font-face {
   font-family: 'Plus Jakarta Sans';
   font-style: normal;
@@ -164,7 +164,7 @@
 
   --breakpoint-xs: 475px;
 
-  /* Micro-échelle typographique sous text-xs : badges, compteurs, métadonnées */
+  /* Typographic micro-scale below text-xs: badges, counters, metadata */
   --text-2xs: 0.625rem;
   --text-2xs--line-height: 1rem;
 

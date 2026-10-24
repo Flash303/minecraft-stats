@@ -53,7 +53,7 @@ interface ServerListFiltersProps {
     isRefreshing?: boolean
 }
 
-/** Bouton de filtre rapide (onglets de statut) */
+/** Quick filter button (status tabs) */
 function StatusTab({
     label,
     count,
@@ -83,7 +83,7 @@ function StatusTab({
         <button
             onClick={onClick}
             className={cn(
-                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer",
+                "flex min-h-9 items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer",
                 active
                     ? color
                         ? activeStyles[color]
@@ -113,7 +113,7 @@ function StatusTab({
     )
 }
 
-/** Contrôle segmenté générique avec icônes (basé sur radix ToggleGroup) */
+/** Generic segmented control with icons (based on radix ToggleGroup) */
 function SegmentedControl<T extends string>({
     options,
     value,
@@ -146,8 +146,8 @@ function SegmentedControl<T extends string>({
 }
 
 /**
- * Contrôle de tri : affiche les options de tri avec icônes, et sur l'option active,
- * un bouton ↑/↓ pour inverser la direction.
+ * Sort control: shows the sort options with icons, and on the active option,
+ * an ↑/↓ button to reverse the direction.
  */
 function SortControl({
     options,
@@ -186,7 +186,7 @@ function SortControl({
                                 }
                             }}
                             className={cn(
-                                "w-full flex items-center justify-center gap-1.5 text-xs py-2 px-1.5 rounded-lg font-medium transition-all whitespace-nowrap cursor-pointer",
+                                "flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg px-1.5 py-2 text-xs font-medium transition-all cursor-pointer",
                                 isActive
                                     ? "bg-card shadow-sm text-foreground font-semibold"
                                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -200,11 +200,11 @@ function SortControl({
                             }
                         >
                             {opt.icon && (
-                                <span className="shrink-0 flex items-center justify-center">
+                                <span className="flex shrink-0 items-center justify-center">
                                     {opt.icon}
                                 </span>
                             )}
-                            <span className="shrink-0">{opt.label}</span>
+                            <span className="min-w-0 truncate">{opt.label}</span>
                             {isActive && (
                                 direction === "asc" ? (
                                     <ArrowUp aria-hidden="true" className="w-3.5 h-3.5 text-primary shrink-0 ml-0.5" />
@@ -258,7 +258,7 @@ export function ServerListFilters({
 
     const FilterContent = () => (
         <>
-            {/* En-tête (affiché uniquement sur Desktop ou dans le Drawer pour le bouton reset) */}
+            {/* Header (only shown on Desktop or inside the Drawer for the reset button) */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/80">
                 <span className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <ListFilter aria-hidden="true" className="w-4 h-4 text-primary" />
@@ -276,7 +276,7 @@ export function ServerListFilters({
             </div>
 
             <div className="p-5 space-y-5">
-                {/* TRI */}
+                {/* SORT */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <p className="text-xs font-semibold text-muted-foreground">
@@ -313,7 +313,7 @@ export function ServerListFilters({
                         }
                     />
                     <p className="text-xs text-muted-foreground/60 text-center">
-                        Cliquez à nouveau sur l'option active pour inverser l'ordre
+                        {t("serverList.filters.sortToggleHint")}
                     </p>
                 </div>
 
@@ -347,7 +347,7 @@ export function ServerListFilters({
                     />
                 </div>
 
-                {/* PLATEFORME */}
+                {/* PLATFORM */}
                 <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground">
                         {t("serverList.filters.platform")}
@@ -380,7 +380,7 @@ export function ServerListFilters({
 
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-border/50 pb-4">
-            {/* Onglets de statut */}
+            {/* Status tabs */}
             <div className="flex flex-wrap items-center gap-1.5">
                 <StatusTab
                     label={t("serverList.filters.all")}
@@ -413,7 +413,7 @@ export function ServerListFilters({
                 )}
             </div>
 
-            {/* Actions: Actualiser & Filtres/Tri */}
+            {/* Actions: Refresh & Filters/Sort */}
             <div className="w-full sm:w-auto flex items-center justify-end gap-2">
                 {onRefresh && (
                     <button
@@ -492,8 +492,8 @@ export function ServerListFilters({
                         </DrawerTrigger>
                         <DrawerContent>
                             <VisuallyHidden.Root>
-                                <DrawerTitle>Filtres de serveurs</DrawerTitle>
-                                <DrawerDescription>Affinez la liste des serveurs affichés.</DrawerDescription>
+                                <DrawerTitle>{t("serverList.filters.drawerTitle")}</DrawerTitle>
+                                <DrawerDescription>{t("serverList.filters.drawerDescription")}</DrawerDescription>
                             </VisuallyHidden.Root>
                             {FilterContent()}
                         </DrawerContent>

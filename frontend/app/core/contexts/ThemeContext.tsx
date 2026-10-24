@@ -17,9 +17,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export { ThemeContext }
 
 export function ThemeProvider({ children, serverTheme }: { children: ReactNode, serverTheme?: Theme | null }) {
-    // Le cookie SSR est la source de vérité ; sans cookie (première visite),
-    // on résout la préférence système de manière synchrone pour rester
-    // cohérent avec le script anti-flash du <head> (root.tsx).
+    // The SSR cookie is the source of truth; without a cookie (first visit),
+    // resolve the system preference synchronously to stay consistent with the
+    // anti-flash script in <head> (root.tsx).
     const [theme, setTheme] = useState<Theme>(() => {
         if (serverTheme) return serverTheme
         if (typeof window !== "undefined" && !window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -28,9 +28,9 @@ export function ThemeProvider({ children, serverTheme }: { children: ReactNode, 
         return "dark"
     })
 
-    // Applique la classe et persiste le cookie (y compris au montage : la
-    // préférence système devient ainsi le thème servi par le SSR à la
-    // prochaine visite). Idempotent, aucun flash possible.
+    // Apply the class and persist the cookie (including on mount: the system
+    // preference thus becomes the theme served by SSR on the next visit).
+    // Idempotent, so no flash is possible.
     useEffect(() => {
         document.cookie = `theme=${theme}; path=/; max-age=31536000; SameSite=Lax`
         document.documentElement.classList.toggle("dark", theme === "dark")

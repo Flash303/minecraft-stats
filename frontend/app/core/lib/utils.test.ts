@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest"
 import { registerTranslations } from "./i18n"
 import { formatDate, formatNumber } from "./utils"
 
-// Dictionnaires minimaux : formatDate ne dépend que de common.months et
-// common.dateFormat (même contrat que les locales réelles).
+// Minimal dictionaries: formatDate only depends on common.months and
+// common.dateFormat (same contract as the real locales).
 registerTranslations("fr", {
     common: {
         months: {
@@ -16,9 +16,9 @@ registerTranslations("fr", {
 })
 
 describe("formatDate", () => {
-    // 13 octobre 2026 23:30 UTC : en Europe/Paris (UTC+2) il est déjà le 14,
-    // à Kiritimati (UTC+14) le 14 à 13:30. Avec des getters locaux, le HTML
-    // SSR (UTC) et le rendu client divergeaient -> erreur d'hydratation #418.
+    // 13 October 2026 23:30 UTC: in Europe/Paris (UTC+2) it is already the
+    // 14th, in Kiritimati (UTC+14) the 14th at 13:30. With local getters, the
+    // SSR HTML (UTC) and the client render diverged -> hydration error #418.
     const nearMidnightUtc = Date.UTC(2026, 9, 13, 23, 30)
 
     it("renders the same UTC calendar date regardless of runtime timezone", () => {

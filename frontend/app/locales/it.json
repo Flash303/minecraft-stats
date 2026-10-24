@@ -62,7 +62,15 @@
   "header": {
     "title": "Statistiche Minecraft",
     "signIn": "Accedi",
-    "admin": "Amministratore"
+    "admin": "Amministratore",
+    "openMenu": "Apri menu",
+    "closeMenu": "Chiudi menu",
+    "openSearch": "Apri ricerca",
+    "closeSearch": "Chiudi ricerca",
+    "navigation": "Navigazione",
+    "navigationDescription": "Menu di navigazione principale",
+    "selectLanguage": "Seleziona lingua",
+    "language": "Lingua"
   },
   "addServer": {
     "button": "Aggiungi server",
@@ -109,6 +117,9 @@
       "reset": "Reimposta",
       "sortAscTitle": "Ordine crescente",
       "sortDescTitle": "Ordine decrescente",
+      "sortToggleHint": "Fai di nuovo clic sull'opzione attiva per invertire l'ordine",
+      "drawerTitle": "Filtri dei server",
+      "drawerDescription": "Affina l'elenco dei server visualizzati.",
       "laby": "LabyClient"
     }
   },
@@ -299,6 +310,7 @@
     "refresh": "Aggiorna",
     "updatedAt": "Aggiornato alle {{time}}",
     "close": "Chiudi",
+    "navLabel": "Sezioni della dashboard",
     "openMenu": "Apri menu"
   },
   "alerts": {
@@ -309,6 +321,7 @@
     "noAlerts": "Nessun avviso configurato per questo server.",
     "typeLabel": "Tipo di Avviso",
     "thresholdLabel": "Soglia Giocatori (x)",
+    "thresholdPlaceholder": "Es.: 10",
     "addAlert": "Aggiungi Avviso",
     "delete": "Elimina",
     "types": {
@@ -496,6 +509,7 @@
     "description": "Carica un'immagine per sovrascrivere la favicon del server. Sarà automaticamente ridimensionata a 64x64 e convertita.",
     "upload": "Carica un'immagine",
     "reset": "Reimposta",
-    "empty": "Nessuna immagine impostata. La favicon si aggiornerà automaticamente dal gioco."
+    "empty": "Nessuna immagine impostata. La favicon si aggiornerà automaticamente dal gioco.",
+    "previewAlt": "Anteprima"
   }
 }

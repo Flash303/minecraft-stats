@@ -6,6 +6,8 @@ import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useToast } from "@/core/hooks/useToast"
 import { useInvalidateServers } from "@/core/hooks/useInvalidateServers"
+import { useMediaQuery } from "@/core/hooks/useMediaQuery"
+import { resolveMetaLanguage, siteTitle } from "@/core/lib/seo-meta"
 import { fetchAdminUsers, fetchServers, toggleServerVisibility } from "@/core/lib/api"
 import type { User, Server } from "@/core/lib/api"
 import { Button } from "@/ui/components/button"
@@ -36,12 +38,13 @@ import { ThemeToggle } from "@/ui/layout/ThemeToggle"
 
 type ActiveTab = "overview" | "users" | "servers"
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
+    const lang = resolveMetaLanguage(matches)
     return [
-        { title: "Admin Dashboard | Minecraft-Stats" },
+        { title: siteTitle(lang, "admin.title") },
         { name: "robots", content: "noindex, nofollow" }
-    ];
-};
+    ]
+}
 
 export default function AdminDashboard() {
     const { t, language, setLanguage } = useLanguage()
@@ -51,7 +54,7 @@ export default function AdminDashboard() {
     const navigate = useNavigate()
 
     const getUserDisplayName = (user?: User | null) => {
-        if (!user) return "Unknown"
+        if (!user) return t("profile.defaultUser")
         if (user.first_name) {
             return user.last_name ? `${user.first_name} ${user.last_name}` : user.first_name
         }
@@ -72,6 +75,28 @@ export default function AdminDashboard() {
     }
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    // Desktop keeps the sidebar permanently visible: only the mobile drawer
+    // needs to be hidden from assistive tech / made inert when closed.
+    const isDesktop = useMediaQuery("(min-width: 768px)")
+
+    useEffect(() => {
+        if (!isSidebarOpen) return
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") setIsSidebarOpen(false)
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [isSidebarOpen])
+
+    // Prevent the page behind the mobile drawer from scrolling.
+    useEffect(() => {
+        if (!isSidebarOpen || isDesktop) return
+        const previousOverflow = document.body.style.overflow
+        document.body.style.overflow = "hidden"
+        return () => {
+            document.body.style.overflow = previousOverflow
+        }
+    }, [isSidebarOpen, isDesktop])
 
     // Data states
     const [users, setUsers] = useState<User[]>([])
@@ -106,9 +131,9 @@ export default function AdminDashboard() {
         }
     }, [isAdmin, getToken, t, triggerToast])
 
-    // Après une mutation (delete/rename/IP/favicon/visibilité) : on recharge le
-    // tableau admin ET on invalide le cache global pour que la home et le
-    // Ctrl+K reflètent le changement sans attendre l'expiration du staleTime.
+    // After a mutation (delete/rename/IP/favicon/visibility): reload the admin
+    // table AND invalidate the global cache so the home page and Ctrl+K reflect
+    // the change without waiting for staleTime to expire.
     const refreshAfterMutation = useCallback(() => {
         loadData()
         invalidateServers()
@@ -149,7 +174,7 @@ export default function AdminDashboard() {
     // 1. Loading Permissions Check
     if (!isLoaded || loadingAdmin) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+            <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background">
                 <RefreshCw className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-muted-foreground animate-pulse text-sm font-medium">
                     {t("admin.loading")}
@@ -161,7 +186,7 @@ export default function AdminDashboard() {
     // 2. Unauthorized screen
     if (!isSignedIn || !isAdmin) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background px-4">
+            <div className="flex min-h-dvh items-center justify-center bg-background px-4">
                 <div className="flex max-w-md w-full flex-col items-center justify-center gap-6 text-center bg-card p-8 rounded-2xl border shadow-lg">
                     <div className="rounded-full bg-destructive/15 p-4 text-destructive">
                         <ShieldAlert className="h-10 w-10" />
@@ -193,32 +218,37 @@ export default function AdminDashboard() {
     ]
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans">
+        <div className="min-h-dvh bg-background text-foreground flex flex-col md:flex-row font-sans">
 
             {/* Sidebar Navigation */}
-            <aside className={`fixed md:sticky top-0 z-40 h-screen w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 ${
-                isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}>
+            <aside
+                aria-label={t("admin.title")}
+                aria-hidden={!isDesktop && !isSidebarOpen ? true : undefined}
+                inert={!isDesktop && !isSidebarOpen}
+                className={`fixed md:sticky top-0 z-40 h-dvh w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col flex-shrink-0 transition-transform duration-300 md:translate-x-0 ${
+                    isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                }`}
+            >
                 {/* Sidebar Header */}
-                <div className="h-14 border-b px-6 flex items-center justify-between">
+                <div className="h-14 border-b px-4 sm:px-6 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
-                        <img src={logo} alt="Logo" decoding="async" className="h-6 w-6 object-contain rounded-md" />
+                        <img src={logo} alt="" decoding="async" className="h-6 w-6 object-contain rounded-md" />
                         <span className="font-bold tracking-tight text-foreground text-sm">
-                            {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">Admin</span>
+                            {t("header.title")} <span className="text-xs text-primary font-mono ml-0.5">{t("header.admin")}</span>
                         </span>
                     </Link>
                     <button
                         type="button"
                         onClick={() => setIsSidebarOpen(false)}
                         aria-label={t("admin.close")}
-                        className="md:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
+                        className="md:hidden h-9 w-9 flex items-center justify-center rounded-lg hover:bg-muted text-muted-foreground cursor-pointer transition-colors"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
                 {/* Sidebar Navigation Items */}
-                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label="Dashboard sections">
+                <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto" aria-label={t("admin.navLabel")}>
                     <p className="px-3 pb-2 text-2xs font-bold uppercase tracking-widest text-muted-foreground/70">
                         {t("admin.title")}
                     </p>
@@ -268,10 +298,10 @@ export default function AdminDashboard() {
             )}
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+            <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-y-auto">
 
                 {/* Header panel */}
-                <header className="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-6 flex-shrink-0 shadow-xs gap-3">
+                <header className="sticky top-0 z-20 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-4 sm:px-6 flex-shrink-0 shadow-xs gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                         <button
                             type="button"
@@ -321,7 +351,7 @@ export default function AdminDashboard() {
                 </header>
 
                 {/* Main page view scroll container */}
-                <main className="flex-1 p-6 md:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto flex flex-col gap-6">
 
                     {/* TAB VIEW CONTROLLERS */}
 

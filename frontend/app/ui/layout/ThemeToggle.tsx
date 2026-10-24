@@ -8,12 +8,12 @@ export function ThemeToggle() {
     const { t } = useLanguage()
 
     return (
-        // Sans cookie de thème, le SSR suppose "dark" alors que le client
-        // résout `prefers-color-scheme` : l'icône peut diverger au premier
-        // rendu (corrigée juste après par l'effet). Divergence attendue et
-        // bénigne, on coupe l'avertissement d'hydratation (même approche que
-        // `suppressHydrationWarning` sur <html> dans root.tsx).
-        <Button variant="outline" size="icon" onClick={toggleTheme} suppressHydrationWarning>
+        // Without a theme cookie, SSR assumes "dark" while the client resolves
+        // `prefers-color-scheme`: the icon may diverge on first render (fixed
+        // right after by the effect). This divergence is expected and benign,
+        // so the hydration warning is suppressed (same approach as
+        // `suppressHydrationWarning` on <html> in root.tsx).
+        <Button variant="outline" size="icon" className="size-10" onClick={toggleTheme} suppressHydrationWarning>
             {theme === "light" ? (
                 <Moon className="h-4 w-4" />
             ) : (

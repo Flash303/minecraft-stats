@@ -95,7 +95,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
 
     const switchTimerRef = useRef<number | null>(null);
 
-    // Nettoie le timer de transition au démontage
+    // Clear the transition timer on unmount
     useEffect(() => {
         return () => {
             if (switchTimerRef.current !== null) clearTimeout(switchTimerRef.current);
@@ -328,7 +328,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                         <div className="aspect-video w-full rounded-md overflow-hidden border">
                             <iframe 
                                 src={`https://www.youtube.com/embed/${labyManifest.yt_trailer}`}
-                                title="YouTube Trailer"
+                                title={t("serverDetail.sidebar.trailer")}
                                 className="w-full h-full"
                                 allowFullScreen
                             />
@@ -513,7 +513,7 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                         <div className="aspect-video w-full rounded-md overflow-hidden border">
                             <iframe 
                                 src={`https://www.youtube.com/embed/${lunarServerInfo.presentationVideo}`}
-                                title="YouTube Trailer"
+                                title={t("serverDetail.sidebar.trailer")}
                                 className="w-full h-full"
                                 allowFullScreen
                             />

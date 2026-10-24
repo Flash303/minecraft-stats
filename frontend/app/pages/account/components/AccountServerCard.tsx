@@ -11,7 +11,7 @@ export function AccountServerCard({ server, onSuccess }: AccountServerCardProps)
     return (
         <div className="relative group">
             <ServerCard server={server} to={`/server/${server.id}`} />
-            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity z-10 bg-background/95 backdrop-blur-md rounded-lg shadow-sm border border-border p-0.5">
+            <div className="absolute top-3 right-3 z-10 rounded-lg border border-border bg-background/95 p-0.5 opacity-100 shadow-sm backdrop-blur-md transition-opacity focus-within:opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                 <RenameServerModalButton server={server} onSuccess={onSuccess} />
             </div>
         </div>

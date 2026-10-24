@@ -2,7 +2,7 @@ import { MiniChartSkeleton } from "./MiniChartSkeleton"
 
 export function ServerCardSkeleton() {
     return (
-        <div className="relative flex flex-col justify-between shadow-sm border border-border/80 bg-card/95 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] animate-pulse">
+        <div className="relative flex h-full w-full animate-pulse flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-5 shadow-sm backdrop-blur-sm min-h-[185px]">
             {/* Top row */}
             <div className="flex flex-row gap-4 w-full min-w-0 items-start">
                 {/* Favicon Skeleton */}

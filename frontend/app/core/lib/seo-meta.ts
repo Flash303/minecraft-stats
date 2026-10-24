@@ -90,6 +90,65 @@ export function canonicalLink(path: string) {
     return { tagName: "link", rel: "canonical", href: `${APP_URL}${path}` } as const;
 }
 
+export const DEFAULT_FAVICON_URL = "/logo.webp";
+
+/**
+ * Same-origin URL serving the server's Minecraft icon.
+ * Goes through the frontend `/api/favicon/:id` route (301 to the backend
+ * icon endpoint) instead of hitting the backend directly: no cross-origin
+ * request, consistent with the app CSP, standard browser caching.
+ * No `type` attribute on purpose: the backend serves `image/png` when the
+ * server has a custom icon and `image/webp` (default) otherwise.
+ */
+export function getServerFaviconUrl(serverId: number | string): string {
+    return `/api/favicon/${serverId}`;
+}
+
+export function serverFaviconLink(serverId: number | string) {
+    return {
+        tagName: "link",
+        rel: "icon",
+        href: getServerFaviconUrl(serverId),
+    } as const;
+}
+
+/**
+ * Client-side live sync of `<link rel="icon">` for the current server.
+ * The SSR `meta()` already renders the right link for first paint/crawlers;
+ * this covers client-side navigations and late server updates (the loader
+ * data can arrive after hydration) and restores the default icon on cleanup
+ * so leaving the page never leaks the previous server's icon.
+ * Returns a cleanup function to run on unmount/id change.
+ */
+export function syncServerFavicon(serverId: number | string): () => void {
+    if (typeof document === "undefined") return () => {};
+    const href = getServerFaviconUrl(serverId);
+    const links = Array.from(
+        document.head.querySelectorAll<HTMLLinkElement>('link[rel="icon"]')
+    );
+    const previous = links.map(
+        (link) => link.getAttribute("href") ?? DEFAULT_FAVICON_URL
+    );
+    let created: HTMLLinkElement | null = null;
+    if (links.length === 0) {
+        created = document.createElement("link");
+        created.rel = "icon";
+        created.href = href;
+        document.head.appendChild(created);
+    } else {
+        for (const link of links) link.href = href;
+    }
+    return () => {
+        if (created) {
+            created.remove();
+        } else {
+            links.forEach((link, i) => {
+                link.href = previous[i] ?? DEFAULT_FAVICON_URL;
+            });
+        }
+    };
+}
+
 export function staticPageMeta(opts: { title: string; description: string; path: string }) {
     const url = `${APP_URL}${opts.path}`;
     const image = `${APP_URL}/opengraph.webp`;

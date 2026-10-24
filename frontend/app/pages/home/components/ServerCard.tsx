@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, lazy, Suspense } from "react"
+import { lazy, Suspense } from "react"
 import type { Server } from "@/core/lib/api"
 const MiniChart = lazy(() => import("./MiniChart").then(m => ({ default: m.MiniChart })))
 import { MiniChartSkeleton } from "./MiniChartSkeleton"
-import { cn, getServerIp, copyServerIp, resolveServerVersion, formatNumber } from "@/core/lib/utils"
+import { cn, getServerIp, resolveServerVersion, formatNumber } from "@/core/lib/utils"
+import { useCopyServerIp } from "@/core/hooks/useCopyServerIp"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
 import { Check, Copy, Wifi, WifiOff } from "lucide-react"
@@ -13,7 +14,7 @@ import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 interface ServerCardProps {
     server: Server
@@ -22,15 +23,8 @@ interface ServerCardProps {
 
 export function ServerCard({ server, to }: ServerCardProps) {
     const { t, language } = useLanguage()
-    const [copied, setCopied] = useState(false)
-    const copiedTimerRef = useRef<number | null>(null)
-
-    // Nettoie le timer de feedback "copié" au démontage
-    useEffect(() => {
-        return () => {
-            if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        }
-    }, [])
+    const navigate = useNavigate()
+    const { copied, copy } = useCopyServerIp(server.ip, server.port, server.type)
 
     const isOnline = server.last_status === "online"
     const isOffline = server.last_status === "offline"
@@ -45,17 +39,41 @@ export function ServerCard({ server, to }: ServerCardProps) {
     const handleCopy = (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
-        copyServerIp(server.ip, server.port, server.type).then()
-        setCopied(true)
-        if (copiedTimerRef.current !== null) clearTimeout(copiedTimerRef.current)
-        copiedTimerRef.current = window.setTimeout(() => setCopied(false), 2000)
+        copy()
+    }
+
+    // Whole-card mouse navigation (the name link stays the keyboard /
+    // screen-reader path). Guards keep everyday interactions intact:
+    // - the copy button stops propagation before reaching here,
+    // - a text selection is never hijacked into a navigation,
+    // - modifier/middle clicks keep their "open in new tab" behavior.
+    const openTarget = (newTab: boolean) => {
+        if (!to) return
+        if (newTab) window.open(to, "_blank", "noopener")
+        else navigate(to)
+    }
+
+    const handleCardClick = (e: React.MouseEvent) => {
+        if (e.button !== 0) return
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+            openTarget(true)
+            return
+        }
+        if (window.getSelection()?.toString()) return
+        openTarget(false)
+    }
+
+    const handleCardAuxClick = (e: React.MouseEvent) => {
+        if (e.button === 1) openTarget(true)
     }
 
     return (
         <div
+            onClick={to ? handleCardClick : undefined}
+            onAuxClick={to ? handleCardAuxClick : undefined}
             className={cn(
-                "relative flex flex-col justify-between shadow-sm border border-border/80 bg-card/95 backdrop-blur-sm p-5 w-full rounded-2xl h-[185px] transition-all duration-300 ease-in-out group",
-                to ? "hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
+                "relative flex w-full flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-5 shadow-sm backdrop-blur-sm min-h-[185px] h-full transition-all duration-300 ease-in-out group",
+                to ? "cursor-pointer hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
             )}
         >
             {/* Top row: Favicon, Name, IP address, and Player/Status */}
@@ -73,7 +91,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
                     <div className="flex items-center gap-1.5 min-w-0">
                         {to ? (
-                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
+                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus-visible:underline focus-visible:outline-none">
                                 {server.name}
                             </Link>
                         ) : (
@@ -87,7 +105,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                     
                     <button 
                         onClick={handleCopy}
-                        aria-label={`Copier l'IP du serveur ${server.name}`}
+                        aria-label={`${t("common.copy")} ${displayIp}`}
                         className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
                     >
                         <span className="truncate">{displayIp}</span>
@@ -100,7 +118,7 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 </div>
 
                 {/* Player count / status indicator */}
-                <div className="flex-shrink-0 flex flex-col items-end gap-0.5 pt-0.5">
+                <div className="flex shrink-0 flex-col items-end gap-0.5 pt-0.5">
                     <div className="flex flex-row items-center gap-1.5">
                         {isOnline ? (
                             <>
@@ -159,22 +177,22 @@ export function ServerCard({ server, to }: ServerCardProps) {
             </div>
 
             {/* Bottom row: Version badge and stats info */}
-            <div className="flex flex-row items-center justify-between gap-2 w-full pt-2 border-t border-border/30">
-                <div className="flex flex-row items-center gap-1.5 truncate">
-                    {server.type && <PlatformBadge type={server.type} />}
+            <div className="flex w-full flex-row items-center justify-between gap-2 border-t border-border/30 pt-2">
+                <div className="flex min-w-0 flex-row items-center gap-1.5 overflow-hidden">
+                    {server.type && <PlatformBadge type={server.type} className="shrink-0" />}
                     {displayVersion ? (
-                        <span className="inline-flex items-center rounded-lg border border-border/50 px-2 py-0.5 text-2xs font-semibold bg-muted/50 text-muted-foreground shadow-xs whitespace-nowrap">
-                            {t("common.version", { version: displayVersion })}
+                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                            <span className="truncate">{t("common.version", { version: displayVersion })}</span>
                         </span>
                     ) : (
-                        <span className="inline-flex items-center rounded-lg border border-border/40 px-2 py-0.5 text-2xs font-semibold bg-muted/30 text-muted-foreground shadow-xs whitespace-nowrap">
-                            {t("common.unknownVersion")}
+                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                            <span className="truncate">{t("common.unknownVersion")}</span>
                         </span>
                     )}
                 </div>
 
                 <div className={cn(
-                    "flex items-center gap-1 text-2xs font-medium",
+                    "flex shrink-0 items-center gap-1 text-2xs font-medium",
                     isOnline ? "text-success" : "text-destructive"
                 )}>
                     {isOnline ? <Wifi aria-hidden="true" className="h-3 w-3" /> : <WifiOff aria-hidden="true" className="h-3 w-3" />}

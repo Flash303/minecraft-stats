@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "Connexion",
-    "admin": "Admin"
+    "admin": "Admin",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "openSearch": "Ouvrir la recherche",
+    "closeSearch": "Fermer la recherche",
+    "navigation": "Navigation",
+    "navigationDescription": "Menu de navigation principal",
+    "selectLanguage": "Choisir la langue",
+    "language": "Langue"
   },
   "addServer": {
     "button": "Ajouter un serveur",
@@ -109,6 +117,9 @@
       "reset": "Réinitialiser",
       "sortAscTitle": "Ordre croissant",
       "sortDescTitle": "Ordre décroissant",
+      "sortToggleHint": "Cliquez à nouveau sur l'option active pour inverser l'ordre",
+      "drawerTitle": "Filtres de serveurs",
+      "drawerDescription": "Affinez la liste des serveurs affichés.",
       "laby": "LabyClient"
     }
   },
@@ -299,6 +310,7 @@
     "refresh": "Rafraîchir",
     "updatedAt": "Mis à jour à {{time}}",
     "close": "Fermer",
+    "navLabel": "Sections du tableau de bord",
     "openMenu": "Ouvrir le menu"
   },
   "alerts": {
@@ -309,6 +321,7 @@
     "noAlerts": "Aucune alerte configurée pour ce serveur.",
     "typeLabel": "Type d'alerte",
     "thresholdLabel": "Seuil de joueurs (x)",
+    "thresholdPlaceholder": "Ex : 10",
     "addAlert": "Ajouter l'alerte",
     "delete": "Supprimer",
     "types": {
@@ -496,6 +509,7 @@
     "description": "Uploadez une image pour forcer le favicon du serveur. Elle sera automatiquement redimensionnée en 64x64 et convertie.",
     "upload": "Uploader une image",
     "reset": "Réinitialiser",
-    "empty": "Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu."
+    "empty": "Aucune image configurée. Le favicon sera mis à jour automatiquement depuis le jeu.",
+    "previewAlt": "Aperçu"
   }
 }

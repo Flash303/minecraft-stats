@@ -31,8 +31,9 @@ export function AccountAlertsTab({
     handleDeleteAlert
 }: AccountAlertsTabProps) {
     return (
-        <div className="space-y-8 max-w-4xl">
-            {/* Push Settings */}
+        <div className="space-y-8">
+            {/* Push Settings — full page width, side space comes from the
+                page gutters (roomy on desktop, minimal on mobile). */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-5">
                 <div>
                     <h2 className="text-lg font-semibold text-foreground">{t("profile.alerts.pushTitle")}</h2>
@@ -81,7 +82,7 @@ export function AccountAlertsTab({
                 </div>
             </div>
 
-            {/* Configured Alerts List */}
+            {/* Configured Alerts List — same full-width rule as the push section */}
             <div>
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-medium text-foreground">{t("profile.alerts.configuredAlerts")}</h3>
@@ -96,11 +97,11 @@ export function AccountAlertsTab({
                         {allAlerts.map((alert) => (
                             <div 
                                 key={alert.id} 
-                                className="group flex items-center justify-between p-4 bg-muted/40 rounded-lg border border-border/80 transition-colors hover:bg-muted/60"
+                                className="group flex items-center justify-between gap-3 p-4 bg-muted/40 rounded-lg border border-border/80 transition-colors hover:bg-muted/60"
                             >
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-semibold tracking-wider text-muted-foreground mb-1">
-                                        {t("profile.alertForServer")} : <strong className="text-foreground ml-1">{alert.serverName}</strong>
+                                <div className="flex min-w-0 flex-1 flex-col">
+                                    <span className="mb-1 truncate text-xs font-semibold tracking-wider text-muted-foreground">
+                                        {t("profile.alertForServer")} : <strong className="ml-1 text-foreground">{alert.serverName}</strong>
                                     </span>
                                     <span className="text-sm font-medium text-foreground">
                                         {t(`alerts.types.${alert.alert_type}`)}
@@ -114,8 +115,9 @@ export function AccountAlertsTab({
                                 <Button 
                                     variant="ghost" 
                                     size="icon" 
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                    className="h-9 w-9 shrink-0 rounded-md text-muted-foreground opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                                     title={t("profile.deleteAlert")}
+                                    aria-label={t("profile.deleteAlert")}
                                     onClick={() => handleDeleteAlert(alert.id)}
                                 >
                                     <Trash2 className="h-4 w-4" />

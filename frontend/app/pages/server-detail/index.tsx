@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router"
 import { fetchServer, getServerIconUrl } from "@/core/lib/api"
 import type { Server } from "@/core/lib/api"
 import { APP_URL } from "@/core/lib/config"
-import { applyDocumentMeta, getServerDocumentMeta, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
+import { applyDocumentMeta, getServerDocumentMeta, serverFaviconLink, syncServerFavicon, type Language, type RouteMetaHandle } from "@/core/lib/seo-meta"
 
 const PlayerChart = lazy(() =>
     import("@/pages/server-detail/components/PlayerChart").then((m) => ({
@@ -25,6 +25,7 @@ import { formatNumber } from "@/core/lib/utils"
 
 import { MinecraftMotd } from "@/ui/motd"
 import { ServerSidebar } from "@/pages/server-detail/components/ServerSidebar"
+import { PageContainer } from "@/ui/layout/PageContainer"
 import { useServerData } from "./hooks/useServerData"
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -65,7 +66,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
         }
     try {
         const id = Number(params.id)
-        // Fetch directement depuis le client, plus de requête _.data
+        // Fetch directly from the client; no more `_.data` request
         const server = await fetchServer(id)
 
         return {
@@ -104,6 +105,7 @@ export const meta: MetaFunction<typeof loader> = (args) => {
         { title },
         { name: "description", content: description },
         { tagName: "link", rel: "canonical", href: `${APP_URL}/server/${server.id}` },
+        serverFaviconLink(server.id),
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Minecraft-Stats" },
         { property: "og:title", content: title },
@@ -155,9 +157,18 @@ export default function ServerDetail() {
         if (server) applyDocumentMeta(getServerDocumentMeta(server, language))
     }, [server, language])
 
-    // Données structurées rendues dans le JSX (donc présentes dans le HTML SSR),
-    // à partir des données du loader pour que SSR et client soient identiques.
-    // Remplace l'ancienne injection via useEffect, invisible aux crawlers sans JS.
+    // Live favicon sync: covers client-side navigations and late server
+    // updates (loader data arriving after hydration). Restores the default
+    // icon on cleanup so no stale server icon leaks to other pages.
+    const serverId = server?.id
+    useEffect(() => {
+        if (serverId == null) return
+        return syncServerFavicon(serverId)
+    }, [serverId])
+
+    // Structured data rendered in the JSX (so it is present in the SSR HTML),
+    // from the loader data so SSR and client stay identical.
+    // Replaces the former useEffect injection, invisible to crawlers without JS.
     const schemaData = useMemo(() => {
         if (!initialServer) return null
         const url = `${APP_URL}/server/${initialServer.id}`
@@ -213,7 +224,7 @@ export default function ServerDetail() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen items-center justify-center">
+            <div className="flex min-h-[60vh] items-center justify-center">
                 <p className="text-muted-foreground animate-pulse">
                     {t("serverDetail.loading")}
                 </p>
@@ -223,7 +234,7 @@ export default function ServerDetail() {
 
     if (!server) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center gap-4">
+            <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
                 <p className="text-destructive font-semibold">
                     {t("serverDetail.notFound")}
                 </p>
@@ -253,7 +264,7 @@ export default function ServerDetail() {
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
-                        // Échappe "<" pour empêcher toute sortie du contexte script (ex: "</script>")
+                        // Escape "<" to prevent breaking out of the script context (e.g. "</script>")
                         __html: JSON.stringify(schemaData).replace(/</g, "\\u003c")
                     }}
                 />
@@ -270,15 +281,13 @@ export default function ServerDetail() {
                     }}
                 />
             )}
-            <div className="flex flex-col gap-8 pb-12 relative z-10">
+            <PageContainer size="full" className="relative z-10 flex flex-col gap-8 pt-6 pb-12">
                 <div className="flex flex-col gap-6 border-b pb-6">
-                    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                        <ServerDetailHeader
-                            server={server}
-                            t={t}
-                            language={language}
-                        />
-                    </div>
+                    <ServerDetailHeader
+                        server={server}
+                        t={t}
+                        language={language}
+                    />
                 </div>
 
                 <div className="flex w-full flex-col gap-8">
@@ -296,9 +305,9 @@ export default function ServerDetail() {
                                 currentPlayers={
                                     server.last_protocol_version != null &&
                                     server.last_protocol_version <= 0
-                                        // Protocole sentinelle (maintenance...) : le client Minecraft
-                                        // affiche le texte brut du serveur dans la colonne joueurs.
-                                        // On reproduit fidèlement ce comportement ici (pas de badge).
+                                        // Sentinel protocol (maintenance...): the Minecraft client
+                                        // shows the server's raw text in the player column.
+                                        // Reproduce that behavior faithfully here (no badge).
                                         ? (server.last_version?.trim() || "Version")
                                         : (server.last_connected ?? 0)
                                 }
@@ -406,7 +415,7 @@ export default function ServerDetail() {
                         />
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </>
     )
 }
@@ -415,7 +424,7 @@ export function ErrorBoundary() {
     const error = useRouteError()
     const { t } = useLanguage()
     console.error("[SSR Debug] ErrorBoundary caught in ServerDetail:", error)
-    // La stack trace n'est jamais affichée à l'utilisateur (fuite d'information potentielle)
+    // The stack trace is never shown to the user (potential information leak)
     return (
         <div className="p-8 text-center text-destructive">
             <h1>{t("error.somethingWentWrong")} in ServerDetail</h1>

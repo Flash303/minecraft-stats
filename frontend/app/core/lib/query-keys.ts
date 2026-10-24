@@ -1,17 +1,17 @@
 /**
- * Clés TanStack Query partagées pour la liste des serveurs.
+ * Shared TanStack Query keys for the server list.
  *
- * Centralisées ici pour éviter les chaînes magiques dupliquées (typos,
- * renommages partiels) : toute lecture/écriture/invalidation de ces caches
- * doit passer par ces constantes.
+ * Centralized here to avoid duplicated magic strings (typos, partial renames):
+ * every read/write/invalidation of these caches must go through these
+ * constants.
  */
 
-/** Liste globale des serveurs (home, `include_stats=true`), amorcée par le SSR. */
+/** Global server list (home, `include_stats=true`), seeded by SSR. */
 export const SERVERS_QUERY_KEY = ["servers"] as const
 
 /**
- * Préfixe du cache de la recherche Ctrl+K.
- * La clé complète est `[..., refreshCounter]` ; l'invalidation par préfixe
- * (sans `exact: true`) couvre toutes les générations.
+ * Ctrl+K search cache prefix.
+ * The full key is `[..., refreshCounter]`; prefix invalidation (without
+ * `exact: true`) covers every generation.
  */
 export const SERVERS_SEARCH_QUERY_KEY = ["servers-search"] as const

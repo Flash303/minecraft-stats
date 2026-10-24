@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "Anmelden",
-    "admin": "Admin"
+    "admin": "Admin",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "openSearch": "Suche öffnen",
+    "closeSearch": "Suche schließen",
+    "navigation": "Navigation",
+    "navigationDescription": "Hauptnavigationsmenü",
+    "selectLanguage": "Sprache auswählen",
+    "language": "Sprache"
   },
   "addServer": {
     "button": "Server hinzufügen",
@@ -109,6 +117,9 @@
       "reset": "Zurücksetzen",
       "sortAscTitle": "Aufsteigende Reihenfolge",
       "sortDescTitle": "Absteigende Reihenfolge",
+      "sortToggleHint": "Klicke erneut auf die aktive Option, um die Reihenfolge umzukehren",
+      "drawerTitle": "Serverfilter",
+      "drawerDescription": "Verfeinere die Liste der angezeigten Server.",
       "laby": "LabyClient"
     }
   },
@@ -299,6 +310,7 @@
     "refresh": "Aktualisieren",
     "updatedAt": "Aktualisiert um {{time}}",
     "close": "Schließen",
+    "navLabel": "Dashboard-Bereiche",
     "openMenu": "Menü öffnen"
   },
   "alerts": {
@@ -309,6 +321,7 @@
     "noAlerts": "Keine Warnungen für diesen Server konfiguriert.",
     "typeLabel": "Warnungstyp",
     "thresholdLabel": "Spieler-Grenzwert (x)",
+    "thresholdPlaceholder": "Z. B. 10",
     "addAlert": "Warnung hinzufügen",
     "delete": "Löschen",
     "types": {
@@ -496,6 +509,7 @@
     "description": "Laden Sie ein Bild hoch, um das Server-Favicon zu überschreiben. Es wird automatisch auf 64x64 skaliert und konvertiert.",
     "upload": "Ein Bild hochladen",
     "reset": "Zurücksetzen",
-    "empty": "Kein Bild festgelegt. Das Favicon wird automatisch aus dem Spiel aktualisiert."
+    "empty": "Kein Bild festgelegt. Das Favicon wird automatisch aus dem Spiel aktualisiert.",
+    "previewAlt": "Vorschau"
   }
 }

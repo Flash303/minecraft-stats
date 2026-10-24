@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "サインイン",
-    "admin": "管理"
+    "admin": "管理",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる",
+    "openSearch": "検索を開く",
+    "closeSearch": "検索を閉じる",
+    "navigation": "ナビゲーション",
+    "navigationDescription": "メインナビゲーション",
+    "selectLanguage": "言語を選択",
+    "language": "言語"
   },
   "addServer": {
     "button": "サーバーを追加",
@@ -109,6 +117,9 @@
       "reset": "リセット",
       "sortAscTitle": "昇順",
       "sortDescTitle": "降順",
+      "sortToggleHint": "選択中の項目をもう一度クリックすると並び順が反転します",
+      "drawerTitle": "サーバーフィルター",
+      "drawerDescription": "表示するサーバーの一覧を絞り込みます。",
       "laby": "LabyClient"
     }
   },
@@ -299,6 +310,7 @@
     "refresh": "更新",
     "updatedAt": "{{time}}に更新",
     "close": "閉じる",
+    "navLabel": "ダッシュボードのセクション",
     "openMenu": "メニューを開く"
   },
   "alerts": {
@@ -309,6 +321,7 @@
     "noAlerts": "このサーバーに設定されているアラートはありません。",
     "typeLabel": "アラートの種類",
     "thresholdLabel": "プレイヤーのしきい値 (x)",
+    "thresholdPlaceholder": "例：10",
     "addAlert": "アラートを追加",
     "delete": "削除",
     "types": {
@@ -496,6 +509,7 @@
     "description": "サーバーのファビコンを上書きするために画像をアップロードします。画像は自動的に64x64にリサイズおよび変換されます。",
     "upload": "画像をアップロード",
     "reset": "リセット",
-    "empty": "画像が設定されていません。ファビコンはゲームから自動的に更新されます。"
+    "empty": "画像が設定されていません。ファビコンはゲームから自動的に更新されます。",
+    "previewAlt": "プレビュー"
   }
 }

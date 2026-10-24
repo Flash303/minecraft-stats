@@ -11,6 +11,7 @@ import { CursorTooltip } from "./components/CursorTooltip";
 import { generateHiddenString } from "./utils";
 import { parseLegacyText } from "./parser";
 import type { MinecraftMotdProps } from "./types";
+import { useLanguage } from "@/core/contexts/LanguageContext";
 import { flattenMotd, wrapMinecraftText } from "./utils";
 
 export function MinecraftMotd({ 
@@ -24,6 +25,7 @@ export function MinecraftMotd({
     lastSample,
     backgroundUrl
 }: MinecraftMotdProps) {
+    const { t } = useLanguage()
     const actualMotd = motd || { text: "A Minecraft Server", color: "dark_gray" };
     
     const displayFavicon = favicon || default_icon;
@@ -62,7 +64,7 @@ export function MinecraftMotd({
                 <img
                     style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
                     src={displayFavicon}
-                    alt="Server icon"
+                    alt={t("alt.serverLogo", { name: serverName })}
                     loading="lazy"
                     decoding="async"
                     onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAzSURBVGhD7cExAQAAAMKg9U9tCy8gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuBk4KAAAEyqOaAAAAABJRU5ErkJggg==' }}
@@ -124,7 +126,7 @@ export function MinecraftMotd({
                                             className="flex-shrink-0"
                                             style={{ height: `${fontHeight}px`, imageRendering: "pixelated" }}
                                             src={typeof currentPlayers === 'string' ? pingUnknownIcon : pingIcon}
-                                            alt="ping"
+                                            alt=""
                                             loading="lazy"
                                             decoding="async"
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}

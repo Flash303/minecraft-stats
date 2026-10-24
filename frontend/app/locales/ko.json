@@ -62,7 +62,15 @@
   "header": {
     "title": "Minecraft Stats",
     "signIn": "로그인",
-    "admin": "관리자"
+    "admin": "관리자",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "openSearch": "검색 열기",
+    "closeSearch": "검색 닫기",
+    "navigation": "내비게이션",
+    "navigationDescription": "기본 내비게이션 메뉴",
+    "selectLanguage": "언어 선택",
+    "language": "언어"
   },
   "addServer": {
     "button": "서버 추가",
@@ -109,6 +117,9 @@
       "reset": "초기화",
       "sortAscTitle": "오름차순",
       "sortDescTitle": "내림차순",
+      "sortToggleHint": "활성 옵션을 다시 클릭하면 순서가 반전됩니다",
+      "drawerTitle": "서버 필터",
+      "drawerDescription": "표시되는 서버 목록을 세분화하세요.",
       "laby": "LabyClient"
     }
   },
@@ -299,6 +310,7 @@
     "refresh": "새로고침",
     "updatedAt": "업데이트 시간: {{time}}",
     "close": "닫기",
+    "navLabel": "대시보드 섹션",
     "openMenu": "메뉴 열기"
   },
   "alerts": {
@@ -309,6 +321,7 @@
     "noAlerts": "이 서버에 구성된 알림이 없습니다.",
     "typeLabel": "알림 유형",
     "thresholdLabel": "플레이어 임계값 (x)",
+    "thresholdPlaceholder": "예: 10",
     "addAlert": "알림 추가",
     "delete": "삭제",
     "types": {
@@ -496,6 +509,7 @@
     "description": "서버 파비콘을 덮어쓸 이미지를 업로드하세요. 자동으로 64x64 크기로 조절되고 변환됩니다.",
     "upload": "이미지 업로드",
     "reset": "초기화",
-    "empty": "설정된 이미지가 없습니다. 게임에서 자동으로 파비콘을 업데이트합니다."
+    "empty": "설정된 이미지가 없습니다. 게임에서 자동으로 파비콘을 업데이트합니다.",
+    "previewAlt": "미리보기"
   }
 }
