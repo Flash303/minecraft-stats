@@ -47,7 +47,7 @@ services:
             VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
 
     loki:
-        image: grafana/loki:3.0.0
+        image: grafana/loki:3.7.9
         container_name: loki
         command: -config.file=/etc/loki/local-config.yaml
         volumes:
