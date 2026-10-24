@@ -44,18 +44,18 @@ export function ServerCard({ server, to }: ServerCardProps) {
     return (
         <div
             className={cn(
-                "relative flex w-full flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-5 shadow-sm backdrop-blur-sm min-h-[185px] h-full transition-all duration-300 ease-in-out group",
+                "relative @container flex w-full flex-col justify-between gap-2 rounded-2xl border border-border/80 bg-card/95 p-3 shadow-sm backdrop-blur-sm min-h-[185px] h-full transition-all duration-300 ease-in-out group sm:p-5",
                 to ? "hover:border-primary/30 dark:hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5" : ""
             )}
         >
             {/* Top row: Favicon, Name, IP address, and Player/Status */}
-            <div className="flex flex-row gap-4 w-full min-w-0 items-start">
+            <div className="flex flex-row gap-2 w-full min-w-0 items-start sm:gap-4">
                 {/* Favicon */}
                 <div className="relative flex-shrink-0">
                     <ServerIcon
                         serverId={server.id}
                         alt={t("alt.serverLogo", { name: server.name })}
-                        className="h-12 w-12 rounded-xl shadow-md border border-border/60 object-cover"
+                        className="h-9 w-9 rounded-lg shadow-md border border-border/60 object-cover sm:h-12 sm:w-12 sm:rounded-xl"
                     />
                 </div>
 
@@ -63,11 +63,11 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex flex-col flex-grow min-w-0 gap-1.5 justify-center">
                     <div className="flex items-center gap-1.5 min-w-0">
                         {to ? (
-                            <Link to={to} prefetch="intent" className="text-base font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0">
+                            <Link to={to} prefetch="intent" className="text-sm font-bold text-foreground group-hover:text-primary transition-colors tracking-tight truncate leading-tight focus:outline-none after:absolute after:inset-0 after:z-0 sm:text-base">
                                 {server.name}
                             </Link>
                         ) : (
-                            <h2 className="text-base font-bold text-foreground transition-colors tracking-tight truncate leading-tight">
+                            <h2 className="text-sm font-bold text-foreground transition-colors tracking-tight truncate leading-tight sm:text-base">
                                 {server.name}
                             </h2>
                         )}
@@ -75,22 +75,33 @@ export function ServerCard({ server, to }: ServerCardProps) {
                         {labyInfo && <LabyLogo className={cn("w-3.5 h-3.5 shrink-0", labyLogoClass(labyInfo.partner))} />}
                     </div>
                     
-                    <button 
-                        onClick={handleCopy}
-                        aria-label={`Copier l'IP du serveur ${server.name}`}
-                        className="relative z-10 group/copy inline-flex items-center gap-1.5 self-start text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
-                    >
-                        <span className="truncate">{displayIp}</span>
-                        {copied ? (
-                            <Check aria-hidden="true" className="h-3 w-3 text-success flex-shrink-0" />
-                        ) : (
-                            <Copy aria-hidden="true" className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
-                        )}
-                    </button>
+                    <div className="flex min-w-0 items-center gap-1.5">
+                        <button 
+                            onClick={handleCopy}
+                            aria-label={`Copier l'IP du serveur ${server.name}`}
+                            className="relative z-10 group/copy inline-flex min-w-0 flex-1 items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-all bg-muted/50 hover:bg-accent/60 border border-border/50 px-2 py-0.5 rounded-md cursor-pointer max-w-full"
+                        >
+                            <span className="truncate">{displayIp}</span>
+                            {copied ? (
+                                <Check aria-hidden="true" className="h-3 w-3 text-success flex-shrink-0" />
+                            ) : (
+                                <Copy aria-hidden="true" className="h-3 w-3 opacity-60 md:opacity-0 md:group-hover/copy:opacity-100 transition-opacity flex-shrink-0" />
+                            )}
+                        </button>
+                        {/* Compact player count, shown instead of the top-right
+                            block on narrow cards where all three would not fit. */}
+                        <span className="flex shrink-0 items-center gap-1 text-xs font-extrabold text-foreground sm:hidden" aria-hidden="true">
+                            <span className={cn(
+                                "h-1.5 w-1.5 rounded-full",
+                                isOnline ? "bg-success animate-pulse" : isOffline ? "bg-destructive" : "bg-muted-foreground"
+                            )} />
+                            {isOnline ? formatNumber(language, server.last_connected ?? 0) : null}
+                        </span>
+                    </div>
                 </div>
 
-                {/* Player count / status indicator */}
-                <div className="flex shrink-0 flex-col items-end gap-0.5 pt-0.5">
+                {/* Player count / status indicator (desktop: roomy cards only) */}
+                <div className="hidden shrink-0 flex-col items-end gap-0.5 pt-0.5 sm:flex">
                     <div className="flex flex-row items-center gap-1.5">
                         {isOnline ? (
                             <>
@@ -153,11 +164,11 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 <div className="flex min-w-0 flex-row items-center gap-1.5 overflow-hidden">
                     {server.type && <PlatformBadge type={server.type} className="shrink-0" />}
                     {displayVersion ? (
-                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                        <span className="hidden min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs @min-[11rem]:inline-flex">
                             <span className="truncate">{t("common.version", { version: displayVersion })}</span>
                         </span>
                     ) : (
-                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                        <span className="hidden min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs @min-[11rem]:inline-flex">
                             <span className="truncate">{t("common.unknownVersion")}</span>
                         </span>
                     )}
