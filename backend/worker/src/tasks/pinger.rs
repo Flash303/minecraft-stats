@@ -241,7 +241,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
             }
 
             let status_updates: Vec<ServerStatusUpdate> =
-                updated_servers.iter().map(ServerStatusUpdate::from).collect();
+                updated_servers.into_iter().map(ServerStatusUpdate::from).collect();
             if let Err(e) = repository.update_servers_status(&status_updates).await {
                 info!("Error on server saving: {:?}", e);
             }
