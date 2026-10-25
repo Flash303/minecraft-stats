@@ -99,29 +99,36 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                                 v{displayVersion}
                             </Badge>
                         )}
-                        {server.user && (
+                        {(server.user || server.registered_date) && (
                             <div className="flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
-                                <span className="shrink-0">{t("serverDetail.addedBy")}</span>
-                                {server.user.image_url ? (
-                                    <img
-                                        src={server.user.image_url}
-                                        alt={server.user.username || "User"}
-                                        className="h-3.5 w-3.5 rounded-full object-cover"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
-                                ) : (
-                                    <UserIcon className="h-3 w-3" />
+                                {server.user && (
+                                    <>
+                                        <span className="shrink-0">{t("serverDetail.addedBy")}</span>
+                                        {server.user.image_url ? (
+                                            <img
+                                                src={server.user.image_url}
+                                                alt={server.user.username || "User"}
+                                                className="h-3.5 w-3.5 rounded-full object-cover"
+                                                loading="lazy"
+                                                decoding="async"
+                                            />
+                                        ) : (
+                                            <UserIcon className="h-3 w-3" />
+                                        )}
+                                        <span className="min-w-0 truncate font-medium text-foreground">
+                                            {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
+                                        </span>
+                                    </>
                                 )}
-                                <span className="min-w-0 truncate font-medium text-foreground">
-                                    {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
-                                </span>
-                            </div>
-                        )}
-                        {server.registered_date && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
-                                <Calendar className="h-3 w-3" />
-                                <span>{formatDate(server.registered_date * 1000, language)}</span>
+                                {server.user && server.registered_date && (
+                                    <span aria-hidden="true" className="shrink-0 opacity-50">•</span>
+                                )}
+                                {server.registered_date && (
+                                    <>
+                                        <Calendar className="h-3 w-3 shrink-0" />
+                                        <span className="whitespace-nowrap">{formatDate(server.registered_date * 1000, language)}</span>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
