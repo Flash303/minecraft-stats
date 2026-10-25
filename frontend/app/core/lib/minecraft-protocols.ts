@@ -24,7 +24,7 @@
  * scheme: no protocol fallback for `type: "bedrock"`.
  */
 
-// <-- BEGIN GENERATED BLOCK (do not edit by hand, see `bun run update:protocols`) -->
+// <-- BEGIN GENERATED BLOCK (ne pas éditer à la main, voir `bun run update:protocols`) -->
 export const JAVA_RELEASE_PROTOCOL_VERSIONS: Record<number, string> = {
     4: "1.7.2 - 1.7.5",
     5: "1.7.6 - 1.7.10",
@@ -80,7 +80,6 @@ export const JAVA_RELEASE_PROTOCOL_VERSIONS: Record<number, string> = {
     777: "26.3",
 }
 // <-- END GENERATED BLOCK -->
-
 /**
  * Resolves a network protocol number to a displayable Minecraft version.
  *
