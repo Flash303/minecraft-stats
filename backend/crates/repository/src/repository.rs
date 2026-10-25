@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::models::alert::{Alert, DraftAlert};
 use crate::models::mojang::MojangApiDowntime;
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{DraftServer, Server};
+use crate::models::server::{DraftServer, Server, ServerStatusUpdate};
 use crate::models::web_push::{DraftWebPushSubscription, WebPushSubscription};
 use async_trait::async_trait;
 
@@ -27,17 +27,33 @@ pub trait Repository: Send + Sync {
 
     // Servers
     async fn create_server(&self, server: DraftServer) -> Result<Server, RepositoryError>;
-    async fn update_server(&self, server: &Server) -> Result<(), RepositoryError>;
-    async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), RepositoryError>;
+    async fn update_servers_status(
+        &self,
+        updates: &[ServerStatusUpdate],
+    ) -> Result<(), RepositoryError>;
+
+    async fn rename_server(&self, server_id: u32, name: &str) -> Result<Server, RepositoryError>;
+    async fn set_server_hidden(&self, server_id: u32, hidden: bool) -> Result<(), RepositoryError>;
+    async fn set_server_favicon(
+        &self,
+        server_id: u32,
+        favicon: Option<&str>,
+        favicon_hash: Option<&str>,
+        forced: bool,
+    ) -> Result<(), RepositoryError>;
+
+    async fn update_server_address(
+        &self,
+        server_id: u32,
+        ip: &str,
+        port: u16,
+        resolved_endpoint: Option<&str>,
+    ) -> Result<(), RepositoryError>;
 
     // Gets
     async fn get_server(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
     async fn list_servers(&self) -> Result<Vec<Server>, RepositoryError>;
     async fn get_servers_of_user(&self, user_id: String) -> Result<Vec<Server>, RepositoryError>;
-    // Same as above but without loading the heavy base64 favicon from the
-    // database: intended for public JSON endpoints. Never use their result
-    // for write-backs (update_server/update_servers), the empty favicon
-    // would erase the stored one.
     async fn get_server_without_favicon(
         &self,
         server_id: u32,

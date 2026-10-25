@@ -21,9 +21,9 @@ pub(super) async fn update_server_name(
 ) -> Result<ResponseFormat<Server>, AppError> {
     let account = account.ok_or(AppError::Authentication)?;
 
-    let mut server = state
+    let server = state
         .repository
-        .get_server(id)
+        .get_server_without_favicon(id)
         .await?
         .ok_or(AppError::ServerNotFound)?;
 
@@ -32,8 +32,7 @@ pub(super) async fn update_server_name(
         return Err(AppError::Authentication);
     }
 
-    server.name = payload.name;
-    state.repository.update_server(&server).await?;
+    let server = state.repository.rename_server(id, &payload.name).await?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
 }

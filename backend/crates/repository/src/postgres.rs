@@ -4,7 +4,7 @@ use crate::error::RepositoryError;
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::mojang::MojangApiDowntime;
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{DraftServer, Server, ServerRow};
+use crate::models::server::{DraftServer, Server, ServerRow, ServerStatusUpdate};
 use crate::models::web_push::{
     DraftWebPushSubscription, WebPushSubscription, WebPushSubscriptionRow,
 };
@@ -162,130 +162,138 @@ impl Repository for PostgresRepository {
         Ok(server.into())
     }
 
-    async fn update_server(&self, server: &Server) -> Result<(), RepositoryError> {
-        sqlx::query(
-            "UPDATE servers SET
-                   last_favicon = $1,
-                   last_status = $2,
-                   last_connected = $3,
-                   last_version = $4,
-                   last_max_players = $5,
-                   last_motd = $6,
+    async fn rename_server(&self, server_id: u32, name: &str) -> Result<Server, RepositoryError> {
+        let row: ServerRow = sqlx::query_as("UPDATE servers SET name = $2 WHERE id = $1 RETURNING *")
+            .bind(server_id as i32)
+            .bind(name)
+            .fetch_one(&self.pool)
+            .await?;
 
-                   favicon_hash = $7,
-                   motd_hash = $8,
-                   resolved_endpoint = $9,
-                   hidden = $10,
-                   name = $11,
-                   last_ping_time = $12,
-                   last_sample = $13,
-                   forced_favicon = $14,
-                   last_protocol_version = $15,
-                   ip = $16,
-                   port = $17
-               WHERE id = $18",
+        Ok(row.into())
+    }
+
+    async fn set_server_hidden(&self, server_id: u32, hidden: bool) -> Result<(), RepositoryError> {
+        sqlx::query("UPDATE servers SET hidden = $2 WHERE id = $1")
+            .bind(server_id as i32)
+            .bind(hidden)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn set_server_favicon(
+        &self,
+        server_id: u32,
+        favicon: Option<&str>,
+        favicon_hash: Option<&str>,
+        forced: bool,
+    ) -> Result<(), RepositoryError> {
+        sqlx::query(
+            "UPDATE servers SET last_favicon = $2, favicon_hash = $3, forced_favicon = $4 WHERE id = $1",
         )
-        .bind(server.last_favicon.clone())
-        .bind(server.last_status.clone())
-        .bind(server.last_connected.map(|v| v as i32))
-        .bind(server.last_version.clone())
-        .bind(server.last_max_players.clone())
-        .bind(server.last_motd.clone())
-        .bind(server.favicon_hash.clone())
-        .bind(server.motd_hash.clone())
-        .bind(server.resolved_endpoint.clone())
-        .bind(server.hidden)
-        .bind(server.name.clone())
-        .bind(server.last_ping_time.map(|v| v as i32))
-        .bind(server.last_sample.clone())
-        .bind(server.forced_favicon)
-        .bind(server.last_protocol_version)
-        .bind(server.ip.clone())
-        .bind(server.port as i32)
-        .bind(server.id as i32)
+        .bind(server_id as i32)
+        .bind(favicon)
+        .bind(favicon_hash)
+        .bind(forced)
         .execute(&self.pool)
         .await?;
 
         Ok(())
     }
 
-    async fn update_servers(&self, servers: &Vec<Server>) -> Result<(), RepositoryError> {
-        if servers.is_empty() {
+    async fn update_server_address(
+        &self,
+        server_id: u32,
+        ip: &str,
+        port: u16,
+        resolved_endpoint: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        sqlx::query(
+            "UPDATE servers SET ip = $2, port = $3, resolved_endpoint = $4 WHERE id = $1",
+        )
+        .bind(server_id as i32)
+        .bind(ip)
+        .bind(port as i32)
+        .bind(resolved_endpoint)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    async fn update_servers_status(
+        &self,
+        updates: &[ServerStatusUpdate],
+    ) -> Result<(), RepositoryError> {
+        if updates.is_empty() {
             return Ok(());
         }
 
-        let mut ids = Vec::with_capacity(servers.len());
-        let mut favicons = Vec::with_capacity(servers.len());
-        let mut statuses = Vec::with_capacity(servers.len());
-        let mut last_connected = Vec::with_capacity(servers.len());
-        let mut versions = Vec::with_capacity(servers.len());
-        let mut favicon_hashes = Vec::with_capacity(servers.len());
-        let mut motd_hashes = Vec::with_capacity(servers.len());
-        let mut endpoints = Vec::with_capacity(servers.len());
-        let mut names = Vec::with_capacity(servers.len());
-        let mut last_max_players = Vec::with_capacity(servers.len());
-        let mut last_motds = Vec::with_capacity(servers.len());
-        let mut last_ping_times = Vec::with_capacity(servers.len());
-        let mut last_samples = Vec::with_capacity(servers.len());
-        let mut forced_favicons = Vec::with_capacity(servers.len());
-        let mut last_protocol_versions = Vec::with_capacity(servers.len());
+        let mut ids = Vec::with_capacity(updates.len());
+        let mut statuses = Vec::with_capacity(updates.len());
+        let mut last_connected = Vec::with_capacity(updates.len());
+        let mut versions = Vec::with_capacity(updates.len());
+        let mut last_max_players = Vec::with_capacity(updates.len());
+        let mut last_motds = Vec::with_capacity(updates.len());
+        let mut motd_hashes = Vec::with_capacity(updates.len());
+        let mut last_ping_times = Vec::with_capacity(updates.len());
+        let mut last_samples = Vec::with_capacity(updates.len());
+        let mut last_protocol_versions = Vec::with_capacity(updates.len());
+        let mut favicons = Vec::with_capacity(updates.len());
+        let mut favicon_hashes = Vec::with_capacity(updates.len());
+        let mut endpoints = Vec::with_capacity(updates.len());
 
-        for s in servers {
-            ids.push(s.id as i32);
-            favicons.push(s.last_favicon.clone());
-            statuses.push(s.last_status.clone());
-            last_connected.push(s.last_connected.map(|v| v as i32));
-            versions.push(s.last_version.clone());
-            favicon_hashes.push(s.favicon_hash.clone());
-            motd_hashes.push(s.motd_hash.clone());
-            endpoints.push(s.resolved_endpoint.clone());
-            names.push(s.name.clone());
-            last_max_players.push(s.last_max_players);
-            last_motds.push(s.last_motd.clone());
-            last_ping_times.push(s.last_ping_time.map(|v| v as i32));
-            last_samples.push(s.last_sample.clone());
-            forced_favicons.push(s.forced_favicon);
-            last_protocol_versions.push(s.last_protocol_version);
+        for u in updates {
+            ids.push(u.server_id as i32);
+            statuses.push(u.last_status.clone());
+            last_connected.push(u.last_connected);
+            versions.push(u.last_version.clone());
+            last_max_players.push(u.last_max_players);
+            last_motds.push(u.last_motd.clone());
+            motd_hashes.push(u.motd_hash.clone());
+            last_ping_times.push(u.last_ping_time);
+            last_samples.push(u.last_sample.clone());
+            last_protocol_versions.push(u.last_protocol_version);
+            favicons.push(u.last_favicon.clone());
+            favicon_hashes.push(u.favicon_hash.clone());
+            endpoints.push(u.resolved_endpoint.clone());
         }
 
         sqlx::query(
             r#"
             UPDATE servers AS s
             SET
-                name = u.name,
-                last_favicon = u.last_favicon,
                 last_status = u.last_status,
                 last_connected = u.last_connected,
                 last_version = u.last_version,
-                favicon_hash = u.favicon_hash,
-                motd_hash = u.motd_hash,
-                resolved_endpoint = u.resolved_endpoint,
                 last_max_players = u.last_max_players,
                 last_motd = u.last_motd,
+                motd_hash = u.motd_hash,
                 last_ping_time = u.last_ping_time,
                 last_sample = u.last_sample,
-                forced_favicon = u.forced_favicon,
-                last_protocol_version = u.last_protocol_version
-            FROM UNNEST($1::int[], $2::text[], $3::text[], $4::int[], $5::text[], $6::text[], $7::text[], $8::text[], $9::text[], $10::int4[], $11::text[], $12::int4[], $13::text[], $14::bool[], $15::int8[])
-            AS u(id, last_favicon, last_status, last_connected, last_version, favicon_hash, motd_hash, resolved_endpoint, name, last_max_players, last_motd, last_ping_time, last_sample, forced_favicon, last_protocol_version)
+                last_protocol_version = u.last_protocol_version,
+                last_favicon = CASE WHEN s.forced_favicon THEN s.last_favicon ELSE u.last_favicon END,
+                favicon_hash = CASE WHEN s.forced_favicon THEN s.favicon_hash ELSE u.favicon_hash END,
+                resolved_endpoint = COALESCE(u.resolved_endpoint, s.resolved_endpoint)
+            FROM UNNEST($1::int[], $2::text[], $3::int4[], $4::text[], $5::int4[], $6::text[], $7::text[], $8::int4[], $9::text[], $10::int8[], $11::text[], $12::text[], $13::text[])
+            AS u(id, last_status, last_connected, last_version, last_max_players, last_motd, motd_hash, last_ping_time, last_sample, last_protocol_version, last_favicon, favicon_hash, resolved_endpoint)
             WHERE s.id = u.id
             "#
         )
         .bind(&ids)
-        .bind(&favicons)
         .bind(&statuses)
         .bind(&last_connected)
         .bind(&versions)
-        .bind(&favicon_hashes)
-        .bind(&motd_hashes)
-        .bind(&endpoints)
-        .bind(&names)
         .bind(&last_max_players)
         .bind(&last_motds)
+        .bind(&motd_hashes)
         .bind(&last_ping_times)
         .bind(&last_samples)
-        .bind(&forced_favicons)
         .bind(&last_protocol_versions)
+        .bind(&favicons)
+        .bind(&favicon_hashes)
+        .bind(&endpoints)
         .execute(&self.pool)
         .await?;
 

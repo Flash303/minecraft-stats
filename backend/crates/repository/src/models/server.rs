@@ -142,3 +142,40 @@ pub struct DraftServer {
     pub motd_hash: Option<String>,
     pub resolved_endpoint: Option<String>,
 }
+
+#[derive(Debug, Clone)]
+pub struct ServerStatusUpdate {
+    pub server_id: u32,
+    pub last_status: Option<ServerStatus>,
+    pub last_connected: Option<i32>,
+    pub last_version: Option<String>,
+    pub last_max_players: Option<i32>,
+    pub last_motd: Option<Value>,
+    pub last_ping_time: Option<i32>,
+    pub last_sample: Option<String>,
+    pub last_protocol_version: Option<i64>,
+    pub last_favicon: Option<String>,
+    pub favicon_hash: Option<String>,
+    pub motd_hash: Option<String>,
+    pub resolved_endpoint: Option<String>,
+}
+
+impl From<&Server> for ServerStatusUpdate {
+    fn from(s: &Server) -> Self {
+        Self {
+            server_id: s.id,
+            last_status: s.last_status.clone(),
+            last_connected: s.last_connected,
+            last_version: s.last_version.clone(),
+            last_max_players: s.last_max_players,
+            last_motd: s.last_motd.clone(),
+            last_ping_time: s.last_ping_time.map(|v| v as i32),
+            last_sample: s.last_sample.clone(),
+            last_protocol_version: s.last_protocol_version,
+            last_favicon: s.last_favicon.clone(),
+            favicon_hash: s.favicon_hash.clone(),
+            motd_hash: s.motd_hash.clone(),
+            resolved_endpoint: s.resolved_endpoint.clone(),
+        }
+    }
+}
