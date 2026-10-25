@@ -116,7 +116,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
             .build(),
     );
 
-    let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config.to_builder()).build());
+    let java_pinger_config = Arc::new(JavaPingConfig::from(&pinger_config).build());
 
     loop {
         let possible_servers = repository.list_servers().await;
@@ -152,7 +152,8 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                             server.ip.as_str(),
                                             server.port,
                                             java_pinger_config.as_ref(),
-                                        ).await
+                                        )
+                                        .await
                                     {
                                         Ok(ping) => {
                                             players_online = ping.players.online;
@@ -240,8 +241,10 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                 }
             }
 
-            let status_updates: Vec<ServerStatusUpdate> =
-                updated_servers.into_iter().map(ServerStatusUpdate::from).collect();
+            let status_updates: Vec<ServerStatusUpdate> = updated_servers
+                .into_iter()
+                .map(ServerStatusUpdate::from)
+                .collect();
             if let Err(e) = repository.update_servers_status(&status_updates).await {
                 info!("Error on server saving: {:?}", e);
             }

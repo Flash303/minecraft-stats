@@ -163,11 +163,12 @@ impl Repository for PostgresRepository {
     }
 
     async fn rename_server(&self, server_id: u32, name: &str) -> Result<Server, RepositoryError> {
-        let row: ServerRow = sqlx::query_as("UPDATE servers SET name = $2 WHERE id = $1 RETURNING *")
-            .bind(server_id as i32)
-            .bind(name)
-            .fetch_one(&self.pool)
-            .await?;
+        let row: ServerRow =
+            sqlx::query_as("UPDATE servers SET name = $2 WHERE id = $1 RETURNING *")
+                .bind(server_id as i32)
+                .bind(name)
+                .fetch_one(&self.pool)
+                .await?;
 
         Ok(row.into())
     }
@@ -209,15 +210,13 @@ impl Repository for PostgresRepository {
         port: u16,
         resolved_endpoint: Option<&str>,
     ) -> Result<(), RepositoryError> {
-        sqlx::query(
-            "UPDATE servers SET ip = $2, port = $3, resolved_endpoint = $4 WHERE id = $1",
-        )
-        .bind(server_id as i32)
-        .bind(ip)
-        .bind(port as i32)
-        .bind(resolved_endpoint)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("UPDATE servers SET ip = $2, port = $3, resolved_endpoint = $4 WHERE id = $1")
+            .bind(server_id as i32)
+            .bind(ip)
+            .bind(port as i32)
+            .bind(resolved_endpoint)
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }

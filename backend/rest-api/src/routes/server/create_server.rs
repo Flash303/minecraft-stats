@@ -84,7 +84,7 @@ async fn ping_server(
         .deny_non_public_ips()
         .build();
 
-    let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
+    let java_cfg = JavaPingConfig::from(&cfg).build();
 
     for _ in 0..PING_TRY_COUNT {
         let ping_res = match draft.server_type {

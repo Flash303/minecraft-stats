@@ -46,7 +46,10 @@ async fn update_server_status(
         .await?
         .ok_or(ServerNotFound)?;
 
-    state.repository.set_server_hidden(*id, query.hidden).await?;
+    state
+        .repository
+        .set_server_hidden(*id, query.hidden)
+        .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
 }
@@ -131,7 +134,7 @@ async fn ping_server_ip(
         .deny_non_public_ips()
         .build();
 
-    let java_cfg = JavaPingConfig::from(&cfg.to_builder()).build();
+    let java_cfg = JavaPingConfig::from(&cfg).build();
 
     let mut is_reachable = false;
     let mut motd = None;
@@ -213,12 +216,7 @@ async fn update_server_ip(
 
     state
         .repository
-        .update_server_address(
-            *id,
-            &payload.ip,
-            payload.port,
-            resolved_endpoint.as_deref(),
-        )
+        .update_server_address(*id, &payload.ip, payload.port, resolved_endpoint.as_deref())
         .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
