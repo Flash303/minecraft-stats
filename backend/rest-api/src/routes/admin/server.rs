@@ -25,6 +25,7 @@ pub fn router() -> Router<AppState> {
         .route("/servers/{id}/favicon", patch(update_server_favicon))
         .route("/servers/{id}/ping-ip", post(ping_server_ip))
         .route("/servers/{id}/ip", patch(update_server_ip))
+        .route("/servers/{id}/owner", patch(update_server_owner))
 }
 
 #[derive(Deserialize)]
@@ -217,6 +218,48 @@ async fn update_server_ip(
     state
         .repository
         .update_server_address(*id, &payload.ip, payload.port, resolved_endpoint.as_deref())
+        .await?;
+
+    Ok(ResponseFormat::success((), StatusCode::OK))
+}
+
+#[derive(Deserialize)]
+pub struct UpdateOwnerPayload {
+    pub user_id: String,
+}
+
+async fn update_server_owner(
+    State(state): State<AppState>,
+    id: Result<Path<u32>, PathRejection>,
+    Json(payload): Json<UpdateOwnerPayload>,
+) -> Result<ResponseFormat<()>, AppError> {
+    use crate::error::AppError::UserNotFound;
+    use crate::services::clerk::clerk_service::get_clerk_user;
+
+    let id = id?;
+    let new_owner_id = payload.user_id.trim().to_string();
+    if new_owner_id.is_empty() {
+        return Err(UserNotFound);
+    }
+
+    let server = state
+        .repository
+        .get_server_without_favicon(*id)
+        .await?
+        .ok_or(ServerNotFound)?;
+
+    if server.user_id == new_owner_id {
+        return Ok(ResponseFormat::success((), StatusCode::OK));
+    }
+
+    // Ensure the target user actually exists in Clerk before reassigning.
+    get_clerk_user(&state, &new_owner_id)
+        .await
+        .map_err(|_| UserNotFound)?;
+
+    state
+        .repository
+        .update_server_owner(*id, &new_owner_id)
         .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))

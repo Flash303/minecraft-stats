@@ -1,7 +1,7 @@
 import { useState, Fragment } from "react"
-import type { Server } from "@/core/lib/api"
+import type { Server, User } from "@/core/lib/api"
 import type { LucideIcon } from "lucide-react"
-import { Pencil, Globe, ImageIcon, Trash2, EllipsisVertical } from "lucide-react"
+import { Pencil, Globe, ImageIcon, Trash2, EllipsisVertical, ArrowLeftRight } from "lucide-react"
 import { Button } from "@/ui/components/button"
 import {
     DropdownMenu,
@@ -14,8 +14,9 @@ import { RenameServerModal } from "@/ui/components/RenameServerModal"
 import { ChangeIpModal } from "./ChangeIpModal"
 import { UpdateFaviconModal } from "./UpdateFaviconModal"
 import { DeleteServerModal } from "./DeleteServerModal"
+import { TransferOwnerModal } from "./TransferOwnerModal"
 
-type RowAction = "rename" | "ip" | "favicon" | "delete"
+type RowAction = "rename" | "ip" | "favicon" | "owner" | "delete"
 
 interface MenuEntry {
     key: RowAction
@@ -28,17 +29,20 @@ const MENU_ENTRIES: MenuEntry[] = [
     { key: "rename", icon: Pencil, labelKey: "admin.servers.rename" },
     { key: "ip", icon: Globe, labelKey: "admin.servers.changeIp" },
     { key: "favicon", icon: ImageIcon, labelKey: "admin.servers.updateFavicon" },
+    { key: "owner", icon: ArrowLeftRight, labelKey: "admin.servers.changeOwner" },
     { key: "delete", icon: Trash2, labelKey: "admin.servers.delete", destructive: true },
 ]
 
 interface RowActionsMenuProps {
     server: Server
+    users: User[]
+    getUserDisplayName: (user?: User | null) => string
     onSuccess: () => void
     triggerToast?: (type: "success" | "warning" | "error", text: string) => void
     t: (key: string, options?: Record<string, string>) => string
 }
 
-export function RowActionsMenu({ server, onSuccess, triggerToast, t }: RowActionsMenuProps) {
+export function RowActionsMenu({ server, users, getUserDisplayName, onSuccess, triggerToast, t }: RowActionsMenuProps) {
     const [menuOpen, setMenuOpen] = useState(false)
     const [activeAction, setActiveAction] = useState<RowAction | null>(null)
 
@@ -116,6 +120,19 @@ export function RowActionsMenu({ server, onSuccess, triggerToast, t }: RowAction
             {activeAction === "favicon" && (
                 <UpdateFaviconModal
                     server={server}
+                    onSuccess={handleSuccess}
+                    triggerToast={triggerToast}
+                    t={t}
+                    open
+                    onOpenChange={closeAction}
+                />
+            )}
+
+            {activeAction === "owner" && (
+                <TransferOwnerModal
+                    server={server}
+                    users={users}
+                    getUserDisplayName={getUserDisplayName}
                     onSuccess={handleSuccess}
                     triggerToast={triggerToast}
                     t={t}

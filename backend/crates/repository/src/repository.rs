@@ -50,6 +50,12 @@ pub trait Repository: Send + Sync {
         resolved_endpoint: Option<&str>,
     ) -> Result<(), RepositoryError>;
 
+    async fn update_server_owner(
+        &self,
+        server_id: u32,
+        user_id: &str,
+    ) -> Result<Server, RepositoryError>;
+
     // Gets
     async fn get_server(&self, server_id: u32) -> Result<Option<Server>, RepositoryError>;
     async fn list_servers(&self) -> Result<Vec<Server>, RepositoryError>;

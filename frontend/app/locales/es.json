@@ -304,7 +304,16 @@
       "selectAll": "Seleccionar todo",
       "selectServer": "Seleccionar {{name}}",
       "moreActions": "Más acciones",
-      "updateFavicon": "Actualizar favicon"
+      "updateFavicon": "Actualizar favicon",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "Jugadores en línea",
     "refresh": "Actualizar",
@@ -502,7 +511,8 @@
       "invalid_query": "Parámetros de consulta no válidos.",
       "invalid_json": "Formato JSON no válido en el cuerpo de la solicitud.",
       "blocked_endpoint": "Esta dirección no está permitida: el servidor debe ser accesible públicamente."
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "Actualizar Favicon",

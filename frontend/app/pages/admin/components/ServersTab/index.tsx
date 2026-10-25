@@ -355,7 +355,7 @@ export function ServersTab({
                                                     {isHidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                                                 </Button>
 
-                                                <RowActionsMenu server={server} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
+                                                <RowActionsMenu server={server} users={users} getUserDisplayName={getUserDisplayName} onSuccess={onRefresh} triggerToast={triggerToast} t={t} />
                                             </div>
                                         </td>
                                     </tr>

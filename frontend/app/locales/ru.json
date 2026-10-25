@@ -304,7 +304,16 @@
       "selectAll": "Выбрать все",
       "selectServer": "Выбрать {{name}}",
       "moreActions": "Больше действий",
-      "updateFavicon": "Обновить фавикон"
+      "updateFavicon": "Обновить фавикон",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "Игроки онлайн",
     "refresh": "Обновить",
@@ -502,7 +511,8 @@
       "invalid_query": "Неверные параметры запроса.",
       "invalid_json": "Неверный формат JSON в теле запроса.",
       "blocked_endpoint": "Этот адрес не разрешен: сервер должен быть публично доступным."
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "Обновить фавикон",

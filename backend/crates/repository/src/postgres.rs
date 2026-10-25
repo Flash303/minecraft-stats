@@ -221,6 +221,21 @@ impl Repository for PostgresRepository {
         Ok(())
     }
 
+    async fn update_server_owner(
+        &self,
+        server_id: u32,
+        user_id: &str,
+    ) -> Result<Server, RepositoryError> {
+        let row: ServerRow =
+            sqlx::query_as("UPDATE servers SET user_id = $2 WHERE id = $1 RETURNING *")
+                .bind(server_id as i32)
+                .bind(user_id)
+                .fetch_one(&self.pool)
+                .await?;
+
+        Ok(row.into())
+    }
+
     async fn update_servers_status(
         &self,
         updates: &[ServerStatusUpdate],

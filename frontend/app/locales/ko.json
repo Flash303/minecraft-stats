@@ -304,7 +304,16 @@
       "selectAll": "모두 선택",
       "selectServer": "{{name}} 선택",
       "moreActions": "추가 작업",
-      "updateFavicon": "파비콘 업데이트"
+      "updateFavicon": "파비콘 업데이트",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "접속 중인 플레이어",
     "refresh": "새로고침",
@@ -502,7 +511,8 @@
       "invalid_query": "잘못된 쿼리 매개변수입니다.",
       "invalid_json": "요청 본문의 JSON 형식이 잘못되었습니다.",
       "blocked_endpoint": "허용되지 않는 주소입니다: 서버는 공개적으로 연결 가능해야 합니다."
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "파비콘 업데이트",

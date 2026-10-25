@@ -52,6 +52,9 @@ pub enum AppError {
     #[error("Server not found")]
     ServerNotFound,
 
+    #[error("User not found")]
+    UserNotFound,
+
     #[error("Fetch failed")]
     Request(#[from] Error),
 
@@ -110,6 +113,7 @@ impl AppError {
             AppError::FeatureDisabled => StatusCode::NOT_FOUND,
             AppError::Authentication => StatusCode::UNAUTHORIZED,
             AppError::ServerNotFound => StatusCode::NOT_FOUND,
+            AppError::UserNotFound => StatusCode::NOT_FOUND,
             AppError::InvalidParam(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidQuery(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidJson(_) => StatusCode::BAD_REQUEST,
@@ -126,6 +130,7 @@ impl AppError {
             AppError::FeatureDisabled => "error.disabled_feature".into(),
             AppError::Authentication => "error.authentification".into(),
             AppError::ServerNotFound => "error.server_not_found".into(),
+            AppError::UserNotFound => "error.user_not_found".into(),
             AppError::InvalidParam(_) => "error.validation.invalid_param".into(),
             AppError::InvalidQuery(_) => "error.validation.invalid_query".into(),
             AppError::InvalidJson(_) => "error.validation.invalid_json".into(),

@@ -119,3 +119,22 @@ export async function updateServerIp(
         return { success: false, message: "Network error" }
     }
 }
+export async function updateServerOwner(
+    serverId: number,
+    userId: string,
+    token: string
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
+    try {
+        const res = await fetch(`${API_BASE}/admin/servers/${serverId}/owner`, {
+            method: "PATCH",
+            headers: getHeaders(token),
+            body: JSON.stringify({ user_id: userId })
+        })
+        const json = await res.json()
+        return { success: json.success, message: json.message, message_key: json.message_key }
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
+        console.error(`Failed to update server owner ${serverId}:`, error)
+        return { success: false, message: "Network error" }
+    }
+}
