@@ -9,7 +9,7 @@ use minecraft_pinger::java::config::JavaPingConfig;
 use minecraft_pinger::java::model::JavaPing;
 use repository::duplicate_detection::DuplicateDetectionService;
 use repository::models::record::Record;
-use repository::models::server::{Server, ServerStatus, ServerType};
+use repository::models::server::{Server, ServerStatus, ServerStatusUpdate, ServerType};
 use repository::postgres::PostgresRepository;
 use repository::repository::Repository;
 use std::sync::Arc;
@@ -23,6 +23,20 @@ enum PingResultType {
     Bedrock(BedrockPing),
 }
 
+#[inline]
+async fn refresh_endpoint(server: &mut Server, connected_addr: Option<String>) {
+    if let Some(addr) = connected_addr {
+        server.resolved_endpoint = Some(addr);
+    } else if server.resolved_endpoint.is_none() {
+        server.resolved_endpoint =
+            DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
+    } else {
+        // Not refreshed: None keeps the stored value.
+        server.resolved_endpoint = None;
+    }
+}
+
+#[inline]
 async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
     match ping {
         PingResultType::Java(ping) => {
@@ -60,13 +74,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
                 server.last_favicon = ping.favicon;
             }
 
-            if let Some(addr) = ping.connected_addr {
-                server.resolved_endpoint = Some(addr.to_string());
-            } else if server.resolved_endpoint.is_none() {
-                server.resolved_endpoint =
-                    DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port)
-                        .await;
-            }
+            refresh_endpoint(server, ping.connected_addr.map(|addr| addr.to_string())).await;
         }
         PingResultType::Bedrock(ping) => {
             server.last_status = Some(ServerStatus::Online);
@@ -88,13 +96,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
                 server.last_favicon = None;
             }
 
-            if let Some(addr) = ping.connected_addr {
-                server.resolved_endpoint = Some(addr.to_string());
-            } else if server.resolved_endpoint.is_none() {
-                server.resolved_endpoint =
-                    DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port)
-                        .await;
-            }
+            refresh_endpoint(server, ping.connected_addr.map(|addr| addr.to_string())).await;
         }
     }
 }
@@ -145,14 +147,13 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
 
                             match server.server_type {
                                 ServerType::Java => {
-                                    let ping_rs = pinger
+                                    match pinger
                                         .ping_java_server(
                                             server.ip.as_str(),
                                             server.port,
                                             java_pinger_config.as_ref(),
-                                        )
-                                        .await;
-                                    match ping_rs {
+                                        ).await
+                                    {
                                         Ok(ping) => {
                                             players_online = ping.players.online;
 
@@ -170,14 +171,14 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                     }
                                 }
                                 ServerType::Bedrock => {
-                                    let ping_rs = pinger
+                                    match pinger
                                         .ping_bedrock_server(
                                             server.ip.as_str(),
                                             server.port,
                                             pinger_config.as_ref(),
                                         )
-                                        .await;
-                                    match ping_rs {
+                                        .await
+                                    {
                                         Ok(ping) => {
                                             players_online = ping.current_players;
 
@@ -239,7 +240,9 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                 }
             }
 
-            if let Err(e) = repository.update_servers(&updated_servers).await {
+            let status_updates: Vec<ServerStatusUpdate> =
+                updated_servers.into_iter().map(ServerStatusUpdate::from).collect();
+            if let Err(e) = repository.update_servers_status(&status_updates).await {
                 info!("Error on server saving: {:?}", e);
             }
 

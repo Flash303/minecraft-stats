@@ -40,14 +40,13 @@ async fn update_server_status(
     let query = query?;
     let id = id?;
 
-    let mut server = state
+    state
         .repository
-        .get_server(*id)
+        .get_server_without_favicon(*id)
         .await?
         .ok_or(ServerNotFound)?;
-    server.hidden = query.hidden;
 
-    state.repository.update_server(&server).await?;
+    state.repository.set_server_hidden(*id, query.hidden).await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
 }
@@ -72,24 +71,29 @@ async fn update_server_favicon(
     Json(payload): Json<UpdateFaviconPayload>,
 ) -> Result<ResponseFormat<()>, AppError> {
     let id = id?;
-    let mut server = state
+    state
         .repository
-        .get_server(*id)
+        .get_server_without_favicon(*id)
         .await?
         .ok_or(ServerNotFound)?;
 
-    server.last_favicon = payload.favicon;
+    let (favicon, favicon_hash, forced_favicon) = match payload.favicon {
+        Some(favicon) => {
+            let hash = DuplicateDetectionService::hash_favicon(Some(favicon.as_str()));
+            (Some(favicon), hash, true)
+        }
+        None => (None, None, false),
+    };
 
-    if server.last_favicon.is_some() {
-        server.favicon_hash =
-            DuplicateDetectionService::hash_favicon(server.last_favicon.as_deref());
-        server.forced_favicon = true;
-    } else {
-        server.favicon_hash = None;
-        server.forced_favicon = false;
-    }
-
-    state.repository.update_server(&server).await?;
+    state
+        .repository
+        .set_server_favicon(
+            *id,
+            favicon.as_deref(),
+            favicon_hash.as_deref(),
+            forced_favicon,
+        )
+        .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
 }
@@ -118,7 +122,7 @@ async fn ping_server_ip(
     let id = id?;
     let server = state
         .repository
-        .get_server(*id)
+        .get_server_without_favicon(*id)
         .await?
         .ok_or(ServerNotFound)?;
 
@@ -198,20 +202,24 @@ async fn update_server_ip(
     Json(payload): Json<UpdateIpPayload>,
 ) -> Result<ResponseFormat<()>, AppError> {
     let id = id?;
-    let mut server = state
+    state
         .repository
-        .get_server(*id)
+        .get_server_without_favicon(*id)
         .await?
         .ok_or(ServerNotFound)?;
 
     let resolved_endpoint =
         DuplicateDetectionService::resolve_endpoint(payload.ip.as_str(), payload.port).await;
 
-    server.ip = payload.ip;
-    server.port = payload.port;
-    server.resolved_endpoint = resolved_endpoint;
-
-    state.repository.update_server(&server).await?;
+    state
+        .repository
+        .update_server_address(
+            *id,
+            &payload.ip,
+            payload.port,
+            resolved_endpoint.as_deref(),
+        )
+        .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
 }
