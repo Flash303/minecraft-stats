@@ -5,6 +5,7 @@ use axum::response::{IntoResponse, Response};
 use repository::error::RepositoryError;
 use reqwest::Error;
 use std::fmt::Debug;
+use std::net::IpAddr;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -66,8 +67,37 @@ pub enum AppError {
     #[error("{0}")]
     InvalidJson(#[from] JsonRejection),
 
-    #[error("Blocked endpoint: {0}")]
-    BlockedEndpoint(String),
+    #[error("Blocked endpoint: {}", format_blocked_ips(.0))]
+    BlockedEndpoint(Vec<IpAddr>),
+}
+
+/// Renders blocked IPs as a comma-separated list (`Vec` has no `Display`).
+fn format_blocked_ips(ips: &[IpAddr]) -> String {
+    ips.iter()
+        .map(IpAddr::to_string)
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::net::{IpAddr, Ipv4Addr};
+
+    #[test]
+    fn blocked_endpoint_lists_ips_comma_separated() {
+        let err = AppError::BlockedEndpoint(vec![
+            IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+            IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
+        ]);
+        assert_eq!(err.to_string(), "Blocked endpoint: 127.0.0.1, 10.0.0.1");
+    }
+
+    #[test]
+    fn blocked_endpoint_handles_empty_list() {
+        let err = AppError::BlockedEndpoint(vec![]);
+        assert_eq!(err.to_string(), "Blocked endpoint: ");
+    }
 }
 
 impl AppError {
