@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Server, User } from "@/core/lib/api";
+import { searchServers } from "@/core/lib/server-search";
 
 interface UseServersFilterSortProps {
     servers: Server[];
@@ -15,13 +16,9 @@ export function useServersFilterSort({ servers, users, getUserDisplayName }: Use
 
     const filteredServers = useMemo(() => {
         let list = servers;
-        const query = serverSearchQuery.trim().toLowerCase();
 
-        if (query) {
-            list = list.filter(s => 
-                s.name.toLowerCase().includes(query) ||
-                s.ip.toLowerCase().includes(query)
-            );
+        if (serverSearchQuery.trim()) {
+            list = searchServers(servers, serverSearchQuery);
         }
 
         if (serverStatusFilter === "online") {
@@ -36,6 +33,8 @@ export function useServersFilterSort({ servers, users, getUserDisplayName }: Use
     }, [servers, serverSearchQuery, serverStatusFilter]);
 
     const sortedServers = useMemo(() => {
+        // While searching, relevance (already applied above) IS the sort.
+        if (serverSearchQuery.trim()) return [...filteredServers];
         const list = [...filteredServers];
         return list.sort((a, b) => {
             let valA: string | number = "";
@@ -64,7 +63,7 @@ export function useServersFilterSort({ servers, users, getUserDisplayName }: Use
             if (valA > valB) return sortDirection === "asc" ? 1 : -1;
             return 0;
         });
-    }, [filteredServers, sortField, sortDirection, users, getUserDisplayName]);
+    }, [filteredServers, serverSearchQuery, sortField, sortDirection, users, getUserDisplayName]);
 
     const handleSort = (field: typeof sortField) => {
         if (sortField === field) {

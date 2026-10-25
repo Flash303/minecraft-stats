@@ -14,6 +14,7 @@ import { ServerListFilters } from "@/pages/home/components/ServerListFilters"
 import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useSearch } from "@/core/hooks/useSearch"
+import { searchServers } from "@/core/lib/server-search"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { SERVERS_QUERY_KEY } from "@/core/lib/query-keys"
 
@@ -252,14 +253,10 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
             list = list.filter(s => s.client_infos?.laby)
         }
 
-        // Search bar filtering
-        const query = searchQuery.toLowerCase().trim()
-        if (query) {
-            list = list.filter(
-                (s) =>
-                    s.name.toLowerCase().includes(query) ||
-                    s.ip.toLowerCase().includes(query)
-            )
+        // Search bar filtering + relevance ranking (centralized matcher:
+        // prefix > word-start > substring > 1-edit typo, name beats IP).
+        if (searchQuery.trim()) {
+            list = searchServers(list, searchQuery)
         }
 
         return list
@@ -290,6 +287,10 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
 
     const sortedServers = useMemo(() => {
         const list = [...filteredServers]
+        // While searching, relevance (already applied above) IS the sort:
+        // re-applying popularity/name/recent here would bury the best match
+        // (e.g. "Eri" showing "Stelerio" before "Erisium").
+        if (searchQuery.trim()) return list
         list.sort((a, b) => {
             let res = 0
             if (activeSort === "popularity") {
@@ -308,7 +309,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
             return sortDirection === "desc" ? res : -res
         })
         return list
-    }, [filteredServers, activeSort, sortDirection])
+    }, [filteredServers, activeSort, sortDirection, searchQuery])
 
     const totalPages = Math.ceil(sortedServers.length / ITEMS_PER_PAGE) || 1
     const safeCurrentPage = Math.min(currentPage, totalPages)

@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useSearch } from "@/core/hooks/useSearch"
 import { SERVERS_QUERY_KEY, SERVERS_SEARCH_QUERY_KEY } from "@/core/lib/query-keys"
+import { searchServers } from "@/core/lib/server-search"
 import { MINUTE_MS } from "@/core/lib/time"
 
 import { LunarLogo } from "@/ui/components/LunarLogo"
@@ -81,10 +82,7 @@ export function SearchBar({ value: propValue, onChange: propOnChange, onSelect, 
 
     const filteredSuggestions = useMemo(() => {
         if (!value.trim()) return []
-        return allServers.filter(s => 
-            s.name.toLowerCase().includes(value.toLowerCase()) || 
-            s.ip.toLowerCase().includes(value.toLowerCase())
-        ).slice(0, 5)
+        return searchServers(allServers, value).slice(0, 5)
     }, [allServers, value])
 
     const handleSelect = useCallback((server: Server) => {

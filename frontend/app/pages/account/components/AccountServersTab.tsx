@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react"
 import type { Server } from "@/core/lib/api"
+import { searchServers } from "@/core/lib/server-search"
 import { ServerCardSkeleton } from "@/pages/home/components/ServerCardSkeleton"
 import { Server as ServerIcon, SearchX } from "lucide-react"
 import { Button } from "@/ui/components/button"
@@ -26,14 +27,9 @@ export function AccountServersTab({ t, loading, servers, loadData }: AccountServ
     }
 
     const filteredServers = useMemo(() => {
-        const query = searchQuery.trim().toLowerCase()
-        if (!query) return servers
+        if (!searchQuery.trim()) return servers
 
-        return servers.filter((s) => {
-            const nameMatch = s.name.toLowerCase().includes(query)
-            const ipMatch = s.ip.toLowerCase().includes(query)
-            return nameMatch || ipMatch
-        })
+        return searchServers(servers, searchQuery)
     }, [servers, searchQuery])
 
     const totalPages = Math.max(1, Math.ceil(filteredServers.length / ITEMS_PER_PAGE))
