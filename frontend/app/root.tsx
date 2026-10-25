@@ -14,11 +14,13 @@ import { SearchProvider } from "@/core/contexts/SearchContext";
 import { LanguageProvider } from "@/core/contexts/LanguageContext";
 import { ToastProvider } from "@/core/contexts/ToastContext";
 import { ClerkProvider } from "@clerk/react";
+import { dark } from "@clerk/ui/themes";
+import { useTheme } from "@/core/hooks/useTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminProvider } from "@/core/contexts/AdminContext";
 
 import { TooltipProvider } from "@/ui/components/tooltip";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { GlobalLoading } from "@/ui/components/global-loading";
 import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
 import { LabyLogoSprite } from "@/ui/components/LabyLogo";
@@ -168,31 +170,57 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ThemedClerkProvider({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
+  // The app loads Clerk's new shared UI (@clerk/ui, see clerkUIVariant in
+  // @clerk/react): it only honors the `theme` key — the legacy `baseTheme`
+  // key is silently ignored (verified in @clerk/ui's parseAppearance).
+  const appearance = useMemo(
+    () => ({ theme: theme === "dark" ? dark : undefined }),
+    [theme]
+  );
+  return (
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      afterSignOutUrl="/"
+      appearance={appearance}
+    >
+      {children}
+    </ClerkProvider>
+  );
+}
+
 export default function App() {
   const { serverTheme, serverLanguage } = useLoaderData<typeof loader>();
 
   if (!PUBLISHABLE_KEY) {
     console.error("Missing Publishable Key");
-    return <Outlet />;
+    return (
+      <ThemeProvider serverTheme={serverTheme}>
+        <LanguageProvider serverLanguage={serverLanguage}>
+          <Outlet />
+        </LanguageProvider>
+      </ThemeProvider>
+    );
   }
 
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <QueryClientProvider client={queryClient}>
-        <AdminProvider>
-        <ThemeProvider serverTheme={serverTheme}>
-          <LanguageProvider serverLanguage={serverLanguage}>
-            <ToastProvider>
+    <ThemeProvider serverTheme={serverTheme}>
+      <LanguageProvider serverLanguage={serverLanguage}>
+        <ToastProvider>
+          <ThemedClerkProvider>
+            <QueryClientProvider client={queryClient}>
+              <AdminProvider>
                 <SearchProvider>
                   <TooltipProvider>
                     <Outlet />
                   </TooltipProvider>
                 </SearchProvider>
-            </ToastProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-        </AdminProvider>
-      </QueryClientProvider>
-    </ClerkProvider>
+              </AdminProvider>
+            </QueryClientProvider>
+          </ThemedClerkProvider>
+        </ToastProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

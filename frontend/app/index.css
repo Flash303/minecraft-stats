@@ -252,6 +252,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     --background: #f4f4f5;
     --foreground: #09090b;
     --card: #ffffff;
@@ -287,6 +288,7 @@
     --radius: 1rem;
   }
   .dark {
+    color-scheme: dark;
     --background: #09090b;
     --foreground: #fafafa;
     --card: #18181b;
