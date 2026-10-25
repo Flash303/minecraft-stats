@@ -70,7 +70,7 @@ for (const protocol of [...byProtocol.keys()].sort((a, b) => a - b)) {
     lines.push(`    ${protocol}: "${display}",`)
 }
 lines.push("}")
-const block = `${BEGIN_MARKER} (ne pas éditer à la main, voir \`bun run update:protocols\`) -->\n${lines.join("\n")}\n${END_MARKER}`
+const block = `${BEGIN_MARKER} (do not edit by hand, see \`bun run update:protocols\`) -->\n${lines.join("\n")}\n${END_MARKER}`
 
 const current = readFileSync(TARGET_FILE, "utf8")
 const start = current.indexOf(BEGIN_MARKER)
@@ -81,6 +81,6 @@ const next = current.slice(start, endOfLine + 1)
 if (next === block + "\n") {
     console.log(`Up to date: ${byProtocol.size} protocols, no change.`)
 } else {
-    writeFileSync(TARGET_FILE, current.slice(0, start) + block + current.slice(endOfLine + 1))
+    writeFileSync(TARGET_FILE, current.slice(0, start) + block + "\n" + current.slice(endOfLine + 1))
     console.log(`Updated ${TARGET_FILE}: ${byProtocol.size} protocols.`)
 }
