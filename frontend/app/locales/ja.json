@@ -304,7 +304,16 @@
       "selectAll": "すべて選択",
       "selectServer": "{{name}} を選択",
       "moreActions": "その他のアクション",
-      "updateFavicon": "ファビコンを更新"
+      "updateFavicon": "ファビコンを更新",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "オンラインのプレイヤー",
     "refresh": "更新",
@@ -502,7 +511,8 @@
       "invalid_query": "無効なクエリパラメータです。",
       "invalid_json": "リクエストボディのJSONフォーマットが無効です。",
       "blocked_endpoint": "このアドレスは許可されていません: サーバーは公開されて到達可能である必要があります。"
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "ファビコンの更新",

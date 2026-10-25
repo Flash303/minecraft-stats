@@ -304,7 +304,16 @@
       "selectAll": "Zaznacz wszystko",
       "selectServer": "Zaznacz {{name}}",
       "moreActions": "Więcej akcji",
-      "updateFavicon": "Zaktualizuj favicon"
+      "updateFavicon": "Zaktualizuj favicon",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "Gracze Online",
     "refresh": "Odśwież",
@@ -502,7 +511,8 @@
       "invalid_query": "Nieprawidłowe parametry zapytania.",
       "invalid_json": "Nieprawidłowy format JSON w treści żądania.",
       "blocked_endpoint": "Ten adres nie jest dozwolony: serwer musi być dostępny publicznie."
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "Aktualizacja Favicony",

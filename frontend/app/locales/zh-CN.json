@@ -304,7 +304,16 @@
       "selectAll": "全选",
       "selectServer": "选择 {{name}}",
       "moreActions": "更多操作",
-      "updateFavicon": "更新网站图标"
+      "updateFavicon": "更新网站图标",
+      "changeOwner": "Transfer ownership",
+      "changeOwnerTitle": "Transfer server ownership",
+      "changeOwnerDesc": "Transfer {{name}} to another user. The new owner will manage this server from their space.",
+      "changeOwnerSearch": "Search a user...",
+      "changeOwnerNoResults": "No users match your search.",
+      "changeOwnerCurrent": "Current owner",
+      "changeOwnerConfirm": "Transfer to {{name}}?",
+      "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
+      "changeOwnerError": "Failed to transfer ownership."
     },
     "statsPlayers": "在线玩家",
     "refresh": "刷新",
@@ -502,7 +511,8 @@
       "invalid_query": "无效的查询参数。",
       "invalid_json": "请求正文中的 JSON 格式无效。",
       "blocked_endpoint": "不允许此地址：服务器必须是可公开访问的。"
-    }
+    },
+    "user_not_found": "The requested user was not found."
   },
   "adminFavicon": {
     "title": "更新网站图标",
