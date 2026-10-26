@@ -348,6 +348,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     onResetFilters={resetFilters}
                     onRefresh={() => refetch()}
                     isRefreshing={refreshing}
+                    serversForExport={sortedServers}
                 />
 
                 {(loading || (refreshing && servers.length === 0)) ? (
