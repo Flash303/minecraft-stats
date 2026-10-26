@@ -31,6 +31,8 @@ import { LabyLogo } from "@/ui/components/LabyLogo"
 import { JavaLogo } from "@/ui/components/JavaLogo"
 import { BedrockLogo } from "@/ui/components/BedrockLogo"
 import { ToggleGroup, ToggleGroupItem } from "@/ui/components/toggle-group"
+import { ExportServersDatButton } from "@/pages/home/components/ExportServersDatButton"
+import type { Server } from "@/core/lib/api"
 
 interface ServerListFiltersProps {
     activeTab: "all" | "online" | "offline" | "hidden"
@@ -51,6 +53,8 @@ interface ServerListFiltersProps {
     onResetFilters: () => void
     onRefresh?: () => void
     isRefreshing?: boolean
+    /** Full filtered list (before pagination) used for the servers.dat export. */
+    serversForExport?: Server[]
 }
 
 /** Quick filter button (status tabs) */
@@ -239,6 +243,7 @@ export function ServerListFilters({
     onResetFilters,
     onRefresh,
     isRefreshing,
+    serversForExport,
 }: ServerListFiltersProps) {
     const { t } = useLanguage()
     const isDesktop = useMediaQuery("(min-width: 640px)")
@@ -413,8 +418,9 @@ export function ServerListFilters({
                 )}
             </div>
 
-            {/* Actions: Refresh & Filters/Sort */}
+            {/* Actions: Refresh, Export & Filters/Sort */}
             <div className="w-full sm:w-auto flex items-center justify-end gap-2">
+                {serversForExport && <ExportServersDatButton servers={serversForExport} />}
                 {onRefresh && (
                     <button
                         onClick={onRefresh}
