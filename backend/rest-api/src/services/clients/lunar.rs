@@ -68,7 +68,7 @@ pub async fn refresh_lunar_infos(state: &AppState) {
             return;
         }
     };
-    
+
     let raw_values: Vec<serde_json::Value> = match serde_json::from_str(&text) {
         Ok(values) => values,
         Err(err) => {
@@ -94,7 +94,7 @@ pub async fn refresh_lunar_infos(state: &AppState) {
     }
 
     if skipped > 0 {
-        warn!("Skipped {skipped} invalid lunar server entries url={URL}");
+        warn!("Skipped {skipped} invalid lunar server entries url={LUNAR_MAPPING_URL}");
     }
 
     let mut guard = state.lunar_servers_cache.write().await;
@@ -161,7 +161,7 @@ pub async fn refresh_lunar_partner_infos(state: &AppState) {
 
     if skipped > 0 {
         warn!(
-            "Skipped {skipped} invalid lunar partner server entries (inserted {inserted}) url={URL}"
+            "Skipped {skipped} invalid lunar partner server entries (inserted {inserted}) url={LUNAR_PARTNER_MAPPING_URL}"
         );
     }
 }
