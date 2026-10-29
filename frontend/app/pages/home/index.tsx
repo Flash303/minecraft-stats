@@ -88,6 +88,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
 }
 
+export async function clientLoader(): Promise<{ initialServers: Server[] }> {
+    // SPA navigations (e.g. /server/:id -> /): skip the server `_.data`
+    // roundtrip. The TanStack Query cache (`SERVERS_QUERY_KEY`, seeded by SSR
+    // on first paint) serves the list instantly, otherwise the `useQuery`
+    // below fetches `include_stats=true` straight from the API.
+    return { initialServers: [] }
+}
+
 export function shouldRevalidate({
     currentUrl,
     nextUrl,
