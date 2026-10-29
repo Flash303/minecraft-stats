@@ -1,8 +1,7 @@
-import { useEffect, useCallback, useMemo, Suspense } from "react"
+import { useEffect, useCallback, useMemo } from "react"
 import {
     useSearchParams,
     useLoaderData,
-    Await,
     type ShouldRevalidateFunctionArgs
 } from "react-router"
 import { useQuery } from "@tanstack/react-query"
@@ -71,13 +70,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const forwardedFor = request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
     // Disable stats for SSR to avoid a 4.6MB payload in the HTML.
     // React Query fetches the stats in the background on the client.
-    const serversPromise = fetchServers(undefined, false, forwardedFor)
-        .then((servers) => servers.map(toServerCardSummary))
-        .catch((e) => {
-            console.error("SSR Error:", e)
-            return []
-        })
-    return { initialServersPromise: serversPromise }
+    //
+    // The data is AWAITED (not deferred): the SSR HTML must already contain
+    // the list when hydration starts. React Router boots from an async module
+    // script, so hydration can run while a deferred promise is still in
+    // flight: the client then hydrates the <Await> fallback while the server
+    // HTML carries the resolved list (or vice versa) -> hydration error #418.
+    // Awaiting here only delays TTFB by the (fast, stats-free) API call, and
+    // changes nothing client-side (React Query seeding + background refetch
+    // with `include_stats=true` are untouched).
+    try {
+        const servers = await fetchServers(undefined, false, forwardedFor)
+        return { initialServers: servers.map(toServerCardSummary) }
+    } catch (e) {
+        console.error("SSR Error:", e)
+        return { initialServers: [] }
+    }
 }
 
 export function shouldRevalidate({
@@ -94,32 +102,9 @@ export function shouldRevalidate({
 }
 
 export default function ServerList() {
-    const loaderData = useLoaderData<typeof loader>()
-    
-    return (
-        <Suspense fallback={<ServerListFallback />}>
-            <Await resolve={loaderData.initialServersPromise}>
-                {(servers) => <ServerListContent initialServers={servers} />}
-            </Await>
-        </Suspense>
-    )
-}
+    const { initialServers } = useLoaderData<typeof loader>()
 
-function ServerListFallback() {
-    return (
-        <>
-            <Hero3D servers={[]} />
-            <PageContainer size="wide" className="scroll-mt-20 pt-8">
-                {/* Placeholder for the filters */}
-                <div className="mb-8 flex h-[72px] flex-col justify-between gap-4 border-b border-border/50 pb-4 sm:h-[56px] sm:flex-row sm:items-center"></div>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <ServerCardSkeleton key={i} />
-                    ))}
-                </div>
-            </PageContainer>
-        </>
-    )
+    return <ServerListContent initialServers={initialServers} />
 }
 
 function ServerListContent({ initialServers }: { initialServers: Server[] }) {
