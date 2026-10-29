@@ -20,7 +20,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AdminProvider } from "@/core/contexts/AdminContext";
 
 import { TooltipProvider } from "@/ui/components/tooltip";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GlobalLoading } from "@/ui/components/global-loading";
 import { BedrockLogoSprite } from "@/ui/components/BedrockLogo";
 import { LabyLogoSprite } from "@/ui/components/LabyLogo";
@@ -31,17 +31,23 @@ import { translateMeta } from "@/core/lib/seo-meta";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-// Singleton: queries only run client-side (after hydration), so there is no
-// need for a per-request client during SSR.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: true,
-      staleTime: 60_000,
+// The client is created per App instance (useState initializer), deliberately
+// NOT as a module singleton: during SSR the module is shared across requests,
+// and a singleton cache would leak one request's `initialData` into the next
+// request's HTML while the loader embeds fresh data -> hydration error #418
+// (stale card order/counts vs fresh embedded data). On the client, useState
+// keeps a single instance for the whole SPA session (same behavior as before).
+function createQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: true,
+        staleTime: 60_000,
+      },
     },
-  },
-});
+  });
+}
 
 export function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie") || "";
@@ -192,6 +198,9 @@ function ThemedClerkProvider({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { serverTheme, serverLanguage } = useLoaderData<typeof loader>();
+  // Per-instance client (fresh empty cache on every SSR render, stable
+  // singleton for the whole SPA session on the client).
+  const [queryClient] = useState(createQueryClient);
 
   if (!PUBLISHABLE_KEY) {
     console.error("Missing Publishable Key");
