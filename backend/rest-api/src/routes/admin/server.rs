@@ -155,8 +155,8 @@ async fn ping_server_ip(
                     motd = serde_json::to_value(&ping.description).ok();
                     version = Some(ping.version.name.clone());
                     favicon = ping.favicon.clone();
-                    current_players = Some(ping.players.online);
-                    max_players = Some(ping.players.max);
+                    current_players = Some(ping.players.as_ref().map(|t| t.online).unwrap_or(0));
+                    max_players = Some(ping.players.as_ref().map(|t| t.max).unwrap_or(0));
                 }
                 if let Err(PingError::BlockedEndpoint(detail)) = &res {
                     return Err(AppError::BlockedEndpoint(detail.clone()));

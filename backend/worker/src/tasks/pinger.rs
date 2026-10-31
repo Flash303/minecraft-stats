@@ -41,13 +41,13 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
     match ping {
         PingResultType::Java(ping) => {
             server.last_status = Some(ServerStatus::Online);
-            server.last_connected = Some(ping.players.online);
+            server.last_connected = ping.players.as_ref().map(|t| t.online);
             server.last_version = Some(ping.version.name);
-            server.last_max_players = Some(ping.players.max);
+            server.last_max_players = ping.players.as_ref().map(|t| t.max);
             server.last_ping_time = Some(ping.latency);
             server.last_protocol_version = ping.version.protocol.map(|s| s as i64);
 
-            if let Some(players) = ping.players.sample {
+            if let Some(players) = ping.players.map_or(None, |t| t.sample) {
                 if !players.is_empty() {
                     server.last_sample = Some(
                         players
@@ -156,7 +156,10 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                         .await
                                     {
                                         Ok(ping) => {
-                                            players_online = ping.players.online;
+                                            players_online = ping
+                                                .players
+                                                .as_ref()
+                                                .map_or(0, |t| t.online);
 
                                             update_server_from_ping(
                                                 &mut server,
