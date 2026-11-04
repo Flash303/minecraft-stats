@@ -3,7 +3,6 @@ import { useParams } from "react-router"
 import { useAuth } from "@clerk/react"
 import { fetchRecords, fetchServer } from "@/core/lib/api"
 import type { Server, ServerRecord } from "@/core/lib/api"
-import type { LabyManifest, LabyRawInfo } from "@/pages/server-detail/types"
 import { DEFAULT_INTERVAL_MS, DEFAULT_RANGE_MS } from "@/core/lib/time"
 
 
@@ -46,38 +45,9 @@ export function useServerData(initialServer: Server | null, initialRecords: Serv
     const [loadedFrom, setLoadedFrom] = useState<number>(initialFrom || Infinity)
     const [records, setRecords] = useState<{ date: number; value: number }[]>([])
     
-    const [labyManifest, setLabyManifest] = useState<LabyManifest | undefined>()
-
     const labyBackground = server?.client_infos?.laby?.background
     const lunarBackground = server?.client_infos?.lunar?.background
     const backgroundUrl = labyBackground || lunarBackground
-
-    useEffect(() => {
-        let cancelled = false
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLabyManifest(undefined)
-
-        if (server?.client_infos?.laby?.raw) {
-            const info: LabyRawInfo | undefined = server.client_infos.laby.raw;
-            const manifestAttachment = info?.attachments?.find((a) => a.file_name === 'manifest.json')
-            if (manifestAttachment?.url) {
-                const proxyUrl = `/api/laby/manifest?url=${encodeURIComponent(manifestAttachment.url)}`
-                fetch(proxyUrl)
-                    .then(res => {
-                        if (!res.ok) throw new Error("Failed to fetch manifest")
-                        return res.json()
-                    })
-                    .then(data => {
-                        if (!cancelled) setLabyManifest(data)
-                    })
-                    .catch(console.error)
-            }
-        }
-
-        return () => {
-            cancelled = true
-        }
-    }, [server?.client_infos])
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -274,7 +244,6 @@ export function useServerData(initialServer: Server | null, initialRecords: Serv
         appliedRange, appliedInterval, appliedCustomRange,
         timeLimits, visibleRange, setVisibleRange,
         isChartZoomed,
-        labyManifest,
         backgroundUrl, labyBackground,
         isRateLimited
     }
