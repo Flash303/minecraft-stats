@@ -9,7 +9,7 @@ import { cn } from "@/core/lib/utils"
 import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
-import type { ClientInfos, LabyManifest } from "@/pages/server-detail/types"
+import type { ClientInfos } from "@/pages/server-detail/types"
 
 const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string }> = {
     web: { icon: Globe, colorClass: "text-blue-500" },
@@ -27,10 +27,9 @@ const SOCIAL_ICONS: Record<string, { icon: React.ElementType, colorClass: string
 
 interface ServerSidebarProps {
     client_infos?: ClientInfos;
-    labyManifest?: LabyManifest;
 }
 
-export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps) {
+export function ServerSidebar({ client_infos }: ServerSidebarProps) {
     const labyServerInfo = client_infos?.laby?.raw;
     const lunarServerInfo = client_infos?.lunar?.raw_partner || client_infos?.lunar?.raw;
     const [searchQuery, setSearchQuery] = useState("");
@@ -49,8 +48,8 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
         labyScore += Object.entries(social).filter(([, v]) => !!v).length;
         if (user_stats) labyScore += 1;
         labyScore += Object.keys(gamemodes).length;
-        if (labyManifest?.supported_languages) labyScore += labyManifest.supported_languages.length;
-        if (labyManifest?.yt_trailer) labyScore += 1;
+        if (labyServerInfo?.supported_languages) labyScore += labyServerInfo.supported_languages.length;
+        if (client_infos?.laby?.yt_trailer) labyScore += 1;
         if (client_infos?.laby?.partner) labyScore += 1;
     }
 
@@ -186,8 +185,8 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
         if (!labyServerInfo) return null;
 
         const hasContent = client_infos?.laby?.partner || hasSocials || user_stats || hasGamemodes
-            || (labyManifest?.supported_languages?.length > 0)
-            || labyManifest?.yt_trailer;
+            || (labyServerInfo?.supported_languages?.length ?? 0) > 0
+            || client_infos?.laby?.yt_trailer;
 
         if (!hasContent) {
             return (
@@ -292,11 +291,11 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                     </div>
                 )}
 
-                {labyManifest?.supported_languages && labyManifest.supported_languages.length > 0 && (
+                {labyServerInfo?.supported_languages && labyServerInfo.supported_languages.length > 0 && (
                     <div className="flex flex-col gap-3">
                         <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.languages")}</h3>
                         <div className="flex flex-wrap gap-2">
-                            {labyManifest.supported_languages.map((lang: string) => {
+                            {labyServerInfo.supported_languages.map((lang: string) => {
                                 const code = lang.toLowerCase();
                                 const flagCode = {
                                     en: 'gb', ja: 'jp', zh: 'cn', ko: 'kr',
@@ -322,12 +321,12 @@ export function ServerSidebar({ client_infos, labyManifest }: ServerSidebarProps
                     </div>
                 )}
 
-                {labyManifest?.yt_trailer && (
+                {client_infos?.laby?.yt_trailer && (
                     <div className="flex flex-col gap-3">
                         <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.trailer")}</h3>
                         <div className="aspect-video w-full rounded-md overflow-hidden border">
-                            <iframe 
-                                src={`https://www.youtube.com/embed/${labyManifest.yt_trailer}`}
+                            <iframe
+                                src={`https://www.youtube.com/embed/${client_infos.laby.yt_trailer}`}
                                 title={t("serverDetail.sidebar.trailer")}
                                 className="w-full h-full"
                                 allowFullScreen

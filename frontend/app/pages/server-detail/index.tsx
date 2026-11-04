@@ -147,7 +147,6 @@ export default function ServerDetail() {
         appliedRange, appliedInterval, appliedCustomRange,
         timeLimits, visibleRange, setVisibleRange,
         isChartZoomed,
-        labyManifest,
         backgroundUrl, labyBackground, isRateLimited
     } = useServerData(initialServer, initialRecords, initialFrom);
     const TIME_RANGES = useMemo(() => getTimeRanges(t), [t])
@@ -411,7 +410,6 @@ export default function ServerDetail() {
                         {/* Sidebar */}
                         <ServerSidebar 
                             client_infos={server?.client_infos}
-                            labyManifest={labyManifest} 
                         />
                     </div>
                 </div>

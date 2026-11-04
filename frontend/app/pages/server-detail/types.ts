@@ -11,7 +11,7 @@ export interface LabyRawInfo {
     user_stats?: string
     background?: string
     partner?: boolean
-    attachments?: Array<{ file_name?: string; url?: string }>
+    supported_languages?: string[]
 }
 
 /** LunarClient launcher payload (subset actually rendered). */
@@ -32,6 +32,7 @@ export interface ClientInfos {
         raw?: LabyRawInfo
         background?: string
         partner?: boolean
+        yt_trailer?: string
     }
     lunar?: {
         raw?: LunarRawInfo
@@ -41,8 +42,3 @@ export interface ClientInfos {
     }
 }
 
-/** LabyClient manifest.json attachment (subset actually rendered). */
-export interface LabyManifest {
-    supported_languages?: string[]
-    yt_trailer?: string
-}
