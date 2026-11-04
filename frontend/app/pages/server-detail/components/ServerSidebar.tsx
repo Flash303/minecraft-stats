@@ -49,6 +49,7 @@ export function ServerSidebar({ client_infos }: ServerSidebarProps) {
         if (user_stats) labyScore += 1;
         labyScore += Object.keys(gamemodes).length;
         if (labyServerInfo?.supported_languages) labyScore += labyServerInfo.supported_languages.length;
+        if (client_infos?.laby?.yt_trailer) labyScore += 1;
         if (client_infos?.laby?.partner) labyScore += 1;
     }
 
@@ -184,7 +185,8 @@ export function ServerSidebar({ client_infos }: ServerSidebarProps) {
         if (!labyServerInfo) return null;
 
         const hasContent = client_infos?.laby?.partner || hasSocials || user_stats || hasGamemodes
-            || (labyServerInfo?.supported_languages?.length ?? 0) > 0;
+            || (labyServerInfo?.supported_languages?.length ?? 0) > 0
+            || client_infos?.laby?.yt_trailer;
 
         if (!hasContent) {
             return (
@@ -319,6 +321,19 @@ export function ServerSidebar({ client_infos }: ServerSidebarProps) {
                     </div>
                 )}
 
+                {client_infos?.laby?.yt_trailer && (
+                    <div className="flex flex-col gap-3">
+                        <h3 className="text-sm font-semibold text-muted-foreground">{t("serverDetail.sidebar.trailer")}</h3>
+                        <div className="aspect-video w-full rounded-md overflow-hidden border">
+                            <iframe
+                                src={`https://www.youtube.com/embed/${client_infos.laby.yt_trailer}`}
+                                title={t("serverDetail.sidebar.trailer")}
+                                className="w-full h-full"
+                                allowFullScreen
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };

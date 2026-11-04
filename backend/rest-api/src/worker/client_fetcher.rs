@@ -1,4 +1,6 @@
-use crate::services::clients::laby::{refresh_laby_infos, refresh_laby_partner_infos};
+use crate::services::clients::laby::{
+    refresh_laby_infos, refresh_laby_manifests, refresh_laby_partner_infos,
+};
 use crate::services::clients::lunar::{refresh_lunar_infos, refresh_lunar_partner_infos};
 use crate::state::AppState;
 use std::time::Duration;
@@ -13,6 +15,7 @@ pub fn start(state: AppState) {
             refresh_lunar_partner_infos(&state).await;
 
             refresh_laby_infos(&state).await;
+            refresh_laby_manifests(&state).await;
             refresh_laby_partner_infos(&state).await;
 
             sleep(FETCH_DELAY).await;

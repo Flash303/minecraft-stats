@@ -32,6 +32,7 @@ export interface ClientInfos {
         raw?: LabyRawInfo
         background?: string
         partner?: boolean
+        yt_trailer?: string
     }
     lunar?: {
         raw?: LunarRawInfo

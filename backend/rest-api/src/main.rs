@@ -120,6 +120,7 @@ async fn main() {
 
         laby_partner_cache: Arc::new(DashMap::new()),
         laby_servers_cache: Arc::new(RwLock::new(Vec::new())),
+        laby_manifest_cache: TtlCache::new(),
 
         lunar_partner_cache: Arc::new(DashMap::new()),
         lunar_servers_cache: Arc::new(RwLock::new(Vec::new())),

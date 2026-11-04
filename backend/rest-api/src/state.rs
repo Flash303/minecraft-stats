@@ -27,6 +27,7 @@ pub struct AppState {
 
     pub laby_partner_cache: Arc<DashMap<String, bool>>,
     pub laby_servers_cache: Arc<RwLock<Vec<Arc<RawLabyServer>>>>,
+    pub laby_manifest_cache: TtlCache<String, Option<String>>,
 
     pub lunar_servers_cache: Arc<RwLock<Vec<Arc<RawLunarServer>>>>,
     pub lunar_partner_cache: Arc<DashMap<String, RawLunarPartnerServer>>,
