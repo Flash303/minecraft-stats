@@ -106,7 +106,6 @@ serve({
       // Bypass cache for private logged-in routes
       if (
         url.pathname.startsWith("/account") ||
-        url.pathname.startsWith("/admin") ||
         url.pathname.startsWith("/dashboard")
       ) {
         return requestHandler(req);

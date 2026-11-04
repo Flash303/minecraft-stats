@@ -11,7 +11,6 @@ export default [
     route("legal", "pages/LegalNotice.tsx"),
     route("*", "routes/catchall.tsx"),
   ]),
-  route("admin", "pages/admin/index.tsx", { id: "admin" }),
   route("dashboard", "pages/admin/index.tsx", { id: "dashboard" }),
   route("dashboard/:subview", "pages/admin/index.tsx", { id: "dashboard-subview" }),
   route("sitemap.xml", "routes/sitemap.ts"),
