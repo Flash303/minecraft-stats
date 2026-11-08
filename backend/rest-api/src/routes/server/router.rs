@@ -13,9 +13,9 @@ use crate::state::AppState;
 use crate::utils::rate_limit::ClientIpKeyExtractor;
 use axum::Router;
 use axum::routing::{delete, get, patch, post};
-use repository::models::record::RecordData;
+use base64::prelude::*;
 use repository::models::server::Server;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use std::sync::Arc;
 use std::time::Duration;
 use tower_governor::GovernorLayer;
@@ -98,18 +98,23 @@ pub fn router() -> Router<AppState> {
 pub(super) async fn include_stats(
     include_stats: bool,
     state: &AppState,
-    servers: &mut Vec<BiggerServerResponse>,
+    servers: &mut [BiggerServerResponse],
 ) -> Result<(), AppError> {
-    if include_stats {
-        let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
+    if !include_stats {
+        return Ok(());
+    }
 
-        let mut records_map = state
-            .repository
-            .get_last_pings_for_servers(&server_ids)
-            .await?;
-        for s in servers {
-            s.data = records_map.remove(&s.server.id);
-        }
+    let server_ids: Vec<u32> = servers.iter().map(|s| s.server.id).collect();
+
+    let mut records_map = state
+        .repository
+        .get_last_pings_for_servers(&server_ids)
+        .await?;
+
+    for server in servers {
+        server.stats_data = records_map
+            .remove(&server.server.id)
+            .map(|e| e.into_binary());
     }
 
     Ok(())
@@ -121,13 +126,26 @@ pub(super) struct ServerListQueryParams {
     pub include_owners: Option<bool>,
 }
 
+fn serialize_opt_base64<S>(data: &Option<Vec<u8>>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    match data {
+        Some(bytes) => serializer.serialize_str(&BASE64_STANDARD.encode(bytes)),
+        None => serializer.serialize_none(),
+    }
+}
+
 #[derive(Serialize)]
 pub(super) struct BiggerServerResponse {
     #[serde(flatten)]
     pub server: Server,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub data: Option<RecordData>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_opt_base64"
+    )]
+    pub stats_data: Option<Vec<u8>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Arc<ClerkUser>>,
@@ -144,7 +162,7 @@ impl BiggerServerResponse {
         Self {
             client_infos: get_client_infos(state, &server).await,
             server,
-            data: None,
+            stats_data: None,
             user,
         }
     }
@@ -153,7 +171,7 @@ impl BiggerServerResponse {
         Self {
             client_infos: get_client_infos(state, &server).await,
             server,
-            data: None,
+            stats_data: None,
             user: None,
         }
     }
