@@ -21,7 +21,7 @@ pub(super) async fn get_mine_server(
         .repository
         .get_servers_of_user_without_favicon(account.id().clone())
         .await?;
-    let mut servers = stream::iter(
+    let mut servers: Vec<BiggerServerResponse> = stream::iter(
         result
             .into_iter()
             .filter(|s| account.is_admin() || !s.hidden),

@@ -51,13 +51,11 @@ async fn construct_laby_info(state: &AppState, server: Arc<RawLabyServer>) -> La
     };
 
     let yt_trailer = match manifest_url(&server) {
-        Some(url) if is_allowed_manifest_url(url) => {
-            state
-                .laby_manifest_cache
-                .get(&url.to_string())
-                .await
-                .flatten()
-        }
+        Some(url) if is_allowed_manifest_url(url) => state
+            .laby_manifest_cache
+            .get(&url.to_string())
+            .await
+            .flatten(),
         _ => None,
     };
 
@@ -238,8 +236,7 @@ pub struct Location {
 }
 
 const MANIFEST_CACHE_TTL: Duration = Duration::from_hours(24);
-const ALLOWED_MANIFEST_ORIGINS: [&str; 2] =
-    ["https://dl.labymod.net", "https://resource.laby.net"];
+const ALLOWED_MANIFEST_ORIGINS: [&str; 2] = ["https://dl.labymod.net", "https://resource.laby.net"];
 
 fn manifest_url(server: &RawLabyServer) -> Option<&str> {
     server
@@ -359,10 +356,7 @@ mod tests {
     fn manifest_url_finds_manifest_attachment() {
         let server = server_with_attachments(vec![
             attachment("background.webp", "https://dl.labymod.net/bg.webp"),
-            attachment(
-                "manifest.json",
-                "https://dl.labymod.net/manifest.json",
-            ),
+            attachment("manifest.json", "https://dl.labymod.net/manifest.json"),
         ]);
         assert_eq!(
             manifest_url(&server),
@@ -387,7 +381,9 @@ mod tests {
         assert!(is_allowed_manifest_url(
             "https://resource.laby.net/abc/manifest.json"
         ));
-        assert!(!is_allowed_manifest_url("http://dl.labymod.net/manifest.json"));
+        assert!(!is_allowed_manifest_url(
+            "http://dl.labymod.net/manifest.json"
+        ));
         assert!(!is_allowed_manifest_url(
             "https://dl.labymod.net.evil.com/manifest.json"
         ));
@@ -404,7 +400,10 @@ mod tests {
     fn parses_manifest_trailer() {
         let manifest: RawLabyManifest =
             serde_json::from_str(r#"{"yt_trailer": "dQw4w9WgXcQ"}"#).unwrap();
-        assert_eq!(normalize_trailer(manifest.yt_trailer), Some("dQw4w9WgXcQ".to_string()));
+        assert_eq!(
+            normalize_trailer(manifest.yt_trailer),
+            Some("dQw4w9WgXcQ".to_string())
+        );
 
         let manifest: RawLabyManifest = serde_json::from_str(r#"{}"#).unwrap();
         assert_eq!(normalize_trailer(manifest.yt_trailer), None);

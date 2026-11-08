@@ -156,10 +156,8 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                                         .await
                                     {
                                         Ok(ping) => {
-                                            players_online = ping
-                                                .players
-                                                .as_ref()
-                                                .map_or(0, |t| t.online);
+                                            players_online =
+                                                ping.players.as_ref().map_or(0, |t| t.online);
 
                                             update_server_from_ping(
                                                 &mut server,

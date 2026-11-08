@@ -2,14 +2,27 @@ import { z } from "zod";
 import { PUBLIC_API_URL } from "@/core/lib/config";
 import { API_BASE, getHeaders } from "./client";
 import { ServerSchema, type Server, type ServerRecord } from "./schemas";
+import { decodeStatsBase64, parseRecordBinary } from "./records-binary";
 
 export function getServerIconUrl(serverId: number | string): string {
     return `${PUBLIC_API_URL}/servers/${serverId}/icon?v=2`
 }
 
 export function normalizeServerData(server: unknown): Server {
-    if (server && typeof server === 'object' && 'data' in server) {
-        const s = server as { data?: unknown };
+    if (server && typeof server === 'object') {
+        const s = server as { data?: unknown; stats_data?: unknown };
+        // New backend shape: binary stats base64-encoded in `stats_data`.
+        // Decoded once here so the rest of the app keeps using `data`.
+        if (typeof s.stats_data === 'string' && s.stats_data.length > 0) {
+            const records = decodeStatsBase64(s.stats_data);
+            const { stats_data: _omitted, ...rest } = s as Record<string, unknown>;
+            void _omitted;
+            return {
+                ...(rest as object),
+                data: records
+            } as Server;
+        }
+        // Legacy shape: `data` as a [dates, values] tuple.
         if (Array.isArray(s.data) && s.data.length >= 2) {
             const dataArr = s.data as [number[], number[]];
             const dates = dataArr[0] || []
@@ -118,37 +131,18 @@ export async function fetchRecords(
         if (!res.ok) return []
         
         const buffer = await res.arrayBuffer()
-        if (buffer.byteLength < 4) return []
-
-        const dataView = new DataView(buffer)
-        const len = dataView.getUint32(0, true)
-        if (len === 0) return []
-
-        const baseTimestamp = Number(dataView.getBigInt64(4, true))
-
-        const deltasOffset = 12
-        const valuesOffset = 12 + len * 4
-
-        const deltas = new Uint32Array(buffer, deltasOffset, len)
-        const valuesArr = new Uint32Array(buffer, valuesOffset, len)
-
-        const dates = new Float64Array(len)
-        for (let i = 0; i < len; i++) {
-            dates[i] = baseTimestamp + deltas[i]
-        }
+        const records = parseRecordBinary(buffer)
 
         if (interval && interval > 0) {
             const intervalSec = interval / 1000
             const buckets: Record<number, { sum: number; count: number }> = {}
 
-            for (let i = 0; i < len; i++) {
-                const t = dates[i]
-                const val = valuesArr[i]
-                const bucketTime = Math.floor(t / intervalSec) * intervalSec
+            for (const record of records) {
+                const bucketTime = Math.floor(record.date / intervalSec) * intervalSec
                 if (!buckets[bucketTime]) {
                     buckets[bucketTime] = { sum: 0, count: 0 }
                 }
-                buckets[bucketTime].sum += val
+                buckets[bucketTime].sum += record.value
                 buckets[bucketTime].count += 1
             }
 
@@ -161,13 +155,6 @@ export async function fetchRecords(
                 }
             }).sort((a, b) => a.date - b.date)
         } else {
-            const records: ServerRecord[] = []
-            for (let i = 0; i < len; i++) {
-                records.push({
-                    date: dates[i],
-                    value: valuesArr[i]
-                })
-            }
             return records
         }
     } catch (error: unknown) {
