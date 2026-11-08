@@ -36,6 +36,7 @@ export const ServerSchema = z.object({
     hidden: z.boolean().nullish().catch(undefined),
     forced_favicon: z.boolean().nullish().catch(false),
     registered_date: z.number().nullish().catch(undefined),
+    stats_data: z.string().nullish().catch(undefined),
     data: z.array(ServerRecordSchema).nullish().catch(undefined),
     client_infos: z.any().nullish().catch(undefined),
 });
