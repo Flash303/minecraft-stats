@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
-use rsa::{BoxedUint, RsaPublicKey, pkcs1v15::Pkcs1v15Sign};
+use rsa::{BoxedUint, PublicKey, pkcs1v15::Pkcs1v15Sign};
 use sha2::{Digest, Sha256};
 
 use crate::services::clerk::model::ClerkClaims;
@@ -137,7 +137,7 @@ pub async fn verify_clerk_token(state: &AppState, token: &str) -> Result<ClerkCl
     let e_big = BoxedUint::from_be_slice(&e_bytes, e_bits)
         .map_err(|e| format!("Parsing E error: {}", e))?;
 
-    let rsa_key = RsaPublicKey::new(n_big, e_big).map_err(|e| format!("Key error: {}", e))?;
+    let rsa_key = PublicKey::new(n_big, e_big).map_err(|e| format!("Key error: {}", e))?;
 
     // Verify signature
     let signed_content = format!("{}.{}", header_b64, claims_b64);
