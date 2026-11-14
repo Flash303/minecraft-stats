@@ -5,7 +5,7 @@ import { translate, type Language } from "./i18n"
 
 /** Normalizes a free-form language string to an i18n `Language` (default: fr). */
 function acceptableLanguage(language: string | undefined | null): Language {
-    const langs: Language[] = ["fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh-CN", "ja", "ko", "nl", "he", "cs", "fi", "vi", "sr", "ro", "ka", "da"]
+    const langs: Language[] = ["fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh", "ja", "ko", "nl", "he", "cs", "fi", "vi", "sr", "ro", "ka", "da"]
     return (langs as string[]).includes(language ?? "") ? (language as Language) : "fr"
 }
 

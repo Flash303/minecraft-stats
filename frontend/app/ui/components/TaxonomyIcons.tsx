@@ -27,7 +27,6 @@ import {
     SERVER_LANGUAGES_API,
     getCategoryLabel,
     getLanguageLabel,
-    toApiLanguage,
 } from "@/core/lib/server-taxonomy"
 
 export const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -84,7 +83,7 @@ export const LANGUAGE_FLAG_CODES: Record<string, string> = {
 }
 
 export function LanguageFlag({ code, className }: { code: string; className?: string }) {
-    const norm = toApiLanguage(code)
+    const norm = code.trim().toLowerCase()
     const flagCode = LANGUAGE_FLAG_CODES[norm] ?? norm
     return (
         <img

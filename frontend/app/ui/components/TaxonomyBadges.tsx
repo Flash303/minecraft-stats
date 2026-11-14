@@ -1,5 +1,5 @@
 import { useLanguage } from "@/core/contexts/LanguageContext"
-import { getCategoryLabel, getLanguageLabel, toUiLanguage } from "@/core/lib/server-taxonomy"
+import { getCategoryLabel, getLanguageLabel } from "@/core/lib/server-taxonomy"
 import { CategoryIcon, LanguageFlag } from "@/ui/components/TaxonomyIcons"
 import { cn } from "@/core/lib/utils"
 
@@ -36,7 +36,7 @@ export function TaxonomyBadges({
     const visibleLangs = langs.slice(0, maxLanguages).map((l) => ({
         value: l,
         label: getLanguageLabel(l, t),
-        code: toUiLanguage(l).toUpperCase(),
+        code: l.toUpperCase(),
     }))
     const hiddenLangs = langs.slice(maxLanguages).map((l) => getLanguageLabel(l, t))
     const hiddenCount = cats.length - visibleCats.length + (langs.length - visibleLangs.length)

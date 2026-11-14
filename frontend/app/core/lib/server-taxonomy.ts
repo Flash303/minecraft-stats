@@ -5,9 +5,11 @@
  * - server_category: survival,creative,faction,skyblock,prison,minigames,bedwars,
  *   skywars,rpg,adventure,hardcore,anarchy,smp,pixelmon,citybuild,oneblock,boxed,
  *   roleplay,practice
- * - server_language: fr,en,es,de,pt,it,nl,pl,ru,zh,ja,ko,ar,tr
+ * - server_language: fr,en,es,de,pt,it,nl,pl,ru,zh,ja,ko,ar,tr,he,cs,fi,vi,sr,ro,
+ *   ka,da
  *
- * Note: the UI locale `zh-CN` maps to the API code `zh` (and back).
+ * Server language codes are shared verbatim with the API (including the UI
+ * locale `zh`): no mapping layer.
  * Laby/Lunar `supported_languages` / `languages` from client_infos are EXTERNAL
  * data — never mix them with these owner-declared values.
  */
@@ -64,19 +66,6 @@ export const SERVER_LANGUAGES_API = [
 
 export type ServerLanguageApi = (typeof SERVER_LANGUAGES_API)[string];
 
-const API_TO_UI: Record<string, string> = { zh: "zh-CN" };
-const UI_TO_API: Record<string, string> = { "zh-cn": "zh" };
-
-export function toApiLanguage(code: string): string {
-    const lower = code.trim().toLowerCase();
-    return UI_TO_API[lower] ?? lower;
-}
-
-export function toUiLanguage(code: string): string {
-    const lower = code.trim().toLowerCase();
-    return API_TO_UI[lower] ?? lower;
-}
-
 const CATEGORY_SET = new Set<string>(SERVER_CATEGORIES);
 const LANGUAGE_SET = new Set<string>(SERVER_LANGUAGES_API);
 
@@ -99,7 +88,7 @@ export function normalizeCategories(values: unknown): ServerCategory[] {
 }
 
 export function normalizeLanguages(values: unknown): string[] {
-    return normalizeList(values, LANGUAGE_SET, toApiLanguage);
+    return normalizeList(values, LANGUAGE_SET, (v) => v.toLowerCase());
 }
 
 function parseCsvParam(param: string | null, normalize: (v: unknown) => string[]): string[] {
@@ -165,7 +154,7 @@ export function getLanguageLabel(
     apiCode: string,
     t: (key: string) => string
 ): string {
-    const norm = toApiLanguage(apiCode);
+    const norm = apiCode.trim().toLowerCase();
     return lookupLabel(
         `taxonomy.languages.${norm}`,
         t,

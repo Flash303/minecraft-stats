@@ -18,7 +18,6 @@ import {
     parseCategoriesParam,
     parseLanguagesParam,
     serializeParam,
-    toApiLanguage,
 } from "@/core/lib/server-taxonomy"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { SERVERS_QUERY_KEY } from "@/core/lib/query-keys"
@@ -291,8 +290,8 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
             list = list.filter(s => s.categories.some(c => wanted.has(c)))
         }
         if (activeLanguages.length > 0) {
-            const wanted = new Set(activeLanguages.map(toApiLanguage))
-            list = list.filter(s => s.languages.map(toApiLanguage).some(l => wanted.has(l)))
+            const wanted = new Set(activeLanguages)
+            list = list.filter(s => s.languages.some(l => wanted.has(l)))
         }
 
         // Search bar filtering + relevance ranking (centralized matcher:

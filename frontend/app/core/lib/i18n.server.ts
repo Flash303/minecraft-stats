@@ -7,7 +7,7 @@ import de from "@/locales/de.json"
 import pt from "@/locales/pt.json"
 import ru from "@/locales/ru.json"
 import pl from "@/locales/pl.json"
-import zhCN from "@/locales/zh-CN.json"
+import zh from "@/locales/zh.json"
 import ja from "@/locales/ja.json"
 import ko from "@/locales/ko.json"
 import nl from "@/locales/nl.json"
@@ -33,7 +33,7 @@ const all: Array<[Language, Record<string, unknown>]> = [
     ["pt", pt],
     ["ru", ru],
     ["pl", pl],
-    ["zh-CN", zhCN],
+    ["zh", zh],
     ["ja", ja],
     ["ko", ko],
     ["nl", nl],

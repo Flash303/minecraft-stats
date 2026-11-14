@@ -1,4 +1,4 @@
-export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl" | "he" | "cs" | "fi" | "vi" | "sr" | "ro" | "ka" | "da"
+export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh" | "ja" | "ko" | "nl" | "he" | "cs" | "fi" | "vi" | "sr" | "ro" | "ka" | "da"
 
 /**
  * Translation dictionaries registered on demand.
@@ -21,7 +21,7 @@ const loaders: Record<Language, () => Promise<{ default: Record<string, unknown>
     pt: () => import("@/locales/pt.json"),
     ru: () => import("@/locales/ru.json"),
     pl: () => import("@/locales/pl.json"),
-    "zh-CN": () => import("@/locales/zh-CN.json"),
+    "zh": () => import("@/locales/zh.json"),
     ja: () => import("@/locales/ja.json"),
     ko: () => import("@/locales/ko.json"),
     nl: () => import("@/locales/nl.json"),
