@@ -84,6 +84,15 @@ async fn main() {
     }
     let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
 
+    // Service key for scripts (no expiry, unlike Clerk JWTs). Optional.
+    let admin_api_key: Option<String> = env::var("ADMIN_API_KEY")
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty());
+    if admin_api_key.is_none() {
+        info!("No ADMIN_API_KEY set, /admin routes require a Clerk admin JWT.");
+    }
+
     // Init Pinger (for server add)
     let pinger = MinecraftPinger::new();
     if let Err(err) = pinger {
@@ -116,6 +125,7 @@ async fn main() {
         clerk_instance_url: Arc::new(clerk_instance),
 
         clerk_secret_key: Arc::new(clerk_secret_key),
+        admin_api_key: Arc::new(admin_api_key),
         user_cache: TtlCache::new(),
 
         laby_partner_cache: Arc::new(DashMap::new()),

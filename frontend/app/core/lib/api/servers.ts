@@ -164,7 +164,7 @@ export async function fetchRecords(
     }
 }
 export async function createServer(
-    server: { name: string; ip: string; port: number; type: "java" | "bedrock" },
+    server: { name: string; ip: string; port: number; type: "java" | "bedrock"; categories: string[]; languages: string[] },
     token: string
 ): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
@@ -186,17 +186,25 @@ export async function renameServer(
     name: string,
     token: string
 ): Promise<{ success: boolean; message?: string; message_key?: string }> {
+    return updateServerDetails(serverId, { name }, token)
+}
+
+export async function updateServerDetails(
+    serverId: number,
+    payload: { name?: string; categories?: string[]; languages?: string[] },
+    token: string
+): Promise<{ success: boolean; message?: string; message_key?: string }> {
     try {
         const res = await fetch(`${API_BASE}/servers/${serverId}`, {
             method: "PATCH",
             headers: getHeaders(token),
-            body: JSON.stringify({ name })
+            body: JSON.stringify(payload)
         })
         const json = await res.json()
         return { success: json.success, message: json.message, message_key: json.message_key }
     } catch (error: unknown) {
         if (error instanceof Error && error.message === 'RATE_LIMIT') throw error;
-        console.error(`Failed to rename server ${serverId}:`, error)
+        console.error(`Failed to update server ${serverId}:`, error)
         return { success: false }
     }
 }

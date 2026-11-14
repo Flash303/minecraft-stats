@@ -11,7 +11,8 @@ async function preloadActiveLanguage(): Promise<void> {
   try {
     const lang = document.documentElement.lang as Language
     if (lang) {
-      await loadLanguage(lang)
+      // English doubles as the per-key fallback for untranslated strings.
+      await Promise.all([loadLanguage(lang), loadLanguage("en")])
     }
   } catch (e) {
     console.error("Failed to preload language dictionary:", e)

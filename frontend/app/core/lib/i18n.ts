@@ -1,4 +1,4 @@
-export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh-CN" | "ja" | "ko" | "nl"
+export type Language = "fr" | "en" | "es" | "it" | "de" | "pt" | "ru" | "pl" | "zh" | "ja" | "ko" | "nl" | "he" | "cs" | "fi" | "vi" | "sr" | "ro" | "ka" | "da"
 
 /**
  * Translation dictionaries registered on demand.
@@ -21,10 +21,18 @@ const loaders: Record<Language, () => Promise<{ default: Record<string, unknown>
     pt: () => import("@/locales/pt.json"),
     ru: () => import("@/locales/ru.json"),
     pl: () => import("@/locales/pl.json"),
-    "zh-CN": () => import("@/locales/zh-CN.json"),
+    "zh": () => import("@/locales/zh.json"),
     ja: () => import("@/locales/ja.json"),
     ko: () => import("@/locales/ko.json"),
     nl: () => import("@/locales/nl.json"),
+    he: () => import("@/locales/he.json"),
+    cs: () => import("@/locales/cs.json"),
+    fi: () => import("@/locales/fi.json"),
+    vi: () => import("@/locales/vi.json"),
+    sr: () => import("@/locales/sr.json"),
+    ro: () => import("@/locales/ro.json"),
+    ka: () => import("@/locales/ka.json"),
+    da: () => import("@/locales/da.json"),
 }
 
 // Cached promises: a given dictionary is imported only once.
@@ -57,31 +65,45 @@ export function loadLanguage(language: Language): Promise<void> {
 /**
  * Pure dictionary lookup, usable outside React (SSR meta, service worker...)
  * as well as from components through LanguageContext.
- * Returns the key when it cannot be resolved (dictionary not loaded or missing
- * key), matching the previous behavior.
+ * Untranslated keys gracefully fall back to English instead of leaking raw
+ * `section.key` paths into the UI; unknown keys return the path, matching
+ * the previous behavior.
  */
 export function translate(
     language: Language,
     path: string,
     replacements?: Record<string, string>
 ): string {
-    const dict = dictionaries[language]
-    if (!dict) return path
+    const hit = lookup(dictionaries[language], path)
+    if (hit !== undefined) return applyReplacements(hit, replacements)
+
+    if (language !== "en") {
+        const enHit = lookup(dictionaries.en, path)
+        if (enHit !== undefined) return applyReplacements(enHit, replacements)
+    }
+
+    return path
+}
+
+function lookup(dict: Record<string, unknown> | undefined, path: string): string | undefined {
+    if (!dict) return undefined
 
     let current: unknown = dict
 
     for (const key of path.split(".")) {
         if (typeof current !== "object" || current === null || !(key in current)) {
-            return path
+            return undefined
         }
         current = (current as Record<string, unknown>)[key]
     }
 
-    if (typeof current !== "string") return path
+    return typeof current === "string" ? current : undefined
+}
 
-    if (!replacements) return current
+function applyReplacements(value: string, replacements?: Record<string, string>): string {
+    if (!replacements) return value
     return Object.entries(replacements).reduce(
         (acc, [key, value]) => acc.replace(`{{${key}}}`, value),
-        current
+        value
     )
 }

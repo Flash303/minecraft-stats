@@ -2,6 +2,7 @@ use crate::error::{AppError, ServerCreationError};
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use crate::utils::deduplicate::deduplicate_in_place;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use axum::http::StatusCode;
@@ -25,6 +26,8 @@ pub(super) async fn create_server(
     let account = account.ok_or(AppError::Authentication)?;
 
     let mut draft = query?.0;
+    deduplicate_in_place(&mut draft.categories);
+    deduplicate_in_place(&mut draft.languages);
 
     let (is_reachable, version_name) = ping_server(&state, &mut draft).await?;
     if !is_reachable {

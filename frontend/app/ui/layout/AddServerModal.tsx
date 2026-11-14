@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useAuth } from "@clerk/react"
 import { Plus } from "lucide-react"
 import { Button } from "@/ui/components/button"
@@ -14,13 +14,25 @@ import {
 import { Input } from "@/ui/components/input"
 import { Label } from "@/ui/components/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/components/select"
+import { TaxonomyMultiSelect } from "@/ui/components/TaxonomyMultiSelect"
+import { getCategoryOptions, getLanguageOptions } from "@/ui/components/TaxonomyIcons"
 import { createServer } from "@/core/lib/api"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { JavaLogo } from "@/ui/components/JavaLogo"
 import { BedrockLogo } from "@/ui/components/BedrockLogo"
+import { normalizeCategories, normalizeLanguages } from "@/core/lib/server-taxonomy"
 
 interface AddServerModalProps {
     onSuccess?: () => void
+}
+
+const EMPTY_FORM = {
+    name: "",
+    ip: "",
+    port: "25565",
+    type: "java" as "java" | "bedrock",
+    categories: [] as string[],
+    languages: [] as string[],
 }
 
 export function AddServerModal({ onSuccess }: AddServerModalProps) {
@@ -29,17 +41,28 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [formData, setFormData] = useState({
-        name: "",
-        ip: "",
-        port: "25565",
-        type: "java" as "java" | "bedrock"
-    })
+    const [formData, setFormData] = useState(EMPTY_FORM)
+
+    const categoryOptions = useMemo(() => getCategoryOptions(t), [t])
+    const languageOptions = useMemo(() => getLanguageOptions(t), [t])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError(null)
+
+        const categories = normalizeCategories(formData.categories)
+        const languages = normalizeLanguages(formData.languages)
+        if (categories.length === 0) {
+            setError(t("addServer.categoriesRequired"))
+            setLoading(false)
+            return
+        }
+        if (languages.length === 0) {
+            setError(t("addServer.languagesRequired"))
+            setLoading(false)
+            return
+        }
 
         try {
             const token = await getToken()
@@ -50,14 +73,16 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                     name: formData.name,
                     ip: formData.ip,
                     port: parseInt(formData.port) || 25565,
-                    type: formData.type
+                    type: formData.type,
+                    categories,
+                    languages,
                 },
                 token
             )
 
             if (result.success) {
                 setOpen(false)
-                setFormData({ name: "", ip: "", port: "25565", type: "java" })
+                setFormData({ ...EMPTY_FORM, type: formData.type, port: formData.port })
                 onSuccess?.()
             } else {
                 setError(result.message_key ? t(result.message_key) : (result.message || t("addServer.error")))
@@ -78,7 +103,7 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                     <span className="hidden sm:inline">{t("addServer.button")}</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[480px]">
                 <DialogHeader>
                     <DialogTitle>{t("addServer.title")}</DialogTitle>
                     <DialogDescription>
@@ -146,6 +171,24 @@ export function AddServerModal({ onSuccess }: AddServerModalProps) {
                             onChange={(e) => setFormData({ ...formData, port: e.target.value })}
                             required
                         />
+                    </div>
+                    <div className="grid gap-2">
+                        <TaxonomyMultiSelect
+                            label={t("addServer.categoriesLabel")}
+                            options={categoryOptions}
+                            selected={formData.categories}
+                            onChange={(categories) => setFormData({ ...formData, categories })}
+                        />
+                        <p className="text-xs text-muted-foreground">{t("addServer.categoriesHint")}</p>
+                    </div>
+                    <div className="grid gap-2">
+                        <TaxonomyMultiSelect
+                            label={t("addServer.languagesLabel")}
+                            options={languageOptions}
+                            selected={formData.languages}
+                            onChange={(languages) => setFormData({ ...formData, languages })}
+                        />
+                        <p className="text-xs text-muted-foreground">{t("addServer.languagesHint")}</p>
                     </div>
                     {error && <p className="text-sm font-medium text-destructive">{error}</p>}
                     <DialogFooter>

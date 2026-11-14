@@ -86,7 +86,13 @@
     "success": "Serwer pomyślnie dodany",
     "error": "Nie udało się dodać serwera",
     "unauthenticated": "Niezalogowany",
-    "typePlaceholder": "Wybierz typ"
+    "typePlaceholder": "Wybierz typ",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "Ładowanie serwerów...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "Kliknij ponownie aktywną opcję, aby odwrócić kolejność",
       "drawerTitle": "Filtry serwerów",
       "drawerDescription": "Zawęź listę wyświetlanych serwerów.",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "Pokaż mniej",
       "labyInfo": "Informacje LabyClient",
       "labyServerList": "Lista serwerów LabyClient"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -332,7 +346,12 @@
       "changeOwnerCurrent": "Current owner",
       "changeOwnerConfirm": "Transfer to {{name}}?",
       "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
-      "changeOwnerError": "Failed to transfer ownership."
+      "changeOwnerError": "Failed to transfer ownership.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Gracze Online",
     "refresh": "Odśwież",
@@ -540,5 +559,55 @@
     "reset": "Zresetuj",
     "empty": "Brak ustawionego obrazu. Favicona zaktualizuje się automatycznie z gry.",
     "previewAlt": "Podgląd"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild",
+      "oneblock": "OneBlock",
+      "boxed": "Boxed",
+      "roleplay": "Roleplay",
+      "practice": "Practice",
+      "gens": "Gens"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish",
+      "he": "Hebrew",
+      "cs": "Czech",
+      "fi": "Finnish",
+      "vi": "Vietnamese",
+      "sr": "Serbian",
+      "ro": "Romanian",
+      "ka": "Georgian",
+      "da": "Danish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

@@ -12,7 +12,11 @@ describe("parseLanguageCookie", () => {
     it("extracts a supported language", () => {
         expect(parseLanguageCookie("language=fr")).toBe("fr")
         expect(parseLanguageCookie("session=abc; language=en; theme=dark")).toBe("en")
-        expect(parseLanguageCookie("language=zh-CN")).toBe("zh-CN")
+        expect(parseLanguageCookie("language=zh")).toBe("zh")
+    })
+
+    it("maps the legacy zh-CN cookie to zh", () => {
+        expect(parseLanguageCookie("language=zh-CN")).toBe("zh")
     })
 })
 
@@ -30,7 +34,7 @@ describe("resolveLanguageFromHeader", () => {
     })
 
     it("maps region variants", () => {
-        expect(resolveLanguageFromHeader("zh-CN,zh;q=0.9")).toBe("zh-CN")
+        expect(resolveLanguageFromHeader("zh-CN,zh;q=0.9")).toBe("zh")
         expect(resolveLanguageFromHeader("pt-BR")).toBe("pt")
         expect(resolveLanguageFromHeader("es-MX")).toBe("es")
     })

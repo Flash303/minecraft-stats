@@ -4,7 +4,9 @@ use crate::error::RepositoryError;
 use crate::models::alert::{Alert, AlertRow, DraftAlert};
 use crate::models::mojang::MojangApiDowntime;
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{DraftServer, Server, ServerRow, ServerStatusUpdate};
+use crate::models::server::{
+    DraftServer, Server, ServerCategory, ServerLanguage, ServerRow, ServerStatusUpdate,
+};
 use crate::models::web_push::{
     DraftWebPushSubscription, WebPushSubscription, WebPushSubscriptionRow,
 };
@@ -145,8 +147,8 @@ impl Repository for PostgresRepository {
 
     async fn create_server(&self, server: DraftServer) -> Result<Server, RepositoryError> {
         let server: ServerRow = sqlx::query_as(
-            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint, type)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            "INSERT INTO servers (name, ip, user_id, port, favicon_hash, motd_hash, resolved_endpoint, type, categories, languages)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                     RETURNING *")
             .bind(server.name)
             .bind(server.ip)
@@ -156,17 +158,27 @@ impl Repository for PostgresRepository {
             .bind(server.motd_hash)
             .bind(server.resolved_endpoint)
             .bind(server.server_type)
+            .bind(server.categories)
+            .bind(server.languages)
             .fetch_one(&self.pool)
             .await?;
 
         Ok(server.into())
     }
 
-    async fn rename_server(&self, server_id: u32, name: &str) -> Result<Server, RepositoryError> {
+    async fn update_server_details(
+        &self,
+        server_id: u32,
+        name: Option<&str>,
+        categories: Option<Vec<ServerCategory>>,
+        languages: Option<Vec<ServerLanguage>>,
+    ) -> Result<Server, RepositoryError> {
         let row: ServerRow =
-            sqlx::query_as("UPDATE servers SET name = $2 WHERE id = $1 RETURNING *")
+            sqlx::query_as("UPDATE servers SET name = COALESCE($2, name), categories = COALESCE($3, categories), languages = COALESCE($4, languages) WHERE id = $1 RETURNING *")
                 .bind(server_id as i32)
                 .bind(name)
+                .bind(categories)
+                .bind(languages)
                 .fetch_one(&self.pool)
                 .await?;
 
@@ -359,7 +371,8 @@ impl Repository for PostgresRepository {
                     NULL::text AS last_favicon,
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
-                    favicon_hash, motd_hash, resolved_endpoint
+                    favicon_hash, motd_hash, resolved_endpoint,
+                    categories, languages
              FROM servers WHERE id = $1",
         )
         .bind(server_id as i32)
@@ -375,7 +388,8 @@ impl Repository for PostgresRepository {
                     NULL::text AS last_favicon,
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
-                    favicon_hash, motd_hash, resolved_endpoint
+                    favicon_hash, motd_hash, resolved_endpoint,
+                    categories, languages
              FROM servers",
         )
         .fetch_all(&self.pool)
@@ -398,7 +412,8 @@ impl Repository for PostgresRepository {
                     NULL::text AS last_favicon,
                     last_status, last_connected, last_version, last_max_players, last_motd,
                     last_ping_time, last_sample, last_protocol_version,
-                    favicon_hash, motd_hash, resolved_endpoint
+                    favicon_hash, motd_hash, resolved_endpoint,
+                    categories, languages
              FROM servers WHERE user_id = $1",
         )
         .bind(user_id)
