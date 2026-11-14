@@ -2,6 +2,7 @@ use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use crate::utils::deduplicate::deduplicate;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::{Extension, Json};
@@ -45,16 +46,4 @@ pub(super) async fn update_server_name(
         .await?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
-}
-
-fn deduplicate<T>(values: Vec<T>) -> Vec<T>
-where
-    T: Eq + std::hash::Hash + Clone,
-{
-    use std::collections::HashSet;
-    let mut seen = HashSet::new();
-    values
-        .into_iter()
-        .filter(|v| seen.insert(v.clone()))
-        .collect()
 }

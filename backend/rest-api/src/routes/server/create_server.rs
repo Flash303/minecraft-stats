@@ -2,6 +2,7 @@ use crate::error::{AppError, ServerCreationError};
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use crate::utils::deduplicate::deduplicate_in_place;
 use axum::extract::State;
 use axum::extract::rejection::JsonRejection;
 use axum::http::StatusCode;
@@ -143,13 +144,4 @@ async fn ping_server(
     }
 
     Ok((is_reachable, version_name))
-}
-
-fn deduplicate_in_place<T>(values: &mut Vec<T>)
-where
-    T: Eq + std::hash::Hash + Clone,
-{
-    use std::collections::HashSet;
-    let mut seen = HashSet::new();
-    values.retain(|v| seen.insert(v.clone()));
 }
