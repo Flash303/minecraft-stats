@@ -177,6 +177,14 @@ pub enum ServerLanguage {
     Ko,
     Ar,
     Tr,
+    He,
+    Cs,
+    Fi,
+    Vi,
+    Sr,
+    Ro,
+    Ka,
+    Da,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

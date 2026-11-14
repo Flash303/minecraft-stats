@@ -47,6 +47,14 @@ export const SERVER_LANGUAGES_API = [
     "ko",
     "ar",
     "tr",
+    "he",
+    "cs",
+    "fi",
+    "vi",
+    "sr",
+    "ro",
+    "ka",
+    "da",
 ] as const;
 
 export type ServerLanguageApi = (typeof SERVER_LANGUAGES_API)[string];
@@ -138,6 +146,14 @@ const LANGUAGE_FALLBACK: Record<string, string> = {
     ko: "한국어",
     ar: "العربية",
     tr: "Türkçe",
+    he: "עברית",
+    cs: "Čeština",
+    fi: "Suomi",
+    vi: "Tiếng Việt",
+    sr: "Српски",
+    ro: "Română",
+    ka: "ქართული",
+    da: "Dansk",
 };
 
 export function getLanguageLabel(

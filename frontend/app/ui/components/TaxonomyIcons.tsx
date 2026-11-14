@@ -65,6 +65,14 @@ export const LANGUAGE_FLAG_CODES: Record<string, string> = {
     ko: "kr",
     ar: "sa",
     tr: "tr",
+    he: "il",
+    cs: "cz",
+    fi: "fi",
+    vi: "vn",
+    sr: "rs",
+    ro: "ro",
+    ka: "ge",
+    da: "dk",
 }
 
 export function LanguageFlag({ code, className }: { code: string; className?: string }) {

@@ -587,7 +587,15 @@
       "ja": "Japanese",
       "ko": "Korean",
       "ar": "Arabic",
-      "tr": "Turkish"
+      "tr": "Turkish",
+      "he": "Hebrew",
+      "cs": "Czech",
+      "fi": "Finnish",
+      "vi": "Vietnamese",
+      "sr": "Serbian",
+      "ro": "Romanian",
+      "ka": "Georgian",
+      "da": "Danish"
     },
     "searchPlaceholder": "Search...",
     "noResults": "No results"
