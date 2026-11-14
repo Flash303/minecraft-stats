@@ -23,6 +23,8 @@ pub struct AppState {
 
     pub clerk_secret_key: Arc<Option<String>>,
 
+    pub admin_api_key: Arc<Option<String>>,
+
     pub user_cache: TtlCache<String, Arc<ClerkUser>>,
 
     pub laby_partner_cache: Arc<DashMap<String, bool>>,
