@@ -11,8 +11,16 @@ import zhCN from "@/locales/zh-CN.json"
 import ja from "@/locales/ja.json"
 import ko from "@/locales/ko.json"
 import nl from "@/locales/nl.json"
+import he from "@/locales/he.json"
+import cs from "@/locales/cs.json"
+import fi from "@/locales/fi.json"
+import vi from "@/locales/vi.json"
+import sr from "@/locales/sr.json"
+import ro from "@/locales/ro.json"
+import ka from "@/locales/ka.json"
+import da from "@/locales/da.json"
 
-// Register all 12 locales BEFORE the SSR render so meta() and the HTML are
+// Register all 20 locales BEFORE the SSR render so meta() and the HTML are
 // rendered in the language resolved from the cookie/Accept-Language header.
 // This module is server-only: dictionaries are not bundled into the client
 // (the active language is loaded there via loadLanguage).
@@ -29,6 +37,14 @@ const all: Array<[Language, Record<string, unknown>]> = [
     ["ja", ja],
     ["ko", ko],
     ["nl", nl],
+    ["he", he],
+    ["cs", cs],
+    ["fi", fi],
+    ["vi", vi],
+    ["sr", sr],
+    ["ro", ro],
+    ["ka", ka],
+    ["da", da],
 ]
 
 for (const [lang, dict] of all) {

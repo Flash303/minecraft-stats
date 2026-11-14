@@ -25,6 +25,14 @@ export const LANGUAGES: readonly LanguageOption[] = [
     { value: "ja", label: "日本語", short: "JA" },
     { value: "ko", label: "한국어", short: "KO" },
     { value: "nl", label: "Nederlands", short: "NL" },
+    { value: "he", label: "עברית", short: "HE" },
+    { value: "cs", label: "Čeština", short: "CS" },
+    { value: "fi", label: "Suomi", short: "FI" },
+    { value: "vi", label: "Tiếng Việt", short: "VI" },
+    { value: "sr", label: "Srpski", short: "SR" },
+    { value: "ro", label: "Română", short: "RO" },
+    { value: "ka", label: "ქართული", short: "KA" },
+    { value: "da", label: "Dansk", short: "DA" },
 ] as const
 
 export function getLanguageOption(language: Language): LanguageOption {

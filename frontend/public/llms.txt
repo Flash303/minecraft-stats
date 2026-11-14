@@ -3,7 +3,7 @@
 > Minecraft Stats (mc-stats.fr) tracks connected players, uptime and versions for Minecraft Java and Bedrock servers, with history charts, server comparison, and downtime / player-threshold alerts.
 
 Minecraft Stats is a free analytics platform at https://mc-stats.fr for Minecraft server administrators and players. Each tracked server is pinged approximately every 8 seconds for Java and Bedrock editions, recording online status, player count, max capacity, version, MOTD, favicon and player samples.
-Use the links below to find content: Start lists all servers and the comparison tool, Data describes the public REST API, Project links the open-source code, Legal links terms and privacy. Server detail pages follow the pattern https://mc-stats.fr/server/{id} and are all listed in the sitemap. The interface is available in 12 languages (fr, en, es, it, de, pt, ru, pl, zh-CN, ja, ko, nl). Account pages (/account, /admin, /dashboard) require authentication and are disallowed in robots.txt.
+Use the links below to find content: Start lists all servers and the comparison tool, Data describes the public REST API, Project links the open-source code, Legal links terms and privacy. Server detail pages follow the pattern https://mc-stats.fr/server/{id} and are all listed in the sitemap. The interface is available in 20 languages (fr, en, es, it, de, pt, ru, pl, zh-CN, ja, ko, nl, he, cs, fi, vi, sr, ro, ka, da). Account pages (/account, /admin, /dashboard) require authentication and are disallowed in robots.txt.
 
 ## Start
 
