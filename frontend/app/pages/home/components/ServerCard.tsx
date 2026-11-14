@@ -6,7 +6,7 @@ import { cn, getServerIp, resolveServerVersion, formatNumber } from "@/core/lib/
 import { useCopyServerIp } from "@/core/hooks/useCopyServerIp"
 import { ServerIcon } from "@/ui/components/ServerIcon"
 import { lunarLogoClass, labyLogoClass } from "@/core/lib/theme-colors"
-import { Check, Copy, Wifi, WifiOff } from "lucide-react"
+import { Check, Copy } from "lucide-react"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { parseLegacyText } from "@/ui/motd/parser"
 import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
@@ -14,6 +14,7 @@ import { CursorTooltip } from "@/ui/motd/components/CursorTooltip"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
+import { TaxonomyBadges } from "@/ui/components/TaxonomyBadges"
 import { Link, useNavigate } from "react-router"
 
 interface ServerCardProps {
@@ -176,27 +177,38 @@ export function ServerCard({ server, to }: ServerCardProps) {
                 </Suspense>
             </div>
 
-            {/* Bottom row: Version badge and stats info */}
-            <div className="flex w-full flex-row items-center justify-between gap-2 border-t border-border/30 pt-2">
-                <div className="flex min-w-0 flex-row items-center gap-1.5 overflow-hidden">
-                    {server.type && <PlatformBadge type={server.type} className="shrink-0" />}
-                    {displayVersion ? (
-                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
-                            <span className="truncate">{t("common.version", { version: displayVersion })}</span>
-                        </span>
-                    ) : (
-                        <span className="inline-flex min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
-                            <span className="truncate">{t("common.unknownVersion")}</span>
-                        </span>
-                    )}
-                </div>
+            {/* Bottom area: categories line, then version + language flags */}
+            <div className="flex w-full flex-col gap-1.5 border-t border-border/30 pt-2">
+                {server.categories.length > 0 && (
+                    <TaxonomyBadges
+                        categories={server.categories}
+                        languages={[]}
+                        maxCategories={2}
+                    />
+                )}
+                <div className="flex w-full flex-row items-center justify-between gap-2">
+                    <div className="flex min-w-0 flex-row items-center gap-1.5 overflow-hidden">
+                        {server.type && <PlatformBadge type={server.type} className="shrink-0" />}
+                        {displayVersion ? (
+                            <span className="inline-flex min-w-0 items-center rounded-lg border border-border/50 bg-muted/50 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                                <span className="truncate">{t("common.version", { version: displayVersion })}</span>
+                            </span>
+                        ) : (
+                            <span className="inline-flex min-w-0 items-center rounded-lg border border-border/40 bg-muted/30 px-2 py-0.5 text-2xs font-semibold text-muted-foreground shadow-xs">
+                                <span className="truncate">{t("common.unknownVersion")}</span>
+                            </span>
+                        )}
+                    </div>
 
-                <div className={cn(
-                    "flex shrink-0 items-center gap-1 text-2xs font-medium",
-                    isOnline ? "text-success" : "text-destructive"
-                )}>
-                    {isOnline ? <Wifi aria-hidden="true" className="h-3 w-3" /> : <WifiOff aria-hidden="true" className="h-3 w-3" />}
-                    {isOnline ? t("common.online") : t("common.offline")}
+                    <div className="flex min-w-0 flex-1 items-center justify-end overflow-hidden">
+                        <TaxonomyBadges
+                            categories={[]}
+                            languages={server.languages}
+                            maxLanguages={3}
+                            languageDisplay="flag"
+                            className="flex-nowrap overflow-hidden"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

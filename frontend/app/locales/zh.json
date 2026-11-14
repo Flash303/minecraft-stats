@@ -86,7 +86,13 @@
     "success": "服务器添加成功",
     "error": "添加服务器失败",
     "unauthenticated": "未认证",
-    "typePlaceholder": "选择类型"
+    "typePlaceholder": "选择类型",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "正在加载服务器...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "再次点击当前选项可反转顺序",
       "drawerTitle": "服务器筛选",
       "drawerDescription": "优化显示的服务器列表。",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "收起",
       "labyInfo": "LabyClient 信息",
       "labyServerList": "LabyClient 服务器列表"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -332,7 +346,12 @@
       "changeOwnerCurrent": "Current owner",
       "changeOwnerConfirm": "Transfer to {{name}}?",
       "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
-      "changeOwnerError": "Failed to transfer ownership."
+      "changeOwnerError": "Failed to transfer ownership.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "在线玩家",
     "refresh": "刷新",
@@ -540,5 +559,55 @@
     "reset": "重置",
     "empty": "未设置图片。网站图标将自动从游戏中更新。",
     "previewAlt": "预览"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild",
+      "oneblock": "OneBlock",
+      "boxed": "Boxed",
+      "roleplay": "Roleplay",
+      "practice": "Practice",
+      "gens": "Gens"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish",
+      "he": "Hebrew",
+      "cs": "Czech",
+      "fi": "Finnish",
+      "vi": "Vietnamese",
+      "sr": "Serbian",
+      "ro": "Romanian",
+      "ka": "Georgian",
+      "da": "Danish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

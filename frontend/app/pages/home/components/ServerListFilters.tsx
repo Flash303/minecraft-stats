@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { cn } from "@/core/lib/utils"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { useMediaQuery } from "@/core/hooks/useMediaQuery"
@@ -31,6 +31,8 @@ import { LabyLogo } from "@/ui/components/LabyLogo"
 import { JavaLogo } from "@/ui/components/JavaLogo"
 import { BedrockLogo } from "@/ui/components/BedrockLogo"
 import { ToggleGroup, ToggleGroupItem } from "@/ui/components/toggle-group"
+import { TaxonomyMultiSelect } from "@/ui/components/TaxonomyMultiSelect"
+import { getCategoryOptions, getLanguageOptions } from "@/ui/components/TaxonomyIcons"
 import { ExportServersDatButton } from "@/pages/home/components/ExportServersDatButton"
 import type { Server } from "@/core/lib/api"
 
@@ -50,6 +52,10 @@ interface ServerListFiltersProps {
     setSortDirection: (dir: "asc" | "desc") => void
     activeLauncher: "all" | "lunar" | "laby"
     setActiveLauncher: (launcher: "all" | "lunar" | "laby") => void
+    activeCategories: readonly string[]
+    setActiveCategories: (categories: string[]) => void
+    activeLanguages: readonly string[]
+    setActiveLanguages: (languages: string[]) => void
     onResetFilters: () => void
     onRefresh?: () => void
     isRefreshing?: boolean
@@ -240,6 +246,10 @@ export function ServerListFilters({
     setSortDirection,
     activeLauncher,
     setActiveLauncher,
+    activeCategories,
+    setActiveCategories,
+    activeLanguages,
+    setActiveLanguages,
     onResetFilters,
     onRefresh,
     isRefreshing,
@@ -249,15 +259,22 @@ export function ServerListFilters({
     const isDesktop = useMediaQuery("(min-width: 640px)")
     const [open, setOpen] = useState(false)
 
+    const categoryOptions = useMemo(() => getCategoryOptions(t), [t])
+    const languageOptions = useMemo(() => getLanguageOptions(t), [t])
+
     const hasActiveFilters =
         activePlatform !== "all" ||
         activeLauncher !== "all" ||
+        activeCategories.length > 0 ||
+        activeLanguages.length > 0 ||
         activeSort !== "popularity" ||
         sortDirection !== "desc"
 
     const activeFilterCount = [
         activePlatform !== "all",
         activeLauncher !== "all",
+        activeCategories.length > 0,
+        activeLanguages.length > 0,
         activeSort !== "popularity" || sortDirection !== "desc",
     ].filter(Boolean).length
 
@@ -377,6 +394,28 @@ export function ServerListFilters({
                                 icon: <BedrockLogo className="w-3.5 h-3.5" />,
                             },
                         ]}
+                    />
+                </div>
+
+                <hr className="border-border/50" />
+
+                {/* CATEGORIES */}
+                <div className="space-y-2">
+                    <TaxonomyMultiSelect
+                        label={t("serverList.filters.categories")}
+                        options={categoryOptions}
+                        selected={activeCategories}
+                        onChange={setActiveCategories}
+                    />
+                </div>
+
+                {/* LANGUAGES */}
+                <div className="space-y-2">
+                    <TaxonomyMultiSelect
+                        label={t("serverList.filters.languages")}
+                        options={languageOptions}
+                        selected={activeLanguages}
+                        onChange={setActiveLanguages}
                     />
                 </div>
             </div>

@@ -6,7 +6,8 @@ import type { Server } from "@/core/lib/api";
 export const DEFAULT_LANGUAGE: Language = "fr";
 
 const SUPPORTED_LANGUAGES: ReadonlySet<string> = new Set([
-    "fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh-CN", "ja", "ko", "nl",
+    "fr", "en", "es", "it", "de", "pt", "ru", "pl", "zh", "ja", "ko", "nl",
+    "he", "cs", "fi", "vi", "sr", "ro", "ka", "da",
 ]);
 
 function isSupportedLanguage(lang: unknown): lang is Language {

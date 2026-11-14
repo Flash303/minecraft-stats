@@ -10,6 +10,7 @@ import { lunarLogoClass } from "@/core/lib/theme-colors"
 import { LunarLogo } from "@/ui/components/LunarLogo"
 import { LabyLogo } from "@/ui/components/LabyLogo"
 import { PlatformBadge } from "@/ui/components/PlatformBadge"
+import { TaxonomyBadges } from "@/ui/components/TaxonomyBadges"
 
 interface ServerDetailHeaderProps {
     server: Server
@@ -69,68 +70,76 @@ export function ServerDetailHeader({ server, t, language }: ServerDetailHeaderPr
                             <LabyLogo className={cn("w-4 h-4 shrink-0", server.client_infos.laby.partner ? "text-cyan-500" : "text-foreground")} title={t("serverList.filters.laby")} />
                         )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className={cn(
-                            "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border",
-                            isOnline ? "bg-success/10 border-success/20 text-success" : "bg-destructive/10 border-destructive/20 text-destructive"
-                        )}>
-                            <span className="relative flex h-2 w-2">
-                                {isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>}
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
-                            </span>
-                            {isOnline ? t("common.online") : t("common.offline")}
-                        </div>
-                        {server.type && <PlatformBadge type={server.type} />}
-                        <button
-                            type="button"
-                            onClick={handleCopy}
-                            aria-label={`${t("common.copy")} ${displayIp}`}
-                            className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[160px] sm:max-w-none cursor-pointer focus:outline-none focus-visible:text-primary"
-                        >
-                            <span className="truncate">{displayIp}</span>
-                            {copied ? (
-                                <Check className="h-2.5 w-2.5 text-success flex-shrink-0" />
-                            ) : (
-                                <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 group-focus-visible/copy:opacity-100 transition-opacity flex-shrink-0" />
-                            )}
-                        </button>
-                        {displayVersion && (
-                            <Badge variant="secondary" className="font-mono text-xs whitespace-nowrap">
-                                v{displayVersion}
-                            </Badge>
-                        )}
-                        {(server.user || server.registered_date) && (
-                            <div className="flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
-                                {server.user && (
-                                    <>
-                                        <span className="shrink-0">{t("serverDetail.addedBy")}</span>
-                                        {server.user.image_url ? (
-                                            <img
-                                                src={server.user.image_url}
-                                                alt={server.user.username || "User"}
-                                                className="h-3.5 w-3.5 rounded-full object-cover"
-                                                loading="lazy"
-                                                decoding="async"
-                                            />
-                                        ) : (
-                                            <UserIcon className="h-3 w-3" />
-                                        )}
-                                        <span className="min-w-0 truncate font-medium text-foreground">
-                                            {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
-                                        </span>
-                                    </>
-                                )}
-                                {server.user && server.registered_date && (
-                                    <span aria-hidden="true" className="shrink-0 opacity-50">•</span>
-                                )}
-                                {server.registered_date && (
-                                    <>
-                                        <Calendar className="h-3 w-3 shrink-0" />
-                                        <span className="whitespace-nowrap">{formatDate(server.registered_date * 1000, language)}</span>
-                                    </>
-                                )}
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className={cn(
+                                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border",
+                                isOnline ? "bg-success/10 border-success/20 text-success" : "bg-destructive/10 border-destructive/20 text-destructive"
+                            )}>
+                                <span className="relative flex h-2 w-2">
+                                    {isOnline && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>}
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-current"></span>
+                                </span>
+                                {isOnline ? t("common.online") : t("common.offline")}
                             </div>
-                        )}
+                            {server.type && <PlatformBadge type={server.type} />}
+                            <button
+                                type="button"
+                                onClick={handleCopy}
+                                aria-label={`${t("common.copy")} ${displayIp}`}
+                                className="flex min-w-0 items-center gap-1 text-muted-foreground text-xs font-mono hover:text-primary transition-colors group/copy max-w-[160px] sm:max-w-none cursor-pointer focus:outline-none focus-visible:text-primary"
+                            >
+                                <span className="truncate">{displayIp}</span>
+                                {copied ? (
+                                    <Check className="h-2.5 w-2.5 text-success flex-shrink-0" />
+                                ) : (
+                                    <Copy className="h-2.5 w-2.5 opacity-0 group-hover/copy:opacity-100 group-focus-visible/copy:opacity-100 transition-opacity flex-shrink-0" />
+                                )}
+                            </button>
+                            {displayVersion && (
+                                <Badge variant="secondary" className="font-mono text-xs whitespace-nowrap">
+                                    v{displayVersion}
+                                </Badge>
+                            )}
+                            {(server.user || server.registered_date) && (
+                                <div className="flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground text-2xs bg-secondary/50 px-2 py-0.5 rounded-full border border-border/50">
+                                    {server.user && (
+                                        <>
+                                            <span className="shrink-0">{t("serverDetail.addedBy")}</span>
+                                            {server.user.image_url ? (
+                                                <img
+                                                    src={server.user.image_url}
+                                                    alt={server.user.username || "User"}
+                                                    className="h-3.5 w-3.5 rounded-full object-cover"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            ) : (
+                                                <UserIcon className="h-3 w-3" />
+                                            )}
+                                            <span className="min-w-0 truncate font-medium text-foreground">
+                                                {server.user.first_name ? (server.user.last_name ? `${server.user.first_name} ${server.user.last_name}` : server.user.first_name) : (server.user.username || server.user.id)}
+                                            </span>
+                                        </>
+                                    )}
+                                    {server.user && server.registered_date && (
+                                        <span aria-hidden="true" className="shrink-0 opacity-50">•</span>
+                                    )}
+                                    {server.registered_date && (
+                                        <>
+                                            <Calendar className="h-3 w-3 shrink-0" />
+                                            <span className="whitespace-nowrap">{formatDate(server.registered_date * 1000, language)}</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        <TaxonomyBadges
+                            categories={server.categories}
+                            languages={server.languages}
+                            maxCategories={4}
+                            maxLanguages={4}
+                        />
                     </div>
                 </div>
             </div>

@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use crate::models::alert::{Alert, DraftAlert};
 use crate::models::mojang::MojangApiDowntime;
 use crate::models::record::{Record, RecordData};
-use crate::models::server::{DraftServer, Server, ServerStatusUpdate};
+use crate::models::server::{
+    DraftServer, Server, ServerCategory, ServerLanguage, ServerStatusUpdate,
+};
 use crate::models::web_push::{DraftWebPushSubscription, WebPushSubscription};
 use async_trait::async_trait;
 
@@ -32,7 +34,13 @@ pub trait Repository: Send + Sync {
         updates: &[ServerStatusUpdate],
     ) -> Result<(), RepositoryError>;
 
-    async fn rename_server(&self, server_id: u32, name: &str) -> Result<Server, RepositoryError>;
+    async fn update_server_details(
+        &self,
+        server_id: u32,
+        name: Option<&str>,
+        categories: Option<Vec<ServerCategory>>,
+        languages: Option<Vec<ServerLanguage>>,
+    ) -> Result<Server, RepositoryError>;
     async fn set_server_hidden(&self, server_id: u32, hidden: bool) -> Result<(), RepositoryError>;
     async fn set_server_favicon(
         &self,

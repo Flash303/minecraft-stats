@@ -86,7 +86,13 @@
     "success": "サーバーが正常に追加されました",
     "error": "サーバーの追加に失敗しました",
     "unauthenticated": "未認証",
-    "typePlaceholder": "種類を選択"
+    "typePlaceholder": "種類を選択",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "サーバーを読み込み中...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "選択中の項目をもう一度クリックすると並び順が反転します",
       "drawerTitle": "サーバーフィルター",
       "drawerDescription": "表示するサーバーの一覧を絞り込みます。",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "表示を減らす",
       "labyInfo": "LabyClient情報",
       "labyServerList": "LabyClient サーバーリスト"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -332,7 +346,12 @@
       "changeOwnerCurrent": "Current owner",
       "changeOwnerConfirm": "Transfer to {{name}}?",
       "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
-      "changeOwnerError": "Failed to transfer ownership."
+      "changeOwnerError": "Failed to transfer ownership.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "オンラインのプレイヤー",
     "refresh": "更新",
@@ -540,5 +559,55 @@
     "reset": "リセット",
     "empty": "画像が設定されていません。ファビコンはゲームから自動的に更新されます。",
     "previewAlt": "プレビュー"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild",
+      "oneblock": "OneBlock",
+      "boxed": "Boxed",
+      "roleplay": "Roleplay",
+      "practice": "Practice",
+      "gens": "Gens"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish",
+      "he": "Hebrew",
+      "cs": "Czech",
+      "fi": "Finnish",
+      "vi": "Vietnamese",
+      "sr": "Serbian",
+      "ro": "Romanian",
+      "ka": "Georgian",
+      "da": "Danish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

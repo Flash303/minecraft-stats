@@ -21,10 +21,18 @@ export const LANGUAGES: readonly LanguageOption[] = [
     { value: "pt", label: "Português", short: "PT" },
     { value: "ru", label: "Русский", short: "RU" },
     { value: "pl", label: "Polski", short: "PL" },
-    { value: "zh-CN", label: "简体中文", short: "中文" },
+    { value: "zh", label: "简体中文", short: "中文" },
     { value: "ja", label: "日本語", short: "JA" },
     { value: "ko", label: "한국어", short: "KO" },
     { value: "nl", label: "Nederlands", short: "NL" },
+    { value: "he", label: "עברית", short: "HE" },
+    { value: "cs", label: "Čeština", short: "CS" },
+    { value: "fi", label: "Suomi", short: "FI" },
+    { value: "vi", label: "Tiếng Việt", short: "VI" },
+    { value: "sr", label: "Srpski", short: "SR" },
+    { value: "ro", label: "Română", short: "RO" },
+    { value: "ka", label: "ქართული", short: "KA" },
+    { value: "da", label: "Dansk", short: "DA" },
 ] as const
 
 export function getLanguageOption(language: Language): LanguageOption {

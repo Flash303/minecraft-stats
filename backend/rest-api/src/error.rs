@@ -72,6 +72,9 @@ pub enum AppError {
 
     #[error("Blocked endpoint: {}", format_blocked_ips(.0))]
     BlockedEndpoint(Vec<IpAddr>),
+
+    #[error("{0}")]
+    BadRequest(String),
 }
 
 /// Renders blocked IPs as a comma-separated list (`Vec` has no `Display`).
@@ -118,6 +121,7 @@ impl AppError {
             AppError::InvalidQuery(_) => StatusCode::BAD_REQUEST,
             AppError::InvalidJson(_) => StatusCode::BAD_REQUEST,
             AppError::BlockedEndpoint(_) => StatusCode::BAD_REQUEST,
+            AppError::BadRequest(_) => StatusCode::BAD_REQUEST,
         }
     }
 
@@ -135,6 +139,7 @@ impl AppError {
             AppError::InvalidQuery(_) => "error.validation.invalid_query".into(),
             AppError::InvalidJson(_) => "error.validation.invalid_json".into(),
             AppError::BlockedEndpoint(_) => "error.validation.blocked_endpoint".into(),
+            AppError::BadRequest(_) => "error.validation.invalid_param".into(),
         }
     }
 }

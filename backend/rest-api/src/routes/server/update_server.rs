@@ -2,18 +2,21 @@ use crate::error::AppError;
 use crate::response::ResponseFormat;
 use crate::services::clerk::model::ClerkClaims;
 use crate::state::AppState;
+use crate::utils::deduplicate::deduplicate;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::{Extension, Json};
-use repository::models::server::Server;
+use repository::models::server::{Server, ServerCategory, ServerLanguage};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub(super) struct UpdateServerPayload {
-    name: String,
+    name: Option<String>,
+    categories: Option<Vec<ServerCategory>>,
+    languages: Option<Vec<ServerLanguage>>,
 }
 
-pub(super) async fn update_server_name(
+pub(super) async fn update_server(
     State(state): State<AppState>,
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(id): Path<u32>,
@@ -32,7 +35,15 @@ pub(super) async fn update_server_name(
         return Err(AppError::Authentication);
     }
 
-    let server = state.repository.rename_server(id, &payload.name).await?;
+    let server = state
+        .repository
+        .update_server_details(
+            id,
+            payload.name.as_deref(),
+            payload.categories.map(deduplicate),
+            payload.languages.map(deduplicate),
+        )
+        .await?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
 }

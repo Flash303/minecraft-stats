@@ -14,6 +14,11 @@ import { useAuth } from "@clerk/react"
 import { useAdmin } from "@/core/contexts/AdminContext"
 import { useSearch } from "@/core/hooks/useSearch"
 import { searchServers } from "@/core/lib/server-search"
+import {
+    parseCategoriesParam,
+    parseLanguagesParam,
+    serializeParam,
+} from "@/core/lib/server-taxonomy"
 import { useLanguage } from "@/core/contexts/LanguageContext"
 import { SERVERS_QUERY_KEY } from "@/core/lib/query-keys"
 
@@ -59,6 +64,8 @@ function toServerCardSummary(server: Server): Server {
         last_connected: server.last_connected,
         last_version: server.last_version,
         last_sample: server.last_sample,
+        categories: server.categories,
+        languages: server.languages,
         client_infos: {
             ...(server.client_infos?.lunar ? { lunar: { partner: server.client_infos.lunar.partner } } : {}),
             ...(server.client_infos?.laby ? { laby: { partner: server.client_infos.laby.partner } } : {}),
@@ -160,6 +167,15 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const launcherParam = searchParams.get("launcher")
     const activeLauncher = (launcherParam === "lunar" || launcherParam === "laby") ? launcherParam : (launcherParam === "labymod" ? "laby" : "all")
 
+    const activeCategories = useMemo(
+        () => parseCategoriesParam(searchParams.get("categories")),
+        [searchParams]
+    )
+    const activeLanguages = useMemo(
+        () => parseLanguagesParam(searchParams.get("languages")),
+        [searchParams]
+    )
+
     const pageParam = searchParams.get("page")
     const currentPage = pageParam && !isNaN(Number(pageParam)) ? Math.max(1, Number(pageParam)) : 1
 
@@ -196,6 +212,26 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
     const setSortDirection = useCallback((dir: "desc" | "asc") => updateFilter("dir", dir, "desc"), [updateFilter])
     const setActiveLauncher = useCallback((launcher: "all" | "lunar" | "laby") => updateFilter("launcher", launcher, "all"), [updateFilter])
 
+    const updateMultiFilter = useCallback((key: "categories" | "languages", values: readonly string[]) => {
+        const serialized = serializeParam(values)
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                if (!serialized) {
+                    next.delete(key)
+                } else {
+                    next.set(key, serialized)
+                }
+                next.delete("page")
+                return next
+            },
+            { replace: true, preventScrollReset: true }
+        )
+    }, [setSearchParams])
+
+    const setActiveCategories = useCallback((cats: string[]) => updateMultiFilter("categories", cats), [updateMultiFilter])
+    const setActiveLanguages = useCallback((langs: string[]) => updateMultiFilter("languages", langs), [updateMultiFilter])
+
     // A single setSearchParams call: its functional form does not queue
     // updates made in the same tick (unlike setState).
     const resetFilters = useCallback(() => {
@@ -204,6 +240,8 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                 const next = new URLSearchParams(prev)
                 next.delete("platform")
                 next.delete("launcher")
+                next.delete("categories")
+                next.delete("languages")
                 next.delete("sort")
                 next.delete("dir")
                 next.delete("page")
@@ -246,6 +284,16 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
             list = list.filter(s => s.client_infos?.laby)
         }
 
+        // Taxonomy filtering: OR within a group, AND between groups.
+        if (activeCategories.length > 0) {
+            const wanted = new Set(activeCategories)
+            list = list.filter(s => s.categories.some(c => wanted.has(c)))
+        }
+        if (activeLanguages.length > 0) {
+            const wanted = new Set(activeLanguages)
+            list = list.filter(s => s.languages.some(l => wanted.has(l)))
+        }
+
         // Search bar filtering + relevance ranking (centralized matcher:
         // prefix > word-start > substring > 1-edit typo, name beats IP).
         if (searchQuery.trim()) {
@@ -253,7 +301,7 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
         }
 
         return list
-    }, [servers, searchQuery, activePlatform, activeLauncher])
+    }, [servers, searchQuery, activePlatform, activeLauncher, activeCategories, activeLanguages])
 
     const filteredServers = useMemo(() => {
         let list = baseServersForCounts
@@ -329,6 +377,10 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                     setActivePlatform={setActivePlatform}
                     activeLauncher={activeLauncher}
                     setActiveLauncher={setActiveLauncher}
+                    activeCategories={activeCategories}
+                    setActiveCategories={setActiveCategories}
+                    activeLanguages={activeLanguages}
+                    setActiveLanguages={setActiveLanguages}
                     totalCount={visibleCount}
                     onlineCount={onlineCount}
                     offlineCount={offlineCount}
@@ -386,7 +438,10 @@ function ServerListContent({ initialServers }: { initialServers: Server[] }) {
                                               query: searchQuery
                                           })
                                         : activeTab !== "all" ||
-                                            activePlatform !== "all"
+                                            activePlatform !== "all" ||
+                                            activeLauncher !== "all" ||
+                                            activeCategories.length > 0 ||
+                                            activeLanguages.length > 0
                                           ? t("serverList.noFilterResults")
                                           : t("serverList.noServers")}
                                 </p>
