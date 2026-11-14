@@ -16,7 +16,7 @@ pub(super) struct UpdateServerPayload {
     languages: Option<Vec<ServerLanguage>>,
 }
 
-pub(super) async fn update_server_name(
+pub(super) async fn update_server(
     State(state): State<AppState>,
     Extension(account): Extension<Option<ClerkClaims>>,
     Path(id): Path<u32>,

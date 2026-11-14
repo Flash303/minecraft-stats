@@ -6,7 +6,7 @@ use crate::routes::server::get_icon::get_server_icon;
 use crate::routes::server::get_server::{get_mine_server, get_server};
 use crate::routes::server::list_alert::list_alerts;
 use crate::routes::server::list_server::list_all_servers;
-use crate::routes::server::update_server::update_server_name;
+use crate::routes::server::update_server::update_server;
 use crate::services::clerk::model::ClerkUser;
 use crate::services::clients::{ClientInfos, get_client_infos};
 use crate::state::AppState;
@@ -91,7 +91,7 @@ pub fn router() -> Router<AppState> {
         )
         .route(
             "/{id}",
-            patch(update_server_name).route_layer(GovernorLayer::new(patch_server_limit)),
+            patch(update_server).route_layer(GovernorLayer::new(patch_server_limit)),
         )
 }
 
