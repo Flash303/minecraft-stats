@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Propriétaire actuel",
       "changeOwnerConfirm": "Transférer vers {{name}} ?",
       "changeOwnerSuccess": "La propriété de {{name}} a été transférée.",
-      "changeOwnerError": "Erreur lors du transfert de propriété."
+      "changeOwnerError": "Erreur lors du transfert de propriété.",
+      "editTaxonomy": "Catégories & langues",
+      "editTaxonomyTitle": "Modifier catégories & langues",
+      "editTaxonomyDesc": "Modifiez les catégories et langues déclarées pour {{name}}.",
+      "editTaxonomySuccess": "Catégories & langues de {{name}} mises à jour.",
+      "editTaxonomyError": "Erreur lors de la mise à jour."
     },
     "statsPlayers": "Joueurs en ligne",
     "refresh": "Rafraîchir",

@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Současný majitel",
       "changeOwnerConfirm": "Převést na {{name}}?",
       "changeOwnerSuccess": "Vlastnictví {{name}} bylo převedeno.",
-      "changeOwnerError": "Chyba při převodu vlastnictví."
+      "changeOwnerError": "Chyba při převodu vlastnictví.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Hráči online",
     "refresh": "Obnovit",

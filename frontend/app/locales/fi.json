@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Nykyinen omistaja",
       "changeOwnerConfirm": "Siirretäänkö käyttäjälle {{name}}?",
       "changeOwnerSuccess": "{{name}} omistajuus siirretty.",
-      "changeOwnerError": "Omistajuuden siirto epäonnistui."
+      "changeOwnerError": "Omistajuuden siirto epäonnistui.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Pelaajaa online",
     "refresh": "Päivitä",

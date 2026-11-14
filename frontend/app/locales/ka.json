@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "მიმდინარე მფლობელი",
       "changeOwnerConfirm": "გადაეცეს {{name}}-ს?",
       "changeOwnerSuccess": "{{name}}-ის მფლობელობა გადაეცა.",
-      "changeOwnerError": "მფლობელობის გადაცემა ვერ მოხერხდა."
+      "changeOwnerError": "მფლობელობის გადაცემა ვერ მოხერხდა.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "მოთამაშეები ონლაინ",
     "refresh": "განახლება",

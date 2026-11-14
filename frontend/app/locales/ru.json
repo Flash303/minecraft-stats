@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Current owner",
       "changeOwnerConfirm": "Transfer to {{name}}?",
       "changeOwnerSuccess": "Ownership of {{name}} has been transferred.",
-      "changeOwnerError": "Failed to transfer ownership."
+      "changeOwnerError": "Failed to transfer ownership.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Игроки онлайн",
     "refresh": "Обновить",

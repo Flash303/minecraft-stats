@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Proprietar actual",
       "changeOwnerConfirm": "Transferi către {{name}}?",
       "changeOwnerSuccess": "Proprietatea {{name}} a fost transferată.",
-      "changeOwnerError": "Eroare la transferul proprietății."
+      "changeOwnerError": "Eroare la transferul proprietății.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Jucători online",
     "refresh": "Actualizează",

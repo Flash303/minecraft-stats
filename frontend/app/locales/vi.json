@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Chủ hiện tại",
       "changeOwnerConfirm": "Chuyển cho {{name}}?",
       "changeOwnerSuccess": "Đã chuyển quyền sở hữu {{name}}.",
-      "changeOwnerError": "Chuyển quyền sở hữu thất bại."
+      "changeOwnerError": "Chuyển quyền sở hữu thất bại.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Người chơi trực tuyến",
     "refresh": "Làm mới",

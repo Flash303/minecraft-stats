@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "בעלים נוכחי",
       "changeOwnerConfirm": "להעביר ל-{{name}}?",
       "changeOwnerSuccess": "הבעלות על {{name}} הועברה.",
-      "changeOwnerError": "העברת הבעלות נכשלה."
+      "changeOwnerError": "העברת הבעלות נכשלה.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "שחקנים מחוברים",
     "refresh": "רענן",

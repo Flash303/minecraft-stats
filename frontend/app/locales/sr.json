@@ -346,7 +346,12 @@
       "changeOwnerCurrent": "Trenutni vlasnik",
       "changeOwnerConfirm": "Preneti na {{name}}?",
       "changeOwnerSuccess": "Vlasništvo nad {{name}} je preneto.",
-      "changeOwnerError": "Greška pri prenosu vlasništva."
+      "changeOwnerError": "Greška pri prenosu vlasništva.",
+      "editTaxonomy": "Categories & languages",
+      "editTaxonomyTitle": "Edit categories & languages",
+      "editTaxonomyDesc": "Edit the declared categories and languages for {{name}}.",
+      "editTaxonomySuccess": "Categories & languages for {{name}} updated.",
+      "editTaxonomyError": "Failed to update."
     },
     "statsPlayers": "Igrači online",
     "refresh": "Osveži",

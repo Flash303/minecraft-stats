@@ -1,7 +1,7 @@
 import { useState, Fragment } from "react"
 import type { Server, User } from "@/core/lib/api"
 import type { LucideIcon } from "lucide-react"
-import { Pencil, Globe, ImageIcon, Trash2, EllipsisVertical, ArrowLeftRight } from "lucide-react"
+import { Pencil, Globe, ImageIcon, Trash2, EllipsisVertical, ArrowLeftRight, Tags } from "lucide-react"
 import { Button } from "@/ui/components/button"
 import {
     DropdownMenu,
@@ -12,11 +12,12 @@ import {
 } from "@/ui/components/dropdown-menu"
 import { RenameServerModal } from "@/ui/components/RenameServerModal"
 import { ChangeIpModal } from "./ChangeIpModal"
+import { EditTaxonomyModal } from "./EditTaxonomyModal"
 import { UpdateFaviconModal } from "./UpdateFaviconModal"
 import { DeleteServerModal } from "./DeleteServerModal"
 import { TransferOwnerModal } from "./TransferOwnerModal"
 
-type RowAction = "rename" | "ip" | "favicon" | "owner" | "delete"
+type RowAction = "rename" | "taxonomy" | "ip" | "favicon" | "owner" | "delete"
 
 interface MenuEntry {
     key: RowAction
@@ -27,6 +28,7 @@ interface MenuEntry {
 
 const MENU_ENTRIES: MenuEntry[] = [
     { key: "rename", icon: Pencil, labelKey: "admin.servers.rename" },
+    { key: "taxonomy", icon: Tags, labelKey: "admin.servers.editTaxonomy" },
     { key: "ip", icon: Globe, labelKey: "admin.servers.changeIp" },
     { key: "favicon", icon: ImageIcon, labelKey: "admin.servers.updateFavicon" },
     { key: "owner", icon: ArrowLeftRight, labelKey: "admin.servers.changeOwner" },
@@ -105,6 +107,17 @@ export function RowActionsMenu({ server, users, getUserDisplayName, onSuccess, t
                     error: t("admin.servers.renameError"),
                 }}
             />
+
+            {activeAction === "taxonomy" && (
+                <EditTaxonomyModal
+                    server={server}
+                    onSuccess={handleSuccess}
+                    triggerToast={triggerToast}
+                    t={t}
+                    open
+                    onOpenChange={closeAction}
+                />
+            )}
 
             {activeAction === "ip" && (
                 <ChangeIpModal
