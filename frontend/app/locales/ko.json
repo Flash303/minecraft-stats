@@ -86,7 +86,13 @@
     "success": "서버가 성공적으로 추가되었습니다",
     "error": "서버 추가 실패",
     "unauthenticated": "인증되지 않음",
-    "typePlaceholder": "유형 선택"
+    "typePlaceholder": "유형 선택",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "서버 로딩 중...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "활성 옵션을 다시 클릭하면 순서가 반전됩니다",
       "drawerTitle": "서버 필터",
       "drawerDescription": "표시되는 서버 목록을 세분화하세요.",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "간략히 보기",
       "labyInfo": "LabyClient 정보",
       "labyServerList": "LabyClient 서버 목록"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -540,5 +554,42 @@
     "reset": "초기화",
     "empty": "설정된 이미지가 없습니다. 게임에서 자동으로 파비콘을 업데이트합니다.",
     "previewAlt": "미리보기"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

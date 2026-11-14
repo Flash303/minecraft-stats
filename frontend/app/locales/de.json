@@ -86,7 +86,13 @@
     "success": "Server erfolgreich hinzugefügt",
     "error": "Fehler beim Hinzufügen des Servers",
     "unauthenticated": "Nicht authentifiziert",
-    "typePlaceholder": "Typ auswählen"
+    "typePlaceholder": "Typ auswählen",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "Server werden geladen...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "Klicke erneut auf die aktive Option, um die Reihenfolge umzukehren",
       "drawerTitle": "Serverfilter",
       "drawerDescription": "Verfeinere die Liste der angezeigten Server.",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "Weniger anzeigen",
       "labyInfo": "LabyClient-Info",
       "labyServerList": "LabyClient-Serverliste"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -540,5 +554,42 @@
     "reset": "Zurücksetzen",
     "empty": "Kein Bild festgelegt. Das Favicon wird automatisch aus dem Spiel aktualisiert.",
     "previewAlt": "Vorschau"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

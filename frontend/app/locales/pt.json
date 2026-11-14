@@ -86,7 +86,13 @@
     "success": "Servidor adicionado com sucesso",
     "error": "Falha ao adicionar servidor",
     "unauthenticated": "Não autenticado",
-    "typePlaceholder": "Selecione o tipo"
+    "typePlaceholder": "Selecione o tipo",
+    "categoriesLabel": "Categories",
+    "categoriesHint": "Select at least one category.",
+    "categoriesRequired": "Select at least one category.",
+    "languagesLabel": "Languages",
+    "languagesHint": "Select at least one language.",
+    "languagesRequired": "Select at least one language."
   },
   "serverList": {
     "loading": "Carregando servidores...",
@@ -139,7 +145,9 @@
       "sortToggleHint": "Clique novamente na opção ativa para inverter a ordem",
       "drawerTitle": "Filtros de servidores",
       "drawerDescription": "Refine a lista de servidores exibidos.",
-      "laby": "LabyClient"
+      "laby": "LabyClient",
+      "categories": "Categories",
+      "languages": "Languages"
     }
   },
   "hero": {
@@ -194,6 +202,12 @@
       "showLess": "Mostrar menos",
       "labyInfo": "Informações LabyClient",
       "labyServerList": "Lista de servidores LabyClient"
+    },
+    "taxonomy": {
+      "title": "Categories & languages",
+      "categories": "Categories",
+      "languages": "Languages",
+      "declaredHint": "Declared by the owner"
     }
   },
   "comparison": {
@@ -540,5 +554,42 @@
     "reset": "Redefinir",
     "empty": "Nenhuma imagem definida. O favicon será atualizado automaticamente a partir do jogo.",
     "previewAlt": "Pré-visualização"
+  },
+  "taxonomy": {
+    "categories": {
+      "survival": "Survival",
+      "creative": "Creative",
+      "faction": "Faction",
+      "skyblock": "SkyBlock",
+      "prison": "Prison",
+      "minigames": "Minigames",
+      "bedwars": "BedWars",
+      "skywars": "SkyWars",
+      "rpg": "RPG",
+      "adventure": "Adventure",
+      "hardcore": "Hardcore",
+      "anarchy": "Anarchy",
+      "smp": "SMP",
+      "pixelmon": "Pixelmon",
+      "citybuild": "CityBuild"
+    },
+    "languages": {
+      "fr": "French",
+      "en": "English",
+      "es": "Spanish",
+      "de": "German",
+      "pt": "Portuguese",
+      "it": "Italian",
+      "nl": "Dutch",
+      "pl": "Polish",
+      "ru": "Russian",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish"
+    },
+    "searchPlaceholder": "Search...",
+    "noResults": "No results"
   }
 }

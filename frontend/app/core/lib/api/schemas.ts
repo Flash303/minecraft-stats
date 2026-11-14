@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SERVER_CATEGORIES, SERVER_LANGUAGES_API } from "@/core/lib/server-taxonomy";
 export const UserSchema = z.object({
     id: z.string(),
     username: z.string().nullish().catch(null),
@@ -14,6 +15,12 @@ export const ServerRecordSchema = z.object({
     value: z.number(),
 });
 export type ServerRecord = z.infer<typeof ServerRecordSchema>;
+
+export const ServerCategorySchema = z.enum(SERVER_CATEGORIES);
+export type ServerCategory = z.infer<typeof ServerCategorySchema>;
+
+export const ServerLanguageSchema = z.enum(SERVER_LANGUAGES_API);
+export type ServerLanguage = z.infer<typeof ServerLanguageSchema>;
 
 export const ServerSchema = z.object({
     id: z.number(),
@@ -39,6 +46,8 @@ export const ServerSchema = z.object({
     stats_data: z.string().nullish().catch(undefined),
     data: z.array(ServerRecordSchema).nullish().catch(undefined),
     client_infos: z.any().nullish().catch(undefined),
+    categories: z.array(ServerCategorySchema).nullish().catch([]).transform((v) => v ?? []),
+    languages: z.array(ServerLanguageSchema).nullish().catch([]).transform((v) => v ?? []),
 });
 export type Server = z.infer<typeof ServerSchema>;
 
