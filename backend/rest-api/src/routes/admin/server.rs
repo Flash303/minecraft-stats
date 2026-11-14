@@ -1,4 +1,5 @@
 use crate::error::AppError::ServerNotFound;
+use crate::utils::deduplicate::deduplicate;
 use crate::{error::AppError, response::ResponseFormat, state::AppState};
 use axum::routing::delete;
 use axum::{
@@ -13,13 +14,14 @@ use minecraft_pinger::config::PingConfig;
 use minecraft_pinger::error::PingError;
 use minecraft_pinger::java::config::JavaPingConfig;
 use repository::duplicate_detection::DuplicateDetectionService;
-use repository::models::server::ServerType;
+use repository::models::server::{Server, ServerCategory, ServerLanguage, ServerType};
 use reqwest::StatusCode;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 pub fn router() -> Router<AppState> {
     Router::new()
+        .route("/servers/bulk", patch(bulk_update_servers))
         .route("/servers/{id}", post(update_server_status))
         .route("/servers/{id}", delete(delete_server))
         .route("/servers/{id}/favicon", patch(update_server_favicon))
@@ -263,4 +265,67 @@ async fn update_server_owner(
         .await?;
 
     Ok(ResponseFormat::success((), StatusCode::OK))
+}
+
+const MAX_BULK_ITEMS: usize = 500;
+
+#[derive(Deserialize)]
+struct BulkUpdateItem {
+    id: u32,
+    categories: Option<Vec<ServerCategory>>,
+    languages: Option<Vec<ServerLanguage>>,
+}
+
+#[derive(Deserialize)]
+struct BulkUpdatePayload {
+    servers: Vec<BulkUpdateItem>,
+}
+
+#[derive(Serialize)]
+struct BulkUpdateResult {
+    updated: Vec<Server>,
+    not_found: Vec<u32>,
+}
+
+async fn bulk_update_servers(
+    State(state): State<AppState>,
+    Json(payload): Json<BulkUpdatePayload>,
+) -> Result<ResponseFormat<BulkUpdateResult>, AppError> {
+    if payload.servers.is_empty() {
+        return Err(AppError::BadRequest("Empty servers list".to_string()));
+    }
+    if payload.servers.len() > MAX_BULK_ITEMS {
+        return Err(AppError::BadRequest(format!(
+            "Too many servers, max is {MAX_BULK_ITEMS}"
+        )));
+    }
+
+    let mut updated = Vec::with_capacity(payload.servers.len());
+    let mut not_found = Vec::new();
+
+    for item in payload.servers {
+        let categories = item.categories.map(deduplicate);
+        let languages = item.languages.map(deduplicate);
+
+        if !state
+            .repository
+            .get_server_without_favicon(item.id)
+            .await?
+            .is_some()
+        {
+            not_found.push(item.id);
+            continue;
+        }
+
+        let server = state
+            .repository
+            .update_server_details(item.id, None, categories, languages)
+            .await?;
+        updated.push(server);
+    }
+
+    Ok(ResponseFormat::success(
+        BulkUpdateResult { updated, not_found },
+        StatusCode::OK,
+    ))
 }

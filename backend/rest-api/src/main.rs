@@ -90,9 +90,7 @@ async fn main() {
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty());
     if admin_api_key.is_none() {
-        info!(
-            "No ADMIN_API_KEY set, /admin routes require a Clerk admin JWT."
-        );
+        info!("No ADMIN_API_KEY set, /admin routes require a Clerk admin JWT.");
     }
 
     // Init Pinger (for server add)
