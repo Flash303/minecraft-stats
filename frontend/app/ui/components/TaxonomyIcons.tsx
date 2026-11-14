@@ -19,6 +19,7 @@ import {
     Package,
     Drama,
     Target,
+    Factory,
 } from "lucide-react"
 import { cn } from "@/core/lib/utils"
 import type { TaxonomyMultiSelectOption } from "@/ui/components/TaxonomyMultiSelect"
@@ -49,6 +50,7 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
     boxed: Package,
     roleplay: Drama,
     practice: Target,
+    gens: Factory,
 }
 
 export function CategoryIcon({ slug, className }: { slug: string; className?: string }) {

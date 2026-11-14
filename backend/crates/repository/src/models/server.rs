@@ -160,6 +160,7 @@ pub enum ServerCategory {
     Boxed,
     Roleplay,
     Practice,
+    Gens,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, sqlx::Type)]
