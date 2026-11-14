@@ -3,7 +3,8 @@
  *
  * Backend enums (authoritative, lowercase):
  * - server_category: survival,creative,faction,skyblock,prison,minigames,bedwars,
- *   skywars,rpg,adventure,hardcore,anarchy,smp,pixelmon,citybuild
+ *   skywars,rpg,adventure,hardcore,anarchy,smp,pixelmon,citybuild,oneblock,boxed,
+ *   roleplay,practice
  * - server_language: fr,en,es,de,pt,it,nl,pl,ru,zh,ja,ko,ar,tr
  *
  * Note: the UI locale `zh-CN` maps to the API code `zh` (and back).
@@ -27,6 +28,10 @@ export const SERVER_CATEGORIES = [
     "smp",
     "pixelmon",
     "citybuild",
+    "oneblock",
+    "boxed",
+    "roleplay",
+    "practice",
 ] as const;
 
 export type ServerCategory = (typeof SERVER_CATEGORIES)[number];

@@ -571,7 +571,11 @@
       "anarchy": "Anarki",
       "smp": "SMP",
       "pixelmon": "Pixelmon",
-      "citybuild": "CityBuild"
+      "citybuild": "CityBuild",
+      "oneblock": "OneBlock",
+      "boxed": "Boxed",
+      "roleplay": "Roleplay",
+      "practice": "Practice"
     },
     "languages": {
       "fr": "Fransk",

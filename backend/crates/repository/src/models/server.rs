@@ -156,6 +156,10 @@ pub enum ServerCategory {
     Smp,
     Pixelmon,
     Citybuild,
+    Oneblock,
+    Boxed,
+    Roleplay,
+    Practice,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, sqlx::Type)]

@@ -15,6 +15,10 @@ import {
     Users,
     PawPrint,
     Building2,
+    Box,
+    Package,
+    Drama,
+    Target,
 } from "lucide-react"
 import { cn } from "@/core/lib/utils"
 import type { TaxonomyMultiSelectOption } from "@/ui/components/TaxonomyMultiSelect"
@@ -42,6 +46,10 @@ export const CATEGORY_ICONS: Record<string, LucideIcon> = {
     smp: Users,
     pixelmon: PawPrint,
     citybuild: Building2,
+    oneblock: Box,
+    boxed: Package,
+    roleplay: Drama,
+    practice: Target,
 }
 
 export function CategoryIcon({ slug, className }: { slug: string; className?: string }) {
