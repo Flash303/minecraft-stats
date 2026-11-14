@@ -25,6 +25,8 @@ pub(super) async fn create_server(
     let account = account.ok_or(AppError::Authentication)?;
 
     let mut draft = query?.0;
+    deduplicate_in_place(&mut draft.categories);
+    deduplicate_in_place(&mut draft.languages);
 
     let (is_reachable, version_name) = ping_server(&state, &mut draft).await?;
     if !is_reachable {
@@ -141,4 +143,13 @@ async fn ping_server(
     }
 
     Ok((is_reachable, version_name))
+}
+
+fn deduplicate_in_place<T>(values: &mut Vec<T>)
+where
+    T: Eq + std::hash::Hash + Clone,
+{
+    use std::collections::HashSet;
+    let mut seen = HashSet::new();
+    values.retain(|v| seen.insert(v.clone()));
 }

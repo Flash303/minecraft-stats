@@ -5,12 +5,14 @@ use crate::state::AppState;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::{Extension, Json};
-use repository::models::server::Server;
+use repository::models::server::{Server, ServerCategory, ServerLanguage};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub(super) struct UpdateServerPayload {
-    name: String,
+    name: Option<String>,
+    categories: Option<Vec<ServerCategory>>,
+    languages: Option<Vec<ServerLanguage>>,
 }
 
 pub(super) async fn update_server_name(
@@ -32,7 +34,27 @@ pub(super) async fn update_server_name(
         return Err(AppError::Authentication);
     }
 
-    let server = state.repository.rename_server(id, &payload.name).await?;
+    let server = state
+        .repository
+        .update_server_details(
+            id,
+            payload.name.as_deref(),
+            payload.categories.map(deduplicate),
+            payload.languages.map(deduplicate),
+        )
+        .await?;
 
     Ok(ResponseFormat::success(server, StatusCode::OK))
+}
+
+fn deduplicate<T>(values: Vec<T>) -> Vec<T>
+where
+    T: Eq + std::hash::Hash + Clone,
+{
+    use std::collections::HashSet;
+    let mut seen = HashSet::new();
+    values
+        .into_iter()
+        .filter(|v| seen.insert(v.clone()))
+        .collect()
 }

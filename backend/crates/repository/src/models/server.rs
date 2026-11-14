@@ -39,6 +39,9 @@ pub struct Server {
     pub motd_hash: Option<String>,
     #[serde(skip_serializing)]
     pub resolved_endpoint: Option<String>,
+
+    pub categories: Vec<ServerCategory>,
+    pub languages: Vec<ServerLanguage>,
 }
 
 #[derive(FromRow)]
@@ -73,6 +76,9 @@ pub struct ServerRow {
     favicon_hash: Option<String>,
     motd_hash: Option<String>,
     resolved_endpoint: Option<String>,
+
+    categories: Vec<ServerCategory>,
+    languages: Vec<ServerLanguage>,
 }
 
 impl From<ServerRow> for Server {
@@ -105,6 +111,9 @@ impl From<ServerRow> for Server {
             favicon_hash: row.favicon_hash,
             motd_hash: row.motd_hash,
             resolved_endpoint: row.resolved_endpoint,
+
+            categories: row.categories,
+            languages: row.languages,
         }
     }
 }
@@ -127,6 +136,49 @@ pub enum ServerType {
     Bedrock,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, sqlx::Type)]
+#[sqlx(type_name = "server_category")]
+#[sqlx(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
+pub enum ServerCategory {
+    Survival,
+    Creative,
+    Faction,
+    Skyblock,
+    Prison,
+    Minigames,
+    Bedwars,
+    Skywars,
+    Rpg,
+    Adventure,
+    Hardcore,
+    Anarchy,
+    Smp,
+    Pixelmon,
+    Citybuild,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, sqlx::Type)]
+#[sqlx(type_name = "server_language")]
+#[sqlx(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
+pub enum ServerLanguage {
+    Fr,
+    En,
+    Es,
+    De,
+    Pt,
+    It,
+    Nl,
+    Pl,
+    Ru,
+    Zh,
+    Ja,
+    Ko,
+    Ar,
+    Tr,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DraftServer {
     pub name: String,
@@ -141,6 +193,11 @@ pub struct DraftServer {
     pub favicon_hash: Option<String>,
     pub motd_hash: Option<String>,
     pub resolved_endpoint: Option<String>,
+
+    #[serde(default)]
+    pub categories: Vec<ServerCategory>,
+    #[serde(default)]
+    pub languages: Vec<ServerLanguage>,
 }
 
 #[derive(Debug, Clone)]
