@@ -1,6 +1,6 @@
 services:
     postgres:
-        image: timescale/timescaledb:2.31.0-pg18
+        image: timescale/timescaledb:2.32.0-pg18
         container_name: postgres
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
@@ -57,7 +57,7 @@ services:
           - stack-network
 
     grafana:
-        image: grafana/grafana:13.3.0
+        image: grafana/grafana:13.3.1
         container_name: grafana
         environment:
             GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
