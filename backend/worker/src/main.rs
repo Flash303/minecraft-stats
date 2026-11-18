@@ -64,6 +64,6 @@ async fn main() {
             Ok(()) => error!("A worker stopped unexpectedly"),
             Err(e) => error!("A worker crashed: {e}"),
         }
+        std::process::exit(1);
     }
-    std::process::exit(1);
 }
