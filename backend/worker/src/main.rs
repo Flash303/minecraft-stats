@@ -28,10 +28,16 @@ async fn main() {
         "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
     });
 
-    let repository = PostgresRepository::from_url(database_url).await.unwrap();
+    let repository = match PostgresRepository::from_url(database_url).await {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Could not apply migrations error: {e}");
+            return;
+        },
+    };
 
     let pinger = match PingerTask::new(&repository) {
-        Ok(e) => e,
+        Ok(task) => task,
         Err(e) => {
             error!("Cannot create the pinger task, error: {e}");
             return;

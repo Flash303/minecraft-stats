@@ -50,20 +50,15 @@ impl PingerTask {
         })
     }
 
-    #[inline]
     async fn refresh_endpoint(server: &mut Server, connected_addr: Option<String>) {
         if let Some(addr) = connected_addr {
             server.resolved_endpoint = Some(addr);
         } else if server.resolved_endpoint.is_none() {
             server.resolved_endpoint =
                 DuplicateDetectionService::resolve_endpoint(server.ip.as_str(), server.port).await;
-        } else {
-            // Not refreshed: None keeps the stored value.
-            server.resolved_endpoint = None;
         }
     }
 
-    #[inline]
     async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
         match ping {
             PingResultType::Java(ping) => {
@@ -86,6 +81,8 @@ impl PingerTask {
                     } else {
                         server.last_sample = None;
                     }
+                } else {
+                    server.last_sample = None;
                 }
 
                 // Update fingerprints
