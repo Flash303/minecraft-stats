@@ -60,7 +60,7 @@ async fn main() {
 
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
-    if let Err(_) = clerk_instance {
+    if clerk_instance.is_err() {
         info!("Please provide a CLERK_URL environment variable.");
         return;
     }
@@ -77,12 +77,12 @@ async fn main() {
 
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
-    if let Err(_) = clerk_secret_key {
+    if clerk_secret_key.is_err() {
         info!(
             "Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected."
         );
     }
-    let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
+    let clerk_secret_key: Option<String> = clerk_secret_key.ok();
 
     // Service key for scripts (no expiry, unlike Clerk JWTs). Optional.
     let admin_api_key: Option<String> = env::var("ADMIN_API_KEY")

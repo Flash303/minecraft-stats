@@ -47,7 +47,7 @@ impl PostgresRepository {
 
 #[async_trait]
 impl Repository for PostgresRepository {
-    async fn save_pings(&self, records: &Vec<Record>) -> Result<(), String> {
+    async fn save_pings(&self, records: &[Record]) -> Result<(), String> {
         if records.is_empty() {
             return Ok(());
         }
@@ -58,7 +58,7 @@ impl Repository for PostgresRepository {
         query_builder.push_values(records, |mut b, record| {
             b.push_bind(record.server_id as i32)
                 .push_bind(record.date)
-                .push_bind(record.value as i32);
+                .push_bind(record.value);
         });
 
         let query = query_builder.build();

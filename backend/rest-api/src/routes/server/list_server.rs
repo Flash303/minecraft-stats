@@ -30,7 +30,7 @@ pub(super) async fn list_all_servers(
                         .ok();
                 }
 
-                BiggerServerResponse::from_user(&state, server.into(), server_creator).await
+                BiggerServerResponse::from_user(&state, server, server_creator).await
             })
             .buffered(5)
             .collect()

@@ -85,27 +85,6 @@ fn format_blocked_ips(ips: &[IpAddr]) -> String {
         .join(", ")
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::net::{IpAddr, Ipv4Addr};
-
-    #[test]
-    fn blocked_endpoint_lists_ips_comma_separated() {
-        let err = AppError::BlockedEndpoint(vec![
-            IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
-            IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
-        ]);
-        assert_eq!(err.to_string(), "Blocked endpoint: 127.0.0.1, 10.0.0.1");
-    }
-
-    #[test]
-    fn blocked_endpoint_handles_empty_list() {
-        let err = AppError::BlockedEndpoint(vec![]);
-        assert_eq!(err.to_string(), "Blocked endpoint: ");
-    }
-}
-
 impl AppError {
     fn status(&self) -> StatusCode {
         match &self {
@@ -152,5 +131,26 @@ impl IntoResponse for AppError {
             self.status(),
         )
         .into_response()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::net::{IpAddr, Ipv4Addr};
+
+    #[test]
+    fn blocked_endpoint_lists_ips_comma_separated() {
+        let err = AppError::BlockedEndpoint(vec![
+            IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
+            IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1)),
+        ]);
+        assert_eq!(err.to_string(), "Blocked endpoint: 127.0.0.1, 10.0.0.1");
+    }
+
+    #[test]
+    fn blocked_endpoint_handles_empty_list() {
+        let err = AppError::BlockedEndpoint(vec![]);
+        assert_eq!(err.to_string(), "Blocked endpoint: ");
     }
 }

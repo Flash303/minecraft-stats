@@ -15,7 +15,7 @@ use time::OffsetDateTime;
 #[async_trait]
 pub trait Repository: Send + Sync {
     // Pings
-    async fn save_pings(&self, records: &Vec<Record>) -> Result<(), String>;
+    async fn save_pings(&self, records: &[Record]) -> Result<(), String>;
     async fn get_pings(
         &self,
         server_id: u32,

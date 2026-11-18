@@ -180,10 +180,10 @@ fn validate_claims_time_window(claims: &ClerkClaims) -> Result<(), String> {
         return Err("Token expired".to_string());
     }
 
-    if let Some(nbf) = claims.nbf.as_ref().and_then(|v| v.as_u64()) {
-        if now.saturating_add(CLAIMS_LEEWAY_SECS) < nbf {
-            return Err("Token not yet valid".to_string());
-        }
+    if let Some(nbf) = claims.nbf.as_ref().and_then(|v| v.as_u64())
+        && now.saturating_add(CLAIMS_LEEWAY_SECS) < nbf
+    {
+        return Err("Token not yet valid".to_string());
     }
 
     Ok(())

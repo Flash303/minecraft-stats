@@ -9,8 +9,10 @@ use std::collections::HashMap;
 use std::env;
 use std::io::Cursor;
 use tokio::sync::mpsc::Receiver;
-use tokio::task::JoinHandle;
-use web_push::*;
+use web_push::{
+    ContentEncoding, IsahcWebPushClient, PartialVapidSignatureBuilder, SubscriptionInfo,
+    VapidSignature, VapidSignatureBuilder, WebPushClient, WebPushError, WebPushMessageBuilder,
+};
 
 const PRIVATE_KEY_START: &str = "-----BEGIN";
 const PRIVATE_KEY_END: &str = "-----END";
@@ -365,7 +367,10 @@ mod tests {
     #[test]
     fn rejects_broken_pem() {
         let key = "-----BEGIN EC PRIVATE KEY-----\nnot-a-pem-body\n-----END EC PRIVATE KEY-----\n";
-        assert_eq!(key_error(key), "Could not create the VAPID signature from PEM");
+        assert_eq!(
+            key_error(key),
+            "Could not create the VAPID signature from PEM"
+        );
     }
 
     fn notification(

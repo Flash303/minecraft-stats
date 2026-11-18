@@ -24,7 +24,7 @@ pub struct ServerStateChange {
 impl ServerStateChange {
     pub fn edit_new_status(&mut self, server: &Server) {
         self.new_status = server.last_status.clone().unwrap();
-        self.new_players = server.last_connected.clone()
+        self.new_players = server.last_connected
     }
 }
 
@@ -35,7 +35,7 @@ impl From<&Server> for ServerStateChange {
             name: server.name.clone(),
 
             old_status: server.last_status.clone(),
-            old_players: server.last_connected.clone(),
+            old_players: server.last_connected,
 
             // Two values changed before server update
             new_status: Offline,
