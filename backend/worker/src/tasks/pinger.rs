@@ -47,7 +47,7 @@ async fn update_server_from_ping(server: &mut Server, ping: PingResultType) {
             server.last_ping_time = Some(ping.latency);
             server.last_protocol_version = ping.version.protocol.map(|s| s as i64);
 
-            if let Some(players) = ping.players.map_or(None, |t| t.sample) {
+            if let Some(players) = ping.players.and_then(|t| t.sample) {
                 if !players.is_empty() {
                     server.last_sample = Some(
                         players
@@ -226,7 +226,7 @@ pub async fn ping_worker(repository: PostgresRepository, state_updater: Sender<W
                             }
                         }
 
-                        return (server, None);
+                        (server, None)
                     }
                 })
                 .buffer_unordered(MAX_CONCURRENT_PING);
