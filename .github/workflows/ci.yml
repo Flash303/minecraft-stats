@@ -40,7 +40,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@1.98.1
+        with:
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: backend
-      - run: cargo check --workspace --all-targets --locked --manifest-path backend/Cargo.toml
+      - name: Format
+        run: cargo fmt --all --manifest-path backend/Cargo.toml -- --check
+      # clippy remplace `cargo check` : il type-check tout en refusant le moindre warning.
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked --manifest-path backend/Cargo.toml -- -D warnings
+      - name: Tests
+        run: cargo test --workspace --locked --manifest-path backend/Cargo.toml
