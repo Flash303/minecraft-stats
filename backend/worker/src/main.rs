@@ -67,7 +67,7 @@ async fn main() {
         drop(rx_verifier);
     }
 
-    while let Some(result) = tasks.join_next().await {
+    if let Some(result) = tasks.join_next().await {
         match result {
             Ok(()) => error!("A worker stopped unexpectedly"),
             Err(e) => error!("A worker crashed: {e}"),
