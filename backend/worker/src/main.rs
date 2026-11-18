@@ -1,6 +1,6 @@
 use crate::tasks::communication::{VerifierToSender, WorkerToVerifier};
 use crate::tasks::mojang_checker::mojang_checker_worker;
-use crate::tasks::pinger::ping_worker;
+use crate::tasks::pinger::PingerTask;
 use crate::tasks::sender::SenderTask;
 use crate::tasks::verifier::verifier_worker;
 use env_logger::Env;
@@ -30,6 +30,14 @@ async fn main() {
 
     let repository = PostgresRepository::from_url(database_url).await.unwrap();
 
+    let pinger = match PingerTask::new(&repository) {
+        Ok(e) => e,
+        Err(e) => {
+            error!("Cannot create the pinger task, error: {e}");
+            return;
+        }
+    };
+
     // ping worker -> state verifier
     let (tx_verifier, rx_verifier) = mpsc::channel::<WorkerToVerifier>(MAX_CONCURRENT_PING);
 
@@ -45,7 +53,7 @@ async fn main() {
     };
 
     let mut tasks = JoinSet::new();
-    tasks.spawn(ping_worker(repository.clone(), tx_verifier));
+    tasks.spawn(pinger.run(tx_verifier));
     tasks.spawn(mojang_checker_worker(repository.clone()));
 
     if let Some(sender) = sender {
