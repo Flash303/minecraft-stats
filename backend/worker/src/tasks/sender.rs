@@ -92,14 +92,7 @@ impl SenderTask {
         })
     }
 
-    // Task methods
-    pub fn start(self, rx: Receiver<VerifierToSender>) -> JoinHandle<()> {
-        tokio::spawn(async move {
-            self.run(rx).await;
-        })
-    }
-
-    async fn run(self, mut rx: Receiver<VerifierToSender>) {
+    pub async fn run(self, mut rx: Receiver<VerifierToSender>) {
         while let Some(message) = rx.recv().await {
             let VerifierToSender::TriggerNotifications(notifications) = message;
             if notifications.is_empty() {
@@ -372,10 +365,7 @@ mod tests {
     #[test]
     fn rejects_broken_pem() {
         let key = "-----BEGIN EC PRIVATE KEY-----\nnot-a-pem-body\n-----END EC PRIVATE KEY-----\n";
-        assert_eq!(
-            key_error(key),
-            "Could not create the VAPID signature from PEM"
-        );
+        assert_eq!(key_error(key), "Could not create the VAPID signature from PEM");
     }
 
     fn notification(
