@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react"
 import { translate, loadLanguage, type Language } from "@/core/lib/i18n"
+import { persistSwLanguage } from "../../service-worker/sw-language-store"
 import type fr from "../../locales/fr.json"
 
 export type TranslationKey = NestedKeyOf<typeof fr>
@@ -36,6 +37,8 @@ export function LanguageProvider({ children, serverLanguage }: { children: React
         document.cookie = `language=${language}; path=/; max-age=31536000; SameSite=Lax`
         // Keep the lang attribute in sync for accessibility and SEO
         document.documentElement.lang = language
+        // Let the Service Worker render push notifications in the same language
+        persistSwLanguage(language)
     }, [language])
 
     const t = (path: TranslationKey, replacements?: Record<string, string>) =>

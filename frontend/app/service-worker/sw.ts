@@ -12,6 +12,11 @@
  * would bloat the SW to ~500 KB. Rendering still goes through the shared
  * `translate()` engine, including its English fallback.
  *
+ * Language resolution: the app persists its active language to IndexedDB
+ * (see `sw-language-store.ts` — the SW cannot read cookies/localStorage),
+ * falling back to the device language. Changing language in the app therefore
+ * changes the language of subsequent push notifications on that device.
+ *
  * Contract with the backend (`backend/worker/.../sender/message.rs`):
  * the push payload keeps the legacy pre-rendered `title`/`body` (French)
  * as a fallback for older clients, and carries flat structured fields
@@ -37,6 +42,7 @@
 
 import { registerTranslations, translate, type Language } from "../core/lib/i18n";
 import { PUSH_STRINGS } from "./push-strings.generated";
+import { readSwLanguage } from "./sw-language-store";
 
 for (const [lang, push] of Object.entries(PUSH_STRINGS)) {
   registerTranslations(lang as Language, { notifications: { push } });
@@ -58,8 +64,15 @@ interface PushPayload {
   current?: number | string;
 }
 
-/** Best-effort locale from the device (`fr-FR` -> `fr`), defaulting to `en`. */
-function resolveLanguage(): Language {
+/** Best-effort locale: the app's language first (persisted via IndexedDB),
+ * then the device language (`fr-FR` -> `fr`). Defaults to `en`. */
+async function resolveLanguage(): Promise<Language> {
+  try {
+    const stored = await readSwLanguage();
+    if (stored && SUPPORTED_LANGUAGES.has(stored)) return stored as Language;
+  } catch {
+    // Fall through to the device language.
+  }
   const raw =
     (typeof self !== "undefined" && self.navigator && self.navigator.language) || "";
   const tag = raw.toLowerCase().split(/[-_]/)[0];
@@ -91,12 +104,30 @@ self.addEventListener("push", (event) => {
   const pushEvent = event as PushEvent;
   if (!pushEvent.data) return;
 
-  const lang = resolveLanguage();
+  pushEvent.waitUntil(handlePush(pushEvent));
+});
+
+// The new SW takes over ASAP (no fetch caching here, nothing to migrate):
+// without this, an updated SW stays "waiting" until every tab closes and
+// users keep receiving notifications from the previous version.
+self.addEventListener("install", (event) => {
+  (event as ExtendableEvent).waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", (event) => {
+  (event as ExtendableEvent).waitUntil(self.clients.claim());
+});
+
+async function handlePush(pushEvent: PushEvent): Promise<void> {
+  const data = pushEvent.data;
+  if (!data) return;
+
+  const lang = await resolveLanguage();
   const fallbackTitle = translate(lang, "notifications.push.fallbackTitle");
   const fallbackBody = translate(lang, "notifications.push.fallbackBody");
 
   try {
-    const payload = pushEvent.data.json() as PushPayload;
+    const payload = data.json() as PushPayload;
     const structured = renderFromStructured(lang, payload);
 
     const title = structured?.title || payload.title || fallbackTitle;
@@ -109,20 +140,18 @@ self.addEventListener("push", (event) => {
       },
     };
 
-    pushEvent.waitUntil(self.registration.showNotification(title, options));
+    await self.registration.showNotification(title, options);
   } catch (e) {
     console.error("Error parsing push payload:", e);
     // Fallback for raw text payloads (kept from the previous SW behavior).
-    const text = pushEvent.data.text();
-    pushEvent.waitUntil(
-      self.registration.showNotification(fallbackTitle, {
-        body: text,
-        icon: "/logo.webp",
-        data: { url: "/" },
-      }),
-    );
+    const text = data.text();
+    await self.registration.showNotification(fallbackTitle, {
+      body: text,
+      icon: "/logo.webp",
+      data: { url: "/" },
+    });
   }
-});
+}
 
 self.addEventListener("notificationclick", (event) => {
   const clickEvent = event as NotificationEvent;
