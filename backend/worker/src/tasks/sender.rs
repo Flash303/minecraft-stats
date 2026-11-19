@@ -66,12 +66,13 @@ impl SenderTask {
         }
 
         let unpadded = trimmed.trim_end_matches('=');
-        let is_valid_b64_chars = unpadded
+        let normalized = unpadded.replace('+', "-").replace('/', "_");
+        let is_valid_b64_chars = normalized
             .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_' || b == b'+' || b == b'/');
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_');
 
-        if unpadded.len() == 43 && is_valid_b64_chars {
-            return VapidSignatureBuilder::from_base64_no_sub(unpadded)
+        if normalized.len() == 43 && is_valid_b64_chars {
+            return VapidSignatureBuilder::from_base64_no_sub(&normalized)
                 .map_err(|_| "Could not parse from base64");
         }
 
@@ -304,6 +305,10 @@ mod tests {
     /// 32-byte private key, base64url encoded without padding (43 chars).
     const TEST_PRIVATE_KEY_B64: &str = "IQ9Ur0ykXoHS9gzfYX0aBjy9lvdrjx_PFUXmie9YRcY";
 
+    /// A 32-byte private key encoded with the standard base64 alphabet:
+    /// contains both '+' and '/', and keeps the '=' padding (44 chars).
+    const TEST_PRIVATE_KEY_STD_B64: &str = "spI0C6PN/eGfUd6cJhP/Q4qVBQC5vicjLWm+6bPNFY0=";
+
     fn key_error(key: &str) -> &'static str {
         match SenderTask::create_vapid_builder(key) {
             Ok(_) => panic!("key should have been rejected: {key:?}"),
@@ -322,6 +327,26 @@ mod tests {
         // decoder rejects '=' (regression guard).
         let padded = format!("{TEST_PRIVATE_KEY_B64}=");
         assert!(SenderTask::create_vapid_builder(&padded).is_ok());
+    }
+
+    #[test]
+    fn accepts_standard_base64_key() {
+        // The key is often copied from a tool emitting the standard alphabet
+        // ('+' and '/') rather than the URL-safe one. '+' and '/' are rejected
+        // by the URL-safe no-pad decoder, so they must be normalized, not
+        // rejected as invalid characters.
+        let unpadded = TEST_PRIVATE_KEY_STD_B64.trim_end_matches('=');
+        assert!(unpadded.contains('+') && unpadded.contains('/'));
+
+        // Same bytes, URL-safe alphabet: both spellings must be accepted.
+        let urlsafe = unpadded.replace('+', "-").replace('/', "_");
+        assert!(SenderTask::create_vapid_builder(unpadded).is_ok());
+        assert!(SenderTask::create_vapid_builder(&urlsafe).is_ok());
+    }
+
+    #[test]
+    fn accepts_padded_standard_base64_key() {
+        assert!(SenderTask::create_vapid_builder(TEST_PRIVATE_KEY_STD_B64).is_ok());
     }
 
     #[test]
