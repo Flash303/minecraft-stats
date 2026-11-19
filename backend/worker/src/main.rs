@@ -33,7 +33,7 @@ async fn main() {
         Err(e) => {
             error!("Could not apply migrations error: {e}");
             return;
-        },
+        }
     };
 
     let pinger = match PingerTask::new(&repository) {
