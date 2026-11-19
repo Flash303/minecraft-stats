@@ -31,7 +31,7 @@ async fn main() {
     let repository = match PostgresRepository::from_url(database_url).await {
         Ok(r) => r,
         Err(e) => {
-            error!("Could not apply migrations error: {e}");
+            error!("Could not connect to / initialize the database: {e}");
             return;
         }
     };
