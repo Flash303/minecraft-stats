@@ -32,7 +32,8 @@ async fn main() {
         database_url,
         PgPoolConfig::for_worker_from_env(),
     )
-    .await {
+    .await
+    {
         Ok(r) => r,
         Err(e) => {
             error!("Could not connect to / initialize the database: {e}");
