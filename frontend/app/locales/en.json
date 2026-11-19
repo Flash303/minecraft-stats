@@ -445,6 +445,17 @@
     "subscribeError": "Failed to enable notifications.",
     "unsubscribeError": "Failed to disable notifications."
   },
+  "notifications": {
+    "push": {
+      "title": "Server Alert: {{name}}",
+      "fallbackTitle": "Minecraft Alert",
+      "fallbackBody": "Change detected",
+      "statusToOffline": "Server {{name}} just went OFFLINE!",
+      "statusToOnline": "Server {{name}} is back ONLINE!",
+      "playerAbove": "Player count on {{name}} exceeded {{threshold}} (Current: {{current}})!",
+      "playerBelow": "Player count on {{name}} dropped below {{threshold}} (Current: {{current}})!"
+    }
+  },
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft Server Analytics",
     "homeDescription": "Track Minecraft server analytics, player counts, and uptime. Real-time alerts and stats for Java & Bedrock admins.",

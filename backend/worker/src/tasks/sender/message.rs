@@ -8,6 +8,13 @@ impl SenderTask {
         json!({
             "title": Self::create_message_title(notification),
             "body": Self::create_message_body(notification),
+
+            "alertType": Self::alert_type_key(notification),
+
+            "serverName": notification.server_name,
+            "threshold": notification.alert.player_threshold.unwrap_or(0),
+            "current": notification.new_players.unwrap_or(0),
+
             "icon": notification.get_logo(),
             "url": format!("/server/{}", notification.alert.server_id)
         })
@@ -16,6 +23,15 @@ impl SenderTask {
 
     fn create_message_title(notification: &TriggeredAlertNotification) -> String {
         format!("Alerte Serveur: {}", notification.server_name)
+    }
+
+    fn alert_type_key(notification: &TriggeredAlertNotification) -> &str {
+        match notification.alert.alert_type {
+            AlertType::StatusToOffline => "status_to_offline",
+            AlertType::StatusToOnline => "status_to_online",
+            AlertType::PlayerAbove => "player_above",
+            AlertType::PlayerBelow => "player_below",
+        }
     }
 
     fn create_message_body(notification: &TriggeredAlertNotification) -> String {
@@ -144,5 +160,26 @@ mod tests {
         );
         assert_eq!(payload["url"], "/server/42");
         assert!(!payload["icon"].as_str().unwrap_or_default().is_empty());
+        // Structured fields for client-side localized rendering (see
+        // frontend/app/service-worker/sw.ts contract).
+        assert_eq!(payload["alertType"], "status_to_offline");
+        assert_eq!(payload["serverName"], "Mon Serveur");
+        assert_eq!(payload["threshold"], 0);
+        assert_eq!(payload["current"], 0);
+    }
+
+    #[test]
+    fn builds_structured_player_payload() {
+        let raw = SenderTask::create_notification_payload(&notification(
+            AlertType::PlayerAbove,
+            Some(10),
+            Some(15),
+        ));
+        let payload: Value = serde_json::from_str(&raw).expect("payload should be valid JSON");
+
+        assert_eq!(payload["alertType"], "player_above");
+        assert_eq!(payload["serverName"], "Mon Serveur");
+        assert_eq!(payload["threshold"], 10);
+        assert_eq!(payload["current"], 15);
     }
 }

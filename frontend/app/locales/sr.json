@@ -445,6 +445,18 @@
     "subscribeError": "Omogućavanje notifikacija nije uspelo.",
     "unsubscribeError": "Onemogućavanje notifikacija nije uspelo."
   },
+  "notifications": {
+    "push": {
+      "title": "Obaveštenje servera: {{name}}",
+      "fallbackTitle": "Minecraft obaveštenje",
+      "fallbackBody": "Otkrivena promena",
+      "statusToOffline": "Server {{name}} je upravo prešao u offline!",
+      "statusToOnline": "Server {{name}} je ponovo online!",
+      "playerAbove": "Broj igrača na serveru {{name}} premašio je {{threshold}} (trenutno: {{current}})!",
+      "playerBelow": "Broj igrača na serveru {{name}} pao je ispod {{threshold}} (trenutno: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Analitika Minecraft servera",
     "homeDescription": "Prati statistiku svojih Minecraft servera: igrači u realnom vremenu, istorija, uptime i prilagođena obaveštenja. Podrška za Java & Bedrock.",

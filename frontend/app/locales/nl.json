@@ -445,6 +445,18 @@
     "subscribeError": "Kan meldingen niet inschakelen.",
     "unsubscribeError": "Kan meldingen niet uitschakelen."
   },
+  "notifications": {
+    "push": {
+      "title": "Servermelding: {{name}}",
+      "fallbackTitle": "Minecraft-melding",
+      "fallbackBody": "Wijziging gedetecteerd",
+      "statusToOffline": "Server {{name}} is zojuist offline gegaan!",
+      "statusToOnline": "Server {{name}} is weer online!",
+      "playerAbove": "Het aantal spelers op {{name}} heeft {{threshold}} overschreden (actueel: {{current}})!",
+      "playerBelow": "Het aantal spelers op {{name}} is onder {{threshold}} gezakt (actueel: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft Server Analytics",
     "homeDescription": "Volg Minecraft-serveranalyses, spelersaantallen en uptime. Realtime waarschuwingen en statistieken voor Java- & Bedrock-beheerders.",

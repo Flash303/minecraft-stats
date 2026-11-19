@@ -445,6 +445,18 @@
     "subscribeError": "Bật thông báo thất bại.",
     "unsubscribeError": "Tắt thông báo thất bại."
   },
+  "notifications": {
+    "push": {
+      "title": "Cảnh báo máy chủ: {{name}}",
+      "fallbackTitle": "Cảnh báo Minecraft",
+      "fallbackBody": "Đã phát hiện thay đổi",
+      "statusToOffline": "Máy chủ {{name}} vừa chuyển sang ngoại tuyến!",
+      "statusToOnline": "Máy chủ {{name}} đã trực tuyến trở lại!",
+      "playerAbove": "Số người chơi trên {{name}} đã vượt quá {{threshold}} (hiện tại: {{current}})!",
+      "playerBelow": "Số người chơi trên {{name}} đã giảm xuống dưới {{threshold}} (hiện tại: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Phân tích máy chủ Minecraft",
     "homeDescription": "Theo dõi thống kê máy chủ Minecraft của bạn: người chơi theo thời gian thực, lịch sử, uptime và cảnh báo tùy chỉnh. Hỗ trợ Java & Bedrock.",

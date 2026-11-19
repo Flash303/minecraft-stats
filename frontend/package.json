@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build",
+    "build:sw": "node scripts/build-sw-push-strings.mjs && vite build --config vite.sw.config.ts",
+    "build": "bun run build:sw && react-router build",
     "lint": "eslint .",
     "test": "vitest run",
     "update:protocols": "node scripts/update-minecraft-protocols.mjs",
