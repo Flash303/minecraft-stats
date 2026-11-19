@@ -69,21 +69,17 @@ impl PingerTask {
                 server.last_ping_time = Some(ping.latency);
                 server.last_protocol_version = ping.version.protocol.map(|s| s as i64);
 
-                if let Some(players) = ping.players.and_then(|t| t.sample) {
-                    if !players.is_empty() {
-                        server.last_sample = Some(
-                            players
-                                .iter()
-                                .map(|p| p.name.as_str())
-                                .collect::<Vec<_>>()
-                                .join("\n"),
-                        );
-                    } else {
-                        server.last_sample = None;
-                    }
-                } else {
-                    server.last_sample = None;
-                }
+                server.last_sample = ping
+                    .players
+                    .and_then(|t| t.sample)
+                    .filter(|players| !players.is_empty())
+                    .map(|players| {
+                        players
+                            .iter()
+                            .map(|p| p.name.as_str())
+                            .collect::<Vec<_>>()
+                            .join("\n")
+                    });
 
                 // Update fingerprints
                 let motd_value = serde_json::to_value(&ping.description).ok();
