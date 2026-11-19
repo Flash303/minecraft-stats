@@ -16,10 +16,11 @@ use repository::{
     },
     postgres::PostgresRepository,
 };
+use std::time::Duration;
 use time::OffsetDateTime;
 use tokio::{
     sync::mpsc::Sender,
-    time::{Instant, MissedTickBehavior},
+    time::{Instant, sleep},
 };
 
 pub mod apply;
@@ -52,14 +53,15 @@ impl PingerTask {
     }
 
     pub async fn run(self, state_updater: Sender<WorkerToVerifier>) {
-        let mut ticker = tokio::time::interval(DELAY_BETWEEN_EACH_PING);
-        ticker.set_missed_tick_behavior(MissedTickBehavior::Delay);
-
         loop {
-            ticker.tick().await;
+            let start_time = Instant::now();
             if let Err(e) = self.ping_round(&state_updater).await {
                 warn!("Ping round failed: {e}");
             }
+            let remaining_delay = DELAY_BETWEEN_EACH_PING
+                .checked_sub(start_time.elapsed())
+                .unwrap_or(Duration::ZERO);
+            sleep(remaining_delay).await;
         }
     }
 
@@ -135,7 +137,6 @@ impl PingerTask {
             );
             server.last_status = Some(ServerStatus::Offline);
             server.last_connected = None;
-            server.last_sample = None;
         }
 
         state.edit_new_status(&server);
