@@ -14,6 +14,7 @@ struct LokiStream {
     values: Vec<[String; 2]>, // [Timestamp_Nano, Log_Message]
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn send_to_loki(
     route: &str,
     method: &str,

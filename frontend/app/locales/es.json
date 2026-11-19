@@ -445,6 +445,18 @@
     "subscribeError": "Error al habilitar las notificaciones.",
     "unsubscribeError": "Error al deshabilitar las notificaciones."
   },
+  "notifications": {
+    "push": {
+      "title": "Alerta del servidor: {{name}}",
+      "fallbackTitle": "Alerta de Minecraft",
+      "fallbackBody": "Cambio detectado",
+      "statusToOffline": "¡El servidor {{name}} se acaba de desconectar!",
+      "statusToOnline": "¡El servidor {{name}} está en línea de nuevo!",
+      "playerAbove": "¡El número de jugadores en {{name}} ha superado {{threshold}} (actual: {{current}})!",
+      "playerBelow": "¡El número de jugadores en {{name}} ha bajado de {{threshold}} (actual: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Analíticas de Servidores de Minecraft",
     "homeDescription": "Haz un seguimiento de las analíticas de servidores de Minecraft, el recuento de jugadores y el tiempo de actividad. Alertas y estadísticas en tiempo real para administradores de Java y Bedrock.",

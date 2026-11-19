@@ -33,6 +33,17 @@ jobs:
       - run: bun run typecheck
       - run: bun run lint
       - run: bun run test
+      # public/sw.js est généré depuis app/service-worker + app/locales :
+      # échoue si les fichiers générés commités sont périmés, avant que
+      # `bun run build` (qui inclut build:sw) ne les régénère en silence.
+      - name: Check generated SW is in sync
+        run: |
+          bun run build:sw
+          if [ -n "$(git status --porcelain -- public/sw.js app/service-worker/)" ]; then
+            echo "::error::Generated SW files are stale. Run 'bun run build:sw' in frontend/ and commit the result."
+            git status --porcelain -- public/sw.js app/service-worker/
+            exit 1
+          fi
       - run: bun run build
 
   backend:
@@ -40,7 +51,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@1.98.1
+        with:
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: backend
-      - run: cargo check --workspace --all-targets --locked --manifest-path backend/Cargo.toml
+      - name: Format
+        run: cargo fmt --all --manifest-path backend/Cargo.toml -- --check
+      # clippy remplace `cargo check` : il type-check tout en refusant le moindre warning.
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked --manifest-path backend/Cargo.toml -- -D warnings
+      - name: Tests
+        run: cargo test --workspace --locked --manifest-path backend/Cargo.toml

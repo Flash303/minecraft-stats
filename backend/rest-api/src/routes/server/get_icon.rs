@@ -21,17 +21,16 @@ pub(super) async fn get_server_icon(
 
     if let Some(favicon) = server.last_favicon
         && let Some(base64_data) = favicon.strip_prefix("data:image/png;base64,")
+        && let Ok(image_bytes) = BASE64_STANDARD.decode(base64_data)
     {
-        if let Ok(image_bytes) = BASE64_STANDARD.decode(base64_data) {
-            return Ok((
-                [
-                    (CONTENT_TYPE, "image/png"),
-                    (CACHE_CONTROL, "public, max-age=86400"),
-                ],
-                image_bytes,
-            )
-                .into_response());
-        }
+        return Ok((
+            [
+                (CONTENT_TYPE, "image/png"),
+                (CACHE_CONTROL, "public, max-age=86400"),
+            ],
+            image_bytes,
+        )
+            .into_response());
     }
 
     Ok((

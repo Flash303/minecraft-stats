@@ -445,6 +445,18 @@
     "subscribeError": "启用通知失败。",
     "unsubscribeError": "禁用通知失败。"
   },
+  "notifications": {
+    "push": {
+      "title": "服务器提醒：{{name}}",
+      "fallbackTitle": "Minecraft 提醒",
+      "fallbackBody": "检测到变化",
+      "statusToOffline": "服务器 {{name}} 刚刚变为离线！",
+      "statusToOnline": "服务器 {{name}} 已重新在线！",
+      "playerAbove": "{{name}} 的玩家数量已超过 {{threshold}}（当前：{{current}}）！",
+      "playerBelow": "{{name}} 的玩家数量已降至 {{threshold}} 以下（当前：{{current}}）！"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft 服务器分析",
     "homeDescription": "跟踪 Minecraft 服务器分析、玩家数量和正常运行时间。为 Java 和基岩版管理员提供实时警报和统计数据。",

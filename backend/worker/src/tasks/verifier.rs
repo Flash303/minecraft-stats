@@ -72,18 +72,17 @@ pub async fn verifier_worker(
             }
         }
 
-        if !triggered_notifications.is_empty() {
-            if let Err(e) = tx_sender
+        if !triggered_notifications.is_empty()
+            && let Err(e) = tx_sender
                 .send(VerifierToSender::TriggerNotifications(
                     triggered_notifications,
                 ))
                 .await
-            {
-                info!(
-                    "Verifier error sending batch notifications to Sender channel: {:?}",
-                    e
-                );
-            }
+        {
+            info!(
+                "Verifier error sending batch notifications to Sender channel: {:?}",
+                e
+            );
         }
     }
 }

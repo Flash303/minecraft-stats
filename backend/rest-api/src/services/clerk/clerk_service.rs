@@ -11,7 +11,7 @@ pub async fn get_clerk_user_with_cache(
     state: &AppState,
     user_id: &String,
 ) -> Result<Arc<ClerkUser>, AppError> {
-    let cached_user = state.user_cache.get(&user_id).await;
+    let cached_user = state.user_cache.get(user_id).await;
     if let Some(user) = cached_user {
         return Ok(user.clone());
     }

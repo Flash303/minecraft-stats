@@ -445,6 +445,18 @@
     "subscribeError": "הפעלת ההתראות נכשלה.",
     "unsubscribeError": "כיבוי ההתראות נכשל."
   },
+  "notifications": {
+    "push": {
+      "title": "התראת שרת: {{name}}",
+      "fallbackTitle": "התראת Minecraft",
+      "fallbackBody": "זוהה שינוי",
+      "statusToOffline": "השרת {{name}} עבר למצב לא מקוון!",
+      "statusToOnline": "השרת {{name}} חזר להיות מקוון!",
+      "playerAbove": "מספר השחקנים ב־{{name}} עבר את {{threshold}} (נוכחי: {{current}})!",
+      "playerBelow": "מספר השחקנים ב־{{name}} ירד מתחת ל־{{threshold}} (נוכחי: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | אנליטיקת שרתי מיינקראפט",
     "homeDescription": "עקוב אחר סטטיסטיקות שרתי המיינקראפט שלך: שחקנים בזמן אמת, היסטוריה, זמן פעילות והתראות מותאמות. תמיכה ב-Java וב-Bedrock.",
