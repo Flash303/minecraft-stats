@@ -18,7 +18,7 @@ use axum::{extract::DefaultBodyLimit, http::Method};
 use dashmap::DashMap;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
-use repository::postgres::PostgresRepository;
+use repository::postgres::{PgPoolConfig, PostgresRepository};
 use reqwest::Client;
 use services::clerk::account_checker::{JwksStore, fetch_clerk_jwks};
 use std::env;
@@ -51,7 +51,9 @@ async fn main() {
         "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
     });
 
-    let result = PostgresRepository::from_url(database_url).await;
+    let result =
+        PostgresRepository::from_url_with_config(database_url, PgPoolConfig::for_api_from_env())
+            .await;
     if let Err(err) = result {
         info!("Error on database init: {}", err);
         return;

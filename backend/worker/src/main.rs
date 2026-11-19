@@ -5,7 +5,7 @@ use crate::tasks::sender::SenderTask;
 use crate::tasks::verifier::verifier_worker;
 use env_logger::Env;
 use log::{error, info};
-use repository::postgres::PostgresRepository;
+use repository::postgres::{PgPoolConfig, PostgresRepository};
 use std::env;
 use std::time::Duration;
 use tokio::sync::mpsc;
@@ -28,7 +28,11 @@ async fn main() {
         "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
     });
 
-    let repository = match PostgresRepository::from_url(database_url).await {
+    let repository = match PostgresRepository::from_url_with_config(
+        database_url,
+        PgPoolConfig::for_worker_from_env(),
+    )
+    .await {
         Ok(r) => r,
         Err(e) => {
             error!("Could not connect to / initialize the database: {e}");
