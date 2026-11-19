@@ -84,25 +84,23 @@ impl SenderTask {
 
         let subscriptions_by_user = Self::group_by_user(&subscriptions);
 
-        let deliveries: Vec<(WebPushSubscription, String)> = notifications
+        let payloads: Vec<String> = notifications
             .iter()
-            .flat_map(|notification| {
-                let payload = Self::create_notification_payload(notification);
+            .map(Self::create_notification_payload)
+            .collect();
 
-                subscriptions_by_user
+        stream::iter(notifications.iter().zip(payloads.iter()))
+            .flat_map(|(notification, payload)| {
+                let deliveries = subscriptions_by_user
                     .get(notification.alert.user_id.as_str())
                     .into_iter()
                     .flatten()
-                    .map(move |subscription| ((*subscription).clone(), payload.clone()))
+                    .map(move |subscription| (*subscription, payload.as_str()));
+                stream::iter(deliveries)
             })
-            .collect();
-
-        stream::iter(deliveries)
-            .map(move |(subscription, payload)| async move {
-                self.deliver(&subscription, &payload).await
+            .for_each_concurrent(MAX_CONCURRENT_SEND, |(subscription, payload)| async move {
+                self.deliver(subscription, payload).await
             })
-            .buffer_unordered(MAX_CONCURRENT_SEND)
-            .for_each(|()| async {})
             .await;
     }
 
