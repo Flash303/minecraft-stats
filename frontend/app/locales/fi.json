@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Kirjaudu",
     "admin": "Ylläpito",
     "openMenu": "Avaa valikko",
@@ -445,6 +445,18 @@
     "subscribeError": "Ilmoitusten käyttöönotto epäonnistui.",
     "unsubscribeError": "Ilmoitusten poistaminen käytöstä epäonnistui."
   },
+  "notifications": {
+    "push": {
+      "title": "Palvelinhälytys: {{name}}",
+      "fallbackTitle": "Minecraft-hälytys",
+      "fallbackBody": "Muutos havaittu",
+      "statusToOffline": "Palvelin {{name}} meni juuri offline-tilaan!",
+      "statusToOnline": "Palvelin {{name}} on jälleen online!",
+      "playerAbove": "Pelaajamäärä palvelimella {{name}} ylitti rajan {{threshold}} (nyt: {{current}})!",
+      "playerBelow": "Pelaajamäärä palvelimella {{name}} laski alle rajan {{threshold}} (nyt: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft-palvelinten analytiikka",
     "homeDescription": "Seuraa Minecraft-palvelintesi tilastoja: pelaajat reaaliajassa, historia, uptime ja mukautetut hälytykset. Tuki Java & Bedrock.",

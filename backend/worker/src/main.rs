@@ -1,13 +1,15 @@
 use crate::tasks::communication::{VerifierToSender, WorkerToVerifier};
 use crate::tasks::mojang_checker::mojang_checker_worker;
-use crate::tasks::pinger::ping_worker;
-use crate::tasks::sender::sender_worker;
+use crate::tasks::pinger::PingerTask;
+use crate::tasks::sender::SenderTask;
 use crate::tasks::verifier::verifier_worker;
-use log::info;
-use repository::postgres::PostgresRepository;
+use env_logger::Env;
+use log::{error, info};
+use repository::postgres::{PgPoolConfig, PostgresRepository};
 use std::env;
 use std::time::Duration;
 use tokio::sync::mpsc;
+use tokio::task::JoinSet;
 
 mod tasks;
 
@@ -18,7 +20,7 @@ pub const DELAY_BETWEEN_EACH_PING: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
-    env_logger::init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
     info!("Starting server");
 
@@ -26,34 +28,61 @@ async fn main() {
         "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
     });
 
-    let repository = PostgresRepository::from_url(database_url).await.unwrap();
+    let repository = match PostgresRepository::from_url_with_config(
+        database_url,
+        PgPoolConfig::for_worker_from_env(),
+    )
+    .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            error!("Could not connect to / initialize the database: {e}");
+            return;
+        }
+    };
+
+    let pinger = match PingerTask::new(&repository) {
+        Ok(task) => task,
+        Err(e) => {
+            error!("Cannot create the pinger task, error: {e}");
+            return;
+        }
+    };
 
     // ping worker -> state verifier
     let (tx_verifier, rx_verifier) = mpsc::channel::<WorkerToVerifier>(MAX_CONCURRENT_PING);
 
-    // state verifier -> notification sender
-    let (tx_sender, rx_sender) = mpsc::channel::<VerifierToSender>(MAX_CONCURRENT_PING);
+    let sender = match SenderTask::new(&repository) {
+        Ok(rs) => Some(rs),
+        Err(e) => {
+            error!(
+                "Could not create the sender task, web push notifications are disabled. Error: {}",
+                e
+            );
+            None
+        }
+    };
 
-    // Spawn Pinger
-    let repository_worker = repository.clone();
-    tokio::spawn(async move {
-        ping_worker(repository_worker, tx_verifier).await;
-    });
+    let mut tasks = JoinSet::new();
+    tasks.spawn(pinger.run(tx_verifier));
+    tasks.spawn(mojang_checker_worker(repository.clone()));
 
-    // Spawn Verifier
-    let repository_verifier = repository.clone();
-    tokio::spawn(async move {
-        verifier_worker(repository_verifier, rx_verifier, tx_sender).await;
-    });
+    if let Some(sender) = sender {
+        // state verifier -> notification sender
+        let (tx_sender, rx_sender) = mpsc::channel::<VerifierToSender>(MAX_CONCURRENT_PING);
 
-    // Spawn Mojang Checker
-    let repository_mojang = repository.clone();
-    tokio::spawn(async move {
-        mojang_checker_worker(repository_mojang).await;
-    });
+        // Spawn Verifier
+        tasks.spawn(verifier_worker(repository.clone(), rx_verifier, tx_sender));
+        tasks.spawn(sender.run(rx_sender));
+    } else {
+        drop(rx_verifier);
+    }
 
-    // Spawn Sender
-    // run the sender to the main thread to keep it alive
-    let repository_sender = repository.clone();
-    sender_worker(repository_sender, rx_sender).await;
+    if let Some(result) = tasks.join_next().await {
+        match result {
+            Ok(()) => error!("A worker stopped unexpectedly"),
+            Err(e) => error!("A worker crashed: {e}"),
+        }
+        std::process::exit(1);
+    }
 }

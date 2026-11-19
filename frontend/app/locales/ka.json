@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "შესვლა",
     "admin": "ადმინი",
     "openMenu": "მენიუს გახსნა",
@@ -445,6 +445,18 @@
     "subscribeError": "შეტყობინებების ჩართვა ვერ მოხერხდა.",
     "unsubscribeError": "შეტყობინებების გამორთვა ვერ მოხერხდა."
   },
+  "notifications": {
+    "push": {
+      "title": "სერვერის გაფრთხილება: {{name}}",
+      "fallbackTitle": "Minecraft გაფრთხილება",
+      "fallbackBody": "ცვლილება გამოვლინდა",
+      "statusToOffline": "სერვერი {{name}} ახლახან გადავიდა ოფლაინ!",
+      "statusToOnline": "სერვერი {{name}} ისევ ონლაინ არის!",
+      "playerAbove": "მოთამაშეების რაოდენობამ {{name}}-ზე გადააჭარბა {{threshold}}-ს (მიმდინარე: {{current}})!",
+      "playerBelow": "მოთამაშეების რაოდენობა {{name}}-ზე {{threshold}}-ზე ქვემოთ ჩამოვიდა (მიმდინარე: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft სერვერების ანალიტიკა",
     "homeDescription": "ადევნეთ თვალყური თქვენი Minecraft სერვერების სტატისტიკას: მოთამაშეები რეალურ დროში, ისტორია, აპთაიმი და მორგებული შეტყობინებები. Java & Bedrock მხარდაჭერა.",

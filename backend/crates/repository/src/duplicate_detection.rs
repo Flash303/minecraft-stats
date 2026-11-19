@@ -205,44 +205,41 @@ impl DuplicateDetectionService {
             let mut score = 0;
             let mut signals = Vec::with_capacity(4);
 
-            if let (Some(h1), Some(h2)) = (favicon_hash, &candidate.favicon_hash) {
-                if h1 == h2 {
-                    score += SIGNAL_WEIGHTS_FAVICON;
-                    signals.push("favicon");
-                }
+            if let (Some(h1), Some(h2)) = (favicon_hash, &candidate.favicon_hash)
+                && h1 == h2
+            {
+                score += SIGNAL_WEIGHTS_FAVICON;
+                signals.push("favicon");
             }
 
-            if endpoint_trusted {
-                if let (Some(e1), Some(e2)) = (resolved_endpoint, &candidate.resolved_endpoint) {
-                    if e1 == e2 {
-                        score += SIGNAL_WEIGHTS_ENDPOINT;
-                        signals.push("endpoint");
-                    }
-                }
+            if endpoint_trusted
+                && let (Some(e1), Some(e2)) = (resolved_endpoint, &candidate.resolved_endpoint)
+                && e1 == e2
+            {
+                score += SIGNAL_WEIGHTS_ENDPOINT;
+                signals.push("endpoint");
             }
 
-            if let (Some(m1), Some(m2)) = (motd_hash, &candidate.motd_hash) {
-                if m1 == m2 {
-                    score += SIGNAL_WEIGHTS_MOTD;
-                    signals.push("motd");
-                }
+            if let (Some(m1), Some(m2)) = (motd_hash, &candidate.motd_hash)
+                && m1 == m2
+            {
+                score += SIGNAL_WEIGHTS_MOTD;
+                signals.push("motd");
             }
 
-            if let (Some(v1), Some(v2)) = (version, &candidate.last_version) {
-                if v1 == v2 {
-                    score += SIGNAL_WEIGHTS_VERSION;
-                    signals.push("version");
-                }
+            if let (Some(v1), Some(v2)) = (version, &candidate.last_version)
+                && v1 == v2
+            {
+                score += SIGNAL_WEIGHTS_VERSION;
+                signals.push("version");
             }
 
-            if score >= DUPLICATE_THRESHOLD {
-                if best.as_ref().map_or(true, |b| score > b.score) {
-                    best = Some(DuplicateMatch {
-                        server: candidate,
-                        score,
-                        signals,
-                    });
-                }
+            if score >= DUPLICATE_THRESHOLD && best.as_ref().is_none_or(|b| score > b.score) {
+                best = Some(DuplicateMatch {
+                    server: candidate,
+                    score,
+                    signals,
+                });
             }
         }
 

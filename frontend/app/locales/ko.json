@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "로그인",
     "admin": "관리자",
     "openMenu": "메뉴 열기",
@@ -445,6 +445,18 @@
     "subscribeError": "알림을 활성화하지 못했습니다.",
     "unsubscribeError": "알림을 비활성화하지 못했습니다."
   },
+  "notifications": {
+    "push": {
+      "title": "서버 알림: {{name}}",
+      "fallbackTitle": "Minecraft 알림",
+      "fallbackBody": "변경이 감지됨",
+      "statusToOffline": "서버 {{name}}이(가) 오프라인이 되었습니다!",
+      "statusToOnline": "서버 {{name}}이(가) 다시 온라인이 되었습니다!",
+      "playerAbove": "{{name}}의 플레이어 수가 {{threshold}}명을 초과했습니다 (현재: {{current}}명)!",
+      "playerBelow": "{{name}}의 플레이어 수가 {{threshold}}명 아래로 떨어졌습니다 (현재: {{current}}명)!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | 마인크래프트 서버 분석",
     "homeDescription": "마인크래프트 서버 통계, 플레이어 수, 업타임을 추적합니다. 자바 및 베드락 서버 관리자를 위한 실시간 알림 및 통계.",

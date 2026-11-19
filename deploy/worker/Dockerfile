@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry,sharing=locked \
     cargo build --release --manifest-path backend/Cargo.toml --bin worker && \
     cp backend/target/release/worker /app/worker
 
-FROM alpine:3.24.3
+FROM alpine:3.24.4
 WORKDIR /app
 RUN apk add --no-cache tini ca-certificates openssl
 COPY --from=builder /app/worker /app/worker

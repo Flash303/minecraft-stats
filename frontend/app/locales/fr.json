@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Connexion",
     "admin": "Admin",
     "openMenu": "Ouvrir le menu",
@@ -444,6 +444,17 @@
     "syncError": "Impossible de synchroniser l'abonnement avec le serveur.",
     "subscribeError": "L'activation des notifications a échoué.",
     "unsubscribeError": "La désactivation des notifications a échoué."
+  },
+  "notifications": {
+    "push": {
+      "title": "Alerte Serveur : {{name}}",
+      "fallbackTitle": "Alerte Minecraft",
+      "fallbackBody": "Changement détecté",
+      "statusToOffline": "Le serveur {{name}} vient de passer HORS-LIGNE !",
+      "statusToOnline": "Le serveur {{name}} est de nouveau EN LIGNE !",
+      "playerAbove": "Le nombre de joueurs sur {{name}} a dépassé {{threshold}} (Actuel : {{current}}) !",
+      "playerBelow": "Le nombre de joueurs sur {{name}} est descendu en-dessous de {{threshold}} (Actuel : {{current}}) !"
+    }
   },
   "seo": {
     "homeTitle": "Minecraft-Stats | Analytique de serveurs Minecraft",

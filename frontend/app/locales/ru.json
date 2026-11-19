@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Войти",
     "admin": "Админ",
     "openMenu": "Открыть меню",
@@ -445,6 +445,18 @@
     "subscribeError": "Не удалось включить уведомления.",
     "unsubscribeError": "Не удалось отключить уведомления."
   },
+  "notifications": {
+    "push": {
+      "title": "Оповещение сервера: {{name}}",
+      "fallbackTitle": "Оповещение Minecraft",
+      "fallbackBody": "Обнаружено изменение",
+      "statusToOffline": "Сервер {{name}} только что стал оффлайн!",
+      "statusToOnline": "Сервер {{name}} снова онлайн!",
+      "playerAbove": "Число игроков на сервере {{name}} превысило {{threshold}} (сейчас: {{current}})!",
+      "playerBelow": "Число игроков на сервере {{name}} упало ниже {{threshold}} (сейчас: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Аналитика серверов Minecraft",
     "homeDescription": "Отслеживайте аналитику серверов Minecraft, количество игроков и время работы. Уведомления в реальном времени и статистика для администраторов Java и Bedrock.",

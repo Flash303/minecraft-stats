@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Statistiche Minecraft",
+    "title": "Minecraft-Stats",
     "signIn": "Accedi",
     "admin": "Amministratore",
     "openMenu": "Apri menu",
@@ -445,6 +445,18 @@
     "subscribeError": "Impossibile abilitare le notifiche.",
     "unsubscribeError": "Impossibile disabilitare le notifiche."
   },
+  "notifications": {
+    "push": {
+      "title": "Avviso server: {{name}}",
+      "fallbackTitle": "Avviso Minecraft",
+      "fallbackBody": "Modifica rilevata",
+      "statusToOffline": "Il server {{name}} è appena andato offline!",
+      "statusToOnline": "Il server {{name}} è di nuovo online!",
+      "playerAbove": "Il numero di giocatori su {{name}} ha superato {{threshold}} (attuale: {{current}})!",
+      "playerBelow": "Il numero di giocatori su {{name}} è sceso sotto {{threshold}} (attuale: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Statistiche Server Minecraft",
     "homeDescription": "Monitora statistiche, conteggio giocatori e uptime dei server Minecraft. Avvisi in tempo reale per amministratori Java e Bedrock.",

@@ -13,6 +13,16 @@ pub struct TtlCache<K, V> {
     store: Arc<RwLock<HashMap<K, CacheEntry<V>>>>,
 }
 
+impl<K, V> Default for TtlCache<K, V>
+where
+    K: Eq + Hash,
+    V: Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<K, V> TtlCache<K, V>
 where
     K: Eq + Hash,
@@ -34,20 +44,20 @@ where
 
     pub async fn get(&self, key: &K) -> Option<V> {
         let read_lock = self.store.read().await;
-        if let Some(entry) = read_lock.get(key) {
-            if Instant::now() < entry.expires_at {
-                return Some(entry.value.clone()); // Valid
-            }
+        if let Some(entry) = read_lock.get(key)
+            && Instant::now() < entry.expires_at
+        {
+            return Some(entry.value.clone()); // Valid
         }
 
         drop(read_lock);
 
         // Clear expired data
         let mut write_lock = self.store.write().await;
-        if let Some(entry) = write_lock.get(key) {
-            if Instant::now() >= entry.expires_at {
-                write_lock.remove(key);
-            }
+        if let Some(entry) = write_lock.get(key)
+            && Instant::now() >= entry.expires_at
+        {
+            write_lock.remove(key);
         }
 
         None

@@ -13,10 +13,148 @@ use crate::models::web_push::{
 use crate::repository::Repository;
 use async_trait::async_trait;
 use futures::stream::StreamExt;
-use log::info;
+use log::{info, warn};
 use sqlx::postgres::PgPoolOptions;
 use sqlx::{PgPool, QueryBuilder, Row};
 use time::{Duration, OffsetDateTime};
+
+/// Configurable PostgreSQL connection pool options.
+///
+/// Two presets cover the repo's use cases:
+/// - [`PgPoolConfig::for_api`]: high-throughput REST API (default `max_connections = 50`).
+/// - [`PgPoolConfig::for_worker`]: low-footprint background worker (default `max_connections = 5`).
+///
+/// Every field can be overridden via environment variables:
+/// - `DATABASE_MAX_CONNECTIONS`
+/// - `DATABASE_MIN_CONNECTIONS`
+/// - `DATABASE_ACQUIRE_TIMEOUT_SECS`
+/// - `DATABASE_IDLE_TIMEOUT_SECS` (`0` disables the timeout)
+/// - `DATABASE_MAX_LIFETIME_SECS` (`0` disables the lifetime)
+#[derive(Debug, Clone)]
+pub struct PgPoolConfig {
+    pub max_connections: u32,
+    pub min_connections: u32,
+    pub acquire_timeout: std::time::Duration,
+    pub idle_timeout: Option<std::time::Duration>,
+    pub max_lifetime: Option<std::time::Duration>,
+}
+
+impl Default for PgPoolConfig {
+    fn default() -> Self {
+        Self::for_api()
+    }
+}
+
+impl PgPoolConfig {
+    /// Preset for the REST API: keeps the historical high connection ceiling.
+    pub fn for_api() -> Self {
+        Self {
+            max_connections: 50,
+            min_connections: 0,
+            acquire_timeout: std::time::Duration::from_secs(3),
+            idle_timeout: Some(std::time::Duration::from_secs(600)),
+            max_lifetime: Some(std::time::Duration::from_secs(1800)),
+        }
+    }
+
+    /// Preset for the background worker: 2 bulk writes / cycle + a few
+    /// point reads, so a handful of connections is plenty and saves ~10-20 MiB RSS.
+    pub fn for_worker() -> Self {
+        Self {
+            max_connections: 5,
+            min_connections: 0,
+            acquire_timeout: std::time::Duration::from_secs(3),
+            idle_timeout: Some(std::time::Duration::from_secs(60)),
+            max_lifetime: Some(std::time::Duration::from_secs(300)),
+        }
+    }
+
+    /// Same as [`PgPoolConfig::for_api`] with `DATABASE_*` env overrides applied.
+    pub fn for_api_from_env() -> Self {
+        Self::for_api().with_env_overrides()
+    }
+
+    /// Same as [`PgPoolConfig::for_worker`] with `DATABASE_*` env overrides applied.
+    pub fn for_worker_from_env() -> Self {
+        Self::for_worker().with_env_overrides()
+    }
+
+    /// Override every field from `DATABASE_*` env vars when set and valid.
+    pub fn with_env_overrides(mut self) -> Self {
+        if let Some(v) = read_env_u32("DATABASE_MAX_CONNECTIONS") {
+            self.max_connections = v.max(1);
+        }
+        if let Some(v) = read_env_u32("DATABASE_MIN_CONNECTIONS") {
+            self.min_connections = v;
+        }
+        if let Some(v) = read_env_secs("DATABASE_ACQUIRE_TIMEOUT_SECS") {
+            self.acquire_timeout = v;
+        }
+        if let Some(v) = read_env_opt_secs("DATABASE_IDLE_TIMEOUT_SECS") {
+            self.idle_timeout = v;
+        }
+        if let Some(v) = read_env_opt_secs("DATABASE_MAX_LIFETIME_SECS") {
+            self.max_lifetime = v;
+        }
+        if self.min_connections > self.max_connections {
+            warn!(
+                "DATABASE_MIN_CONNECTIONS ({}) > DATABASE_MAX_CONNECTIONS ({}), clamping min",
+                self.min_connections, self.max_connections
+            );
+            self.min_connections = self.max_connections;
+        }
+        self
+    }
+
+    fn apply_to(&self, mut options: PgPoolOptions) -> PgPoolOptions {
+        options = options
+            .max_connections(self.max_connections)
+            .min_connections(self.min_connections)
+            .acquire_timeout(self.acquire_timeout);
+        if let Some(d) = self.idle_timeout {
+            options = options.idle_timeout(d);
+        } else {
+            options = options.idle_timeout(None);
+        }
+        if let Some(d) = self.max_lifetime {
+            options = options.max_lifetime(d);
+        } else {
+            options = options.max_lifetime(None);
+        }
+        options
+    }
+}
+
+fn read_env_u32(key: &str) -> Option<u32> {
+    match std::env::var(key) {
+        Ok(raw) => match raw.trim().parse::<u32>() {
+            Ok(v) => Some(v),
+            Err(_) => {
+                warn!("Ignoring invalid {key}={raw:?}: expected a positive integer");
+                None
+            }
+        },
+        Err(_) => None,
+    }
+}
+
+fn read_env_secs(key: &str) -> Option<std::time::Duration> {
+    match std::env::var(key) {
+        Ok(raw) => match raw.trim().parse::<u64>() {
+            Ok(v) => Some(std::time::Duration::from_secs(v)),
+            Err(_) => {
+                warn!("Ignoring invalid {key}={raw:?}: expected seconds as integer");
+                None
+            }
+        },
+        Err(_) => None,
+    }
+}
+
+/// `0` disables the timeout (maps to `None`), unset keeps the preset default.
+fn read_env_opt_secs(key: &str) -> Option<Option<std::time::Duration>> {
+    read_env_secs(key).map(|d| if d.is_zero() { None } else { Some(d) })
+}
 
 #[derive(Clone)]
 pub struct PostgresRepository {
@@ -28,10 +166,23 @@ impl PostgresRepository {
         Self { pool }
     }
 
+    /// Historical entry point, kept for compatibility.
+    /// Uses the API preset (max 50) + `DATABASE_*` env overrides.
     pub async fn from_url(url: String) -> Result<Self, String> {
-        let pool = PgPoolOptions::new()
-            .max_connections(50)
-            .acquire_timeout(std::time::Duration::from_secs(3))
+        Self::from_url_with_config(url, PgPoolConfig::for_api_from_env()).await
+    }
+
+    pub async fn from_url_with_config(url: String, config: PgPoolConfig) -> Result<Self, String> {
+        info!(
+            "PostgreSQL pool: max={} min={} acquire={:?} idle={:?} lifetime={:?}",
+            config.max_connections,
+            config.min_connections,
+            config.acquire_timeout,
+            config.idle_timeout,
+            config.max_lifetime
+        );
+        let pool = config
+            .apply_to(PgPoolOptions::new())
             .connect(&url)
             .await
             .map_err(|e| e.to_string())?;
@@ -47,7 +198,7 @@ impl PostgresRepository {
 
 #[async_trait]
 impl Repository for PostgresRepository {
-    async fn save_pings(&self, records: &Vec<Record>) -> Result<(), String> {
+    async fn save_pings(&self, records: &[Record]) -> Result<(), String> {
         if records.is_empty() {
             return Ok(());
         }
@@ -58,7 +209,7 @@ impl Repository for PostgresRepository {
         query_builder.push_values(records, |mut b, record| {
             b.push_bind(record.server_id as i32)
                 .push_bind(record.date)
-                .push_bind(record.value as i32);
+                .push_bind(record.value);
         });
 
         let query = query_builder.build();

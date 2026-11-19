@@ -143,6 +143,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   "@type": "WebSite",
                   "@id": `${APP_URL}/#website`,
                   "name": "Minecraft-Stats",
+                  "alternateName": "Minecraft Stats",
                   "url": APP_URL,
                   "description": translateMeta(lang, "seo.homeDescription"),
                   "publisher": { "@id": `${APP_URL}/#organization` },

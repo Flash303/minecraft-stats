@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Log ind",
     "admin": "Admin",
     "openMenu": "Åbn menu",
@@ -445,6 +445,18 @@
     "subscribeError": "Aktivering af notifikationer mislykkedes.",
     "unsubscribeError": "Deaktivering af notifikationer mislykkedes."
   },
+  "notifications": {
+    "push": {
+      "title": "Serveradvarsel: {{name}}",
+      "fallbackTitle": "Minecraft-advarsel",
+      "fallbackBody": "Ændring registreret",
+      "statusToOffline": "Serveren {{name}} er lige gået offline!",
+      "statusToOnline": "Serveren {{name}} er online igen!",
+      "playerAbove": "Antallet af spillere på {{name}} har oversteget {{threshold}} (aktuelt: {{current}})!",
+      "playerBelow": "Antallet af spillere på {{name}} er faldet under {{threshold}} (aktuelt: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraft-serveranalyse",
     "homeDescription": "Følg statistik for dine Minecraft-servere: spillere i realtid, historik, oppetid og brugerdefinerede advarsler. Understøtter Java & Bedrock.",

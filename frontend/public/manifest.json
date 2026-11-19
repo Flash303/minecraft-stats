@@ -1,5 +1,5 @@
 {
-  "name": "Minecraft Stats",
+  "name": "Minecraft-Stats",
   "short_name": "MC Stats",
   "description": "Track Minecraft server players, uptime and stats in real time.",
   "start_url": "/",

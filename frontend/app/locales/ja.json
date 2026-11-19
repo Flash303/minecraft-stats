@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "サインイン",
     "admin": "管理",
     "openMenu": "メニューを開く",
@@ -445,6 +445,18 @@
     "subscribeError": "通知の有効化に失敗しました。",
     "unsubscribeError": "通知の無効化に失敗しました。"
   },
+  "notifications": {
+    "push": {
+      "title": "サーバーアラート: {{name}}",
+      "fallbackTitle": "Minecraft アラート",
+      "fallbackBody": "変更を検出",
+      "statusToOffline": "サーバー {{name}} がオフラインになりました！",
+      "statusToOnline": "サーバー {{name}} がオンラインに復帰しました！",
+      "playerAbove": "{{name}} のプレイヤー数が {{threshold}} を超えました（現在: {{current}}）！",
+      "playerBelow": "{{name}} のプレイヤー数が {{threshold}} を下回りました（現在: {{current}}）！"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Minecraftサーバーアナリティクス",
     "homeDescription": "Minecraftサーバーのアナリティクス、プレイヤー数、アップタイムを追跡します。JavaおよびBedrock管理者向けのリアルタイムアラートと統計。",

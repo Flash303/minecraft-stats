@@ -18,7 +18,7 @@ use axum::{extract::DefaultBodyLimit, http::Method};
 use dashmap::DashMap;
 use log::info;
 use minecraft_pinger::MinecraftPinger;
-use repository::postgres::PostgresRepository;
+use repository::postgres::{PgPoolConfig, PostgresRepository};
 use reqwest::Client;
 use services::clerk::account_checker::{JwksStore, fetch_clerk_jwks};
 use std::env;
@@ -51,7 +51,9 @@ async fn main() {
         "postgres://anuser:password@localhost:5432/minecraft-stats".to_string()
     });
 
-    let result = PostgresRepository::from_url(database_url).await;
+    let result =
+        PostgresRepository::from_url_with_config(database_url, PgPoolConfig::for_api_from_env())
+            .await;
     if let Err(err) = result {
         info!("Error on database init: {}", err);
         return;
@@ -60,7 +62,7 @@ async fn main() {
 
     // Init clerk - Auth
     let clerk_instance = env::var("CLERK_URL");
-    if let Err(_) = clerk_instance {
+    if clerk_instance.is_err() {
         info!("Please provide a CLERK_URL environment variable.");
         return;
     }
@@ -77,12 +79,12 @@ async fn main() {
 
     // Init clerk - API
     let clerk_secret_key = env::var("CLERK_SECRET_KEY");
-    if let Err(_) = clerk_secret_key {
+    if clerk_secret_key.is_err() {
         info!(
             "Please provide a CLERK_SECRET_KEY environment variable, some functionality may not work as expected."
         );
     }
-    let clerk_secret_key: Option<String> = clerk_secret_key.ok().map(|s| s.into());
+    let clerk_secret_key: Option<String> = clerk_secret_key.ok();
 
     // Service key for scripts (no expiry, unlike Clerk JWTs). Optional.
     let admin_api_key: Option<String> = env::var("ADMIN_API_KEY")

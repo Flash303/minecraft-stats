@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Přihlásit",
     "admin": "Admin",
     "openMenu": "Otevřít menu",
@@ -445,6 +445,18 @@
     "subscribeError": "Zapnutí notifikací selhalo.",
     "unsubscribeError": "Vypnutí notifikací selhalo."
   },
+  "notifications": {
+    "push": {
+      "title": "Upozornění serveru: {{name}}",
+      "fallbackTitle": "Upozornění Minecraft",
+      "fallbackBody": "Zjištěna změna",
+      "statusToOffline": "Server {{name}} právě přešel do režimu offline!",
+      "statusToOnline": "Server {{name}} je opět online!",
+      "playerAbove": "Počet hráčů na serveru {{name}} překročil {{threshold}} (aktuálně: {{current}})!",
+      "playerBelow": "Počet hráčů na serveru {{name}} klesl pod {{threshold}} (aktuálně: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Analytika Minecraft serverů",
     "homeDescription": "Sleduj statistiky svých Minecraft serverů: hráči v reálném čase, historie, uptime a vlastní upozornění. Podpora Java & Bedrock.",

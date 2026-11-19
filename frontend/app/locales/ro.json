@@ -60,7 +60,7 @@
     ]
   },
   "header": {
-    "title": "Minecraft Stats",
+    "title": "Minecraft-Stats",
     "signIn": "Conectare",
     "admin": "Admin",
     "openMenu": "Deschide meniul",
@@ -445,6 +445,18 @@
     "subscribeError": "Activarea notificărilor a eșuat.",
     "unsubscribeError": "Dezactivarea notificărilor a eșuat."
   },
+  "notifications": {
+    "push": {
+      "title": "Alertă server: {{name}}",
+      "fallbackTitle": "Alertă Minecraft",
+      "fallbackBody": "Schimbare detectată",
+      "statusToOffline": "Serverul {{name}} tocmai a trecut offline!",
+      "statusToOnline": "Serverul {{name}} este din nou online!",
+      "playerAbove": "Numărul de jucători de pe {{name}} a depășit {{threshold}} (actual: {{current}})!",
+      "playerBelow": "Numărul de jucători de pe {{name}} a scăzut sub {{threshold}} (actual: {{current}})!"
+    }
+  }
+,
   "seo": {
     "homeTitle": "Minecraft-Stats | Analize servere Minecraft",
     "homeDescription": "Urmărește statisticile serverelor tale Minecraft: jucători în timp real, istoric, uptime și alerte personalizate. Suport Java & Bedrock.",

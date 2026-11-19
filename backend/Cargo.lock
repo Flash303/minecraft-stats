@@ -4692,6 +4692,7 @@ dependencies = [
  "openssl",
  "repository",
  "reqwest",
+ "serde",
  "serde_json",
  "time",
  "tokio",
