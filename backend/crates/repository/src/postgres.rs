@@ -153,13 +153,7 @@ fn read_env_secs(key: &str) -> Option<std::time::Duration> {
 
 /// `0` disables the timeout (maps to `None`), unset keeps the preset default.
 fn read_env_opt_secs(key: &str) -> Option<Option<std::time::Duration>> {
-    read_env_secs(key).map(|d| {
-        if d.is_zero() {
-            None
-        } else {
-            Some(d)
-        }
-    })
+    read_env_secs(key).map(|d| if d.is_zero() { None } else { Some(d) })
 }
 
 #[derive(Clone)]
@@ -178,10 +172,7 @@ impl PostgresRepository {
         Self::from_url_with_config(url, PgPoolConfig::for_api_from_env()).await
     }
 
-    pub async fn from_url_with_config(
-        url: String,
-        config: PgPoolConfig,
-    ) -> Result<Self, String> {
+    pub async fn from_url_with_config(url: String, config: PgPoolConfig) -> Result<Self, String> {
         info!(
             "PostgreSQL pool: max={} min={} acquire={:?} idle={:?} lifetime={:?}",
             config.max_connections,
