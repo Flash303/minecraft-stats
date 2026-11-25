@@ -1,6 +1,6 @@
 services:
     postgres:
-        image: timescale/timescaledb:2.32.0-pg18
+        image: timescale/timescaledb:2.32.1-pg18
         container_name: postgres
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
@@ -48,7 +48,7 @@ services:
             VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
 
     loki:
-        image: grafana/loki:3.7.9
+        image: grafana/loki:3.7.10
         container_name: loki
         command: -config.file=/etc/loki/local-config.yaml
         volumes:
