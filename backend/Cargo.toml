@@ -4,7 +4,7 @@ members = ["worker", "rest-api"]
 
 [workspace.dependencies]
 repository = { path = "./crates/repository" }
-minecraft-pinger = "1.0.1"
+minecraft-pinger = "1.0.2"
 
 log = "0.4.*"
 env_logger = "0.11.*"
@@ -25,7 +25,12 @@ sha2 = "0.11.*"
 openssl = { version = "0.10.*", features = ["vendored"] }
 
 # Only crates/repository
-sqlx = { version = "0.9.0", features = ["runtime-tokio", "tls-rustls", "time", "postgres"] }
+sqlx = { version = "0.9.0", features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "time",
+    "postgres",
+] }
 
 hickory-resolver = { version = "0.26.*", features = ["tokio"] }
 hickory-proto = "0.26.*"
