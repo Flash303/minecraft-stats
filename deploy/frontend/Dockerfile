@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Source de vérité de la version de Bun : la CI lit ce tag (job `frontend`).
-FROM oven/bun:1.4.4-alpine AS builder
+FROM oven/bun:1.4.5-alpine AS builder
 
 ENV CI=true
 
@@ -28,7 +28,7 @@ WORKDIR /app/frontend
 RUN bun run build
 
 # Final Stage (Bun SSR)
-FROM oven/bun:1.4.4-alpine
+FROM oven/bun:1.4.5-alpine
 
 WORKDIR /app
 
